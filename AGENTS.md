@@ -16,6 +16,9 @@ When the user intent matches one of the commands below, read and follow that fil
 - `review code`, `code review`, `review changes` -> `commands/review-code.md`
 - `pr description`, `write pr`, `draft pr` -> `commands/pr-description.md`
 - `kill port`, `port 3000`, `eaddrinuse` -> `commands/safe-kill-port.md`
+- `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
+- `new component`, `scaffold`, `create component` -> `commands/scaffold-component.md`
+- `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
 
 Rules for command execution:
 
@@ -37,6 +40,14 @@ Custom skills live in `skills/`.
 - Only treat a skill as active when it contains a valid `SKILL.md` with `name` and `description` metadata.
 - Trigger a skill when user intent clearly matches the skill description or when user explicitly names it.
 - Load only the minimum needed content from each skill (progressive disclosure).
+
+### MCP Definitions
+
+Canonical MCP server definitions live in `mcp/`.
+
+- Keep `mcp/servers.json` as the source of truth.
+- Prefer environment variables for secrets.
+- Sync into namespaced client folders to avoid overwriting active local MCP config.
 
 ## Output and Safety
 

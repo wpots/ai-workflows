@@ -42,6 +42,36 @@
       "problemMatcher": []
     },
     {
+      "label": "commit-message",
+      "type": "shell",
+      "command": "cat commands/commit-message.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "scaffold-component",
+      "type": "shell",
+      "command": "cat commands/scaffold-component.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "new-device-setup",
+      "type": "shell",
+      "command": "cat commands/new-device-setup.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "validate-ai-instructions",
       "type": "shell",
       "command": "./scripts/validate-ai-instructions.sh",
