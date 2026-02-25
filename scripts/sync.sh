@@ -11,6 +11,7 @@ TARGET_CURSOR="$HOME/.cursor"
 TARGET_CURSOR_BUSINESS="$HOME/.cursor-business"
 TARGET_ROO="$HOME/.roo"
 TARGET_CODEX="$HOME/.codex"
+TARGET_CURSOR_SKILLS_SUBPATH="skills-cursor/ai-workflows"
 
 PROFILE="all"
 DRY_RUN=0
@@ -87,6 +88,20 @@ fi
 
 if [[ -d "$SRC_RULES" && -d "$TARGET_ROO" && ( "$PROFILE" == "all" || "$PROFILE" == "personal" ) ]]; then
   sync_dir "$SRC_RULES" "$TARGET_ROO/rules-code"
+fi
+
+# Cursor: sync custom skills into a namespaced folder to avoid clobbering
+# any existing skills in the root skills-cursor directory.
+if [[ -d "$SRC_SKILLS" && ( "$PROFILE" == "all" || "$PROFILE" == "personal" ) ]]; then
+  if [[ -d "$TARGET_CURSOR" ]]; then
+    sync_dir "$SRC_SKILLS" "$TARGET_CURSOR/$TARGET_CURSOR_SKILLS_SUBPATH"
+  fi
+fi
+
+if [[ -d "$SRC_SKILLS" && ( "$PROFILE" == "all" || "$PROFILE" == "work" ) ]]; then
+  if [[ -d "$TARGET_CURSOR_BUSINESS" ]]; then
+    sync_dir "$SRC_SKILLS" "$TARGET_CURSOR_BUSINESS/$TARGET_CURSOR_SKILLS_SUBPATH"
+  fi
 fi
 
 # Codex: never touch system skills; sync only custom skills if present.

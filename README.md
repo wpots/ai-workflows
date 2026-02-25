@@ -16,6 +16,25 @@ This repo is the **single source of truth** for:
 - `skills/` - your custom skills
 - `scripts/sync.sh` - deploys this repo into local config folders
 
+## AI Behavior
+
+Use a single-source + adapters model.
+
+- Canonical policy: `AGENTS.md`
+- Baseline defaults: `rules/rules.md`
+- Operational runbooks: `commands/*.md`
+- GitHub Copilot adapter: `.github/copilot-instructions.md`
+- VS Code runnable entries: `.vscode/tasks.json`
+- Drift validation: `scripts/validate-ai-instructions.sh`
+
+### Add A New Command Mapping
+
+1. Add or update the runbook in `commands/`.
+2. Add intent mapping in `AGENTS.md`.
+3. Mirror the mapping in `.github/copilot-instructions.md`.
+4. Add or update a task in `.vscode/tasks.json`.
+5. Run `./scripts/validate-ai-instructions.sh`.
+
 ## How Sync Works
 
 Run:
@@ -29,6 +48,8 @@ The script syncs from this repo to:
 - `~/.cursor/commands`
 - `~/.cursor-business/commands`
 - `~/.roo/rules-code`
+- `~/.cursor/skills-cursor/ai-workflows`
+- `~/.cursor-business/skills-cursor/ai-workflows`
 - `~/.codex/skills/custom`
 
 It uses `rsync -av --delete`, so the target folders become an exact mirror of this repo's source folders.
@@ -60,6 +81,8 @@ Examples:
 - Codex system skills are not touched.
   - The script only writes to `~/.codex/skills/custom`.
   - It does **not** modify `~/.codex/skills/.system`.
+- Cursor skills are written to `skills-cursor/ai-workflows` only.
+  - This avoids deleting or replacing existing non-managed skills in `skills-cursor/`.
 - If a target product folder does not exist on a device, that target is skipped.
 
 ## First-Time Setup On A New Device

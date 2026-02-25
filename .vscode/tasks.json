@@ -1,0 +1,55 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "run-checks",
+      "type": "shell",
+      "command": "cat commands/run-checks.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "review-code",
+      "type": "shell",
+      "command": "cat commands/review-code.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "pr-description",
+      "type": "shell",
+      "command": "cat commands/pr-description.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "safe-kill-port",
+      "type": "shell",
+      "command": "cat commands/safe-kill-port.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "validate-ai-instructions",
+      "type": "shell",
+      "command": "./scripts/validate-ai-instructions.sh",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
