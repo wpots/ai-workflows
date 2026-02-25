@@ -33,6 +33,28 @@ The script syncs from this repo to:
 
 It uses `rsync -av --delete`, so the target folders become an exact mirror of this repo's source folders.
 
+### Profiles
+
+- `all` (default): sync personal + work targets
+- `personal`: sync `~/.cursor`, `~/.roo`, `~/.codex`
+- `work`: sync `~/.cursor-business` only
+
+Examples:
+
+```bash
+# sync everything
+./scripts/sync.sh
+
+# only personal environments
+./scripts/sync.sh --profile personal
+
+# only work environment
+./scripts/sync.sh --profile work
+
+# preview changes without writing
+./scripts/sync.sh --profile all --dry-run
+```
+
 ## Safety Rules
 
 - Codex system skills are not touched.
