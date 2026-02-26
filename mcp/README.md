@@ -11,7 +11,6 @@ Canonical MCP server definitions for this workflow repo.
 `scripts/sync.sh` mirrors this folder to:
 
 - `~/.cursor/mcp/ai-workflows`
-- `~/.cursor-business/mcp/ai-workflows`
 
 ## Activation
 
