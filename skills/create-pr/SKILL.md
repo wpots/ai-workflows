@@ -16,9 +16,21 @@ Use this skill when the user asks to create, open, or submit a pull request (or 
 
 ## Steps
 
-### 1. Detect Platform
+### 1. Resolve Remote
 
-Determine the hosting platform from the `origin` remote URL:
+Determine which remote to target:
+
+1. If the current branch already tracks a remote branch, use that remote.
+2. Otherwise, if only one remote exists, use it.
+3. If multiple remotes exist and none is tracked, ask the user.
+
+Store the resolved remote name (e.g. `origin`, `upstream`, `fork`) — use it
+for all subsequent remote-prefixed operations (`<remote>/main`, `git push -u <remote> HEAD`, etc.).
+
+### 2. Detect Platform
+
+Determine the hosting platform from the resolved remote URL
+(`git remote get-url <remote>`):
 
 | Remote URL contains | Platform | CLI    |
 |---------------------|----------|--------|
@@ -27,22 +39,22 @@ Determine the hosting platform from the `origin` remote URL:
 
 If the platform cannot be inferred, ask the user.
 
-### 2. Pre-flight Checks
+### 3. Pre-flight Checks
 
 1. Verify the detected CLI is authenticated — abort with a clear message if not.
 2. Run `git status` — warn the user if there are uncommitted changes and ask whether to proceed.
 
-### 3. Base Branch Resolution
+### 4. Base Branch Resolution
 
 Use the first existing remote branch in this order:
 
-1. `origin/development`
-2. `origin/main`
-3. `origin/master`
+1. `<remote>/development`
+2. `<remote>/main`
+3. `<remote>/master`
 
 If none exists, ask the user which base branch to use.
 
-### 4. PR Template
+### 5. PR Template
 
 Look for a PR/MR body template in this order:
 
@@ -53,14 +65,16 @@ Look for a PR/MR body template in this order:
 | 2 | `.github/PULL_REQUEST_TEMPLATE/*.md` (first file) | GitHub |
 | 2 | `.gitlab/merge_request_templates/*.md` (first file) | GitLab |
 | 3 | `docs/pull_request_template.md` | Either |
+| 4 | `templates/pull_request_template.md` in this repo (ai-workflows) | Fallback |
 
 If a template is found, use its structure as the body skeleton and fill in each
 section from the diff analysis. Keep any headings or checkboxes the template
 defines.
 
-If no template is found, use the default structure below.
+The bundled fallback template (`templates/pull_request_template.md`) ships with
+this repo and is always available as a last resort.
 
-### 5. Generate PR Content
+### 6. Generate PR Content
 
 Diff the current branch against the resolved base branch and produce:
 
@@ -74,9 +88,9 @@ Diff the current branch against the resolved base branch and produce:
 When a template is present, map these sections into the template's headings
 instead of using the defaults above verbatim.
 
-### 6. Push & Create PR
+### 7. Push & Create PR
 
-1. Push the branch: `git push -u origin HEAD`.
+1. Push the branch: `git push -u <remote> HEAD`.
 2. Create the PR/MR:
 
 **GitHub:**
@@ -99,7 +113,7 @@ glab mr create \
 
 3. Output the PR/MR URL on success.
 
-### 7. Error Handling
+### 8. Error Handling
 
 - If push fails (e.g. no upstream, auth error), surface the error and stop.
 - If PR/MR creation fails, show the error. Do not retry automatically.
