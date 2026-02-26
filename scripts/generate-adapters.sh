@@ -138,6 +138,29 @@ done < "$MAPPINGS_FILE"
 
 echo "  [ok] .vscode/tasks.json"
 
+# ── Generate .github/prompts/*.prompt.md from commands ────────────────────────
+
+PROMPTS_DIR="$ROOT_DIR/.github/prompts"
+mkdir -p "$PROMPTS_DIR"
+
+echo "Generating Copilot prompt files..."
+
+for cmd_file in "$COMMANDS_DIR"/*.md; do
+  cmd_name="$(basename "$cmd_file" .md)"
+  heading="$(head -1 "$cmd_file" | sed 's/^# *//')"
+  prompt_file="$PROMPTS_DIR/${cmd_name}.prompt.md"
+
+  {
+    printf -- '---\n'
+    printf 'name: %s\n' "$cmd_name"
+    printf 'description: "%s"\n' "$heading"
+    printf -- '---\n\n'
+    cat "$cmd_file"
+  } > "$prompt_file"
+
+  echo "  [ok] .github/prompts/${cmd_name}.prompt.md"
+done
+
 # ── Verify referenced command files exist ────────────────────────────────────
 
 echo "Checking command files exist..."

@@ -14,7 +14,7 @@ Command files live in `commands/` and serve two purposes:
    Roo). Those tools use these files directly via their own config adapters.
 2. **Fallback dispatch** for workflows that do not yet have a skill.
 
-Skill-backed workflows (commit-message, scaffold-component, pr-description,
+Skill-backed workflows (commit-message, scaffold-component, create-pr,
 code-review, run-checks, architecture-review) are dispatched via the Skills
 section below. Do not duplicate their intent mappings here.
 
@@ -56,7 +56,7 @@ Available skills:
 | --------------------- | ------------------------------------------------------------------------------------------- |
 | `commit-message`      | commit message, write commit, git commit                                                    |
 | `scaffold-component`  | new component, scaffold, create component                                                   |
-| `pr-description`      | pr description, write pr, draft pr                                                          |
+| `create-pr`           | create pr, open pr, submit pr                                                               |
 | `code-review`         | review code, code review, review changes                                                    |
 | `run-checks`          | run checks, run-checks, quality checks                                                      |
 | `architecture-review` | review architecture, check clean arch, architecture audit, layer violation, check structure |

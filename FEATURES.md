@@ -10,7 +10,7 @@ Operational runbooks in `commands/`. Triggered by natural language intent.
 |---------|------|--------------|-----------------|
 | Commit Message | `commands/commit-message.md` | Generate a conventional commit message from staged diff | `commit message`, `write commit`, `git commit` |
 | Scaffold Component | `commands/scaffold-component.md` | Create a new React component with correct file structure and conventions | `new component`, `scaffold`, `create component` |
-| PR Description | `commands/pr-description.md` | Generate a structured PR description against best available base branch | `pr description`, `write pr`, `draft pr` |
+| Create PR | `commands/create-pr.md` | Push branch and create a GitHub PR or GitLab MR with structured description | `create pr`, `open pr`, `submit pr` |
 | Code Review | `commands/review-code.md` | Review code changes against remote base branch | `review code`, `code review`, `review changes` |
 | Run Checks | `commands/run-checks.md` | Run lint, type-check, stylelint, test, build in sequence | `run checks`, `run-checks`, `quality checks` |
 | Safe Kill Port | `commands/safe-kill-port.md` | Stop a process on a port safely (default: 3000) | `kill port`, `port 3000`, `eaddrinuse` |
@@ -24,7 +24,7 @@ Self-describing workflows in `skills/`. Each has a `SKILL.md` with frontmatter m
 |-------|-------------|----------------------|
 | `commit-message` | Generate a conventional commit message from staged or unstaged diff | Yes |
 | `scaffold-component` | Create a new React component with correct file structure, templates, and project conventions | Yes |
-| `pr-description` | Generate a structured PR description from branch diff, including change categories and testing notes | Yes |
+| `create-pr` | Push branch and create a GitHub PR or GitLab MR with structured description from branch diff | Yes |
 | `code-review` | Review current branch changes against remote base branch with severity-ordered findings and actionable fixes | Yes |
 | `run-checks` | Run project quality checks sequentially, stop on failures for user decision, summarize results | Yes |
 | `architecture-review` | Review codebase for clean architecture violations — probes folder structure, maps to CA layers, checks principles | No (skill only) |
@@ -69,5 +69,5 @@ Shows which tools consume which sources.
 | **Cursor** | via `AGENTS.md` | direct (`skills/`) | via user rules | via `mcp/servers.json` |
 | **Codex** | via `AGENTS.md` | direct (`skills/`) | via `AGENTS.md` | — |
 | **Claude CLI** | via `CLAUDE.md` | — | via `CLAUDE.md` | — |
-| **GitHub Copilot** | via `.github/copilot-instructions.md` | — | via `.github/copilot-instructions.md` | — |
+| **GitHub Copilot** | via `.github/prompts/*.prompt.md` | direct (`skills/` via settings) | via `.github/copilot-instructions.md` | via `.vscode/mcp.json` |
 | **Roo** | via sync to `~/.roo/` | — | via sync to `~/.roo/` | — |

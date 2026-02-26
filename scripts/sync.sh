@@ -73,12 +73,19 @@ if [[ -d "$SRC_COMMANDS" && -d "$TARGET_ROO" ]]; then
   sync_dir "$SRC_COMMANDS" "$TARGET_ROO/commands"
 fi
 
-if [[ -f "$SRC_CLAUDE_MD" && -d "$TARGET_CLAUDE" ]]; then
-  if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "[dry-run] cp $SRC_CLAUDE_MD $TARGET_CLAUDE/CLAUDE.md"
-  else
-    cp "$SRC_CLAUDE_MD" "$TARGET_CLAUDE/CLAUDE.md"
-    echo "Synced CLAUDE.md -> $TARGET_CLAUDE/CLAUDE.md"
+if [[ -d "$TARGET_CLAUDE" ]]; then
+  if [[ -f "$SRC_CLAUDE_MD" ]]; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] cp $SRC_CLAUDE_MD $TARGET_CLAUDE/CLAUDE.md"
+    else
+      cp "$SRC_CLAUDE_MD" "$TARGET_CLAUDE/CLAUDE.md"
+      echo "Synced CLAUDE.md -> $TARGET_CLAUDE/CLAUDE.md"
+    fi
+  fi
+
+  if [[ -d "$SRC_SKILLS" ]]; then
+    ensure_dir "$TARGET_CLAUDE/skills"
+    sync_dir "$SRC_SKILLS" "$TARGET_CLAUDE/skills"
   fi
 fi
 

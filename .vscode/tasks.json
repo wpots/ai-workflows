@@ -22,9 +22,9 @@
       "problemMatcher": []
     },
     {
-      "label": "pr-description",
+      "label": "create-pr",
       "type": "shell",
-      "command": "cat commands/pr-description.md",
+      "command": "cat commands/create-pr.md",
       "presentation": {
         "reveal": "always",
         "panel": "shared"
