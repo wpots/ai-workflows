@@ -71,10 +71,12 @@ Canonical MCP server definitions live in `mcp/`.
 
 ## Output and Safety
 
+<!-- BEGIN SHARED:safety -->
 - Prefer concrete execution over long planning.
 - Do not modify code unless requested.
-- For destructive actions (force kill, reset, delete), request confirmation unless already explicitly requested.
+- Ask before destructive actions (force kill, reset, delete) unless explicitly requested.
 - Always summarize what was run and what changed.
+<!-- END SHARED:safety -->
 
 ## Sync Source of Truth
 

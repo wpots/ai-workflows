@@ -1,0 +1,4 @@
+- Prefer concrete execution over long planning.
+- Do not modify code unless requested.
+- Ask before destructive actions (force kill, reset, delete) unless explicitly requested.
+- Always summarize what was run and what changed.
