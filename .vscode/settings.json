@@ -1,1 +1,14 @@
-{}
+{
+  "chat.promptFilesLocations": [
+    ".github/prompts",
+    "skills/*"
+  ],
+  "github.copilot.chat.codeGeneration.instructions": [
+    { "file": "rules/communication.md" },
+    { "file": "rules/project.md" },
+    { "file": "rules/clean-architecture.md" },
+    { "file": "rules/tailwind.md" },
+    { "file": "rules/testing.md" },
+    { "file": "rules/accessibility.md" }
+  ]
+}

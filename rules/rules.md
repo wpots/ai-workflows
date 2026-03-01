@@ -9,6 +9,7 @@ This directory contains focused rule files. Load the relevant file(s) for the cu
 | `tailwind.md`                 | Tailwind 4, design tokens, Figma export workflow                    |
 | `testing.md`                  | Jest + Storybook split, query priority, coverage                    |
 | `accessibility.md`            | WCAG requirements, ARIA, keyboard navigation                        |
+| `backlog.md`                  | User stories, backlog items, feature/bug file structure              |
 | `clean-architecture.md`       | Layer principles, dependency rules, forbidden patterns (all stacks) |
 | `stacks/nextjs-payload.md`    | Folder mapping + conventions for Next.js + Payload                  |
 | `stacks/react-native-expo.md` | Folder mapping + conventions for React Native + Expo                |
@@ -20,8 +21,9 @@ This directory contains focused rule files. Load the relevant file(s) for the cu
 3. Load `clean-architecture.md` whenever writing or reviewing code.
 4. Load `tailwind.md` when working on styles or design tokens.
 5. Load `testing.md` when writing or reviewing tests.
-6. Load `accessibility.md` when building interactive UI components.
-7. Load the appropriate stack file based on detected stack (see below).
+6. Load `backlog.md` when writing user stories, backlog items, or task specs.
+7. Load `accessibility.md` when building interactive UI components.
+8. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection
 
