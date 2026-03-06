@@ -162,6 +162,11 @@ if [[ -d "$TARGET_CLAUDE" ]]; then
     sync_dir "$SRC_COMMANDS" "$TARGET_CLAUDE/commands"
   fi
 
+  if [[ -d "$SRC_RULES" ]]; then
+    ensure_dir "$TARGET_CLAUDE/rules"
+    sync_dir "$SRC_RULES" "$TARGET_CLAUDE/rules"
+  fi
+
   if [[ -d "$SRC_SKILLS" ]]; then
     ensure_dir "$TARGET_CLAUDE/skills"
     sync_dir "$SRC_SKILLS" "$TARGET_CLAUDE/skills"
