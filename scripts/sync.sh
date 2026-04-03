@@ -255,8 +255,18 @@ if [[ -n "$PROJECT_DIR" ]]; then
     fi
   fi
 
-  # Generate Cursor conventions adapter if .cursor/ exists
-  if [[ -d "$PROJECT_DIR/.cursor" && -f "$SRC_TEMPLATES/project-cursor-conventions.mdc" ]]; then
+  # Sync rules/ to project root (single copy, all tools reference it)
+  if [[ -d "$SRC_RULES" ]]; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] sync rules -> rules/"
+    else
+      sync_dir "$SRC_RULES" "$PROJECT_DIR/rules"
+      echo "  [ok] rules/ (shared rules directory)"
+    fi
+  fi
+
+  # Generate Cursor conventions adapter pointing to rules/ and CONVENTIONS.md
+  if [[ -f "$SRC_TEMPLATES/project-cursor-conventions.mdc" ]]; then
     if [[ "$DRY_RUN" -eq 1 ]]; then
       echo "[dry-run] generate .cursor/rules/conventions.mdc"
     else

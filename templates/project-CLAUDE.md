@@ -1,14 +1,15 @@
 # CLAUDE.md
 
 Read `CONVENTIONS.md` for project-specific context, stack, structure, and conventions.
+Read `rules/` for baseline coding standards (shared across all projects).
 
 ## Precedence
 
 1. `CONVENTIONS.md` (project-specific conventions)
-2. This file (tool adapter)
-3. Global baseline rules from ai-workflows
+2. `rules/` (baseline coding standards)
+3. This file (tool adapter)
 
-When CONVENTIONS.md conflicts with global rules, CONVENTIONS.md wins.
+When CONVENTIONS.md conflicts with rules/, CONVENTIONS.md wins.
 
 ## Command Mapping
 

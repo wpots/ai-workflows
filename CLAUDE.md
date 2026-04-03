@@ -25,6 +25,7 @@ When user intent matches one of these prompts, read and follow the corresponding
 - `new component`, `scaffold`, `create component` -> `commands/scaffold-component.md`
 - `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
 - `init project`, `setup project`, `apply ai-workflows` -> `skills/init-project`
+- `upstream rule`, `propose rule`, `share rule change` -> `skills/upstream-rules`
 <!-- END SHARED:command-mappings -->
 
 Do not assume command files auto-run. Select and execute them when intent matches.

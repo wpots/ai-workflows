@@ -61,6 +61,7 @@ Available skills:
 | `run-checks`          | run checks, run-checks, quality checks                                                      |
 | `architecture-review` | review architecture, check clean arch, architecture audit, layer violation, check structure |
 | `init-project`        | init project, setup project, apply ai-workflows, initialize project                         |
+| `upstream-rules`      | upstream rule, propose rule, share rule change, sync rule back                               |
 
 ### MCP Definitions
 

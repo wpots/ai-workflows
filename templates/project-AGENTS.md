@@ -1,14 +1,15 @@
 # AGENTS.md
 
 Read `CONVENTIONS.md` for project-specific context, stack, structure, and conventions.
+Read `rules/` for baseline coding standards (shared across all projects).
 
 ## Precedence
 
 1. `CONVENTIONS.md` (project-specific conventions)
-2. This file (workflow dispatch)
-3. Global baseline rules from ai-workflows
+2. `rules/` (baseline coding standards)
+3. This file (workflow dispatch)
 
-When CONVENTIONS.md conflicts with global rules, CONVENTIONS.md wins.
+When CONVENTIONS.md conflicts with rules/, CONVENTIONS.md wins.
 
 ## Workflow Dispatch
 
@@ -25,6 +26,7 @@ Skills are the primary dispatch mechanism for repeatable workflows.
 | `run-checks`          | run checks, run-checks, quality checks                                                      |
 | `architecture-review` | review architecture, check clean arch, architecture audit, layer violation, check structure  |
 | `init-project`        | init project, setup project, apply ai-workflows, initialize project                         |
+| `upstream-rules`      | upstream rule, propose rule, share rule change, sync rule back                               |
 
 ### Command-Only Workflows
 
