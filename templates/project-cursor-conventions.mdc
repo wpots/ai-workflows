@@ -1,0 +1,6 @@
+---
+alwaysApply: true
+---
+Read `CONVENTIONS.md` in the project root for project-specific conventions.
+
+When CONVENTIONS.md conflicts with global rules, CONVENTIONS.md wins.

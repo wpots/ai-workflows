@@ -60,6 +60,7 @@ Available skills:
 | `code-review`         | review code, code review, review changes                                                    |
 | `run-checks`          | run checks, run-checks, quality checks                                                      |
 | `architecture-review` | review architecture, check clean arch, architecture audit, layer violation, check structure |
+| `init-project`        | init project, setup project, apply ai-workflows, initialize project                         |
 
 ### MCP Definitions
 

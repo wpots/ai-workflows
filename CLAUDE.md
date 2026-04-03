@@ -24,6 +24,7 @@ When user intent matches one of these prompts, read and follow the corresponding
 - `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
 - `new component`, `scaffold`, `create component` -> `commands/scaffold-component.md`
 - `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
+- `init project`, `setup project`, `apply ai-workflows` -> `skills/init-project`
 <!-- END SHARED:command-mappings -->
 
 Do not assume command files auto-run. Select and execute them when intent matches.
