@@ -11,9 +11,23 @@ Read `rules/` for baseline coding standards (shared across all projects).
 
 When CONVENTIONS.md conflicts with rules/, CONVENTIONS.md wins.
 
+## Shared Workflow Source
+
+When a change touches shared workflow assets in a reusable way, suggest
+upstreaming it to `~/Web/ai-workflows/` rather than keeping it only in this
+synced target repo.
+
+Shared workflow assets:
+
+- `rules/**`
+- `.github/prompts/**`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.cursor/rules/**`
+
 ## Command Mapping
 
-When user intent matches one of these prompts, read and follow the corresponding runbook:
+When user intent matches one of these prompts, read and follow the corresponding prompt or runbook:
 
 <!-- BEGIN SHARED:command-mappings -->
 <!-- END SHARED:command-mappings -->

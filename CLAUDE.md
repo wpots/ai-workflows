@@ -14,7 +14,7 @@ Read `rules/rules.md` before making project-level decisions.
 
 ## Command Mapping
 
-When user intent matches one of these prompts, read and follow the corresponding runbook:
+When user intent matches one of these prompts, skills, or command requests, read and follow the corresponding prompt, skill, or runbook:
 
 <!-- BEGIN SHARED:command-mappings -->
 - `run checks`, `run-checks`, `quality checks` -> `commands/run-checks.md`
@@ -23,10 +23,14 @@ When user intent matches one of these prompts, read and follow the corresponding
 - `kill port`, `port 3000`, `eaddrinuse` -> `commands/safe-kill-port.md`
 - `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
 - `new component`, `scaffold`, `create component` -> `commands/scaffold-component.md`
+- `component spec`, `spec component`, `write spec`, `spec out a component`, `document component api` -> `.github/prompts/component-spec.prompt.md`
 - `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
+<!-- END SHARED:command-mappings -->
+
+## Repo-Only Skill Shortcuts
+
 - `init project`, `setup project`, `apply ai-workflows` -> `skills/init-project`
 - `upstream rule`, `propose rule`, `share rule change` -> `skills/upstream-rules`
-<!-- END SHARED:command-mappings -->
 
 Do not assume command files auto-run. Select and execute them when intent matches.
 

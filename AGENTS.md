@@ -14,9 +14,9 @@ Command files live in `commands/` and serve two purposes:
    Roo). Those tools use these files directly via their own config adapters.
 2. **Fallback dispatch** for workflows that do not yet have a skill.
 
-Skill-backed workflows (commit-message, scaffold-component, create-pr,
-code-review, run-checks, architecture-review) are dispatched via the Skills
-section below. Do not duplicate their intent mappings here.
+Skill-backed workflows (commit-message, scaffold-component, component-spec,
+create-pr, code-review, run-checks, architecture-review) are dispatched via the
+Skills section below. Do not duplicate their intent mappings here.
 
 Command-only workflows (no skill equivalent):
 
@@ -56,12 +56,13 @@ Available skills:
 | --------------------- | ------------------------------------------------------------------------------------------- |
 | `commit-message`      | commit message, write commit, git commit                                                    |
 | `scaffold-component`  | new component, scaffold, create component                                                   |
+| `component-spec`      | component spec, spec component, write spec, spec out a component, document component api    |
 | `create-pr`           | create pr, open pr, submit pr                                                               |
 | `code-review`         | review code, code review, review changes                                                    |
 | `run-checks`          | run checks, run-checks, quality checks                                                      |
 | `architecture-review` | review architecture, check clean arch, architecture audit, layer violation, check structure |
 | `init-project`        | init project, setup project, apply ai-workflows, initialize project                         |
-| `upstream-rules`      | upstream rule, propose rule, share rule change, sync rule back                               |
+| `upstream-rules`      | upstream rule, propose rule, share rule change, sync rule back                              |
 
 ### MCP Definitions
 

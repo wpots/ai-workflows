@@ -13,9 +13,23 @@ No CONVENTIONS.md found. Run init-project to generate one.
 
 When project conventions conflict with global rules, project conventions win.
 
+## Shared Workflow Source
+
+When a change touches shared workflow assets in a reusable way, suggest
+upstreaming it to `~/Web/ai-workflows/` rather than keeping it only in this
+synced target repo.
+
+Treat these as shared workflow assets:
+
+- `rules/**`
+- `.github/prompts/**`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.cursor/rules/**`
+
 ## Command Mapping
 
-When user intent matches one of these prompts, read and follow the corresponding runbook:
+When user intent matches one of these prompts, read and follow the corresponding prompt or runbook:
 
 <!-- BEGIN SHARED:command-mappings -->
 <!-- END SHARED:command-mappings -->

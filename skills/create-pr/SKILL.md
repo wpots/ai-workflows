@@ -43,6 +43,16 @@ If the platform cannot be inferred, ask the user.
 
 1. Verify the detected CLI is authenticated — abort with a clear message if not.
 2. Run `git status` — warn the user if there are uncommitted changes and ask whether to proceed.
+3. Check whether the diff is primarily a shared AI workflow change. Treat these as shared workflow files:
+   - `rules/**`
+   - `.github/prompts/**`
+   - `AGENTS.md`
+   - `CLAUDE.md`
+   - `.cursor/rules/**`
+4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in `~/Web/ai-workflows/`. Ask whether to:
+   - create the PR from this repo anyway
+   - upstream the change in `ai-workflows` instead
+   - do both
 
 ### 4. Base Branch Resolution
 
