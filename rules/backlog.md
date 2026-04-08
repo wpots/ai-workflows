@@ -41,38 +41,51 @@ Every backlog item must follow this structure:
 # [Type]: [Title]
 
 ## Status
+
 <!-- draft | ready | in-progress | done -->
+
 draft
 
 ## Ticket
+
 <!-- PROJECT-123 or JS-103 -->
+
 PROJ-123
 
 ## Priority
+
 <!-- critical | high | medium | low -->
+
 medium
 
 ## Summary
+
 <!-- 1-2 sentence elevator pitch of what this item is about -->
 
 ## User Story
+
 <!-- As a [role], I want [goal], so that [benefit]. -->
 
 ## Acceptance Criteria
+
 <!-- Checklist a junior developer can verify against -->
+
 - [ ] ...
 - [ ] ...
 - [ ] ...
 
 ## Technical Notes
+
 <!-- Implementation hints, relevant files, dependencies, edge cases.
      Be specific enough that a junior developer can pick this up without
      asking follow-up questions. -->
 
 ## Out of Scope
+
 <!-- Explicitly state what this item does NOT cover -->
 
 ## Related
+
 <!-- Links to related items, PRs, or docs -->
 ```
 
