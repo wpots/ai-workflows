@@ -34,6 +34,16 @@
 - Prefer React Aria primitives when they materially improve accessibility and
   match project conventions
 
+## Rich Text Output Rules
+
+- Do not emit empty content elements: `<p></p>`, `<ul></ul>`, `<li></li>`. Remove or collapse them so output contains meaningful content.
+- Use `<hr>` only as a structural separator between thematic sections; do not use it purely for visual spacing or decoration.
+- Avoid consecutive line breaks: do not output more than one consecutive `<br>`; prefer paragraphs or CSS spacing instead.
+- Use `lang` attributes: when content (a section or element) is in a different language than the document, add `lang="..."` with the proper BCP 47 value (e.g., `lang="fr"`).
+- Prefer `<b>` / `<i>` for purely visual styling; reserve `<strong>` / `<em>` for semantic emphasis and accessibility cues.
+
+When adding a `lang` attribute, ensure any language-specific formatting or screen-reader pronunciation is considered.
+
 ## Component Checklist
 
 When building interactive components:

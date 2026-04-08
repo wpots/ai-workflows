@@ -133,8 +133,12 @@ PR body should include:
 
 After the PR is created, remind the developer:
 
-> Once merged, run `sync.sh` globally and `sync.sh --project` on
-> each project to pick up the changes.
+> Once merged, re-run `sync.sh --project <path>` on each project
+> that uses ai-workflows rules to pick up the changes.
+
+If the developer also has a global ai-workflows setup (`~/Web/ai-workflows`),
+suggest running `git pull && ./scripts/sync.sh` there as well — but do not
+assume this exists.
 
 ## Constraints
 

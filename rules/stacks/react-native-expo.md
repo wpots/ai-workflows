@@ -118,8 +118,14 @@ interface Product {
 ### Platform-specific code in infrastructure
 
 Use `.ios.ts` / `.android.ts` extensions or explicit platform checks only
-inside `infrastructure/`. Presentation and application layers must be
-platform-agnostic.
+inside `infrastructure/`. Presentation and application layers should remain
+platform-agnostic whenever possible.
+
+There is a valid exception for platform-specific UI components where a
+React Native package is unavailable or unsupported on web. In that case,
+use platform-specific component files under `presentation/components`
+(e.g. `MyButton.web.ts`, `MyButton.native.ts`) rather than introducing
+platform checks in shared presentation code.
 
 ```ts
 // ✅ infrastructure/storage/secureStorage.ios.ts

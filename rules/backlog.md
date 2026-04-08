@@ -30,6 +30,9 @@ docs/
 - Use kebab-case for the rest of the name.
 - Extension: `.md`
 
+- Optionally prepend the project ticket key before the type: `JS-103-feat-user-authentication.md`.
+  - Use an uppercase project acronym and numeric ID (e.g. `PROJ-123`), keep hyphen separators, and preserve kebab-case for the descriptive part.
+
 ## File Template
 
 Every backlog item must follow this structure:
@@ -40,6 +43,10 @@ Every backlog item must follow this structure:
 ## Status
 <!-- draft | ready | in-progress | done -->
 draft
+
+## Ticket
+<!-- PROJECT-123 or JS-103 -->
+PROJ-123
 
 ## Priority
 <!-- critical | high | medium | low -->
@@ -83,3 +90,7 @@ medium
 - When updating a backlog item, edit the existing file — do not create duplicates.
 - Update the `Status` field when work begins or completes.
 - Append to `Technical Notes` rather than overwriting when adding context.
+
+## Recent Rules Updates
+
+- 2026-04-08: Added "Rich Text Output Rules" to `rules/accessibility.md` — rules include: do not emit empty content elements (`<p>`, `<ul>`, `<li>`), use `<hr>` only as a structural separator, avoid consecutive `<br>` tags, require `lang` attributes for different-language content, and prefer `<b>`/`<i>` for purely visual styling instead of `<strong>`/`<em>`.
