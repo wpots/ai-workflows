@@ -30,7 +30,8 @@ Changes to shared AI workflow assets should usually be proposed upstream in
 Treat these as shared workflow assets:
 
 - `rules/**`
-- `.github/prompts/**`
+- `commands/**`
+- `.github/prompts/**` (generated from commands/)
 - `AGENTS.md`
 - `CLAUDE.md`
 - `.cursor/rules/**`
@@ -39,9 +40,14 @@ When a task changes those files in a generally reusable way, proactively
 suggest creating a PR in `ai-workflows` so the change can be synced back into
 target repos.
 
-### Command-Only Workflows
+### Command Runbooks
 
-_(no command-only workflows synced by default — use `--include-experimental` to sync all)_
+When user intent matches a trigger phrase, read and follow the corresponding runbook in `commands/`.
+
+<!-- BEGIN SHARED:command-mappings -->
+<!-- END SHARED:command-mappings -->
+
+Do not assume command files auto-run. Select and execute them when intent matches.
 
 ## Safety
 

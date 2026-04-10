@@ -20,14 +20,15 @@ synced target repo.
 Shared workflow assets:
 
 - `rules/**`
-- `.github/prompts/**`
+- `commands/**`
+- `.github/prompts/**` (generated from commands/)
 - `AGENTS.md`
 - `CLAUDE.md`
 - `.cursor/rules/**`
 
 ## Command Mapping
 
-When user intent matches one of these prompts, read and follow the corresponding prompt or runbook:
+When user intent matches one of these triggers, read and follow the corresponding runbook in `commands/`:
 
 <!-- BEGIN SHARED:command-mappings -->
 <!-- END SHARED:command-mappings -->

@@ -9,7 +9,6 @@ SRC_SKILLS="$ROOT_DIR/skills"
 SRC_MCP="$ROOT_DIR/mcp"
 SRC_SHARED="$ROOT_DIR/shared"
 SRC_TEMPLATES="$ROOT_DIR/templates"
-SRC_PROMPTS="$ROOT_DIR/.github/prompts"
 SRC_CLAUDE_MD="$ROOT_DIR/CLAUDE.md"
 SRC_COPILOT_MD="$ROOT_DIR/.github/copilot-instructions.md"
 SRC_AGENTS_MD="$ROOT_DIR/AGENTS.md"
@@ -20,7 +19,6 @@ TARGET_CODEX="$HOME/.codex"
 TARGET_CLAUDE="$HOME/.claude"
 TARGET_CURSOR_SKILLS_SUBPATH="skills-cursor/ai-workflows"
 TARGET_CURSOR_MCP_SUBPATH="mcp/ai-workflows"
-TARGET_CURSOR_PROMPTS_SUBPATH="prompts/ai-workflows"
 
 DRY_RUN=0
 PROJECT_DIR=""
@@ -288,9 +286,45 @@ if [[ -n "$PROJECT_DIR" ]]; then
     fi
   fi
 
-  # Sync prompt files
-  if [[ -d "$SRC_PROMPTS" ]]; then
-    sync_dir "$SRC_PROMPTS" "$PROJECT_DIR/.github/prompts"
+  # Sync commands/ to project root (single copy, all tools reference it)
+  if [[ -d "$SRC_COMMANDS" ]]; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] sync commands -> commands/"
+    else
+      sync_dir "$SRC_COMMANDS" "$PROJECT_DIR/commands"
+      echo "  [ok] commands/ (shared command runbooks)"
+    fi
+  fi
+
+  # Generate .github/prompts/ from commands/ (Copilot needs frontmatter)
+  if [[ -d "$SRC_COMMANDS" ]]; then
+    ensure_dir "$PROJECT_DIR/.github/prompts"
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] generate .github/prompts/ from commands/"
+    else
+      # Remove existing generated prompts
+      rm -f "$PROJECT_DIR/.github/prompts/"*.prompt.md
+      for cmd_file in "$PROJECT_DIR/commands/"*.md; do
+        [[ -f "$cmd_file" ]] || continue
+        _basename="$(basename "$cmd_file" .md)"
+        # Skip experimental files
+        if [[ "$INCLUDE_EXPERIMENTAL" -eq 0 && "$_basename" == experimental.* ]]; then
+          continue
+        fi
+        # Extract title from first heading
+        _title="$(head -1 "$cmd_file" | sed 's/^# //')"
+        _prompt_file="$PROJECT_DIR/.github/prompts/${_basename}.prompt.md"
+        {
+          echo "---"
+          echo "name: ${_basename}"
+          echo "description: \"${_title}\""
+          echo "---"
+          echo ""
+          cat "$cmd_file"
+        } > "$_prompt_file"
+      done
+      echo "  [ok] .github/prompts/ (generated from commands/)"
+    fi
   fi
 
   echo "Project sync complete: $PROJECT_DIR"
@@ -343,10 +377,6 @@ fi
 
 if [[ -d "$SRC_MCP" && -d "$TARGET_CURSOR" ]]; then
   sync_dir "$SRC_MCP" "$TARGET_CURSOR/$TARGET_CURSOR_MCP_SUBPATH"
-fi
-
-if [[ -d "$SRC_PROMPTS" && -d "$TARGET_CURSOR" ]]; then
-  sync_dir "$SRC_PROMPTS" "$TARGET_CURSOR/$TARGET_CURSOR_PROMPTS_SUBPATH"
 fi
 
 if [[ -d "$SRC_SKILLS" && -d "$TARGET_CODEX/skills" ]]; then
