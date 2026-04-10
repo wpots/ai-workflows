@@ -24,10 +24,11 @@ TARGET_CURSOR_PROMPTS_SUBPATH="prompts/ai-workflows"
 
 DRY_RUN=0
 PROJECT_DIR=""
+INCLUDE_EXPERIMENTAL=0
 
 usage() {
   cat << 'EOF_USAGE'
-Usage: ./scripts/sync.sh [--dry-run] [--project <path>]
+Usage: ./scripts/sync.sh [--dry-run] [--project <path>] [--include-experimental]
 
 Modes:
   (no flags)          Sync to global agent folders (~/.cursor, ~/.claude, etc.)
@@ -39,8 +40,9 @@ Project sync copies:
   AGENTS.md                         (read by Cursor, Claude CLI, Codex)
 
 Options:
-  --dry-run           Show what would be synced without writing
-  -h, --help          Show this help message
+  --dry-run                Show what would be synced without writing
+  --include-experimental   Include experimental.* commands and skills
+  -h, --help               Show this help message
 EOF_USAGE
 }
 
@@ -48,6 +50,10 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --include-experimental)
+      INCLUDE_EXPERIMENTAL=1
       shift
       ;;
     --project)
@@ -87,6 +93,9 @@ sync_dir() {
   if [[ "$DRY_RUN" -eq 1 ]]; then
     cmd+=(--dry-run)
   fi
+  if [[ "$INCLUDE_EXPERIMENTAL" -eq 0 ]]; then
+    cmd+=(--exclude='experimental.*')
+  fi
   cmd+=("$src/" "$dest/")
   "${cmd[@]}"
 }
@@ -98,6 +107,9 @@ sync_dir_merge() {
   local -a cmd=(rsync -av)
   if [[ "$DRY_RUN" -eq 1 ]]; then
     cmd+=(--dry-run)
+  fi
+  if [[ "$INCLUDE_EXPERIMENTAL" -eq 0 ]]; then
+    cmd+=(--exclude='experimental.*')
   fi
   cmd+=("$src/" "$dest/")
   "${cmd[@]}"
@@ -278,7 +290,7 @@ if [[ -n "$PROJECT_DIR" ]]; then
 
   # Sync prompt files
   if [[ -d "$SRC_PROMPTS" ]]; then
-    sync_dir_merge "$SRC_PROMPTS" "$PROJECT_DIR/.github/prompts"
+    sync_dir "$SRC_PROMPTS" "$PROJECT_DIR/.github/prompts"
   fi
 
   echo "Project sync complete: $PROJECT_DIR"

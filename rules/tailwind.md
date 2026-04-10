@@ -30,6 +30,7 @@ Use semantic naming for colors, spacing, typography, etc. Never use arbitrary va
 - Extract repeated patterns to components, not `@apply`
 - Avoid arbitrary values (`[#fff]`, `[20px]`) — define in `@theme` instead
 - Group related classes with line breaks for readability
+- Group container query classes (`@container`, `@sm:`, `@md:`, `@lg:`, etc.) together on their own line for readability
 
 ## Figma Export Workflow
 

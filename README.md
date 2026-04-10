@@ -16,9 +16,11 @@ This repo is the **single source of truth** for:
   - `command-mappings.md` - intent-to-runbook mapping list
   - `safety.md` - safety rules
 - `commands/` - command prompt runbooks (Cursor, Copilot, Claude, Roo)
+  - Files prefixed with `experimental.` are excluded from project sync by default
 - `rules/` - focused rule files split by concern (communication, project, tailwind, testing, accessibility, clean-architecture)
   - `stacks/` - stack-specific conventions (nextjs-payload, react-native-expo)
 - `skills/` - custom skills for Cursor and Codex
+  - Folders prefixed with `experimental.` are excluded from project sync by default
 - `mcp/` - canonical MCP server definitions
 - `AGENTS.md` - canonical policy (auto-injected from `shared/`)
 - `CLAUDE.md` - Claude Code CLI adapter (auto-injected from `shared/`)
@@ -79,12 +81,27 @@ It uses `rsync -av --delete`, so the target folders become an exact mirror of
 this repo's source folders.
 
 ```bash
-# sync everything
+# sync stable commands and skills only
 ./scripts/sync.sh
+
+# include experimental.* commands and skills
+./scripts/sync.sh --include-experimental
 
 # preview changes without writing
 ./scripts/sync.sh --dry-run
 ```
+
+### Experimental Convention
+
+Commands and skills prefixed with `experimental.` are work-in-progress workflows
+that are not yet stable enough for project sync. They remain in `commands/` and
+`skills/` alongside stable files for visibility, but `sync.sh` excludes them by
+default.
+
+- **Stable:** `commit-message`, `create-pr`
+- **Experimental:** everything else (run-checks, code-review, scaffold-component, etc.)
+
+To promote an experimental workflow to stable, remove the `experimental.` prefix.
 
 ## Safety Rules
 

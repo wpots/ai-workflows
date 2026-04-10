@@ -2,39 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "run-checks",
-      "type": "shell",
-      "command": "cat commands/run-checks.md",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "review-code",
-      "type": "shell",
-      "command": "cat commands/review-code.md",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "create-pr",
       "type": "shell",
       "command": "cat commands/create-pr.md",
-      "presentation": {
-        "reveal": "always",
-        "panel": "shared"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "safe-kill-port",
-      "type": "shell",
-      "command": "cat commands/safe-kill-port.md",
       "presentation": {
         "reveal": "always",
         "panel": "shared"
@@ -52,9 +22,9 @@
       "problemMatcher": []
     },
     {
-      "label": "scaffold-component",
+      "label": "run-checks (experimental)",
       "type": "shell",
-      "command": "cat commands/scaffold-component.md",
+      "command": "cat commands/experimental.run-checks.md",
       "presentation": {
         "reveal": "always",
         "panel": "shared"
@@ -62,9 +32,39 @@
       "problemMatcher": []
     },
     {
-      "label": "new-device-setup",
+      "label": "review-code (experimental)",
       "type": "shell",
-      "command": "cat commands/new-device-setup.md",
+      "command": "cat commands/experimental.review-code.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "safe-kill-port (experimental)",
+      "type": "shell",
+      "command": "cat commands/experimental.safe-kill-port.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "scaffold-component (experimental)",
+      "type": "shell",
+      "command": "cat commands/experimental.scaffold-component.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "new-device-setup (experimental)",
+      "type": "shell",
+      "command": "cat commands/experimental.new-device-setup.md",
       "presentation": {
         "reveal": "always",
         "panel": "shared"

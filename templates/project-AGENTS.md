@@ -17,17 +17,10 @@ When CONVENTIONS.md conflicts with rules/, CONVENTIONS.md wins.
 
 Skills are the primary dispatch mechanism for repeatable workflows.
 
-| Skill                 | Trigger phrases                                                                             |
-| --------------------- | ------------------------------------------------------------------------------------------- |
-| `commit-message`      | commit message, write commit, git commit                                                    |
-| `scaffold-component`  | new component, scaffold, create component                                                   |
-| `component-spec`      | component spec, spec component, write spec, spec out a component, document component api    |
-| `create-pr`           | create pr, open pr, submit pr                                                               |
-| `code-review`         | review code, code review, review changes                                                    |
-| `run-checks`          | run checks, run-checks, quality checks                                                      |
-| `architecture-review` | review architecture, check clean arch, architecture audit, layer violation, check structure  |
-| `init-project`        | init project, setup project, apply ai-workflows, initialize project                         |
-| `upstream-rules`      | upstream rule, propose rule, share rule change, sync rule back                              |
+| Skill            | Trigger phrases                          |
+| ---------------- | ---------------------------------------- |
+| `commit-message` | commit message, write commit, git commit |
+| `create-pr`      | create pr, open pr, submit pr            |
 
 ## Shared Workflow Source
 
@@ -48,8 +41,7 @@ target repos.
 
 ### Command-Only Workflows
 
-- `kill port`, `port 3000`, `eaddrinuse` -> `commands/safe-kill-port.md`
-- `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
+_(no command-only workflows synced by default — use `--include-experimental` to sync all)_
 
 ## Safety
 

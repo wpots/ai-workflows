@@ -9,12 +9,19 @@ Operational runbooks in `commands/`. Triggered by natural language intent.
 | Command | File | What it does | Trigger phrases |
 |---------|------|--------------|-----------------|
 | Commit Message | `commands/commit-message.md` | Generate a conventional commit message from staged diff | `commit message`, `write commit`, `git commit` |
-| Scaffold Component | `commands/scaffold-component.md` | Create a new React component with correct file structure and conventions | `new component`, `scaffold`, `create component` |
 | Create PR | `commands/create-pr.md` | Push branch and create a GitHub PR or GitLab MR with structured description | `create pr`, `open pr`, `submit pr` |
-| Code Review | `commands/review-code.md` | Review code changes against remote base branch | `review code`, `code review`, `review changes` |
-| Run Checks | `commands/run-checks.md` | Run lint, type-check, stylelint, test, build in sequence | `run checks`, `run-checks`, `quality checks` |
-| Safe Kill Port | `commands/safe-kill-port.md` | Stop a process on a port safely (default: 3000) | `kill port`, `port 3000`, `eaddrinuse` |
-| New Device Setup | `commands/new-device-setup.md` | Bootstrap AI workflows on a new machine | `new device`, `setup device`, `onboarding` |
+
+### Experimental Commands
+
+> Prefixed with `experimental.` — excluded from project sync by default.
+
+| Command | File | What it does | Trigger phrases |
+|---------|------|--------------|-----------------|
+| Scaffold Component | `commands/experimental.scaffold-component.md` | Create a new React component with correct file structure and conventions | `new component`, `scaffold`, `create component` |
+| Code Review | `commands/experimental.review-code.md` | Review code changes against remote base branch | `review code`, `code review`, `review changes` |
+| Run Checks | `commands/experimental.run-checks.md` | Run lint, type-check, stylelint, test, build in sequence | `run checks`, `run-checks`, `quality checks` |
+| Safe Kill Port | `commands/experimental.safe-kill-port.md` | Stop a process on a port safely (default: 3000) | `kill port`, `port 3000`, `eaddrinuse` |
+| New Device Setup | `commands/experimental.new-device-setup.md` | Bootstrap AI workflows on a new machine | `new device`, `setup device`, `onboarding` |
 
 ## Skills
 
@@ -23,11 +30,21 @@ Self-describing workflows in `skills/`. Each has a `SKILL.md` with frontmatter m
 | Skill | Description | Has matching command? |
 |-------|-------------|----------------------|
 | `commit-message` | Generate a conventional commit message from staged or unstaged diff | Yes |
-| `scaffold-component` | Create a new React component with correct file structure, templates, and project conventions | Yes |
 | `create-pr` | Push branch and create a GitHub PR or GitLab MR with structured description from branch diff | Yes |
-| `code-review` | Review current branch changes against remote base branch with severity-ordered findings and actionable fixes | Yes |
-| `run-checks` | Run project quality checks sequentially, stop on failures for user decision, summarize results | Yes |
-| `architecture-review` | Review codebase for clean architecture violations — probes folder structure, maps to CA layers, checks principles | No (skill only) |
+
+### Experimental Skills
+
+> Prefixed with `experimental.` — excluded from project sync by default.
+
+| Skill | Description | Has matching command? |
+|-------|-------------|----------------------|
+| `experimental.scaffold-component` | Create a new React component with correct file structure, templates, and project conventions | Yes |
+| `experimental.code-review` | Review current branch changes against remote base branch with severity-ordered findings and actionable fixes | Yes |
+| `experimental.run-checks` | Run project quality checks sequentially, stop on failures for user decision, summarize results | Yes |
+| `experimental.architecture-review` | Review codebase for clean architecture violations — probes folder structure, maps to CA layers, checks principles | No (skill only) |
+| `experimental.component-spec` | Generate component specification from design or requirements | No (skill only) |
+| `experimental.init-project` | Initialize a new project with ai-workflows setup | No (skill only) |
+| `experimental.upstream-rules` | Propose rule changes back to the ai-workflows repo | No (skill only) |
 
 ## MCP Servers
 
