@@ -31,7 +31,7 @@ If ambiguous, ask the user.
    - `AGENTS.md`
    - `CLAUDE.md`
    - `.cursor/rules/**`
-4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in `~/Web/ai-workflows/`. Ask whether to:
+4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the [ai-workflows](https://github.com/wpots/ai-workflows) repo. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead
    - do both

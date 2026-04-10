@@ -16,7 +16,7 @@ When project conventions conflict with global rules, project conventions win.
 ## Shared Workflow Source
 
 When a change touches shared workflow assets in a reusable way, suggest
-upstreaming it to `~/Web/ai-workflows/` rather than keeping it only in this
+upstreaming it to the [ai-workflows](https://github.com/wpots/ai-workflows) repo rather than keeping it only in this
 synced target repo.
 
 Treat these as shared workflow assets:

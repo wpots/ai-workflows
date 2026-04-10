@@ -25,7 +25,7 @@ Skills are the primary dispatch mechanism for repeatable workflows.
 ## Shared Workflow Source
 
 Changes to shared AI workflow assets should usually be proposed upstream in
-`~/Web/ai-workflows/` instead of living only in this synced target repo.
+the [ai-workflows](https://github.com/wpots/ai-workflows) repo instead of living only in this synced target repo.
 
 Treat these as shared workflow assets:
 
