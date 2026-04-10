@@ -15,6 +15,7 @@
 - When modifying my code, show only the changed sections with a few lines of context before/after — don't repeat everything
 - Multiple code blocks are fine
 - Respect my prettier config
+- Never modify files solely to fix ESLint or Prettier issues — apply formatting fixes only to lines you are already changing to keep MR scope clean
 
 ## Problem Solving
 

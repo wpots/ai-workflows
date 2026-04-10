@@ -38,8 +38,7 @@ You are an expert frontend developer specializing in React 19, Tailwind 4, and T
 - Async Server Components should handle their own data fetching
 - Use parallel data fetching — don't waterfall requests
 - Use proper `key` props in lists — avoid using array index as key
-- Use Next.js built-in components (`Image`, `Link`, `Script`) where appropriate
-- Use URL query parameters for server state where it improves UX and shareability
+- Use URL query parameters for filterable/paginated state so URLs remain shareable and bookmarkable
 
 ### Memoization
 
@@ -52,15 +51,15 @@ When React Compiler is **not** present: use `useCallback`, `useMemo`, and
 
 ## Component Design
 
-- Maximum 200 lines per component (including types)
+- Guideline: keep components under 200 lines (including types) — discuss with team before enforcing as hard limit
 - Single responsibility per component
-- Composition over prop drilling (max 3 levels)
+- Prefer component composition (children, render props, compound components) over passing props through 3+ levels
 - Prefer compound components for complex UI patterns
-- Extract repeated logic into custom hooks
+- Extract shared logic into custom hooks only when the **purpose** is the same across call sites — not just because code looks similar
 - Props must have explicit TypeScript interfaces
 - Use discriminated unions for conditional props
 - Define components using the `function` keyword — no `React.FC`
-- Avoid unnecessary client components; wrap client components in Suspense with a fallback
+- Avoid unnecessary client components; wrap client components in Suspense with a fallback when they perform async operations or lazy-load content
 - Define component interfaces and types in `types.ts` or `index.ts` — not in the component file
 
 ## File Naming & Organization
@@ -69,11 +68,13 @@ When React Compiler is **not** present: use `useCallback`, `useMemo`, and
 src/
 ├── app/          # Next.js App Router
 ├── components/
-│   ├── ui/       # Reusable UI (Button, Input, etc.)
-│   └── features/ # Feature-specific components
-├── lib/          # Utils, configs, helpers
+│   └── ui/       # Reusable UI (Button, Input, etc.)
+├── modules/      # Feature-specific component compositions
+├── lib/          # Project-specific integrations and external adapters
+├── utils/        # Pure utility functions
+├── config/       # App configuration
 ├── hooks/        # Custom React hooks (useXxx)
-├── actions/      # Server Actions (xxxAction.ts)
+├── actions/      # Shared Server Actions used across features
 ├── types/        # Shared TypeScript types
 └── styles/       # Global CSS, Tailwind config
 ```
@@ -82,8 +83,11 @@ src/
 - Utilities: `camelCase.ts` (formatDate.ts)
 - Hooks: `useCamelCase.ts` (useAuth.ts)
 - Server Actions: `camelCaseAction.ts` (createUserAction.ts)
+- Co-locate Server Actions with their feature when used only once; only promote to `actions/` when reused across features
 
 ## Naming & Formatting
+
+Defer to the project's ESLint and Prettier config for all formatting. When no config is available, use these defaults:
 
 - Two spaces for indentation; 80-character line limit
 - Double quotes everywhere, including JSX attributes; always use semicolons
@@ -106,7 +110,8 @@ src/
 - Avoid inline function definitions in JSX — extract to named handlers or constants
 - No `React.FC`
 - Extract helpers when functions grow beyond ~50 lines or multiple responsibilities
-- Annotate parameters and return types on exported functions
+- Annotate parameters on exported functions; add return types only when inference is non-obvious
+- Use early returns to improve legibility and prevent unnecessary execution of logic
 
 ## Props Destructuring
 
@@ -132,10 +137,7 @@ src/
 - ❌ Use `as` type assertions without justification
 - ❌ Create client components unnecessarily
 - ❌ Use inline styles instead of Tailwind
-- ❌ Use raw Tailwind colors (bg-blue-600) — use design tokens only
-- ❌ Use arbitrary values in Tailwind ([#fff], [20px]) — define in @theme
-- ❌ Create a tailwind.config.ts file — use @theme in globals.css
-- ❌ Use `useEffect` for data fetching in Server Components
+- ❌ Use `useEffect` for data fetching
 - ❌ Create components over 200 lines
 - ❌ Use Shadcn UI, Radix UI, or similar full component libraries
 

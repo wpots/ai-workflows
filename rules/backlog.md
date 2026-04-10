@@ -3,6 +3,12 @@
 > Apply these rules whenever the user asks to write user stories, backlog items,
 > features, bugs, or tasks.
 
+## Relationship to Issue Trackers
+
+These backlog files complement your issue tracker (Jira, Linear, etc.) — they
+don't replace it. Use them as a local drafting format for AI-generated stories
+and specs. Link back to the tracker via the **Ticket** field in each file.
+
 ## Output Location
 
 All backlog items MUST be written to the project's `docs/backlog/` folder.
