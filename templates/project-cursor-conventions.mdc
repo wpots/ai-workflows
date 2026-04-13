@@ -3,5 +3,12 @@ alwaysApply: true
 ---
 Read `CONVENTIONS.md` in the project root for project-specific conventions.
 Read `rules/` for baseline coding standards (shared across all projects).
+Load only the relevant focused rule files for the task:
+
+- `rules/tailwind.md` for styling and design-token work
+- `rules/testing.md` for tests and test reviews
+- `rules/accessibility.md` for interactive UI and accessibility checks
+- `rules/backlog.md` for user stories, specs, and backlog work
+- the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
 
 When CONVENTIONS.md conflicts with rules/, CONVENTIONS.md wins.

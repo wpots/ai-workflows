@@ -1,7 +1,15 @@
 # CLAUDE.md
 
+Read `AI-WORKFLOWS.md` for how this project's AI workflow files are intended to work together.
 Read `CONVENTIONS.md` for project-specific context, stack, structure, and conventions.
 Read `rules/` for baseline coding standards (shared across all projects).
+Load only the relevant focused rule files for the task:
+
+- `rules/tailwind.md` for styling and design-token work
+- `rules/testing.md` for tests and test reviews
+- `rules/accessibility.md` for interactive UI and accessibility checks
+- `rules/backlog.md` for user stories, specs, and backlog work
+- the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
 
 ## Precedence
 
@@ -19,6 +27,7 @@ synced target repo.
 
 Shared workflow assets:
 
+- `AI-WORKFLOWS.md`
 - `rules/**`
 - `commands/**`
 - `.github/prompts/**` (generated from commands/)

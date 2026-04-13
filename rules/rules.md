@@ -2,6 +2,16 @@
 
 This directory contains focused rule files. Load the relevant file(s) for the current context.
 
+The priority guidance below is conceptual, not a guarantee about how every tool loads files.
+Copilot, Claude Code, Codex, and Cursor each load instructions differently.
+In synced projects, see `AI-WORKFLOWS.md` for the tool-specific loading model.
+
+In practice, treat this directory as a topic-based rule library:
+
+- compact baseline guidance is always-on only where a tool-specific adapter makes it so
+- focused rule files are usually loaded on-demand when the task needs them
+- developers should explicitly mention a focused rule in the prompt when they want a strong guarantee that the tool applies it
+
 | File                          | Covers                                                              |
 | ----------------------------- | ------------------------------------------------------------------- |
 | `communication.md`            | Tone, response style, problem-solving approach                      |

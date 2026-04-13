@@ -1,16 +1,3 @@
-# Copilot Instructions
-
-Use this repository as the single source of truth for shared AI workflows.
-
-## Working Model
-
-- Copilot reliably auto-loads this file, so important coding guidance must live here.
-- Reusable workflows live in `commands/`; Copilot prompt wrappers are generated into `.github/prompts/`.
-- In synced target projects, `CONVENTIONS.md` overrides this baseline.
-
-## Technical Baseline
-
-<!-- BEGIN SHARED:core-rules -->
 Apply these as the default coding baseline when project-local conventions do not say otherwise.
 
 ## TypeScript And React
@@ -42,26 +29,3 @@ Apply these as the default coding baseline when project-local conventions do not
 - Components that mix rendering, business logic, and data access.
 - Introducing a new styling or component-library pattern that conflicts with project conventions.
 - Ignoring `CONVENTIONS.md` or other project-local rules when they exist.
-<!-- END SHARED:core-rules -->
-
-## Command Mapping
-
-When user intent matches one of these prompts, read and follow the
-corresponding runbook:
-
-<!-- BEGIN SHARED:command-mappings -->
-- `create pr`, `open pr`, `submit pr` -> `commands/create-pr.md`
-- `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
-<!-- END SHARED:command-mappings -->
-
-Do not assume command files auto-run. Select and execute them when intent
-matches.
-
-## Safety
-
-<!-- BEGIN SHARED:safety -->
-- Prefer concrete execution over long planning.
-- Do not modify code unless requested.
-- Ask before destructive actions (force kill, reset, delete) unless explicitly requested.
-- Always summarize what was run and what changed.
-<!-- END SHARED:safety -->

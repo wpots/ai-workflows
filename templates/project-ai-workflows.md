@@ -1,0 +1,83 @@
+# AI-WORKFLOWS.md
+
+This project uses the shared `ai-workflows` setup. This file explains how the synced AI files are meant to work together.
+
+## Source Of Truth
+
+- `CONVENTIONS.md` is the project-owned source of truth for stack, structure, scripts, and local conventions.
+- `rules/` contains the shared baseline coding rules synced from `ai-workflows`.
+- `commands/` contains shared workflow runbooks synced from `ai-workflows`.
+
+When `CONVENTIONS.md` conflicts with synced baseline rules, `CONVENTIONS.md` wins.
+
+## How Each Tool Loads These Files
+
+| Tool | What it reliably loads | What that means in practice |
+| ---- | ---------------------- | --------------------------- |
+| GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. `.github/prompts/*.prompt.md` are attachable helpers, not guaranteed auto-context. |
+| Claude Code | Global `~/.claude/CLAUDE.md` and `~/.claude/rules/*.md`, plus project files when present | Global Claude rules must stay universal. Project-specific context belongs in `CONVENTIONS.md`, this guide, and project adapters. |
+| Codex | `AGENTS.md` plus repo files it can inspect | `AGENTS.md` is the thin adapter; deeper project context lives in `CONVENTIONS.md`, `rules/`, and `commands/`. |
+| Cursor | `AGENTS.md` and `.cursor/rules/*.md` | Cursor can follow project files well, and `.cursor/rules/conventions.mdc` points it back to `CONVENTIONS.md` and `rules/`. |
+
+## Always-On Vs On-Demand
+
+Use this rule of thumb:
+
+- Always-on: the thin adapter for the tool, `CONVENTIONS.md`, and the compact Copilot baseline
+- On-demand: focused files in `rules/` and workflow runbooks in `commands/`
+
+The focused rules are intentionally conditional so every conversation does not load every concern.
+Load the relevant file when the task needs it:
+
+| Task type | Rule to consult |
+| --------- | --------------- |
+| Styling, tokens, Tailwind | `rules/tailwind.md` |
+| Tests, test reviews | `rules/testing.md` |
+| Interactive UI, a11y checks | `rules/accessibility.md` |
+| User stories, specs, backlog work | `rules/backlog.md` |
+| Stack-specific architecture | the matching file in `rules/stacks/` after checking `package.json` |
+
+## How Developers Should Use This
+
+You usually do not need to mention the always-on files. You should mention the focused rules when the task is specific enough that the tool may not load them by itself.
+
+Examples:
+
+- "Implement this form and follow `rules/accessibility.md`."
+- "Write tests for this component using `rules/testing.md`."
+- "Refactor this page and apply `rules/tailwind.md`."
+- "Review this feature against `rules/clean-architecture.md` and the relevant stack rule."
+
+Per tool:
+
+- Cursor: `.cursor/rules/conventions.mdc` always applies, but focused rule files are still topic-based.
+- Claude Code: project `CLAUDE.md` points to `rules/`, but mentioning the specific rule in the prompt gives the strongest signal.
+- Codex: `AGENTS.md` points to the local files, and explicitly naming a focused rule is still helpful for narrow tasks.
+- Copilot: assume only `.github/copilot-instructions.md` is ambient. If a focused rule matters, name it in the prompt or work from the matching prompt/runbook.
+
+## Files In This Project
+
+- `CONVENTIONS.md`: project-specific stack, structure, scripts, and deviations from the shared baseline
+- `AI-WORKFLOWS.md`: this guide
+- `CLAUDE.md`: Claude-facing thin adapter
+- `AGENTS.md`: Codex/Cursor-facing thin adapter
+- `.github/copilot-instructions.md`: Copilot-facing adapter with `CONVENTIONS.md` and condensed baseline rules inlined
+- `.cursor/rules/conventions.mdc`: Cursor auto-applied conventions adapter
+- `rules/`: synced shared coding standards
+- `commands/`: synced workflow runbooks
+- `.github/prompts/`: Copilot prompt wrappers generated from `commands/`
+
+## Available Command Triggers
+
+When user intent matches one of these triggers, read and follow the corresponding runbook in `commands/`:
+
+<!-- BEGIN SHARED:command-mappings -->
+<!-- END SHARED:command-mappings -->
+
+Experimental workflows are excluded from project sync by default. Re-run sync with `--include-experimental` if this project should opt into them.
+
+## Customizing This Setup
+
+- Edit `CONVENTIONS.md` for project-local decisions.
+- Edit the shared `ai-workflows` repo when a rule or runbook should be reused across projects.
+- Re-run project sync after upstream updates to refresh the local adapters, rules, commands, and prompt files.

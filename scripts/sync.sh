@@ -9,9 +9,8 @@ SRC_SKILLS="$ROOT_DIR/skills"
 SRC_MCP="$ROOT_DIR/mcp"
 SRC_SHARED="$ROOT_DIR/shared"
 SRC_TEMPLATES="$ROOT_DIR/templates"
+SRC_AI_WORKFLOWS_TEMPLATE="$ROOT_DIR/templates/project-ai-workflows.md"
 SRC_CLAUDE_MD="$ROOT_DIR/CLAUDE.md"
-SRC_COPILOT_MD="$ROOT_DIR/.github/copilot-instructions.md"
-SRC_AGENTS_MD="$ROOT_DIR/AGENTS.md"
 
 TARGET_CURSOR="$HOME/.cursor"
 TARGET_ROO="$HOME/.roo"
@@ -30,12 +29,15 @@ Usage: ./scripts/sync.sh [--dry-run] [--project <path>] [--include-experimental]
 
 Modes:
   (no flags)          Sync to global agent folders (~/.cursor, ~/.claude, etc.)
-  --project <path>    Sync Copilot instructions and prompt files into a project
+  --project <path>    Sync project-level ai-workflows files into a project
 
 Project sync copies:
-  .github/copilot-instructions.md   (auto-loaded by Copilot)
+  AI-WORKFLOWS.md                   (developer guide for tool loading behavior)
+  CLAUDE.md / AGENTS.md             (thin adapters for Claude, Codex, Cursor)
+  .github/copilot-instructions.md   (Copilot adapter with conventions inlined)
+  .cursor/rules/conventions.mdc     (Cursor conventions adapter)
+  rules/ and commands/              (shared baseline rules and runbooks)
   .github/prompts/*.prompt.md       (attachable via #file: in Copilot chat)
-  AGENTS.md                         (read by Cursor, Claude CLI, Codex)
 
 Options:
   --dry-run                Show what would be synced without writing
@@ -122,6 +124,19 @@ sync_file() {
   else
     cp "$src" "$dest"
     echo "Synced $src -> $dest"
+  fi
+}
+
+remove_file() {
+  local target="$1"
+  if [[ ! -e "$target" ]]; then
+    return
+  fi
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] rm $target"
+  else
+    rm -f "$target"
+    echo "Removed $target"
   fi
 }
 
@@ -221,6 +236,20 @@ if [[ -n "$PROJECT_DIR" ]]; then
     echo "  [warn] No CONVENTIONS.md found. Run init-project to generate one."
   fi
 
+  # Generate AI-WORKFLOWS.md from template
+  if [[ -f "$SRC_AI_WORKFLOWS_TEMPLATE" ]]; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] generate AI-WORKFLOWS.md from template"
+    else
+      cp "$SRC_AI_WORKFLOWS_TEMPLATE" "$PROJECT_DIR/AI-WORKFLOWS.md"
+      for fragment in "$SRC_SHARED"/*.md; do
+        marker_name="$(basename "$fragment" .md)"
+        inject_shared "$PROJECT_DIR/AI-WORKFLOWS.md" "$marker_name"
+      done
+      echo "  [ok] AI-WORKFLOWS.md (developer guide)"
+    fi
+  fi
+
   # Generate CLAUDE.md from template
   if [[ -f "$SRC_TEMPLATES/project-CLAUDE.md" ]]; then
     if [[ "$DRY_RUN" -eq 1 ]]; then
@@ -261,7 +290,7 @@ if [[ -n "$PROJECT_DIR" ]]; then
         marker_name="$(basename "$fragment" .md)"
         inject_shared "$PROJECT_DIR/.github/copilot-instructions.md" "$marker_name"
       done
-      echo "  [ok] .github/copilot-instructions.md (CONVENTIONS.md inlined)"
+      echo "  [ok] .github/copilot-instructions.md (CONVENTIONS.md + core rules inlined)"
     fi
   fi
 
@@ -362,7 +391,17 @@ if [[ -d "$TARGET_CLAUDE" ]]; then
 
   if [[ -d "$SRC_RULES" ]]; then
     ensure_dir "$TARGET_CLAUDE/rules"
-    sync_dir "$SRC_RULES" "$TARGET_CLAUDE/rules"
+    sync_file "$SRC_RULES/communication.md" "$TARGET_CLAUDE/rules/communication.md"
+    sync_file "$SRC_RULES/project.md" "$TARGET_CLAUDE/rules/project.md"
+    sync_file "$SRC_RULES/clean-architecture.md" "$TARGET_CLAUDE/rules/clean-architecture.md"
+
+    remove_file "$TARGET_CLAUDE/rules/rules.md"
+    remove_file "$TARGET_CLAUDE/rules/tailwind.md"
+    remove_file "$TARGET_CLAUDE/rules/testing.md"
+    remove_file "$TARGET_CLAUDE/rules/accessibility.md"
+    remove_file "$TARGET_CLAUDE/rules/backlog.md"
+    remove_file "$TARGET_CLAUDE/rules/stacks/nextjs-payload.md"
+    remove_file "$TARGET_CLAUDE/rules/stacks/react-native-expo.md"
   fi
 
   if [[ -d "$SRC_SKILLS" ]]; then

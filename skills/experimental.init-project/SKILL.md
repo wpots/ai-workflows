@@ -1,6 +1,6 @@
 ---
 name: init-project
-description: Initialize a project with AI workflow configuration — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), and detects deviations from global rules. Use when the user asks to set up, initialize, or apply ai-workflows to a project.
+description: Initialize a project with AI workflow configuration — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), adds a developer-facing AI-WORKFLOWS.md guide, and detects deviations from global rules. Use when the user asks to set up, initialize, or apply ai-workflows to a project.
 ---
 
 # Init Project Skill
@@ -125,23 +125,30 @@ Use templates from `~/Web/ai-workflows/templates/`:
 
 | File | Template | Strategy |
 |------|----------|----------|
+| `AI-WORKFLOWS.md` | `project-ai-workflows.md` | Reference guide — explains how each tool uses the synced files |
 | `CLAUDE.md` | `project-CLAUDE.md` | Reference — "read CONVENTIONS.md" |
 | `AGENTS.md` | `project-AGENTS.md` | Reference — "read CONVENTIONS.md" |
-| `.github/copilot-instructions.md` | `project-copilot-instructions.md` | **Inline** — embed CONVENTIONS.md content (Copilot can't follow file refs) |
+| `.github/copilot-instructions.md` | `project-copilot-instructions.md` | **Inline** — embed CONVENTIONS.md content plus condensed core rules (Copilot can't rely on file refs) |
 | `.cursor/rules/conventions.mdc` | `project-cursor-conventions.mdc` | Reference — "read CONVENTIONS.md" |
 
 For the Copilot adapter, read the generated CONVENTIONS.md and inject its
 content between `<!-- BEGIN CONVENTIONS -->` and `<!-- END CONVENTIONS -->`
-markers in the template.
+markers in the template. Also inject the shared `core-rules` fragment so the
+Copilot file carries a compact coding baseline inline.
 
-After generating adapters, inject shared fragments (command-mappings, safety)
-into CLAUDE.md and AGENTS.md using the `<!-- BEGIN SHARED -->` /
-`<!-- END SHARED -->` marker pattern.
+After generating adapters, inject shared fragments (command-mappings, safety,
+core-rules where applicable) into the generated files using the
+`<!-- BEGIN SHARED -->` / `<!-- END SHARED -->` marker pattern.
 
-### 7. Sync Prompt Files
+### 7. Sync Shared Workflow Files
 
-Copy `.github/prompts/*.prompt.md` from ai-workflows into the project
-(these are workflow runbooks, not conventions — they stay as-is).
+Sync these shared workflow assets into the project:
+
+- `rules/`
+- `commands/`
+- `.github/prompts/*.prompt.md` generated from `commands/`
+
+These are reusable workflow assets, not project-owned conventions.
 
 ### 8. Summary
 
@@ -151,11 +158,14 @@ Output a summary of what was created/synced:
 Initialized <project-name> with ai-workflows:
 
   CONVENTIONS.md        [created/updated]  — project conventions (source of truth)
+  AI-WORKFLOWS.md       [created/updated]  — developer guide for tool loading behavior
   CLAUDE.md             [created/updated]  — thin adapter (references CONVENTIONS.md)
   AGENTS.md             [created/updated]  — thin adapter (references CONVENTIONS.md)
-  .github/copilot-instructions.md  [created/updated]  — Copilot adapter (CONVENTIONS.md inlined)
+  .github/copilot-instructions.md  [created/updated]  — Copilot adapter (CONVENTIONS.md + core rules inlined)
   .cursor/rules/conventions.mdc    [created/updated]  — Cursor adapter (references CONVENTIONS.md)
-  .github/prompts/      [synced]           — workflow prompt files
+  rules/                [synced]           — shared baseline coding rules
+  commands/             [synced]           — shared workflow runbooks
+  .github/prompts/      [synced]           — Copilot prompt files generated from commands/
 
   Stack: <detected stack>
   Deviations: <count> from global rules

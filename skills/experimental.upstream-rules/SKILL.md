@@ -13,10 +13,12 @@ asks to upstream, propose, or share a workflow change.
 
 This skill should activate when you detect or are told about:
 
+- Changes to `commands/` in the current project
 - Changes to files in `rules/` in the current project
 - Changes to files in `.github/prompts/`
 - New skills or modifications to existing skills
 - Changes to `AGENTS.md` or `CLAUDE.md` that are reusable across projects
+- Changes to `AI-WORKFLOWS.md` that improve the shared project guide
 - Changes to `.cursor/rules/` that are part of the shared workflow setup
 - Changes to `CONVENTIONS.md` that are generic rather than project-specific
 - The developer says "upstream this", "propose this rule", "share this with
@@ -40,8 +42,10 @@ Common mappings:
 
 | Project file | Upstream destination |
 |---|---|
+| `commands/<file>.md` | `commands/<file>.md` |
 | `rules/<file>.md` | `rules/<file>.md` |
 | `.github/prompts/<file>` | `.github/prompts/<file>` |
+| `AI-WORKFLOWS.md` | `templates/project-ai-workflows.md` |
 | `AGENTS.md` | `templates/project-AGENTS.md` |
 | `CLAUDE.md` | `templates/project-CLAUDE.md` |
 | `.github/copilot-instructions.md` | `templates/project-copilot-instructions.md` |
@@ -72,6 +76,8 @@ Determine where the change belongs in ai-workflows:
 
 | Change type | Destination in ai-workflows |
 |---|---|
+| Command runbook modification | `commands/<file>.md` |
+| New command runbook | `commands/<file>.md` |
 | Rule modification | `rules/<file>.md` |
 | New rule file | `rules/<file>.md` |
 | Prompt modification | `.github/prompts/<file>` |
@@ -79,6 +85,7 @@ Determine where the change belongs in ai-workflows:
 | Skill modification | `skills/<name>/SKILL.md` |
 | New skill | `skills/<name>/SKILL.md` |
 | Project adapter change | `templates/<file>` and possibly `shared/*.md` |
+| Project workflow guide change | `templates/project-ai-workflows.md` |
 | Generic workflow policy | `AGENTS.md`, `CLAUDE.md`, or `shared/*.md` |
 | Convention that's project-specific | Do NOT upstream — stays in `CONVENTIONS.md` |
 
