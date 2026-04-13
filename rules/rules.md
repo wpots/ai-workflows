@@ -14,16 +14,16 @@ In practice, treat this directory as a topic-based rule library:
 
 | File                          | Covers                                                              |
 | ----------------------------- | ------------------------------------------------------------------- |
-| `communication.md`            | Tone, response style, problem-solving approach                      |
-| `project.md`                  | React, Next.js, TypeScript, component design, naming                |
-| `type-safety.md`             | Runtime trust boundaries, strict TypeScript posture, review guardrails |
-| `tailwind.md`                 | Tailwind 4, design tokens, Figma export workflow                    |
-| `testing.md`                  | Jest + Storybook split, query priority, coverage                    |
-| `accessibility.md`            | WCAG requirements, ARIA, keyboard navigation                        |
-| `backlog.md`                  | User stories, backlog items, feature/bug file structure              |
-| `clean-architecture.md`       | Layer principles, dependency rules, forbidden patterns (all stacks) |
-| `stacks/nextjs-payload.md`    | Folder mapping + conventions for Next.js + Payload                  |
-| `stacks/react-native-expo.md` | Folder mapping + conventions for React Native + Expo                |
+| `communication.md`                      | Tone, response style, problem-solving approach                      |
+| `project.md`                            | React, Next.js, TypeScript, component design, naming                |
+| `type-safety.md`                        | Runtime trust boundaries, strict TypeScript posture, review guardrails |
+| `tailwind.md`                           | Tailwind 4, design tokens, Figma export workflow                    |
+| `testing.md`                            | Jest + Storybook split, query priority, coverage                    |
+| `accessibility.md`                      | WCAG requirements, ARIA, keyboard navigation                        |
+| `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
+| `clean-architecture.md`                 | Layer principles, dependency rules, forbidden patterns (all stacks) |
+| `stacks/nextjs-payload.md`              | Folder mapping + conventions for Next.js + Payload                  |
+| `stacks/experimental.react-native-expo.md` | React Native + Expo conventions (experimental; excluded from default project sync) |
 
 ## Loading Priority
 
@@ -45,7 +45,13 @@ Before loading a stack file, read the project's `package.json` and check
 
 - `"next"` present → load `stacks/nextjs-payload.md`
   (also applies when `@payloadcms/payload` is present alongside Next.js)
-- `"expo"` or `"react-native"` present → load `stacks/react-native-expo.md`
+- `"expo"` or `"react-native"` present → load
+  `stacks/experimental.react-native-expo.md` when available
+  - in synced projects, this file is excluded by default unless the project
+    opts into experimental workflow assets
+  - if the file is not available locally, fall back to
+    `clean-architecture.md` plus a structure probe instead of assuming Expo
+    conventions
 - Neither detected → apply `clean-architecture.md` principles only; do not
   assume any folder structure
 

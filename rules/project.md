@@ -144,7 +144,6 @@ Defer to the project's ESLint and Prettier config for all formatting. When no co
 - ❌ Use `as` type assertions without justification
 - ❌ Create client components unnecessarily
 - ❌ Use inline styles instead of Tailwind
-- ❌ Use `useEffect` for data fetching
 - ❌ Create components over 200 lines
 - ❌ Use Shadcn UI, Radix UI, or similar full component libraries
 

@@ -84,6 +84,8 @@ for adapter in "${ADAPTER_FILES[@]}"; do
 done
 
 # ── Generate .vscode/tasks.json from command mappings ────────────────────────
+# This remains a generated convenience surface for local execution, not a
+# primary project-model artifact like the adapters or project sync outputs.
 
 echo "Generating .vscode/tasks.json..."
 

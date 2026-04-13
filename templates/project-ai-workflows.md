@@ -30,6 +30,13 @@ This setup uses four workflow surfaces:
 | `commands/` | compatibility adapters and fallback runbooks |
 | adapters | always-on routing, precedence, and local usage guidance |
 
+## Shared Workflow Assets
+
+Treat these as the reusable shared workflow assets in a synced project:
+
+<!-- BEGIN SHARED:workflow-assets -->
+<!-- END SHARED:workflow-assets -->
+
 ## Tool Support Matrix
 
 Use this as the intended model inside synced projects:

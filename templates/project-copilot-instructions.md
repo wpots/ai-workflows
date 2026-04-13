@@ -29,13 +29,8 @@ synced target repo.
 
 Treat these as shared workflow assets:
 
-- `AI-WORKFLOWS.md`
-- `commands/**`
-- `rules/**`
-- `.github/prompts/**`
-- `AGENTS.md`
-- `CLAUDE.md`
-- `.cursor/rules/**`
+<!-- BEGIN SHARED:workflow-assets -->
+<!-- END SHARED:workflow-assets -->
 
 ## Command Mapping
 

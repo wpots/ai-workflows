@@ -44,13 +44,8 @@ the [ai-workflows](https://github.com/wpots/ai-workflows) repo instead of living
 
 Treat these as shared workflow assets:
 
-- `AI-WORKFLOWS.md`
-- `rules/**`
-- `commands/**`
-- `.github/prompts/**` (generated from commands/)
-- `AGENTS.md`
-- `CLAUDE.md`
-- `.cursor/rules/**`
+<!-- BEGIN SHARED:workflow-assets -->
+<!-- END SHARED:workflow-assets -->
 
 When a task changes those files in a generally reusable way, proactively
 suggest creating a PR in `ai-workflows` so the change can be synced back into

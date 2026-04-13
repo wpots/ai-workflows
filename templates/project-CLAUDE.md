@@ -28,13 +28,8 @@ synced target repo.
 
 Shared workflow assets:
 
-- `AI-WORKFLOWS.md`
-- `rules/**`
-- `commands/**`
-- `.github/prompts/**` (generated from commands/)
-- `AGENTS.md`
-- `CLAUDE.md`
-- `.cursor/rules/**`
+<!-- BEGIN SHARED:workflow-assets -->
+<!-- END SHARED:workflow-assets -->
 
 ## Workflow Strategy
 

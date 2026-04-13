@@ -24,6 +24,10 @@ This skill should activate when you detect or are told about:
 - The developer says "upstream this", "propose this rule", "share this with
   other projects", or similar
 
+In synced target projects, treat the `Shared Workflow Assets` section in
+`AI-WORKFLOWS.md` as the canonical project-facing definition of reusable
+workflow assets.
+
 ## Upstream Repository
 
 The canonical ai-workflows repo is `wpots/ai-workflows` on GitHub.

@@ -41,12 +41,10 @@ If ambiguous, ask the user.
 
 1. Verify the CLI is authenticated (`gh auth status` / `glab auth status`). Abort if not.
 2. Check `git status` for uncommitted changes — warn and ask before continuing.
-3. Check whether the diff is primarily a shared AI workflow change. Treat these as shared workflow files:
-   - `rules/**`
-   - `.github/prompts/**`
-   - `AGENTS.md`
-   - `CLAUDE.md`
-   - `.cursor/rules/**`
+3. Check whether the diff is primarily a shared AI workflow change.
+   - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
+   - If it does not exist, treat synced workflow surfaces such as `commands/`,
+     `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
 4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the [ai-workflows](https://github.com/wpots/ai-workflows) repo. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead

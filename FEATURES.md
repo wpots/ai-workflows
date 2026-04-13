@@ -82,7 +82,20 @@ Baseline rules in `rules/`. Loaded contextually — not all apply at once.
 | File | Stack |
 |------|-------|
 | `rules/stacks/nextjs-payload.md` | Next.js + Payload CMS conventions |
-| `rules/stacks/react-native-expo.md` | React Native + Expo conventions |
+| `rules/stacks/experimental.react-native-expo.md` | React Native + Expo conventions (experimental; excluded from project sync by default) |
+
+## Generated Artifacts
+
+These files are generated or derived from the canonical repo sources:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.github/copilot-instructions.md`
+- `.github/prompts/*.prompt.md`
+- `.vscode/tasks.json`
+
+`.vscode/tasks.json` is kept as a generated convenience surface, not as a
+primary project-model artifact.
 
 ## Tool Support Matrix
 

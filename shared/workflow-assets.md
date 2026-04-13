@@ -1,0 +1,8 @@
+- `AI-WORKFLOWS.md`
+- `commands/**`
+- `rules/**`
+- `.github/prompts/**`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.github/copilot-instructions.md`
+- `.cursor/rules/**`

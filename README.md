@@ -131,6 +131,29 @@ Practical guidance:
 - `scripts/sync.sh`: syncs either global agent folders or a target project
 - `scripts/validate-ai-instructions.sh`: regenerates adapters and checks for drift
 
+## Generated Vs Canonical Files
+
+Treat these as the canonical source files you edit directly:
+
+- `commands/`
+- `rules/`
+- `skills/`
+- `shared/`
+- `templates/`
+- `scripts/`
+
+Treat these as generated or derived convenience artifacts:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.github/copilot-instructions.md`
+- `.github/prompts/*.prompt.md`
+- `.vscode/tasks.json`
+
+`.vscode/tasks.json` stays in the repo as a generated convenience surface for
+local execution, but it is not a primary architectural artifact in the project
+sync model.
+
 ## Project Sync Model
 
 `./scripts/sync.sh --project <path>` installs a project-facing setup with a clear split:
@@ -228,6 +251,19 @@ If a synced project changes a shared workflow file in a generally reusable way, 
 1. Edit the relevant file in `templates/`.
 2. If the adapter should render shared content, add shared markers.
 3. Re-run project sync against a test repo and confirm the generated output.
+
+### Smoke test project sync
+
+Run this before merging changes that affect project templates or sync behavior:
+
+```bash
+./scripts/smoke-test-project-sync.sh
+```
+
+This v1 smoke test covers the default project sync path, prompt generation
+alignment, and both `CONVENTIONS.md` present/missing behavior. Experimental
+inclusion via `--include-experimental` is still out of scope for the first
+version.
 
 ## Safety
 

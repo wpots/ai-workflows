@@ -17,7 +17,8 @@ Read `package.json` (`dependencies` + `devDependencies`):
 - `"next"` present → stack is **Next.js** (+ Payload if `@payloadcms/payload`
   present); load `rules/stacks/nextjs-payload.md`
 - `"expo"` or `"react-native"` present → stack is **React Native + Expo**;
-  load `rules/stacks/react-native-expo.md`
+  load `rules/stacks/experimental.react-native-expo.md` when available
+  (this stack file is experimental and excluded from default project sync)
 - Neither → principles-only review; load `rules/clean-architecture.md` only
 
 ---

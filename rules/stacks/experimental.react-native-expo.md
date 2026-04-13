@@ -1,5 +1,11 @@
 # Stack Rules: React Native + Expo
 
+Experimental stack guidance for Expo / React Native projects.
+
+This file is excluded from project sync by default. Load it when working from
+the canonical `ai-workflows` repo, or when a project explicitly opts into
+experimental workflow assets.
+
 Applies when `expo` or `react-native` is detected in `package.json`.
 
 Load `rules/clean-architecture.md` first — this file only adds stack-specific
