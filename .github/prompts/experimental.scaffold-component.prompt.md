@@ -5,6 +5,16 @@ description: "Scaffold Component"
 
 # Scaffold Component
 
+This runbook is the compatibility and fallback surface for the canonical
+`experimental.scaffold-component` skill.
+
+Preferred path:
+
+1. If the current tool supports skills reliably, use
+   `skills/experimental.scaffold-component/SKILL.md` as the primary workflow.
+2. Use this runbook for prompt-first tools such as Copilot, or when the skill
+   path is unavailable.
+
 Create a new React component following the project structure and conventions.
 
 ## Inputs Required
@@ -19,7 +29,7 @@ Ask the user for:
    - `[Name].test.tsx` — optional (default: yes)
    - `[Name].stories.tsx` — optional (default: yes)
 
-## File Templates
+## Fallback File Templates
 
 ### `[Name].tsx`
 
@@ -76,7 +86,7 @@ type Story = StoryObj<typeof [Name]>;
 export const Default: Story = {};
 ```
 
-## Rules
+## Fallback Rules
 
 - Always use `function` keyword, never arrow function for the component export.
 - Props interface goes in `index.ts`, not in the component file.

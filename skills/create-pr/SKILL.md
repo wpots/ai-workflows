@@ -7,6 +7,9 @@ description: Push the current branch and create a pull request (GitHub or GitLab
 
 Use this skill when the user asks to create, open, or submit a pull request (or merge request).
 
+This skill is the canonical workflow source for create-pr on skill-aware tools.
+The matching command runbook is a compatibility and fallback surface.
+
 ## Prerequisites
 
 - The working tree should be clean (all changes committed).

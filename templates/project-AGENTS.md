@@ -23,12 +23,18 @@ When CONVENTIONS.md conflicts with rules/, CONVENTIONS.md wins.
 
 ### Skills
 
-Skills are the primary dispatch mechanism for repeatable workflows.
+Skills are the primary dispatch mechanism for repeatable workflows on
+skill-aware tools. Treat them as the canonical workflow source when available.
 
 | Skill            | Trigger phrases                          |
 | ---------------- | ---------------------------------------- |
 | `commit-message` | commit message, write commit, git commit |
 | `create-pr`      | create pr, open pr, submit pr            |
+
+### Commands
+
+Commands in `commands/` remain compatibility adapters and fallback runbooks,
+especially for Copilot-style flows or when a skill path is unavailable.
 
 ## Shared Workflow Source
 

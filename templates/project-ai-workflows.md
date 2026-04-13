@@ -19,6 +19,28 @@ When `CONVENTIONS.md` conflicts with synced baseline rules, `CONVENTIONS.md` win
 | Codex | `AGENTS.md` plus repo files it can inspect | `AGENTS.md` is the thin adapter; deeper project context lives in `CONVENTIONS.md`, `rules/`, and `commands/`. |
 | Cursor | `AGENTS.md` and `.cursor/rules/*.md` | Cursor can follow project files well, and `.cursor/rules/conventions.mdc` points it back to `CONVENTIONS.md` and `rules/`. |
 
+## Workflow Surface Strategy
+
+This setup uses four workflow surfaces:
+
+| Surface | Primary role |
+| ------- | ------------ |
+| `rules/` | stable policy and coding standards |
+| `skills/` | repeatable multi-step workflows for skill-aware tools; these are usually installed globally, not copied into the project |
+| `commands/` | compatibility adapters and fallback runbooks |
+| adapters | always-on routing, precedence, and local usage guidance |
+
+## Tool Support Matrix
+
+Use this as the intended model inside synced projects:
+
+| Tool | Preferred workflow surface |
+| ---- | -------------------------- |
+| GitHub Copilot | commands/runbooks |
+| Cursor | skills first, commands as fallback |
+| Codex | skills first, commands as fallback |
+| Claude Code | mixed: skills when supported, commands/rules as compatibility path |
+
 ## Always-On Vs On-Demand
 
 Use this rule of thumb:
@@ -54,6 +76,12 @@ Per tool:
 - Claude Code: project `CLAUDE.md` points to `rules/`, but mentioning the specific rule in the prompt gives the strongest signal.
 - Codex: `AGENTS.md` points to the local files, and explicitly naming a focused rule is still helpful for narrow tasks.
 - Copilot: assume only `.github/copilot-instructions.md` is ambient. If a focused rule matters, name it in the prompt or work from the matching prompt/runbook.
+
+For workflows:
+
+- If a matching skill exists and the current tool supports skills well, prefer the skill.
+- If you are using Copilot, or a workflow needs a prompt-friendly fallback, use the matching command/runbook.
+- Keep rules as the policy source even when a skill or command helps execute the work.
 
 ## Files In This Project
 

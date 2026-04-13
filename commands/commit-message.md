@@ -1,5 +1,15 @@
 # Commit Message Generator
 
+This runbook is the compatibility and fallback surface for the canonical
+`commit-message` skill.
+
+Preferred path:
+
+1. If the current tool supports skills reliably, use
+   `skills/commit-message/SKILL.md` as the primary workflow.
+2. Use this runbook for prompt-first tools such as Copilot, or when the skill
+   path is unavailable.
+
 Generate a conventional commit message from the current staged diff.
 
 ## Inputs
@@ -8,7 +18,7 @@ Generate a conventional commit message from the current staged diff.
 - If nothing is staged, run `git diff HEAD` and note it covers unstaged changes.
 - If neither has output, stop and tell the user there is nothing to commit.
 
-## Format
+## Fallback Format
 
 Follow the Conventional Commits spec:
 

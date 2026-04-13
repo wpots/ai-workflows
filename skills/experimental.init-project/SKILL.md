@@ -9,6 +9,10 @@ Use this skill when the user asks to apply ai-workflows rules, skills, and
 commands to a project — or to initialize/set up a project for AI-assisted
 development.
 
+This skill is the canonical workflow source for project initialization on
+skill-aware tools. The matching command runbook is a compatibility and fallback
+surface.
+
 ## Inputs
 
 1. **Project path** — absolute path or relative to `~/Web/`. Ask if not provided.

@@ -1,6 +1,17 @@
 # Create Pull Request
 
-Push the current branch and open a pull request (GitHub) or merge request (GitLab) with a structured description.
+This runbook is the compatibility and fallback surface for the canonical
+`create-pr` skill.
+
+Preferred path:
+
+1. If the current tool supports skills reliably, use
+   `skills/create-pr/SKILL.md` as the primary workflow.
+2. Use this runbook for prompt-first tools such as Copilot, or when the skill
+   path is unavailable.
+
+Push the current branch and open a pull request (GitHub) or merge request
+(GitLab) with a structured description.
 
 ## Remote Resolution
 
@@ -57,7 +68,7 @@ Look for a body template in this order:
 
 If found, use its structure and fill in sections from the diff. If not, use the default structure below.
 
-## PR Description (default)
+## Fallback PR Description (default)
 
 Analyse the diff against the base branch and generate:
 
@@ -71,7 +82,7 @@ Analyse the diff against the base branch and generate:
 - **Testing Notes**: Required testing steps or affected areas
 - **Technical Notes**: Important implementation details (optional)
 
-## Execution
+## Fallback Execution
 
 1. Push the branch: `git push -u <remote> HEAD`
 2. Create the PR/MR:

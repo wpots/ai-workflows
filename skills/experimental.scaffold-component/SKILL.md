@@ -7,6 +7,10 @@ description: Create a new React component with the correct file structure, templ
 
 Use this skill when the user asks to create or scaffold a new React component.
 
+This skill is the canonical workflow source for scaffold-component on
+skill-aware tools. The matching command runbook is a compatibility and fallback
+surface.
+
 ## Inputs
 
 Ask the user if not provided:

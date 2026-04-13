@@ -7,6 +7,9 @@ description: Review current branch changes against remote base branch and produc
 
 Use this skill when the user requests review of current changes.
 
+This skill is the canonical workflow source for code review on skill-aware
+tools. The matching command runbook is a compatibility and fallback surface.
+
 ## Base Branch Resolution
 
 Use the first existing branch in this order:

@@ -7,6 +7,9 @@ description: Run project quality checks sequentially, stop on failures for user 
 
 Use this skill when the user asks to run project checks or validate branch quality.
 
+This skill is the canonical workflow source for run-checks on skill-aware
+tools. The matching command runbook is a compatibility and fallback surface.
+
 ## Workflow
 
 1. Read `package.json` and detect available scripts.

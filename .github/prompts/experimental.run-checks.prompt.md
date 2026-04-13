@@ -5,6 +5,16 @@ description: "Run All Checks"
 
 # Run All Checks
 
+This runbook is the compatibility and fallback surface for the canonical
+`experimental.run-checks` skill.
+
+Preferred path:
+
+1. If the current tool supports skills reliably, use
+   `skills/experimental.run-checks/SKILL.md` as the primary workflow.
+2. Use this runbook for prompt-first tools such as Copilot, or when the skill
+   path is unavailable.
+
 Run project quality checks in sequence with review prompts between failures.
 
 ## Checks to Run (in order)
@@ -15,7 +25,7 @@ Run project quality checks in sequence with review prompts between failures.
 4. **test** - `npm run test`
 5. **build** - `npm run build`
 
-## Rules
+## Fallback Rules
 
 1. **Check package.json first** - Only run checks if the script exists in package.json
 2. **Sequential execution** - Run checks one at a time in the order listed above

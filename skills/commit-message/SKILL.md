@@ -7,6 +7,9 @@ description: Generate a conventional commit message from staged or unstaged diff
 
 Use this skill when the user asks to write or generate a commit message.
 
+This skill is the canonical workflow source for commit-message on skill-aware
+tools. The matching command runbook is a compatibility and fallback surface.
+
 ## Workflow
 
 1. Run `git diff --cached` to get staged changes.

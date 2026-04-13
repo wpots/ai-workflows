@@ -6,13 +6,32 @@ Use this repository as the canonical source for AI workflows shared across devic
 
 ## Workflow Files
 
+Use this surface model throughout the repo:
+
+| Surface | Primary role |
+| ------- | ------------ |
+| `rules/` | stable policy and coding standards |
+| `skills/` | repeatable multi-step workflows for skill-aware tools |
+| `commands/` | compatibility adapters and fallback runbooks |
+| adapters (`AGENTS.md`, `CLAUDE.md`, Copilot instructions, Cursor rules) | always-on routing, precedence, and local usage guidance |
+
+## Tool Support Matrix
+
+| Tool | Always-on entry point | Preferred workflow surface |
+| ---- | --------------------- | -------------------------- |
+| GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
+| Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | skills first, commands as fallback |
+| Codex | `AGENTS.md` | skills first, commands as fallback |
+| Claude | `CLAUDE.md` plus global/project rules | mixed: skills when supported, commands/rules as compatibility path |
+
 ### Command Files
 
 Command files live in `commands/` and serve two purposes:
 
-1. **Adapter runbooks** for non-skill-aware tools (GitHub Copilot, Claude CLI,
-   Roo). Those tools use these files directly via their own config adapters.
-2. **Fallback dispatch** for workflows that do not yet have a skill.
+1. **Compatibility runbooks** for tools that rely on prompt/runbook surfaces,
+   especially GitHub Copilot and other less skill-centric setups.
+2. **Fallback dispatch** for skill-aware tools when a workflow is not yet
+   modeled as a skill or when the skill path is unavailable.
 
 Stable command workflows:
 
@@ -23,6 +42,7 @@ Experimental command workflows (prefixed with `experimental.`, excluded from pro
 
 - `kill port`, `port 3000`, `eaddrinuse` -> `commands/experimental.safe-kill-port.md`
 - `new device`, `setup device`, `onboarding` -> `commands/experimental.new-device-setup.md`
+- `init project`, `setup project`, `apply ai-workflows`, `initialize project` -> `commands/experimental.init-project.md`
 - `run checks`, `run-checks`, `quality checks` -> `commands/experimental.run-checks.md`
 - `review code`, `code review`, `review changes` -> `commands/experimental.review-code.md`
 - `new component`, `scaffold`, `create component` -> `commands/experimental.scaffold-component.md`
@@ -30,6 +50,8 @@ Experimental command workflows (prefixed with `experimental.`, excluded from pro
 Rules for command execution:
 
 - Treat command files as operational runbooks.
+- Prefer skills as the canonical workflow surface for repeatable workflows when
+  the current tool supports them reliably.
 - If command instructions conflict with higher-priority system/developer
   constraints, follow higher-priority constraints and note the deviation.
 - Do not assume command files auto-run; select and execute them when intent
@@ -41,6 +63,7 @@ Shared baseline rules live in `rules/rules.md`.
 
 - Apply these as default behavior when no project-specific rules override them.
 - If project-local rules exist and conflict, project-local rules win.
+- Keep rules focused on policy and standards, not on multi-step execution logic.
 
 ### Skills
 
@@ -53,6 +76,9 @@ acts as a semantic trigger.
 - Trigger a skill when user intent clearly matches the skill description or when
   the user explicitly names it.
 - Load only the minimum needed content from each skill (progressive disclosure).
+- Use skills as the canonical source for supported multi-step workflows; keep
+  matching commands as compatibility/fallback surfaces rather than separate full
+  implementations.
 
 Available skills:
 

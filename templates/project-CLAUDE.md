@@ -35,6 +35,14 @@ Shared workflow assets:
 - `CLAUDE.md`
 - `.cursor/rules/**`
 
+## Workflow Strategy
+
+On Claude, use a mixed workflow model:
+
+- prefer a matching skill when the workflow is available and fits the task well
+- use `commands/` as the compatibility and fallback path
+- keep `rules/` as the policy source of truth
+
 ## Command Mapping
 
 When user intent matches one of these triggers, read and follow the corresponding runbook in `commands/`:

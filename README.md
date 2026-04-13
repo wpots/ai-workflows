@@ -28,6 +28,39 @@ Because of that:
 - Copilot project sync inlines both `CONVENTIONS.md` and a condensed shared baseline.
 - Synced projects get an `AI-WORKFLOWS.md` guide that explains the per-tool loading model locally.
 
+## Workflow Surface Strategy
+
+The repo uses four distinct surfaces with different jobs:
+
+| Surface | Primary role |
+| ------- | ------------ |
+| `rules/` | stable policy and coding standards |
+| `skills/` | repeatable multi-step workflows for skill-aware tools |
+| `commands/` | compatibility adapters and fallback runbooks |
+| tool adapters | always-on routing, precedence, and local usage guidance |
+
+Recommended default:
+
+- new policy -> add or update a rule file
+- new reusable workflow -> create a skill first
+- Copilot or fallback support for that workflow -> add a command/runbook wrapper
+- always-on baseline -> keep it compact in adapters or shared fragments
+
+See [workflow-canonical-sources.md](/Users/wietekepots/Web/ai-workflows/docs/workflow-canonical-sources.md) for the current declared canonical source of each reusable workflow.
+
+## Tool Support Matrix
+
+Use this as the intended support model for the repo:
+
+| Tool | Always-on entry point | Preferred workflow surface |
+| ---- | --------------------- | -------------------------- |
+| GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
+| Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | skills first, commands as fallback |
+| Codex | `AGENTS.md` | skills first, commands as fallback |
+| Claude | `CLAUDE.md` plus global/project rules | mixed: skills when supported, commands/rules as compatibility path |
+
+That means the repo is intentionally not “skills only.” Copilot still needs command-friendly runbooks, and Claude should not depend exclusively on skills unless its support model is made more explicit in the future.
+
 ## Always-On Vs On-Demand Rules
 
 The rule split is intentional:
@@ -52,12 +85,14 @@ This means the separate rule files are mostly conditional rather than ambient. T
 Developers should treat the synced setup as two layers:
 
 - ambient baseline: the tool adapter plus `CONVENTIONS.md`
-- task-specific guidance: the relevant file in `rules/` or `commands/`
+- task-specific guidance: the relevant file in `rules/`, `skills/`, or `commands/`
 
 Practical guidance:
 
 - For broad implementation tasks, start normally; the adapter and `CONVENTIONS.md` should already set the baseline.
 - For narrow tasks, mention the rule explicitly in the prompt: for example `rules/testing.md`, `rules/accessibility.md`, or `rules/tailwind.md`.
+- For repeatable multi-step workflows on Cursor or Codex, prefer invoking the matching skill when one exists.
+- For Copilot, rely on commands/runbooks rather than assuming skills exist.
 - For reviews and audits, name the policy you want checked: for example `rules/clean-architecture.md` plus the matching stack rule.
 - For Copilot, assume only `.github/copilot-instructions.md` is ambient; if a focused rule matters, call it out in the prompt or use the related prompt/runbook.
 - For Cursor, Claude Code, and Codex, the tools can inspect local files, but explicitly naming the focused rule still gives a better signal for specialized tasks.
@@ -146,7 +181,8 @@ Use this split when deciding where a change belongs:
 
 - Put project-specific stack, structure, scripts, and exceptions in `CONVENTIONS.md`.
 - Put reusable coding standards in `rules/`.
-- Put reusable workflows in `commands/`.
+- Put reusable multi-step workflows in `skills/` first.
+- Put Copilot-compatible wrappers and fallback procedures in `commands/`.
 - Put tool-specific adapter wording in `templates/`, `AGENTS.md`, `CLAUDE.md`, or `.github/copilot-instructions.md`.
 - Put repeated adapter snippets in `shared/`.
 
