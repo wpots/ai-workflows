@@ -8,6 +8,7 @@ Load only the relevant focused rule files for the task:
 - `rules/tailwind.md` for styling and design-token work
 - `rules/testing.md` for tests and test reviews
 - `rules/accessibility.md` for interactive UI and accessibility checks
+- `rules/type-safety.md` for TypeScript-heavy work, trust boundaries, and runtime validation checks
 - `rules/backlog.md` for user stories, specs, and backlog work
 - the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
 

@@ -53,11 +53,27 @@ Load the relevant file when the task needs it:
 
 | Task type | Rule to consult |
 | --------- | --------------- |
+| TypeScript-heavy code, API/JSON/env/database boundaries | `rules/type-safety.md` |
 | Styling, tokens, Tailwind | `rules/tailwind.md` |
 | Tests, test reviews | `rules/testing.md` |
 | Interactive UI, a11y checks | `rules/accessibility.md` |
 | User stories, specs, backlog work | `rules/backlog.md` |
 | Stack-specific architecture | the matching file in `rules/stacks/` after checking `package.json` |
+
+## Type-Safety Model
+
+This setup treats type safety as three layers:
+
+- universal baseline: compact always-on guidance from adapters and Copilot core
+  rules
+- deeper policy: `rules/type-safety.md` for trust boundaries, strict TypeScript
+  posture, lint guardrails, and transport-to-domain separation
+- review audit: the code-review workflow checks unsafe assertions, missing
+  validation, and missing workflow guardrails
+
+The default recommendation is compile-time strictness plus runtime validation at
+trust boundaries. External data is not considered safe just because TypeScript
+types exist nearby.
 
 ## How Developers Should Use This
 
@@ -68,6 +84,7 @@ Examples:
 - "Implement this form and follow `rules/accessibility.md`."
 - "Write tests for this component using `rules/testing.md`."
 - "Refactor this page and apply `rules/tailwind.md`."
+- "Review this integration against `rules/type-safety.md` and call out trust-boundary risks."
 - "Review this feature against `rules/clean-architecture.md` and the relevant stack rule."
 
 Per tool:

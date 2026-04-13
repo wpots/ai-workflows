@@ -16,6 +16,7 @@ In practice, treat this directory as a topic-based rule library:
 | ----------------------------- | ------------------------------------------------------------------- |
 | `communication.md`            | Tone, response style, problem-solving approach                      |
 | `project.md`                  | React, Next.js, TypeScript, component design, naming                |
+| `type-safety.md`             | Runtime trust boundaries, strict TypeScript posture, review guardrails |
 | `tailwind.md`                 | Tailwind 4, design tokens, Figma export workflow                    |
 | `testing.md`                  | Jest + Storybook split, query priority, coverage                    |
 | `accessibility.md`            | WCAG requirements, ARIA, keyboard navigation                        |
@@ -29,11 +30,13 @@ In practice, treat this directory as a topic-based rule library:
 1. Load `communication.md` always — baseline behavior.
 2. Load `project.md` when no project-local rules exist.
 3. Load `clean-architecture.md` whenever writing or reviewing code.
-4. Load `tailwind.md` when working on styles or design tokens.
-5. Load `testing.md` when writing or reviewing tests.
-6. Load `backlog.md` when writing user stories, backlog items, or task specs.
-7. Load `accessibility.md` when building interactive UI components.
-8. Load the appropriate stack file based on detected stack (see below).
+4. Load `type-safety.md` when handling TypeScript-heavy code, integrations,
+   parsing, config, or code review focused on correctness.
+5. Load `tailwind.md` when working on styles or design tokens.
+6. Load `testing.md` when writing or reviewing tests.
+7. Load `backlog.md` when writing user stories, backlog items, or task specs.
+8. Load `accessibility.md` when building interactive UI components.
+9. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection
 

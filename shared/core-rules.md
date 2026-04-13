@@ -3,8 +3,11 @@ Apply these as the default coding baseline when project-local conventions do not
 ## TypeScript And React
 
 - Use TypeScript with strict, explicit types.
-- Avoid `any`; prefer `unknown`, narrowing, or a real domain type.
-- Avoid unsafe `as` assertions; prefer guards, validation, or better typing.
+- Treat API payloads, `JSON.parse` results, env vars, database rows, files, queue messages, and third-party library data as untrusted until validated.
+- Prefer `unknown` plus narrowing or validation at boundaries over `any` or asserted certainty.
+- Avoid broad `as` assertions; prefer guards, validation, or better typing.
+- Prefer discriminated unions over loose optional-state objects.
+- Convert transport shapes into explicit trusted domain types after validation.
 - Prefer `interface` for object contracts and `type` for unions/composition.
 - Use named function declarations for exported functions and components.
 - Do not use `React.FC`.
@@ -20,11 +23,12 @@ Apply these as the default coding baseline when project-local conventions do not
 - Dependencies flow inward: Presentation -> Application -> Infrastructure -> Domain.
 - Presentation can use application-layer APIs and domain types, but not infrastructure directly.
 - Domain code stays framework-free and side-effect free.
-- Map API, CMS, or database payloads at the boundary before they leak into the UI.
+- Validate and map API, CMS, database, file, and other transport payloads at the boundary before they leak into the UI or domain.
 
 ## Avoid
 
-- `any`, unchecked assertions, and anonymous exported APIs.
+- `any`, unchecked parsing, broad assertions, and anonymous exported APIs.
+- Passing raw external payloads straight into domain or UI code.
 - Direct fetch, database, or CMS calls inside UI components.
 - Components that mix rendering, business logic, and data access.
 - Introducing a new styling or component-library pattern that conflicts with project conventions.

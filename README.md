@@ -72,6 +72,7 @@ Use the focused rules like this:
 
 | Task type | Rule to consult |
 | --------- | --------------- |
+| TypeScript-heavy code, API/JSON/env/database boundaries | `rules/type-safety.md` |
 | Styling, tokens, Tailwind | `rules/tailwind.md` |
 | Tests and test reviews | `rules/testing.md` |
 | Interactive UI and accessibility checks | `rules/accessibility.md` |
@@ -79,6 +80,21 @@ Use the focused rules like this:
 | Stack-specific architecture | the matching file in `rules/stacks/` after checking `package.json` |
 
 This means the separate rule files are mostly conditional rather than ambient. That keeps the default context smaller and avoids applying React Native rules to a Next.js task, or vice versa.
+
+## Type-Safety Model
+
+The repo now treats type safety as a three-layer concern:
+
+- universal baseline: compact rules in `shared/core-rules.md`, which are inlined
+  into Copilot-facing instructions and mirrored by the general baseline rules
+- deeper policy: `rules/type-safety.md` for trust boundaries, strict `tsconfig`
+  posture, lint guardrails, and transport-to-domain separation
+- review audit: `experimental.code-review` checks runtime validation gaps,
+  unsafe assertions, and missing workflow guardrails
+
+The recommended posture is compile-time strictness plus runtime validation at
+trust boundaries. TypeScript alone is not treated as proof that external data is
+safe.
 
 ## How Developers Should Use The Rules
 
@@ -91,6 +107,9 @@ Practical guidance:
 
 - For broad implementation tasks, start normally; the adapter and `CONVENTIONS.md` should already set the baseline.
 - For narrow tasks, mention the rule explicitly in the prompt: for example `rules/testing.md`, `rules/accessibility.md`, or `rules/tailwind.md`.
+- For trust-boundary work, mention `rules/type-safety.md` explicitly so the
+  tool audits runtime validation and unsafe assertions, not just TypeScript
+  syntax.
 - For repeatable multi-step workflows on Cursor or Codex, prefer invoking the matching skill when one exists.
 - For Copilot, rely on commands/runbooks rather than assuming skills exist.
 - For reviews and audits, name the policy you want checked: for example `rules/clean-architecture.md` plus the matching stack rule.
@@ -181,6 +200,8 @@ Use this split when deciding where a change belongs:
 
 - Put project-specific stack, structure, scripts, and exceptions in `CONVENTIONS.md`.
 - Put reusable coding standards in `rules/`.
+- Keep compact universal type-safety doctrine in `shared/core-rules.md`, and
+  put the detailed enforcement guidance in `rules/type-safety.md`.
 - Put reusable multi-step workflows in `skills/` first.
 - Put Copilot-compatible wrappers and fallback procedures in `commands/`.
 - Put tool-specific adapter wording in `templates/`, `AGENTS.md`, `CLAUDE.md`, or `.github/copilot-instructions.md`.

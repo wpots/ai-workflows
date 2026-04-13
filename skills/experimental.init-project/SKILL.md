@@ -1,6 +1,6 @@
 ---
 name: init-project
-description: Initialize a project with AI workflow configuration — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), adds a developer-facing AI-WORKFLOWS.md guide, and detects deviations from global rules. Use when the user asks to set up, initialize, or apply ai-workflows to a project.
+description: Initialize a project with AI workflow configuration — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), adds a developer-facing AI-WORKFLOWS.md guide, and detects deviations from global rules including type-safety and trust-boundary posture. Use when the user asks to set up, initialize, or apply ai-workflows to a project.
 ---
 
 # Init Project Skill
@@ -44,6 +44,16 @@ Also detect:
 - **Test runner**: vitest, jest, or neither
 - **Linting**: eslint, stylelint, biome
 - **Styling**: tailwindcss, css modules, styled-components
+- **TypeScript posture**: whether `tsconfig` uses `strict`,
+  `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`,
+  `useUnknownInCatchVariables`, `noImplicitOverride`,
+  `noPropertyAccessFromIndexSignature`, `noFallthroughCasesInSwitch`, and
+  `noEmitOnError`
+- **Unsafe-type linting**: whether the project appears to enforce rules such as
+  `no-explicit-any`, `no-unsafe-assignment`, and
+  `switch-exhaustiveness-check`
+- **Boundary validation approach**: whether a validation library or clear guard
+  pattern exists for API, env, JSON, database, file, or queue inputs
 - **Storybook**: present or not
 - **Accessibility primitives**: react-aria-components, radix-ui, etc.
 - **Available scripts**: from `package.json` scripts field
@@ -65,6 +75,10 @@ Compare the detected project config against global rules in
 - Dual test runners (e.g., Jest + Vitest) vs. global testing rules
 - Scaffolding tools (e.g., Plop) that overlap with the scaffold-component skill
 - Style approaches that differ from global Tailwind rules
+- Weaker TypeScript compiler posture than the recommended flags in
+  `rules/type-safety.md`
+- Missing unsafe-type lint guardrails compared with `rules/type-safety.md`
+- Trust-boundary data handled without a documented validation pattern
 - Any conventions in existing config files (prettier, eslint, tsconfig) that
   contradict global rules
 
@@ -105,6 +119,12 @@ truth** for project-specific context. All tool adapters reference this file.
 - <project-specific conventions detected from config files>
 - <scaffolding approach, component patterns, etc.>
 
+## Type Safety
+
+- <TypeScript strictness posture if it differs from the baseline>
+- <lint guardrails that are present or intentionally absent>
+- <how API/env/JSON/database/file boundaries are validated, if documented>
+
 ## Deviations from Global Rules
 
 - <each deviation with rationale>
@@ -121,6 +141,10 @@ Guidelines:
 - Pull the description from `package.json` or the first paragraph of `README.md`.
 - List only scripts that exist in `package.json`.
 - Keep it under 80 lines — concise and scannable.
+- Distinguish between:
+  - universal baseline rules from the adapters and `shared/core-rules.md`
+  - deeper policy from `rules/type-safety.md`
+  - review-specific audit behavior from the code-review workflow
 
 ### 6. Generate Thin Adapters
 
@@ -153,6 +177,11 @@ Sync these shared workflow assets into the project:
 - `.github/prompts/*.prompt.md` generated from `commands/`
 
 These are reusable workflow assets, not project-owned conventions.
+The type-safety split should stay visible in the generated project guidance:
+
+- universal baseline in adapters and Copilot core rules
+- deeper enforcement policy in `rules/type-safety.md`
+- audit behavior in the review workflow
 
 ### 8. Summary
 

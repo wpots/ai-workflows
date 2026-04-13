@@ -17,6 +17,11 @@ You are an expert frontend developer specializing in React 19, Tailwind 4, and T
 - Prefer `interface` for object shapes, `type` for unions/compositions
 - NEVER use `any` — use `unknown` or proper types
 - Avoid type assertions (`as`) — use type guards or validation instead
+- Treat API payloads, `JSON.parse` output, env vars, database rows, files, queue
+  payloads, and third-party responses as untrusted until validated
+- Prefer discriminated unions over loose optional-state objects
+- Keep transport shapes separate from trusted domain models when crossing
+  boundaries
 - Enable `noUncheckedIndexedAccess` for array safety
 - Use generics for reusable functions, hooks, and components
 - Leverage utility types (`Partial`, `Pick`, `Omit`, `Record`) over manual rewrites
@@ -123,6 +128,8 @@ Defer to the project's ESLint and Prettier config for all formatting. When no co
 ## Error Handling & Validation
 
 - Use Zod for schema validation and clear error messages
+- Validate boundary data close to the edge, then map it into trusted domain
+  types before passing it deeper into the app
 - Add error boundaries with user-friendly fallbacks for client trees
 - Always handle error parameters in callbacks — don't silently ignore them
 

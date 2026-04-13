@@ -28,10 +28,20 @@ Preferred path:
    - stack
    - scripts
    - lint/test/styling tooling
+   - TypeScript strictness posture and unsafe-type linting
+   - boundary-validation approach for API, env, JSON, database, file, and queue inputs
    - notable dependencies
 4. Probe the project structure and map folders to clean-architecture layers.
-5. Create or update `CONVENTIONS.md` as the project-specific source of truth.
-6. Sync the project-facing workflow files:
+5. Detect deviations from the shared baseline, including weaker `tsconfig`
+   posture, missing unsafe-type lint rules, or missing trust-boundary
+   validation patterns.
+6. Create or update `CONVENTIONS.md` as the project-specific source of truth.
+   When relevant, surface:
+   - TypeScript strictness posture
+   - unsafe-type lint posture
+   - boundary validation conventions
+   - rationale for intentional deviations from `rules/type-safety.md`
+7. Sync the project-facing workflow files:
    - `AI-WORKFLOWS.md`
    - `CLAUDE.md`
    - `AGENTS.md`
@@ -40,10 +50,11 @@ Preferred path:
    - `rules/`
    - `commands/`
    - `.github/prompts/`
-7. Summarize:
+8. Summarize:
    - detected stack
    - created or updated files
    - deviations from global rules
+   - notable type-safety posture or trust-boundary gaps
 
 ## Constraints
 
