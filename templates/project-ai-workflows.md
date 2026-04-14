@@ -65,6 +65,8 @@ Load the relevant file when the task needs it:
 | Tests, test reviews | `rules/testing.md` |
 | Interactive UI, a11y checks | `rules/accessibility.md` |
 | User stories, specs, backlog work | `rules/backlog.md` |
+| CMS-backed content block architecture and transforms | `rules/content-blocks.md` |
+| Payload CMS schemas, generated types, hooks, and integrations | `rules/payload.md` |
 | Stack-specific architecture | the matching file in `rules/stacks/` after checking `package.json` |
 
 ## Type-Safety Model
@@ -91,6 +93,8 @@ Examples:
 - "Implement this form and follow `rules/accessibility.md`."
 - "Write tests for this component using `rules/testing.md`."
 - "Refactor this page and apply `rules/tailwind.md`."
+- "Add a new CMS block and follow `rules/content-blocks.md`."
+- "Update this Payload schema using `rules/payload.md`."
 - "Review this integration against `rules/type-safety.md` and call out trust-boundary risks."
 - "Review this feature against `rules/clean-architecture.md` and the relevant stack rule."
 

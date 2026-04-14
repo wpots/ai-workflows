@@ -77,6 +77,8 @@ Use the focused rules like this:
 | Tests and test reviews | `rules/testing.md` |
 | Interactive UI and accessibility checks | `rules/accessibility.md` |
 | User stories, specs, backlog work | `rules/backlog.md` |
+| CMS-backed content block architecture and transforms | `rules/content-blocks.md` |
+| Payload CMS schemas, generated types, hooks, and integrations | `rules/payload.md` |
 | Stack-specific architecture | the matching file in `rules/stacks/` after checking `package.json` |
 
 This means the separate rule files are mostly conditional rather than ambient. That keeps the default context smaller and avoids applying React Native rules to a Next.js task, or vice versa.

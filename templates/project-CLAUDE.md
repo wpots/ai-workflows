@@ -10,6 +10,8 @@ Load only the relevant focused rule files for the task:
 - `rules/accessibility.md` for interactive UI and accessibility checks
 - `rules/type-safety.md` for TypeScript-heavy work, trust boundaries, and runtime validation checks
 - `rules/backlog.md` for user stories, specs, and backlog work
+- `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
+- `rules/payload.md` for Payload schema, generated-type, and integration work
 - the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
 
 ## Precedence

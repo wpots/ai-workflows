@@ -75,6 +75,8 @@ Baseline rules in `rules/`. Loaded contextually — not all apply at once.
 | `rules/testing.md` | Testing strategy, query priority, coverage expectations |
 | `rules/accessibility.md` | Semantic HTML, ARIA, keyboard nav, color contrast |
 | `rules/backlog.md` | User stories, specs, backlog item structure |
+| `rules/content-blocks.md` | CMS-backed block architecture, transforms, registry, stories, and tests |
+| `rules/payload.md` | Payload schemas, generated types, hooks, and integration boundaries |
 | `rules/clean-architecture.md` | Layer boundaries, dependency direction, CA principles |
 
 ### Stack-Specific Rules

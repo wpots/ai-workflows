@@ -21,6 +21,8 @@ In practice, treat this directory as a topic-based rule library:
 | `testing.md`                            | Jest + Storybook split, query priority, coverage                    |
 | `accessibility.md`                      | WCAG requirements, ARIA, keyboard navigation                        |
 | `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
+| `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
+| `payload.md`                            | Payload schemas, generated types, hooks, admin integrations         |
 | `clean-architecture.md`                 | Layer principles, dependency rules, forbidden patterns (all stacks) |
 | `stacks/nextjs-payload.md`              | Folder mapping + conventions for Next.js + Payload                  |
 | `stacks/experimental.react-native-expo.md` | React Native + Expo conventions (experimental; excluded from default project sync) |
@@ -36,7 +38,9 @@ In practice, treat this directory as a topic-based rule library:
 6. Load `testing.md` when writing or reviewing tests.
 7. Load `backlog.md` when writing user stories, backlog items, or task specs.
 8. Load `accessibility.md` when building interactive UI components.
-9. Load the appropriate stack file based on detected stack (see below).
+9. Load `content-blocks.md` when building or reviewing CMS-backed content blocks.
+10. Load `payload.md` when working on Payload schemas, hooks, generated types, or admin integrations.
+11. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection
 
