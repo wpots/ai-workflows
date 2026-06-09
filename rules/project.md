@@ -100,7 +100,8 @@ Defer to the project's ESLint and Prettier config for all formatting. When no co
 - Trailing commas where possible; always parenthesize arrow-function parameters
 - Curly braces for multi-line `if` statements; `else` on the same line as `}`
 - Eliminate unused variables
-- Event handlers: `handle*` (e.g., `handleSubmit`)
+- Event handlers: `handle*` (e.g., `handleSubmit`, `handleToggle`)
+- Local event handlers and callbacks inside components use `const` arrow notation (e.g., `const handleToggle = () => {}`)
 - Booleans: `isLoading`, `hasError`, `canSubmit`
 - Custom hooks: `use*` (`useAuth`, `useForm`)
 - `UPPERCASE` for environment variables, constants, and global config
@@ -110,9 +111,10 @@ Defer to the project's ESLint and Prettier config for all formatting. When no co
 
 - Named function declarations for exported functions and components
 - Function declarations for Server Components and Server Actions
-- Arrow function expressions for callbacks and small local utilities
+- Arrow function expressions for callbacks, event handlers, and small local utilities
+- Inside components, prefer `const handleToggle = () => {}` over `function handleToggle() {}` for local handlers
 - Avoid anonymous exports; exported APIs must be named
-- Avoid inline function definitions in JSX — extract to named handlers or constants
+- Avoid inline function definitions in JSX — extract to named `const handle*` handlers or constants
 - No `React.FC`
 - Extract helpers when functions grow beyond ~50 lines or multiple responsibilities
 - Annotate parameters on exported functions; add return types only when inference is non-obvious

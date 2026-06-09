@@ -10,6 +10,7 @@ Apply these as the default coding baseline when project-local conventions do not
 - Convert transport shapes into explicit trusted domain types after validation.
 - Prefer `interface` for object contracts and `type` for unions/composition.
 - Use named function declarations for exported functions and components.
+- Use `const handleToggle = () => {}`-style arrow expressions for local callbacks and event handlers inside components.
 - Do not use `React.FC`.
 - Keep components focused; extract hooks or helpers when logic starts to sprawl.
 - Define explicit props types/interfaces for components.

@@ -23,6 +23,7 @@ Apply these as the default coding baseline when project-local conventions do not
 - Convert transport shapes into explicit trusted domain types after validation.
 - Prefer `interface` for object contracts and `type` for unions/composition.
 - Use named function declarations for exported functions and components.
+- Use `const handleToggle = () => {}`-style arrow expressions for local callbacks and event handlers inside components.
 - Do not use `React.FC`.
 - Keep components focused; extract hooks or helpers when logic starts to sprawl.
 - Define explicit props types/interfaces for components.
@@ -56,6 +57,9 @@ corresponding runbook:
 <!-- BEGIN SHARED:command-mappings -->
 - `create pr`, `open pr`, `submit pr` -> `commands/create-pr.md`
 - `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
+- `backlog item`, `user story`, `feature spec`, `bug item`, `bli` -> `commands/backlog.md`
+- `close sprint`, `sluit sprint af`, `sprint afsluiten` -> `commands/close-sprint.md`
+- `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `commands/sprint-demo.md`
 <!-- END SHARED:command-mappings -->
 
 Do not assume command files auto-run. Select and execute them when intent
