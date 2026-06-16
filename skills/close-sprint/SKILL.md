@@ -14,7 +14,8 @@ share the same workflow; Copilot follows the runbook directly.
 ## Workflow
 
 1. Read `commands/close-sprint.md` (project root, or the synced `commands/` dir).
-2. Follow every phase in order. Do not skip Phase 6 (review pause).
+2. Follow every phase in order. Start with Phase 0 (switch to an up-to-date
+   integration branch) and do not skip Phase 6 (review pause).
 3. A live tracker connection is mandatory. Use the most efficient method
    available: the tracker's MCP connector if connected, otherwise its CLI (e.g.
    `ankitpokhrel/jira-cli`). If neither connects, stop and help the user connect
@@ -22,6 +23,9 @@ share the same workflow; Copilot follows the runbook directly.
 
 ## Constraints
 
+- Always run from an up-to-date integration branch (`development` by default):
+  check it out and fast-forward before any analysis. A feature branch is ahead
+  of the integration branch and misclassifies delivered vs spillover work.
 - The issue tracker is **read-only**. No comments, transitions, edits, or
   assignments.
 - Never run `git commit` — the user commits themselves.

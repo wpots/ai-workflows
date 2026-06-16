@@ -23,6 +23,26 @@ Ask the user at start:
 2. Assignee email (default: the configured Jira user, verify with `jira me`).
 3. Jira project key (infer from existing backlog filenames, e.g. `RFW`).
 
+## Phase 0 — Switch to the integration branch
+
+Closing a sprint means reporting what landed on the **integration branch**
+(`development` by default — confirm the project's main branch if unsure). Run
+the whole flow from there, not from a feature branch:
+
+1. Verify a clean working tree (`git status --short`); stop and ask if dirty.
+2. Check out the integration branch and bring it up to date with the remote:
+   ```bash
+   git checkout development
+   git fetch origin
+   git pull --ff-only
+   ```
+   `--ff-only` is non-destructive (it only advances a strictly-behind local
+   branch). If it refuses because local has diverged, stop and ask.
+3. All later phases — code verification (Phase 2), `git mv` of delivered BLIs
+   (Phase 5), and the cleanup overview (Phase 8) — run from this up-to-date
+   branch. A feature branch is ahead of `development` and will misclassify
+   delivered vs spillover work and operate on the wrong `docs/` tree.
+
 ## Phase 1 — Fetch Jira tickets (read-only)
 
 A live Jira connection is a **hard precondition** — closing a sprint on local
