@@ -1,0 +1,17 @@
+name: testing
+kind: concern
+description: Testing-focused overlay for projects that want stronger test guidance.
+requires:
+  - greenberry-base
+includes:
+  rules:
+    - rules/testing.md
+    - rules/type-safety.md
+  commands:
+    - commands/experimental.run-checks.md
+  skills:
+    - skills/experimental.run-checks
+    - skills/experimental.code-review
+notes:
+  - Use when the project expects stronger automated quality gates.
+  - This package may opt into experimental workflows where appropriate.

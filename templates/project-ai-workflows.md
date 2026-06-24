@@ -5,6 +5,7 @@ This project uses the shared `ai-workflows` setup. This file explains how the sy
 ## Source Of Truth
 
 - `CONVENTIONS.md` is the project-owned source of truth for stack, structure, scripts, and local conventions.
+- selected `packages/` presets define the shared Greenberry baseline and any opt-in stack or concern overlays
 - `rules/` contains the shared baseline coding rules synced from `ai-workflows`.
 - `commands/` contains shared workflow runbooks synced from `ai-workflows`.
 
@@ -28,6 +29,7 @@ This setup uses four workflow surfaces:
 | `rules/` | stable policy and coding standards |
 | `skills/` | repeatable multi-step workflows for skill-aware tools; these are usually installed globally, not copied into the project |
 | `commands/` | compatibility adapters and fallback runbooks |
+| `packages/` | optional shared presets used to compose a project baseline |
 | adapters | always-on routing, precedence, and local usage guidance |
 
 ## Shared Workflow Assets
@@ -134,6 +136,8 @@ Experimental workflows are excluded from project sync by default. Re-run sync wi
 
 ## Customizing This Setup
 
+- Adjust selected packages when the project should opt into a reusable
+  Greenberry stack or concern baseline.
 - Edit `CONVENTIONS.md` for project-local decisions.
 - Edit the shared `ai-workflows` repo when a rule or runbook should be reused across projects.
 - Re-run project sync after upstream updates to refresh the local adapters, rules, commands, and prompt files.

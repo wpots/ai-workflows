@@ -13,6 +13,7 @@ Use this surface model throughout the repo:
 | `rules/` | stable policy and coding standards |
 | `skills/` | repeatable multi-step workflows for skill-aware tools |
 | `commands/` | compatibility adapters and fallback runbooks |
+| `packages/` | optional reusable presets that can be copied or composed per project |
 | adapters (`AGENTS.md`, `CLAUDE.md`, Copilot instructions, Cursor rules) | always-on routing, precedence, and local usage guidance |
 
 ## Tool Support Matrix
@@ -100,6 +101,17 @@ Experimental skills (prefixed with `experimental.`, excluded from project sync b
 | `experimental.architecture-review` | review architecture, check clean arch, architecture audit, layer violation                |
 | `experimental.init-project`        | init project, setup project, apply ai-workflows, initialize project                      |
 | `experimental.upstream-rules`      | upstream rule, propose rule, share rule change, sync rule back                            |
+
+### Packages
+
+Reusable presets live in `packages/`.
+
+- Treat packages as opt-in building blocks for project sync or manual adoption.
+- Keep shared cross-project defaults in `packages/greenberry-base/`.
+- Keep stack or concern-specific add-ons in separate packages such as `nextjs/`,
+  `payload/`, `frontend/`, `accessibility/`, and `testing/`.
+- Keep project-specific deviations and exceptions in project-local
+  `CONVENTIONS.md`, not in shared packages.
 
 ### MCP Definitions
 

@@ -1,0 +1,19 @@
+name: frontend
+kind: layer
+description: Framework-neutral frontend defaults for UI-heavy projects.
+requires:
+  - greenberry-base
+includes:
+  rules:
+    - rules/tailwind.md
+    - rules/accessibility.md
+  commands: []
+  skills:
+    - skills/experimental.scaffold-component
+recommended_with:
+  - nextjs
+  - accessibility
+  - testing
+notes:
+  - Use for browser UI projects regardless of framework.
+  - Keep framework-specific conventions in separate packages.

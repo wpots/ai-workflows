@@ -7,6 +7,7 @@ This repo is the source of truth for reusable:
 - command runbooks
 - baseline rules
 - custom skills
+- optional preset packages
 - adapter fragments
 - MCP definitions
 - sync scripts
@@ -37,6 +38,7 @@ The repo uses four distinct surfaces with different jobs:
 | `rules/` | stable policy and coding standards |
 | `skills/` | repeatable multi-step workflows for skill-aware tools |
 | `commands/` | compatibility adapters and fallback runbooks |
+| `packages/` | optional reusable preset bundles for project-specific sync or copy/adopt flows |
 | tool adapters | always-on routing, precedence, and local usage guidance |
 
 Recommended default:
@@ -124,6 +126,7 @@ Practical guidance:
 - `commands/`: reusable workflow runbooks
 - `rules/`: focused baseline rule files plus stack-specific add-ons
 - `skills/`: custom skills for Codex/Cursor/Claude-compatible setups
+- `packages/`: optional preset bundles that can be combined per target project
 - `templates/`: thin project adapter templates
 - `mcp/`: canonical MCP server definitions
 - `AGENTS.md`: canonical repo policy for agents that can inspect the repo
@@ -223,6 +226,7 @@ Useful variants:
 
 Use this split when deciding where a change belongs:
 
+- Put reusable project presets or opt-in bundles in `packages/`.
 - Put project-specific stack, structure, scripts, and exceptions in `CONVENTIONS.md`.
 - Put reusable coding standards in `rules/`.
 - Keep compact universal type-safety doctrine in `shared/core-rules.md`, and
@@ -233,6 +237,20 @@ Use this split when deciding where a change belongs:
 - Put repeated adapter snippets in `shared/`.
 
 If a synced project changes a shared workflow file in a generally reusable way, upstream it back into this repo instead of letting that project drift.
+
+## Package Composition
+
+The new `packages/` layer is intended for Greenberry-flavored project presets.
+Use [packages/selection.md](/Users/wietekepots/Web/ai-workflows/packages/selection.md) as the composition rule:
+
+- start with `greenberry-base`
+- add stack packages such as `frontend`, `nextjs`, and `payload`
+- add concern packages such as `accessibility` and `testing`
+- keep final project exceptions in `CONVENTIONS.md`
+
+Each package exposes a lightweight `package.yaml` manifest so future sync or
+bootstrap tooling can select packages without coupling the repo to one agent or
+IDE.
 
 ## Maintainer Notes
 

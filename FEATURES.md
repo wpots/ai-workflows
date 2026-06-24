@@ -2,6 +2,24 @@
 
 Quick inventory of everything in this repo.
 
+## Packages
+
+Optional reusable presets live in `packages/`. These are intended as
+copyable/composable bundles for shared Greenberry conventions across projects,
+while project-specific exceptions remain in `CONVENTIONS.md`.
+
+| Package | Path | Purpose |
+|---------|------|---------|
+| Greenberry Base | `packages/greenberry-base/` | Shared default baseline for Greenberry projects |
+| Frontend | `packages/frontend/` | Shared frontend-oriented conventions and assets |
+| Next.js | `packages/nextjs/` | Next.js-specific package layer |
+| Payload | `packages/payload/` | Payload CMS-specific package layer |
+| Accessibility | `packages/accessibility/` | Accessibility-focused add-on package |
+| Testing | `packages/testing/` | Testing-focused add-on package |
+
+Package manifests live in `packages/*/package.yaml`, and composition guidance
+lives in `packages/selection.md`.
+
 ## Commands
 
 Operational runbooks in `commands/`. Triggered by natural language intent.
