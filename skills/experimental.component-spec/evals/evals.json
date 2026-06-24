@@ -1,0 +1,58 @@
+{
+  "skill_name": "component-spec",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I'm building an accessible React component library in TypeScript. We already have a Button. Can you write a spec for the Text Input component? We use react-aria and the project's rules live in CONVENTIONS.md plus rules/accessibility.md. Output as a markdown file.",
+      "expected_output": "A comprehensive markdown spec for an accessible Text Input component covering props with TypeScript types, controlled and uncontrolled behavior, WCAG references, ARIA requirements such as aria-invalid and aria-describedby, keyboard behavior, screen reader behavior, error state handling, recommended file structure, Storybook coverage, usage examples, testing guidance, and open questions.",
+      "assertions": [
+        "The spec includes a props table with TypeScript types",
+        "The spec covers ARIA attributes such as aria-invalid, aria-describedby, and aria-required",
+        "The spec includes a keyboard behavior section",
+        "The spec includes a screen reader behavior section with expected announcements",
+        "The spec includes error state handling",
+        "The spec references WCAG success criteria",
+        "The spec includes a recommended file structure section",
+        "The spec includes Storybook coverage recommendations",
+        "The spec includes testing guidance mentioning axe-core or Storybook a11y checks",
+        "The spec mentions a relevant react-aria primitive such as useTextField or TextField",
+        "The output is written as Markdown"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We're building a component library and need a spec for an accessible Checkbox component. TypeScript, markdown output please. No extra project-specific rules beyond CONVENTIONS.md and rules/accessibility.md.",
+      "expected_output": "A comprehensive markdown spec for an accessible Checkbox component covering unchecked, checked, and indeterminate states, grouping with fieldset and legend, props and TypeScript contracts, WCAG references, ARIA requirements, keyboard behavior, screen reader behavior, recommended file structure, Storybook coverage, usage examples, and testing guidance.",
+      "assertions": [
+        "The spec covers unchecked, checked, and indeterminate states",
+        "The spec explains aria-checked values including mixed",
+        "The spec mentions fieldset and legend for checkbox groups",
+        "The spec includes keyboard behavior mentioning Space",
+        "The spec includes a props table with TypeScript types",
+        "The spec includes a recommended file structure section",
+        "The spec includes testing guidance",
+        "The spec references WCAG success criteria",
+        "The output is written as Markdown"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Can you spec out a Modal / Dialog component for our accessible React component library? TypeScript, markdown. Key things we care about: focus trapping, escape key, and screen reader announcements.",
+      "expected_output": "A comprehensive markdown spec for an accessible Modal or Dialog component covering role=dialog, aria-modal, labeling, focus trapping, focus restoration, Escape behavior, backdrop behavior, keyboard behavior, screen reader behavior, reduced motion, recommended file structure, Storybook coverage, usage examples, and testing guidance.",
+      "assertions": [
+        "The spec covers role=dialog and aria-modal",
+        "The spec covers dialog labeling with aria-labelledby or equivalent",
+        "The spec explains focus trapping behavior on open",
+        "The spec explains focus restoration on close",
+        "The spec covers the Escape key to close",
+        "The spec covers backdrop click behavior",
+        "The spec covers prefers-reduced-motion for animations",
+        "The spec includes a keyboard behavior section",
+        "The spec includes a screen reader behavior section",
+        "The spec includes a recommended file structure section",
+        "The spec includes testing guidance",
+        "The output is written as Markdown"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+name: greenberry-base
+kind: base
+description: Shared default AI workflow baseline for Greenberry projects.
+includes:
+  rules:
+    - rules/rules.md
+    - rules/communication.md
+    - rules/project.md
+    - rules/clean-architecture.md
+  commands:
+    - commands/commit-message.md
+    - commands/create-pr.md
+  skills:
+    - skills/commit-message
+    - skills/create-pr
+  adapters:
+    - AGENTS.md
+    - CLAUDE.md
+    - .github/copilot-instructions.md
+project_overrides:
+  - CONVENTIONS.md
+notes:
+  - Apply this package to every Greenberry project by default.
+  - Keep tool-specific routing in adapters and canonical policy in shared rules.

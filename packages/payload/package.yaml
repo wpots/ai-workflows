@@ -1,0 +1,16 @@
+name: payload
+kind: platform
+description: Payload CMS-specific conventions and workflow references.
+requires:
+  - greenberry-base
+includes:
+  rules:
+    - rules/payload.md
+    - rules/content-blocks.md
+  commands: []
+  skills: []
+recommended_with:
+  - nextjs
+  - testing
+notes:
+  - Use when the project has Payload schemas, hooks, or CMS content modeling.

@@ -1,0 +1,14 @@
+name: accessibility
+kind: concern
+description: Accessibility-focused overlay for projects that want stronger a11y defaults.
+requires:
+  - greenberry-base
+includes:
+  rules:
+    - rules/accessibility.md
+  commands: []
+  skills: []
+recommended_with:
+  - frontend
+notes:
+  - Use for projects with significant interactive UI or strict accessibility requirements.

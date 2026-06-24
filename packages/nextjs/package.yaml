@@ -1,0 +1,15 @@
+name: nextjs
+kind: framework
+description: Next.js-specific conventions and rule references.
+requires:
+  - greenberry-base
+recommended_with:
+  - frontend
+includes:
+  rules:
+    - rules/stacks/nextjs-payload.md
+  commands: []
+  skills: []
+notes:
+  - Use when the project is built on Next.js.
+  - Pair with payload only when the CMS layer is present.
