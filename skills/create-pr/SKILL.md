@@ -99,9 +99,24 @@ Diff the current branch against the resolved base branch and produce:
 When a template is present, map these sections into the template's headings
 instead of using the defaults above verbatim.
 
-### 7. Push & Create PR
+### 7. Rebase onto Base, then Push & Create PR
 
-1. Push the branch: `git push -u <remote> HEAD`.
+A PR/MR must **always be mergeable**. Before pushing — on both first creation
+and every later update — rebase the branch onto the latest base so the branch
+is a clean fast-forward with no merge conflicts:
+
+```bash
+git fetch <remote> <resolved-base>
+git rebase <remote>/<resolved-base>
+```
+
+If the rebase produces conflicts, resolve them (or stop and ask the user), then
+re-run the project checks before continuing. A rebase rewrites history, so the
+push must use `--force-with-lease`.
+
+1. Push the branch:
+   - First push (no upstream yet): `git push -u <remote> HEAD`.
+   - After any rebase: `git push --force-with-lease`.
 2. Create the PR/MR:
 
 **GitHub:**
@@ -134,3 +149,5 @@ glab mr create \
 - Keep the description concise and scannable.
 - Prefer counts and impact summaries over long file lists.
 - Confirm the action with the user before pushing if the branch has never been pushed.
+- Always keep the PR/MR mergeable: rebase onto the latest base before every
+  push (create or update), never let the branch drift behind base.

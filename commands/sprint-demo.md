@@ -112,6 +112,13 @@ Write `docs/demo/sprint-<N>/demo-script.md`. Start with a header section:
 - `talk-only` items — one plain-language line each.
 - A combined **setup checklist** gathered across all stories (logins/roles, seed
   data, feature flags, browser state).
+- **Mail-flow demos need a working local mailer.** When any story is a
+  transactional email / mail flow, the email provider is usually guarded by an
+  env check that no-ops outside production. Add a checklist item to make the
+  mailer fire locally — typically commenting out that env guard in the provider
+  file (e.g. the `sendEmail` vendor file) and pointing it at a local inbox /
+  preview — so the emails actually send during the demo. Flag it as a temporary
+  local change to revert afterwards; never commit it.
 
 Then, per `demoable` story, a block:
 
@@ -148,14 +155,74 @@ Write `docs/demo/sprint-<N>/deck.md` as a Marp deck (markdown):
   value**, with one supporting line and an optional screenshot/visual. No
   implementation detail on slides.
 - A closing slide: what's next, plus `talk-only` highlights in one line each.
-- Presenter notes (Marp `<!-- ... -->` comments) carry the klikpad and caveats
-  from the runsheet so the visible slide stays clean.
 
-Render hint (do **not** run unless the user asks):
+### Presenter notes = the read-aloud script (most important part)
+
+The notes are what the presenter actually follows live, so write them as a
+**read-aloud script with explicit live-demo cues**, never as terse bullets.
+Write full, speakable Dutch sentences. Structure every `demoable` slide's
+`<!-- ... -->` note in three labelled zones, in this order:
+
+1. `[VOORLEZEN]` — a short paragraph the presenter can read almost verbatim: the
+   value for stakeholders, plus the bridge from the previous slide.
+2. `🔴 HIER LIVE DEMO — <wat je toont>` — the exact moment to switch to the app,
+   followed by a numbered step plan of what to click and show. **Spell out the
+   easy-to-forget reveals explicitly** — secondary states, alternate flows,
+   optional blocks — so they don't get skipped. Examples of the kind of cue that
+   prevents a miss: "laat zien dat je de vacature óók als **concept** kunt
+   opslaan", "scroll naar het **nieuwsblok** en toon de doelgroep-checkboxes".
+   When in doubt, over-specify: this block is the presenter's only handrail.
+3. `[VOORLEZEN]` — an optional one-line wrap or bridge to the next slide.
+
+End with a private `(Niet voorlezen: …)` line for caveats, preconditions, and
+fallback the presenter must know but **not** say on stage. `talk-only` slides
+get a single `[VOORLEZEN]` paragraph and no live-demo block.
+
+### Render & present with notes
+
+The `<!-- ... -->` presenter notes never render on a slide or in a plain PDF —
+they only surface in a presenter view. Explain to the user how to actually use
+them, and write a short **"Presenteren met notes"** block into the runsheet
+header (Phase 5) so they have it on the day.
+
+Recommended — HTML presenter view, **rendered into the demo folder** so it sits
+with the other artefacts:
 
 ```bash
-npx @marp-team/marp-cli docs/demo/sprint-<N>/deck.md --pdf   # or --pptx / --html
+npx @marp-team/marp-cli docs/demo/sprint-<N>/deck.md --html -o docs/demo/sprint-<N>/deck.html
 ```
+
+Open `deck.html` and press `p` (or open `deck.html?view=presenter` in a second
+window): the presenter view shows the current + next slide with the read-aloud
+script and `🔴 HIER LIVE DEMO` blocks beside them. Generating this `deck.html`
+into the demo folder is part of the deliverable when the user is presenting — so
+running this one command is expected; other formats only on request.
+
+⚠️ Marp's browser sync can be flaky: it relies on `localStorage`, can break under
+tools like VS Code Live Server, and a popup blocker may stop the second window
+opening (the current tab then just navigates to `?view=presenter`). If it won't
+sync, open the two windows manually and **navigate from the presenter window**
+(it's the controller).
+
+Alternatives (only if asked):
+
+- `--pptx -o docs/demo/sprint-<N>/deck.pptx` — notes land in the slide notes
+  pane; open in Keynote/PowerPoint for their rock-solid native presenter view.
+  Best fallback if the browser sync frustrates.
+- `--pdf` — clean slides for the beamer, **no notes**; pair with the runsheet on
+  a second device.
+
+**Privacy:** the presenter view is a *separate window*. Notes stay private only
+if the user shares the **audience window/tab** (not the whole screen). The plain
+`deck.html` / PDF never shows notes, so sharing those is always safe — call this
+out explicitly.
+
+### Temporary artefacts — keep them out of git
+
+The whole `docs/demo/` folder is a **throwaway**: it's prep for one demo and gets
+deleted afterwards. Make sure `docs/demo/` is in `.gitignore` (add it if not),
+and remind the user they can delete the folder once the demo is done. Never
+commit demo artefacts.
 
 ## Phase 8 — Review pause (stop here)
 
@@ -169,8 +236,11 @@ the BLIs.
 End with a concise list of:
 
 - The runsheet path (`docs/demo/sprint-<N>/demo-script.md`).
-- The deck path (`docs/demo/sprint-<N>/deck.md`) + the render command.
+- The deck path (`docs/demo/sprint-<N>/deck.md`) and the rendered
+  `docs/demo/sprint-<N>/deck.html` (presenter view: press `p`).
 - Any support one-pagers created under `docs/demo/sprint-<N>/support/`.
 - Validation flags (not "planned for Sprint N", missing BLI, not-yet-done) that
   need a user decision.
 - `talk-only` stories that will be mentioned but not shown live.
+- A reminder that `docs/demo/` is gitignored and throwaway — delete it after the
+  demo; revert any temporary local changes (e.g. the mailer env guard).

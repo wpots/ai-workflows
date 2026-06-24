@@ -36,6 +36,7 @@ skill-aware tools. Treat them as the canonical workflow source when available.
 | `create-pr`      | create pr, open pr, submit pr            |
 | `close-sprint`   | close sprint, sluit sprint af, sprint afsluiten |
 | `sprint-demo`    | sprint demo, demo voorbereiden, demo script, prepare demo |
+| `sprint-planning` | sprint planning, plan sprint, sprint start, start sprint, plan komende sprint |
 
 ### Commands
 
