@@ -45,7 +45,7 @@ If ambiguous, ask the user.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
      `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
-4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the [ai-workflows](https://github.com/wpots/ai-workflows) repo. Ask whether to:
+4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the [ai-workflows](https://gitlab.com/greenberrynl/config/ai-workflows) repo. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead
    - do both
@@ -85,9 +85,26 @@ Analyse the diff against the base branch and generate:
 - **Testing Notes**: Required testing steps or affected areas
 - **Technical Notes**: Important implementation details (optional)
 
+## Rebase onto Base (keep the PR/MR mergeable)
+
+A PR/MR must always be mergeable, so rebase onto the latest base before
+pushing — the base branch will usually have moved since the feature branch
+was created.
+
+1. `git fetch <remote> <base>`
+2. `git rev-list --left-right --count <remote>/<base>...HEAD` — if the left
+   side is `0`, the branch is up to date; skip to push.
+3. `git rebase <remote>/<base>`. On conflicts, stop and report them; do not
+   force a resolution.
+4. Re-run project checks after the rebase (or rely on the pre-push hook).
+
+Applies on every run, including updates to an existing PR/MR.
+
 ## Fallback Execution
 
-1. Push the branch: `git push -u <remote> HEAD`
+1. Push the branch:
+   - First push: `git push -u <remote> HEAD`
+   - After a rebase rewrote history: `git push --force-with-lease <remote> HEAD`
 2. Create the PR/MR:
    - GitHub: `gh pr create --base <base> --title "<title>" --body "<body>"`
    - GitLab: `glab mr create --target-branch <base> --title "<title>" --description "<body>"`
