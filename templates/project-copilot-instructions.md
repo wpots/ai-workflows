@@ -24,7 +24,7 @@ When project conventions conflict with the core baseline, project conventions wi
 ## Shared Workflow Source
 
 When a change touches shared workflow assets in a reusable way, suggest
-upstreaming it to the [ai-workflows](https://github.com/wpots/ai-workflows) repo rather than keeping it only in this
+upstreaming it to the [ai-workflows](https://gitlab.com/greenberrynl/config/ai-workflows) repo rather than keeping it only in this
 synced target repo.
 
 Treat these as shared workflow assets:
