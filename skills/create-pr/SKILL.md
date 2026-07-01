@@ -16,6 +16,8 @@ The matching command runbook is a compatibility and fallback surface.
 - One of these CLIs must be authenticated:
   - **GitHub**: `gh` (`gh auth status`)
   - **GitLab**: `glab` (`glab auth status`)
+- If the branch lives in a **git worktree**, the commit/push hooks and the test
+  runner may not work there unmodified — see the Worktree caveat in step 7.
 
 ## Steps
 
@@ -114,7 +116,26 @@ If the rebase produces conflicts, resolve them (or stop and ask the user), then
 re-run the project checks before continuing. A rebase rewrites history, so the
 push must use `--force-with-lease`.
 
-1. Push the branch:
+> **Worktree caveat.** If the branch is checked out in a git worktree
+> (`git worktree list` shows it under e.g. `.worktrees/<name>`), the
+> commit/push hooks and the test runner usually do **not** work there
+> unmodified, so verify manually before pushing:
+>
+> - A fresh worktree has **no `node_modules`** of its own, so hooks and
+>   `npm test` that resolve `./node_modules/…` fail. Provide them first —
+>   symlink the main checkout (`ln -s ../../node_modules node_modules`) or run
+>   `npm ci` in the worktree.
+> - Test runners often **ignore `.worktrees/`** (e.g. jest
+>   `testPathIgnorePatterns` / `modulePathIgnorePatterns`), so a normal run finds
+>   **0 tests**. Override those patterns when running natively from the worktree,
+>   e.g. `npm test -- --testPathIgnorePatterns=/node_modules/ --modulePathIgnorePatterns=/__none__/ --coverage=false`.
+>
+> Run `lint` + `type-check` + `test` **manually** to confirm green, then push
+> with `--no-verify`. Skip only the hook that cannot execute — never the checks
+> themselves.
+
+1. Push the branch (add `--no-verify` when pushing from a worktree, per the
+   caveat above):
    - First push (no upstream yet): `git push -u <remote> HEAD`.
    - After any rebase: `git push --force-with-lease`.
 2. Create the PR/MR:
@@ -146,6 +167,9 @@ glab mr create \
 
 ## Guidelines
 
+- Write the PR/MR title and description in the repository's working language —
+  follow the template's language and the repo's existing PRs/MRs, not the
+  language you happen to be chatting in.
 - Keep the description concise and scannable.
 - Prefer counts and impact summaries over long file lists.
 - Confirm the action with the user before pushing if the branch has never been pushed.
