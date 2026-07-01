@@ -12,6 +12,7 @@ Load only the relevant focused rule files for the task:
 - `rules/backlog.md` for user stories, specs, and backlog work
 - `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
 - `rules/payload.md` for Payload schema, generated-type, and integration work
+- `rules/sonarqube.md` when addressing a SonarQube/SonarLint finding or writing code that could trip an opted-in Sonar rule
 - the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
 
 ## Precedence
