@@ -28,12 +28,29 @@ In synced target projects, treat the `Shared Workflow Assets` section in
 `AI-WORKFLOWS.md` as the canonical project-facing definition of reusable
 workflow assets.
 
-## Upstream Repository
+## Upstream Repositories (two remotes)
 
-The canonical ai-workflows repo is `wpots/ai-workflows` on GitHub.
-All diffs and PRs target this remote. Prefer the local clone at
-`~/Web/ai-workflows` when it exists and is clean, but always fetch `origin`
-first so you compare against the latest upstream state.
+ai-workflows lives on **two remotes that must both receive every shared-asset
+change**:
+
+| Remote | Repo | Role |
+|---|---|---|
+| `origin` | `wpots/ai-workflows` (GitHub) | Canonical source of truth |
+| `gitlab` | `greenberrynl/config/ai-workflows` (GitLab) | Greenberry team distribution |
+
+Prefer the local clone at `~/Web/ai-workflows` (it has both remotes). Always
+fetch both before diffing so you compare against the latest state of each.
+
+**Their histories are divergent and cannot be unified — do not try.** GitLab was
+seeded as an independent import, so the two `main` branches share no common
+ancestor. Do **not** attempt to fix this by force-pushing one lineage onto the
+other or re-seeding: gitlab `main` is a **protected branch** *and* enforces a
+committer-email push rule that rejects GitHub's `*.noreply.github.com` committer
+identities, so GitHub's history can never be replayed onto GitLab (both were
+tried and both are hard-blocked). Treat the two as separate lineages that must
+be kept **content-identical**, applying each change to both (steps 5 + 5b).
+Never re-seed either remote from a fresh import — that is what caused the
+divergence in the first place.
 
 ## Steps
 
@@ -105,13 +122,14 @@ if it exists at `~/Web/ai-workflows`):
 if [ -d ~/Web/ai-workflows/.git ]; then
   cd ~/Web/ai-workflows
   git fetch origin
+  git fetch gitlab          # keep the GitLab lineage current too
   git checkout main
-  git pull
+  git pull origin main
 else
   gh repo clone wpots/ai-workflows /tmp/ai-workflows-upstream
   cd /tmp/ai-workflows-upstream
 fi
-git checkout -b rules/<short-description>
+git checkout -b rules/<short-description> origin/main
 ```
 
 Apply the changes to the correct file(s).
@@ -140,11 +158,40 @@ PR body should include:
 - Rule, prompt, skill, or template files affected
 - Any projects that may need re-sync after merge
 
+### 5b. Mirror the change to GitLab (greenberry)
+
+The same change must also land on the GitLab remote, on **its own lineage**. The
+two histories are unrelated, so you cannot merge or cherry-pick the GitHub commit
+across — re-apply the patch onto a branch off `gitlab/main`. GitLab `main` is
+protected, so it goes in via a Merge Request, never a push to `main`:
+
+```bash
+git fetch gitlab main
+git checkout -b rules/<short-description>-gitlab gitlab/main
+# Re-apply the SAME edit here — apply the diff/patch, not the GitHub commit.
+# Fastest path: copy the touched files from the GitHub branch, then commit:
+git checkout rules/<short-description> -- <changed paths>
+git commit -am "<same conventional message>"
+git push gitlab rules/<short-description>-gitlab
+glab mr create -R greenberrynl/config/ai-workflows \
+  --target-branch main \
+  --title "<same title>" \
+  --description "<same body>" --yes
+```
+
+After both are merged, the two `main` branches should differ only in history,
+not content. Verify:
+
+```bash
+git fetch origin main && git fetch gitlab main
+git diff origin/main gitlab/main -- <changed paths>   # expect: empty
+```
+
 ### 6. Post-PR Guidance
 
-After the PR is created, remind the developer:
+After **both** the GitHub PR and the GitLab MR are merged, remind the developer:
 
-> Once merged, re-run `sync.sh --project <path>` on each project
+> Once both are merged, re-run `sync.sh --project <path>` on each project
 > that uses ai-workflows rules to pick up the changes.
 
 If the developer also has a global ai-workflows setup (`~/Web/ai-workflows`),
@@ -157,3 +204,8 @@ assume this exists.
 - Always ask before creating a branch or PR
 - Never force-push to main
 - Always diff against the latest upstream state, not a stale local copy
+- Apply every shared-asset change to **both** remotes (GitHub `origin` and GitLab
+  `gitlab`); landing it on only one leaves them out of sync
+- GitLab `main` is protected and enforces a committer-email push rule — reach it
+  only via a Merge Request, never a direct or force push, and never try to
+  reconcile its history with GitHub's
