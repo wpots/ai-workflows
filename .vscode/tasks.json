@@ -22,6 +22,46 @@
       "problemMatcher": []
     },
     {
+      "label": "backlog",
+      "type": "shell",
+      "command": "cat commands/backlog.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "close-sprint",
+      "type": "shell",
+      "command": "cat commands/close-sprint.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "sprint-demo",
+      "type": "shell",
+      "command": "cat commands/sprint-demo.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "sprint-planning",
+      "type": "shell",
+      "command": "cat commands/sprint-planning.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "validate-ai-instructions",
       "type": "shell",
       "command": "./scripts/validate-ai-instructions.sh",
