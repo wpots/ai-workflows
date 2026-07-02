@@ -116,6 +116,11 @@ If the rebase produces conflicts, resolve them (or stop and ask the user), then
 re-run the project checks before continuing. A rebase rewrites history, so the
 push must use `--force-with-lease`.
 
+> **Sustainable IT.** This pre-push run is the **single full checks sweep** for
+> the branch — don't duplicate it mid-task. While building, use targeted scopes
+> and avoid re-running checks that already passed on unchanged files (see the
+> `run-checks` skill's "Sustainable verification").
+
 > **Worktree caveat.** If the branch is checked out in a git worktree
 > (`git worktree list` shows it under e.g. `.worktrees/<name>`), the
 > commit/push hooks and the test runner usually do **not** work there
