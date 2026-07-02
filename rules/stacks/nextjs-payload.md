@@ -146,6 +146,91 @@ import { getPayload } from "payload"; // infrastructure concern in application l
 
 ---
 
+## Read Path: Page → Loader → Template
+
+For rendered routes, use a **loader** as the read-path data-access seam — the
+mirror of a Server Action on the write path. Every route renders through four
+roles; dependencies flow one direction only.
+
+| Role         | Lives in                          | Responsibility                                                                              | May import                              |
+| ------------ | --------------------------------- | ------------------------------------------------------------------------------------------- | --------------------------------------- |
+| **Page**     | `app/**/page.tsx`                 | route params, auth, `redirect`/`notFound`, call the loader, render the template. No fetching, no transforms. | loader, template                        |
+| **Loader**   | `templates/<Name>/load<Name>.ts`  | fetch via infrastructure queries + map raw docs into the template's view-model props. The ONLY seam allowed to touch both infrastructure and presentation. | infrastructure queries, domain, view-model types |
+| **Template** | `templates/<Name>/*.tsx`          | render the view model. No fetching, no transforms. Server or client component.              | loader types, modules, components, domain types |
+| **Query**    | `infrastructure/payload/**`       | return raw or normalized Payload/domain docs. Stays presentation-agnostic.                  | domain only                             |
+
+```
+Page  →  Loader  →  Query (infrastructure)  →  Payload
+          │
+          └→ produces props → Template (presentation)
+```
+
+**Why a loader**
+
+- A `page.tsx` is presentation; it must not fetch or transform.
+- An infrastructure query must not know view-model/prop types, or infrastructure
+  starts depending on presentation.
+- The loader is the one place allowed to bridge both. It keeps infrastructure
+  clean, keeps pages and templates thin, and gives view-model transforms a
+  single, testable home.
+
+**Rules**
+
+- Every route renders a template; the page contains no markup beyond the
+  template element (plus route-level control flow).
+- View-model transforms (raw doc → component props) live in the loader, or in a
+  module-local `Transform*.ts` the loader calls — **never** in a page or
+  template, and **never** in an infrastructure query.
+- Normalization transforms (domain doc → cleaner domain doc) may stay inside the
+  query, since they do not reference presentation types.
+- A loader may call `redirect()` / `notFound()` for data-driven navigation.
+  Pure route-param control flow stays in the page.
+- The loader file uses the `load<Name>.ts` prefix form (e.g. `loadProductDetail.ts`)
+  — never a bare `load.ts` — so it stays greppable and unambiguous across
+  modules. The same applies to a module that needs its own data-access seam
+  (`modules/<Name>/load<Name>.ts`).
+
+Co-location:
+
+```
+templates/<Name>/
+  <Name>.tsx          # template (presentation)
+  load<Name>.ts       # loader: queries + view-model transform → props
+  types.ts            # the props / view-model type
+  index.ts            # barrel
+```
+
+## Definition of Done (routes & modules)
+
+Run this checklist over your own diff **before** finishing a route or module
+change — not in review. Every box must hold for the changed code (and don't
+mirror a neighbour that fails them; see "Conform to the rule, not the neighbour"
+in `rules/clean-architecture.md`).
+
+- [ ] The `page.tsx` contains only route control flow (params, auth,
+      `redirect`/`notFound`) and the `<Template/>` element — no markup, no
+      fetching, no view-model derivation.
+- [ ] Fetching and view-model derivation live in `templates/<Name>/load<Name>.ts`;
+      pure raw-doc → props mapping lives in a `Transform*.ts` the loader calls.
+- [ ] Route/path construction goes through the project's central route helper —
+      never a hand-written, locale-prefixed URL string scattered across files.
+- [ ] Component prop interfaces live in `types.ts` (or `index.ts`), never inline
+      in the `.tsx`.
+- [ ] One transform per module; no stray helper files left lying around.
+- [ ] Hooks hold client state only. Pure or server-side derivation belongs in a
+      transform/loader, not in a hook.
+- [ ] No infrastructure query imports a presentation type (`templates/*`,
+      `modules/*`, `components/*`) or returns a view-model/prop shape.
+- [ ] No template imports an infrastructure query function directly — it goes
+      through the loader.
+
+Machine-enforce the import-direction boundary (infrastructure read-path ↛
+presentation; templates ↛ infrastructure queries) with `no-restricted-imports`
+in the ESLint config once the codebase is clean enough to flip it from `warn` to
+`error`.
+
+---
+
 ## What to Flag in Reviews
 
 - `fetch()` called inline in a `page.tsx`, `layout.tsx`, or any component file

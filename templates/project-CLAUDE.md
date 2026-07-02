@@ -12,7 +12,19 @@ Load only the relevant focused rule files for the task:
 - `rules/backlog.md` for user stories, specs, and backlog work
 - `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
 - `rules/payload.md` for Payload schema, generated-type, and integration work
+- `rules/project.md` for component and module work (prop-types in `types.ts`, named handlers, no `React.FC`, etc.)
 - the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
+
+### Mandatory load triggers (by path)
+
+Load these **before** writing or editing the matching files — not after, and not
+only when it "feels architectural". The path is the trigger:
+
+- Touching a route/page/layout file or a page-level template → load the detected
+  `rules/stacks/*` rule for the route → data-access seam → template contract and
+  its Definition of Done.
+- Adding or changing a component or module → load `rules/project.md` (prop-types
+  in `types.ts`, named handlers, no `React.FC`, component design).
 
 ## Precedence
 

@@ -161,6 +161,21 @@ const { cart, addItem, removeItem } = useCart();
 
 ---
 
+## Conform to the rule, not the neighbour
+
+When extending existing code that does **not** follow these principles, conform
+to the rule — not to the surrounding (non-conforming) code. Mirroring the
+neighbour propagates the violation; the rule is the norm even when the nearest
+example contradicts it.
+
+When you spot the existing deviation, do not silently fix it in the same change
+(that bloats scope). Instead, flag it — add a tracked follow-up (e.g. a
+`docs/todo/` entry) that names the file and the rule it breaks, so the retrofit
+can be scheduled on its own. Your new code lands conforming; the old code gets a
+tracked follow-up.
+
+---
+
 ## When Reviewing Code
 
 Apply these principles against the project's **actual folder structure** — do
