@@ -45,14 +45,32 @@ If none exists, ask the user which base branch to use.
 - non-exhaustive unions or switches
 - missing guardrails that should have caught the issue earlier (`tsconfig`,
   lint, CI, architecture rules)
-5. Provide concrete file references with line numbers.
-6. For each finding, explain:
+5. If the diff touches route/page/layout files, page-level templates, modules,
+   or components (per the detected stack rule, e.g. `src/app/**/page.tsx`,
+   `src/app/**/layout.tsx`, `src/templates/**`, `src/modules/**`,
+   `src/components/**` for Next.js), run the **Definition of Done** checklist
+   from the stack rule (e.g. `rules/stacks/nextjs-payload.md`) over the changed
+   files and report violations as findings instead of only flagging generic
+   guardrail gaps:
+   - page = route control flow + `<Template/>` only (no markup, fetch, or
+     view-model derivation)
+   - fetch + view-model derivation in `templates/<Name>/load<Name>.ts`; pure
+     raw → props mapping in `Transform*.ts`
+   - paths via the project's central route helper (no hand-written,
+     locale-prefixed URL strings)
+   - component prop interfaces in `types.ts`, never inline in the `.tsx`
+   - one transform per module; hooks hold client state only
+   If a violation is pre-existing neighbour code the diff didn't introduce,
+   note it as a suggested follow-up rather than a blocking finding (see
+   "Conform to the rule, not the neighbour" in `rules/clean-architecture.md`).
+6. Provide concrete file references with line numbers.
+7. For each finding, explain:
 - why the code is unsafe
 - the trust boundary or failure mode
 - severity
 - the best guardrail type: code change, lint rule, `tsconfig` rule, CI check, or architecture rule
-7. Include targeted fixes or examples for high-impact findings.
-8. If requested, write report to `./.docs/CODE_REVIEW.md`.
+8. Include targeted fixes or examples for high-impact findings.
+9. If requested, write report to `./.docs/CODE_REVIEW.md`.
 
 ## Output Format
 
