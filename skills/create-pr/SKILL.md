@@ -13,9 +13,11 @@ The matching command runbook is a compatibility and fallback surface.
 ## Prerequisites
 
 - The working tree should be clean (all changes committed).
-- One of these CLIs must be authenticated:
+- Preferably one of these CLIs is authenticated:
   - **GitHub**: `gh` (`gh auth status`)
   - **GitLab**: `glab` (`glab auth status`)
+  - Without a CLI the skill still works via the fallbacks in step 8
+    (GitLab push options / prefilled URLs).
 - If the branch lives in a **git worktree**, the commit/push hooks and the test
   runner may not work there unmodified — see the Worktree caveat in step 7.
 
@@ -46,13 +48,19 @@ If the platform cannot be inferred, ask the user.
 
 ### 3. Pre-flight Checks
 
-1. Verify the detected CLI is authenticated — abort with a clear message if not.
-2. Run `git status` — warn the user if there are uncommitted changes and ask whether to proceed.
-3. Check whether the diff is primarily a shared AI workflow change.
+1. **Refuse to run from a long-lived branch.** If the current branch is
+   `main`, `master`, `development`, or `acceptance` (or equals the resolved
+   base from step 4), stop and tell the user to switch to a feature branch —
+   a PR/MR must come from a feature branch.
+2. Verify the detected CLI is authenticated. On GitLab this is not fatal —
+   fall back to the push-options path in step 7. On GitHub without `gh`,
+   fall back to the prefilled compare URL in step 7.
+3. Run `git status` — warn the user if there are uncommitted changes and ask whether to proceed.
+4. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
      `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
-4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in `~/Web/ai-workflows/`. Ask whether to:
+5. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in `~/Web/ai-workflows/`. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead
    - do both
@@ -88,6 +96,22 @@ The bundled fallback template (`templates/pull_request_template.md`) ships with
 this repo and is always available as a last resort.
 
 ### 6. Generate PR Content
+
+**Ticket link.** Extract a tracker ticket from the branch name with the regex
+`^([A-Z]+-[0-9]+)` (e.g. `EZODKO-317-diverge-model` → `EZODKO-317`). Resolve
+the tracker base URL from project config — a project-local skill's "Project
+facts" block, `AI-WORKFLOWS.md`, or the project `CLAUDE.md` (e.g.
+`https://<org>.atlassian.net/browse/`). When both are found, prefix the title
+with `<TICKET>: ` and open the description with a linked ticket section:
+
+```markdown
+## Jira
+
+[<TICKET>](<tracker-base>/<TICKET>)
+```
+
+If the branch has no ticket or no tracker base URL is configured, omit the
+section — do not guess a URL.
 
 Diff the current branch against the resolved base branch and produce:
 
@@ -134,11 +158,14 @@ push must use `--force-with-lease`.
 > with `--no-verify`. Skip only the hook that cannot execute — never the checks
 > themselves.
 
-1. Push the branch (add `--no-verify` when pushing from a worktree, per the
+1. **Show the base branch, title, and description to the user and get
+   approval before pushing** — pushing is outward-facing. Skip the ask only
+   when the user already said to proceed without asking.
+2. Push the branch (add `--no-verify` when pushing from a worktree, per the
    caveat above):
    - First push (no upstream yet): `git push -u <remote> HEAD`.
    - After any rebase: `git push --force-with-lease`.
-2. Create the PR/MR:
+3. Create the PR/MR:
 
 **GitHub:**
 
@@ -158,9 +185,51 @@ glab mr create \
   --description "<generated-body>"
 ```
 
-3. Output the PR/MR URL on success.
+4. Output the PR/MR URL on success.
 
-### 8. Error Handling
+### 8. Fallbacks When the CLI Is Unavailable
+
+Degrade in this order instead of aborting:
+
+**GitLab — push options** (no CLI or token needed). GitLab creates the MR as
+part of the push itself. Build the title/description as shell variables so
+newlines survive:
+
+```bash
+git push -u <remote> HEAD \
+  -o merge_request.create \
+  -o merge_request.target=<resolved-base> \
+  -o merge_request.remove_source_branch \
+  -o merge_request.title="$TITLE" \
+  -o merge_request.description="$DESCRIPTION"
+```
+
+GitLab prints the MR URL in the push output — surface it. If an MR already
+exists for the branch, `merge_request.create` is a no-op and GitLab says so;
+report that instead of erroring.
+
+**GitLab — prefilled URL** (branch already fully pushed). GitLab ignores push
+options when the push transfers no refs, so build a prefilled new-MR URL
+instead and give it to the user to open (URL-encode title and description —
+spaces → `%20`, newlines → `%0A`):
+
+```text
+<web-base>/-/merge_requests/new?merge_request[source_branch]=<branch>&merge_request[target_branch]=<resolved-base>&merge_request[title]=<encoded>&merge_request[description]=<encoded>
+```
+
+`<web-base>` is the `origin` URL with a trailing `.git` stripped.
+
+**GitHub — prefilled compare URL** (no `gh`). Push normally, then hand the
+user a prefilled URL:
+
+```text
+https://github.com/<org>/<repo>/compare/<resolved-base>...<branch>?expand=1&title=<encoded>&body=<encoded>
+```
+
+In every fallback case, report what the user still has to do — do not claim
+the PR/MR is created unless the platform's output confirmed it.
+
+### 9. Error Handling
 
 - If push fails (e.g. no upstream, auth error), surface the error and stop.
 - If PR/MR creation fails, show the error. Do not retry automatically.
@@ -172,6 +241,7 @@ glab mr create \
   language you happen to be chatting in.
 - Keep the description concise and scannable.
 - Prefer counts and impact summaries over long file lists.
-- Confirm the action with the user before pushing if the branch has never been pushed.
+- Always show the base branch, title, and description for approval before
+  pushing, unless the user already said to proceed without asking.
 - Always keep the PR/MR mergeable: rebase onto the latest base before every
   push (create or update), never let the branch drift behind base.
