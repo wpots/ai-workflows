@@ -1,11 +1,12 @@
 ---
 name: code-review
-description: Review current branch changes against remote base branch and produce a structured, severity-ordered review with file references and actionable fixes.
+description: Review current branch changes against remote base branch — or a GitLab MR / GitHub PR by URL — and produce a structured, severity-ordered review with file references and actionable fixes. Can post findings as inline MR comments autonomously once the user gives a go.
 ---
 
 # Code Review Skill
 
-Use this skill when the user requests review of current changes.
+Use this skill when the user requests review of current changes, or pastes a
+merge request / pull request URL to review.
 
 This skill is the canonical workflow source for code review on skill-aware
 tools. The matching command runbook is a compatibility and fallback surface.
@@ -87,7 +88,63 @@ If a section has no issues, say `None found.` If no type-safety issues are
 found, explain briefly why the code appears safe, for example validated
 boundaries, no unsafe assertions, and exhaustive handling of variants.
 
+## Remote MR Review (GitLab)
+
+When the input is a GitLab MR URL, do all of this without asking for
+permission between steps — the URL itself is the go-ahead to fetch and review:
+
+1. Parse the project path and MR IID from the URL
+   (`gitlab.com/<group>/<subgroups...>/<project>/-/merge_requests/<iid>`).
+2. Fetch context in one pass:
+   - `glab mr view <iid> --repo <project-path>` — title, description, state
+   - `glab mr diff <iid> --repo <project-path>` — save to a scratch file when
+     large; read it fully before judging
+   - `glab api "projects/<url-encoded-path>/merge_requests/<iid>/notes?sort=asc"`
+     — existing human comments (skip bots and system notes)
+3. Review with the same severity ordering and checklists as a local review.
+   If the repo exists locally, use it for context on files the diff touches
+   but does not show; otherwise review from the diff alone and say so.
+4. Deliver the review in chat: verdict first, findings severity-ordered, each
+   anchored to `file:line`. Do NOT post anything to GitLab yet — end by
+   offering to post the findings as MR comments.
+
+## Posting Review Comments to GitLab
+
+One go from the user ("post them", "create comments for point 2 and 3") covers
+the whole batch: post every requested comment, verify, and report once at the
+end. Do not ask per comment, and do not re-ask when a retry or repost is
+needed to fix a technical failure — that is part of the same go.
+
+Mechanics (hard-won; do not deviate):
+
+- Get `diff_refs` (`base_sha`, `start_sha`, `head_sha`) from
+  `glab api "projects/<path>/merge_requests/<iid>"` first.
+- Post inline comments to `.../merge_requests/<iid>/discussions` with a
+  **nested JSON body** via stdin:
+  `glab api <path> -X POST --input - -H "Content-Type: application/json"`
+  and payload `{"body": ..., "position": {"position_type": "text",
+  base_sha, start_sha, head_sha, "old_path", "new_path", "new_line"}}`.
+  NEVER use `-f "position[...]=..."` — glab sends those as flat JSON keys,
+  GitLab silently ignores the position, and you get an unanchored
+  `DiscussionNote` instead of a `DiffNote`.
+- Compute `new_line` from the diff hunk headers (`@@ -a,b +c,d @@`): count
+  context + added lines from `c`. For added lines send `new_line` (keep
+  `old_path` equal to `new_path` for modified files); for removed lines send
+  `old_line` instead.
+- Write comment bodies in a Python script or JSON file — never inline in
+  shell. Bodies with backticks, `${...}`, or regexes get mangled by shell
+  escaping.
+- GitLab suggestion blocks (```` ```suggestion:-0+0 ````) are welcome for
+  small, concrete fixes.
+- **Verify after posting**: fetch the discussions back and check each note has
+  `"type": "DiffNote"` and a non-null `position`. If a note came back as
+  `DiscussionNote`, delete it (`DELETE .../notes/<id>`) and repost correctly
+  — silently, as part of the same batch.
+- Report once at the end: which comments were posted and where.
+
 ## Constraints
 
 - Focus on substantive issues; skip style-only nitpicks.
 - Do not edit code unless explicitly requested.
+- Never post to the MR before the user asks; after they ask, never stop
+  halfway to ask again.

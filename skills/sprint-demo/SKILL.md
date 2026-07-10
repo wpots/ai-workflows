@@ -45,7 +45,9 @@ Written to `docs/demo/sprint-<N>/`:
   preconditions, klikpad, timing, fallback, private notes; plus a setup
   checklist and the talk-only items).
 - `deck.md` — stakeholder Marp slide deck (value-first slides, klikpad in
-  presenter notes). Render with
+  presenter notes). Styling: the Greenberry house-style Marp theme from the
+  runbook (paars `#5801FF`, koraal `#FF554E`), with the project logo embedded
+  as a base64 data URI on every slide. Render with
   `npx @marp-team/marp-cli docs/demo/sprint-<N>/deck.md --pdf` (or `--pptx`).
 - `support/` — optional plain-language one-pagers for stories needing context.
 - A list of validation flags (not planned for Sprint N, missing BLI,
