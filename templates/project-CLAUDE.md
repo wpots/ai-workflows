@@ -13,6 +13,7 @@ Load only the relevant focused rule files for the task:
 - `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
 - `rules/payload.md` for Payload schema, generated-type, and integration work
 - `rules/project.md` for component and module work (prop-types in `types.ts`, named handlers, no `React.FC`, etc.)
+- `rules/sonarqube.md` when addressing a SonarQube/SonarLint finding or writing code that could trip an opted-in Sonar rule
 - the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
 
 ### Mandatory load triggers (by path)
