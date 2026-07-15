@@ -119,6 +119,11 @@ was created.
 
 Applies on every run, including updates to an existing PR/MR.
 
+> **Sustainable IT.** This pre-push run is the single full checks sweep for the
+> branch — don't duplicate it mid-task. While building, use targeted scopes and
+> avoid re-running checks that already passed on unchanged files (see the
+> `run-checks` runbook's "Sustainable verification").
+
 ## Fallback Execution
 
 1. Push the branch:
