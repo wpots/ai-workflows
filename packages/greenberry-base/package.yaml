@@ -7,9 +7,14 @@ includes:
     - rules/communication.md
     - rules/project.md
     - rules/clean-architecture.md
+    - rules/backlog.md
   commands:
     - commands/commit-message.md
     - commands/create-pr.md
+    - commands/close-sprint.md
+    - commands/refinement.md
+    - commands/sprint-demo.md
+    - commands/sprint-planning.md
   skills:
     - skills/commit-message
     - skills/create-pr

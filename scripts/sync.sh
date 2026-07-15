@@ -6,6 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC_COMMANDS="$ROOT_DIR/commands"
 SRC_RULES="$ROOT_DIR/rules"
 SRC_SKILLS="$ROOT_DIR/skills"
+SRC_PACKAGES="$ROOT_DIR/packages"
 SRC_MCP="$ROOT_DIR/mcp"
 SRC_SHARED="$ROOT_DIR/shared"
 SRC_TEMPLATES="$ROOT_DIR/templates"
@@ -38,6 +39,13 @@ Project sync copies:
   .cursor/rules/conventions.mdc     (Cursor conventions adapter)
   rules/ and commands/              (shared baseline rules and runbooks)
   .github/prompts/*.prompt.md       (attachable via #file: in Copilot chat)
+
+Package selection:
+  When the project root contains .ai-workflows.yaml with a `packages:` list
+  (see packages/selection.md), only the rules and commands included by the
+  selected packages (plus their `requires:` dependencies) are synced; files
+  belonging to deselected packages are removed and adapter references to them
+  are filtered out. Without a manifest, everything is synced (legacy mode).
 
 Options:
   --dry-run                Show what would be synced without writing
@@ -140,6 +148,137 @@ remove_file() {
   fi
 }
 
+# --- Package selection (project sync) ---
+
+manifest_packages() {
+  # Print package names listed under the top-level `packages:` key in $1
+  awk '
+    /^packages:[[:space:]]*$/ { in_list = 1; next }
+    /^[^[:space:]]/ { in_list = 0 }
+    in_list && /^[[:space:]]*-[[:space:]]*/ {
+      line = $0
+      sub(/^[[:space:]]*-[[:space:]]*/, "", line)
+      sub(/[[:space:]]*(#.*)?$/, "", line)
+      if (line != "") print line
+    }
+  ' "$1"
+}
+
+pkg_yaml_requires() {
+  # Print entries of the top-level `requires:` list in package.yaml $1
+  awk '
+    /^requires:[[:space:]]*$/ { in_list = 1; next }
+    /^[^[:space:]]/ { in_list = 0 }
+    in_list && /^[[:space:]]*-[[:space:]]*/ {
+      line = $0
+      sub(/^[[:space:]]*-[[:space:]]*/, "", line)
+      sub(/[[:space:]]*$/, "", line)
+      if (line != "") print line
+    }
+  ' "$1"
+}
+
+pkg_yaml_includes() {
+  # Print entries of the includes.<kind> list in package.yaml $1 ($2 = kind)
+  awk -v kind="$2:" '
+    /^includes:[[:space:]]*$/ { in_inc = 1; next }
+    /^[^[:space:]]/ { in_inc = 0; in_kind = 0 }
+    in_inc && in_kind && /^[[:space:]]*-[[:space:]]*/ {
+      line = $0
+      sub(/^[[:space:]]*-[[:space:]]*/, "", line)
+      sub(/[[:space:]]*$/, "", line)
+      if (line != "") print line
+      next
+    }
+    in_inc && $1 == kind { in_kind = 1; next }
+    in_inc && /^[[:space:]]+[A-Za-z_]+:/ { in_kind = 0 }
+  ' "$1"
+}
+
+resolve_selected_packages() {
+  # $1 = space-separated requested package names.
+  # Echoes the transitively resolved set (requires: followed), space-separated.
+  local pending="$1"
+  local resolved=""
+  local changed=1
+  local pkg dep yaml
+  while [[ "$changed" -eq 1 ]]; do
+    changed=0
+    for pkg in $pending; do
+      case " $resolved " in *" $pkg "*) continue ;; esac
+      yaml="$SRC_PACKAGES/$pkg/package.yaml"
+      if [[ ! -f "$yaml" ]]; then
+        echo "Error: unknown package '$pkg' in .ai-workflows.yaml (expected $yaml)" >&2
+        exit 1
+      fi
+      resolved="$resolved $pkg"
+      changed=1
+      for dep in $(pkg_yaml_requires "$yaml"); do
+        pending="$pending $dep"
+      done
+    done
+  done
+  echo "${resolved# }"
+}
+
+sync_selected_tree() {
+  # $1 = tree name (rules|commands), $2 = newline-separated allowed repo-relative paths.
+  # Copies the allowed files into the project and prunes everything else in the tree.
+  local tree="$1"
+  local allowed="$2"
+  local effective=""
+  local path base existing rel
+
+  while IFS= read -r path; do
+    [[ -z "$path" ]] && continue
+    case "$path" in "$tree"/*) ;; *) continue ;; esac
+    base="$(basename "$path")"
+    if [[ "$INCLUDE_EXPERIMENTAL" -eq 0 && "$base" == experimental.* ]]; then
+      continue
+    fi
+    if [[ ! -f "$ROOT_DIR/$path" ]]; then
+      echo "  [warn] selected package lists missing file: $path" >&2
+      continue
+    fi
+    effective="$effective
+$path"
+  done <<< "$allowed"
+
+  while IFS= read -r path; do
+    [[ -z "$path" ]] && continue
+    sync_file "$ROOT_DIR/$path" "$PROJECT_DIR/$path"
+  done <<< "$effective"
+
+  if [[ -d "$PROJECT_DIR/$tree" ]]; then
+    while IFS= read -r existing; do
+      rel="${existing#$PROJECT_DIR/}"
+      if ! printf '%s\n' "$effective" | grep -qxF "$rel"; then
+        remove_file "$existing"
+      fi
+    done < <(find "$PROJECT_DIR/$tree" -type f)
+    if [[ "$DRY_RUN" -eq 0 ]]; then
+      find "$PROJECT_DIR/$tree" -type d -empty -delete 2>/dev/null || true
+    fi
+  fi
+}
+
+filter_deselected_rule_refs() {
+  # Remove lines that reference deselected rules files from generated adapter $1,
+  # so adapters never point at rules that are not synced into the project.
+  local target="$1"
+  [[ -f "$target" ]] || return 0
+  [[ -n "${DESELECTED_RULES//[[:space:]]/}" ]] || return 0
+  local tmp="${target}.tmp"
+  local rel
+  cp "$target" "$tmp"
+  while IFS= read -r rel; do
+    [[ -z "$rel" ]] && continue
+    grep -vF "$rel" "$tmp" > "${tmp}.filtered" || true
+    mv "${tmp}.filtered" "$tmp"
+  done <<< "$DESELECTED_RULES"
+  mv "$tmp" "$target"
+}
+
 # --- Shared fragment injection (reused from generate-adapters pattern) ---
 
 inject_shared() {
@@ -236,6 +375,39 @@ if [[ -n "$PROJECT_DIR" ]]; then
     echo "  [warn] No CONVENTIONS.md found. Run init-project to generate one."
   fi
 
+  # Resolve package selection from .ai-workflows.yaml (see packages/selection.md)
+  MANIFEST_FILE="$PROJECT_DIR/.ai-workflows.yaml"
+  SELECTION_ACTIVE=0
+  SELECTED_PACKAGES=""
+  ALLOWED_RULES=""
+  ALLOWED_COMMANDS=""
+  DESELECTED_RULES=""
+  if [[ -f "$MANIFEST_FILE" ]]; then
+    REQUESTED_PACKAGES="$(manifest_packages "$MANIFEST_FILE" | tr '\n' ' ')"
+    if [[ -z "${REQUESTED_PACKAGES//[[:space:]]/}" ]]; then
+      echo "Error: $MANIFEST_FILE exists but lists no packages under 'packages:'" >&2
+      exit 1
+    fi
+    SELECTED_PACKAGES="$(resolve_selected_packages "$REQUESTED_PACKAGES")"
+    for pkg in $SELECTED_PACKAGES; do
+      pkg_yaml="$SRC_PACKAGES/$pkg/package.yaml"
+      ALLOWED_RULES="$ALLOWED_RULES
+$(pkg_yaml_includes "$pkg_yaml" rules)"
+      ALLOWED_COMMANDS="$ALLOWED_COMMANDS
+$(pkg_yaml_includes "$pkg_yaml" commands)"
+    done
+    while IFS= read -r rel; do
+      if ! printf '%s\n' "$ALLOWED_RULES" | grep -qxF "$rel"; then
+        DESELECTED_RULES="$DESELECTED_RULES
+$rel"
+      fi
+    done < <(cd "$ROOT_DIR" && find rules -type f -name '*.md' | sort)
+    SELECTION_ACTIVE=1
+    echo "  [ok] package selection: $SELECTED_PACKAGES"
+  else
+    echo "  [info] no .ai-workflows.yaml found — syncing all rules and commands"
+  fi
+
   # Generate AI-WORKFLOWS.md from template
   if [[ -f "$SRC_AI_WORKFLOWS_TEMPLATE" ]]; then
     if [[ "$DRY_RUN" -eq 1 ]]; then
@@ -294,9 +466,21 @@ if [[ -n "$PROJECT_DIR" ]]; then
     fi
   fi
 
+  # Filter references to deselected rules out of the generated adapters
+  if [[ "$SELECTION_ACTIVE" -eq 1 && "$DRY_RUN" -eq 0 ]]; then
+    filter_deselected_rule_refs "$PROJECT_DIR/AI-WORKFLOWS.md"
+    filter_deselected_rule_refs "$PROJECT_DIR/CLAUDE.md"
+    filter_deselected_rule_refs "$PROJECT_DIR/AGENTS.md"
+    filter_deselected_rule_refs "$PROJECT_DIR/.github/copilot-instructions.md"
+    echo "  [ok] adapters filtered for deselected rules"
+  fi
+
   # Sync rules/ to project root (single copy, all tools reference it)
   if [[ -d "$SRC_RULES" ]]; then
-    if [[ "$DRY_RUN" -eq 1 ]]; then
+    if [[ "$SELECTION_ACTIVE" -eq 1 ]]; then
+      sync_selected_tree "rules" "$ALLOWED_RULES"
+      echo "  [ok] rules/ (selected packages only)"
+    elif [[ "$DRY_RUN" -eq 1 ]]; then
       echo "[dry-run] sync rules -> rules/"
     else
       sync_dir "$SRC_RULES" "$PROJECT_DIR/rules"
@@ -317,7 +501,10 @@ if [[ -n "$PROJECT_DIR" ]]; then
 
   # Sync commands/ to project root (single copy, all tools reference it)
   if [[ -d "$SRC_COMMANDS" ]]; then
-    if [[ "$DRY_RUN" -eq 1 ]]; then
+    if [[ "$SELECTION_ACTIVE" -eq 1 ]]; then
+      sync_selected_tree "commands" "$ALLOWED_COMMANDS"
+      echo "  [ok] commands/ (selected packages only)"
+    elif [[ "$DRY_RUN" -eq 1 ]]; then
       echo "[dry-run] sync commands -> commands/"
     else
       sync_dir "$SRC_COMMANDS" "$PROJECT_DIR/commands"
