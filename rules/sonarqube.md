@@ -33,10 +33,10 @@ after `if (a?.b !== x) return`, `a` is narrowed to non-null in the fall-through.
 
 ```ts
 // Avoid — explicit null check then access
-if (!vacancy || vacancy.vacancyStatus !== "active") { /* ... */ }
+if (!session || session.status !== "active") { /* ... */ }
 
 // Prefer — optional chain
-if (vacancy?.vacancyStatus !== "active") { /* ... */ }
+if (session?.status !== "active") { /* ... */ }
 ```
 
 After the change, type-check: the rewrite depends on control-flow narrowing, so
