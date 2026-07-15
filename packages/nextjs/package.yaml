@@ -7,9 +7,10 @@ recommended_with:
   - frontend
 includes:
   rules:
-    - rules/stacks/nextjs-payload.md
+    - rules/stacks/nextjs.md
   commands: []
   skills: []
 notes:
   - Use when the project is built on Next.js.
-  - Pair with payload only when the CMS layer is present.
+  - Pair with payload only when the CMS layer is present; the payload package
+    overlays rules/stacks/nextjs-payload.md on top of this file.

@@ -7,6 +7,7 @@ includes:
   rules:
     - rules/payload.md
     - rules/content-blocks.md
+    - rules/stacks/nextjs-payload.md
   commands: []
   skills: []
 recommended_with:
