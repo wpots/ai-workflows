@@ -45,10 +45,34 @@ If ambiguous, ask the user.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
      `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
-4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the [ai-workflows](https://gitlab.com/greenberrynl/config/ai-workflows) repo. Ask whether to:
+4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the [ai-workflows](https://github.com/wpots/ai-workflows) repo. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead
    - do both
+
+## Architecture conformance pass
+
+If the diff touches route/page/layout files, page-level templates, modules, or
+components (for Next.js: `src/app/**/page.tsx`, `src/app/**/layout.tsx`,
+`src/templates/**`, `src/modules/**`, `src/components/**`), run the **Definition
+of Done** checklist from the detected stack rule (e.g.
+`rules/stacks/nextjs-payload.md`) over the changed files **before** opening the
+PR/MR — so the agent catches deviations instead of the reviewer. For each
+changed route/module confirm:
+
+- page = route control flow + `<Template/>` only (no markup, fetch, or
+  view-model derivation)
+- fetch + view-model derivation in `templates/<Name>/load<Name>.ts`; pure
+  raw → props mapping in `Transform*.ts`
+- paths via the project's central route helper (no hand-written, locale-prefixed
+  URL strings)
+- component prop interfaces in `types.ts`, never inline in the `.tsx`
+- one transform per module; hooks hold client state only
+
+If a box fails, fix the new code to conform before pushing. If the failure is in
+pre-existing neighbour code, leave it and flag it in a tracked follow-up (e.g. a
+`docs/todo/` entry) rather than expanding the PR scope (see "Conform to the
+rule, not the neighbour" in `rules/clean-architecture.md`).
 
 ## Base Branch Resolution
 

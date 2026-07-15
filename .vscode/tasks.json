@@ -22,6 +22,16 @@
       "problemMatcher": []
     },
     {
+      "label": "backlog",
+      "type": "shell",
+      "command": "cat commands/backlog.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "close-sprint",
       "type": "shell",
       "command": "cat commands/close-sprint.md",

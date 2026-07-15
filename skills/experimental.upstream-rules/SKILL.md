@@ -1,6 +1,6 @@
 ---
 name: upstream-rules
-description: When shared workflow assets are modified locally, ask the developer if the change should be upstreamed to ai-workflows. If yes, create a branch and PR on the ai-workflows repo. Use when the developer edits rules, skills, prompts, workflow adapters, or generic conventions — or explicitly asks to upstream, propose, or share a workflow change.
+description: When shared workflow assets are modified locally, ask the developer if the change should be upstreamed to ai-workflows. If yes, create a branch, GitHub PR, and GitLab MR, then return their approval links. Use when the developer edits rules, skills, prompts, workflow adapters, or generic conventions — or explicitly asks to upstream, propose, or share a workflow change.
 ---
 
 # Upstream Rules Skill
@@ -138,17 +138,18 @@ If the change modifies shared rules or workflow adapters, fetch related files
 from the repo and verify it does not contradict existing guidance. If it does,
 flag the conflict to the developer and ask how to resolve it.
 
-### 5. Create PR
+### 5. Create GitHub PR and capture its approval link
 
 Push the branch and open a PR against `wpots/ai-workflows`:
 
 ```bash
 git push -u origin rules/<short-description>
-gh pr create \
+github_pr_url=$(gh pr create \
   --repo wpots/ai-workflows \
   --base main \
   --title "rules: <short description>" \
-  --body "<generated body>"
+  --body "<generated body>")
+printf 'GitHub PR: %s\\n' "$github_pr_url"
 ```
 
 PR body should include:
@@ -173,10 +174,11 @@ git checkout -b rules/<short-description>-gitlab gitlab/main
 git checkout rules/<short-description> -- <changed paths>
 git commit -am "<same conventional message>"
 git push gitlab rules/<short-description>-gitlab
-glab mr create -R greenberrynl/config/ai-workflows \
+gitlab_mr_url=$(glab mr create -R greenberrynl/config/ai-workflows \
   --target-branch main \
   --title "<same title>" \
-  --description "<same body>" --yes
+  --description "<same body>" --yes)
+printf 'GitLab MR: %s\\n' "$gitlab_mr_url"
 ```
 
 After both are merged, the two `main` branches should differ only in history,
@@ -188,6 +190,19 @@ git diff origin/main gitlab/main -- <changed paths>   # expect: empty
 ```
 
 ### 6. Post-PR Guidance
+
+Immediately after creating both reviews, return a concise handoff with the
+actual URLs — never merely say that a PR or MR was created:
+
+> Ready for approval:
+> - GitHub PR: <github_pr_url>
+> - GitLab MR: <gitlab_mr_url>
+>
+> Approve and merge both. The two repositories have separate histories, so
+> merging only one leaves their content out of sync.
+
+If either command fails or does not return a URL, report that failure clearly
+and do not claim the corresponding review exists.
 
 After **both** the GitHub PR and the GitLab MR are merged, remind the developer:
 
@@ -206,6 +221,8 @@ assume this exists.
 - Always diff against the latest upstream state, not a stale local copy
 - Apply every shared-asset change to **both** remotes (GitHub `origin` and GitLab
   `gitlab`); landing it on only one leaves them out of sync
+- After creating reviews, always return the GitHub PR and GitLab MR URLs so the
+  developer can approve them directly
 - GitLab `main` is protected and enforces a committer-email push rule — reach it
   only via a Merge Request, never a direct or force push, and never try to
   reconcile its history with GitHub's

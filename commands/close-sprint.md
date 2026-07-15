@@ -132,6 +132,26 @@ Tickets classified `partial`, `spillover`, or `not-started`. Per item:
 BLIs whose acceptance criteria diverge from what actually shipped. Note the
 divergence — do not rewrite the BLI yet (that happens after review).
 
+### 4d. The gaps document is a convergence artifact
+
+The gaps document is not a static dump — it is refined during review
+(Phase 6/7) until it contains **only** genuine spillover and open actions for
+the sprint being closed. As each item is resolved, remove it:
+
+- A delivered ticket that only lacked a BLI → create the BLI in
+  `docs/sprint-<N>/`, add it to the changelog, and remove it from the gaps
+  document (it is no longer a gap).
+- A "code without ticket" item that belongs to an existing/known ticket, or a
+  subtask folded into another BLI → record the resolution in that BLI and
+  remove the gaps entry.
+- Cross-assignee code that is genuinely delivered in the sprint → give it a BLI
+  in `docs/sprint-<N>/` (with confirmed authorship), add it to the changelog,
+  and remove it from gaps. Verify it is actually on the integration branch
+  first; if it only lives on an unmerged branch it is spillover, not delivered.
+- Only truly unresolved items stay: real spillover (code not on the integration
+  branch) and concrete follow-up actions (a tracker status to update, a
+  follow-up subticket to create, a doc/intent mismatch to confirm).
+
 ## Phase 5 — Move delivered BLIs into the sprint folder
 
 For each ticket classified `delivered`:
@@ -180,6 +200,25 @@ adequate doc:
    plus the observations gathered in Phase 2.
 4. Update `docs/sprint-<N>-gaps.md` with the resolution (link to the new doc
    or recorded decision).
+
+### Refining the gaps document from user feedback
+
+The gaps document is reviewed interactively. When the user comments on it, treat
+each comment as an instruction to update the document in place and re-converge:
+
+1. Apply the decision (create/move a BLI, fold a subtask into another BLI,
+   reclassify spillover vs delivered, correct attribution/authorship, note a
+   deleted tracker ticket).
+2. Propagate the change everywhere it appears: the moved/created BLI, the
+   `docs/sprint-<N>-changelog.md` delivered table and intro counts, and any
+   cross-references.
+3. Remove the now-resolved entry from the gaps document.
+4. Repeat until `docs/sprint-<N>-gaps.md` contains **only** genuine spillover
+   and open actions for the sprint being closed.
+
+End state of the gaps document: a short, action-oriented file — Spillover,
+Actions, any still-open BLI/doc mismatches, and the Phase 8 cleanup overview.
+Nothing that has already been resolved should remain.
 
 ## Phase 8 — Stale branches and worktrees overview
 

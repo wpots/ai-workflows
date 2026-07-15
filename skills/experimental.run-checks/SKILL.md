@@ -26,3 +26,18 @@ tools. The matching command runbook is a compatibility and fallback surface.
 - Do not modify code unless user explicitly asks.
 - Do not run fix variants unless user explicitly asks.
 - Prefer scripts exactly as defined in `package.json`.
+
+## Sustainable verification
+
+Checks cost compute — run them leanly (sustainable IT):
+
+- Run the **full** pipeline once at a logical boundary (end of a coherent change,
+  pre-push, branch validation), not after every edit.
+- While iterating, prefer **targeted scopes** — `test <path>`, `lint <files>`,
+  `type-check` on demand — and reserve the full sweep for the boundary.
+- **Don't re-run a check that already passed** unless the files it covers changed
+  since; report "already green, unchanged" instead of re-running.
+- **Batch** independent checks into one invocation where the tooling allows it.
+
+This complements the pre-push full sweep in `create-pr` — that sweep is the
+single full run; do not duplicate it mid-task.
