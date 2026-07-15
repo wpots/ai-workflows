@@ -34,13 +34,16 @@ If ambiguous, ask the user.
 
 ## Pre-flight
 
-1. Verify the CLI is authenticated (`gh auth status` / `glab auth status`). Abort if not.
-2. Check `git status` for uncommitted changes — warn and ask before continuing.
-3. Check whether the diff is primarily a shared AI workflow change.
+1. Refuse to run from `main`, `master`, `development`, or `acceptance` (or the
+   resolved base) — PRs/MRs come from feature branches only.
+2. Verify the CLI is authenticated (`gh auth status` / `glab auth status`).
+   If not, use the no-CLI fallbacks under Fallback Execution instead of aborting.
+3. Check `git status` for uncommitted changes — warn and ask before continuing.
+4. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
      `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
-4. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the [ai-workflows](https://github.com/wpots/ai-workflows) repo. Ask whether to:
+5. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the [ai-workflows](https://github.com/wpots/ai-workflows) repo. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead
    - do both
@@ -92,6 +95,12 @@ If found, use its structure and fill in sections from the diff. If not, use the 
 
 ## Fallback PR Description (default)
 
+Ticket link: extract `^([A-Z]+-[0-9]+)` from the branch name; if a tracker
+base URL is configured in project config (project-local skill facts,
+`AI-WORKFLOWS.md`, project `CLAUDE.md`), prefix the title with `<TICKET>: `
+and open the body with a `## Jira` section linking the ticket. Omit when
+either is missing — never guess a URL.
+
 Analyse the diff against the base branch and generate:
 
 - **Title**: Concise, descriptive (50-72 chars)
@@ -126,13 +135,25 @@ Applies on every run, including updates to an existing PR/MR.
 
 ## Fallback Execution
 
-1. Push the branch:
+1. Show base branch, title, and description and get approval before pushing
+   (skip only if the user already said to proceed without asking).
+2. Push the branch:
    - First push: `git push -u <remote> HEAD`
    - After a rebase rewrote history: `git push --force-with-lease <remote> HEAD`
-2. Create the PR/MR:
+3. Create the PR/MR:
    - GitHub: `gh pr create --base <base> --title "<title>" --body "<body>"`
    - GitLab: `glab mr create --target-branch <base> --title "<title>" --description "<body>"`
-3. Output the PR/MR URL on success.
+4. Output the PR/MR URL on success.
+
+### No-CLI fallbacks
+
+- **GitLab push options** (no token needed): push with
+  `-o merge_request.create -o merge_request.target=<base> -o merge_request.remove_source_branch -o merge_request.title="$TITLE" -o merge_request.description="$DESCRIPTION"`;
+  GitLab prints the MR URL. Ignored when the push transfers no refs — then use:
+- **GitLab prefilled URL**: `<web-base>/-/merge_requests/new?merge_request[source_branch]=<branch>&merge_request[target_branch]=<base>&merge_request[title]=<encoded>&merge_request[description]=<encoded>`
+  (`<web-base>` = origin URL minus `.git`; URL-encode title/description).
+- **GitHub prefilled URL**: `https://github.com/<org>/<repo>/compare/<base>...<branch>?expand=1&title=<encoded>&body=<encoded>`.
+- Only claim the PR/MR exists when the platform's output confirmed it.
 
 ## Guidelines
 

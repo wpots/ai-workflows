@@ -33,6 +33,10 @@ share the same workflow; Copilot follows the runbook directly.
 - Stop and ask whenever classification is ambiguous.
 - Populate `## Authors` on every moved BLI using the tracker assignee plus git
   commit authors. Deduplicate; never remove existing entries.
+- The gaps document is a convergence artifact: when the user comments on
+  `docs/sprint-<N>-gaps.md`, apply the decision, propagate it to the BLI and the
+  changelog, and remove the resolved entry — so the final gaps document holds
+  **only** genuine spillover and open actions for the sprint being closed.
 
 ## Inputs to confirm before starting
 
