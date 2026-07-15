@@ -67,6 +67,23 @@ Run the validation script to confirm all AI instruction files are consistent:
 
 This installs a pre-commit hook that runs `validate-ai-instructions.sh` before each commit to catch drift.
 
+### 7. (Optional) Install graphify for knowledge-graph context
+
+`graphify` gives agents a scoped knowledge graph of a codebase. It is per-developer;
+the graph data (`graphify-out/`) is gitignored, so build it locally in each repo.
+
+```bash
+brew install uv                 # if uv is not installed
+uv tool install graphifyy       # installs the graphify CLI to ~/.local/bin
+```
+
+Then, inside a repo whose sync includes graphify config:
+
+```bash
+graphify install                # register rules/hooks for local agents
+graphify update .               # build the initial local graph
+```
+
 ## Post-Setup
 
 - Edit workflows only in `~/Web/ai-workflows/`, never in synced target folders.
