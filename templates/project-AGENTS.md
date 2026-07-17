@@ -12,6 +12,7 @@ Load only the relevant focused rule files for the task:
 - `rules/backlog.md` for user stories, specs, and backlog work
 - `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
 - `rules/payload.md` for Payload schema, generated-type, and integration work
+- `rules/sonarqube.md` when addressing a SonarQube/SonarLint finding or writing code that could trip an opted-in Sonar rule
 - the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
 
 ## Precedence
@@ -31,6 +32,7 @@ skill-aware tools. Treat them as the canonical workflow source when available.
 
 | Skill            | Trigger phrases                          |
 | ---------------- | ---------------------------------------- |
+| `backlog`        | backlog item, user story, feature spec, bug item, bli |
 | `commit-message` | commit message, write commit, git commit |
 | `create-pr`      | create pr, open pr, submit pr            |
 | `close-sprint`   | close sprint, sluit sprint af, sprint afsluiten |
@@ -45,7 +47,7 @@ especially for Copilot-style flows or when a skill path is unavailable.
 ## Shared Workflow Source
 
 Changes to shared AI workflow assets should usually be proposed upstream in
-the [ai-workflows](https://gitlab.com/greenberrynl/config/ai-workflows) repo instead of living only in this synced target repo.
+the [ai-workflows](https://github.com/wpots/ai-workflows) repo instead of living only in this synced target repo.
 
 Treat these as shared workflow assets:
 

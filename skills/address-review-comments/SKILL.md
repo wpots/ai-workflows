@@ -1,6 +1,6 @@
 ---
 name: address-review-comments
-description: Pick up reviewer comments on a GitHub PR or GitLab MR in an isolated worktree, propose an approach per comment, then (after approval) apply, run checks, push, rebase onto the base branch, and clean up. Use when the user asks to address/pick up/process review feedback or reviewer comments on a PR/MR.
+description: Pick up reviewer comments on a GitHub PR or GitLab MR, propose an approach per comment, then (after approval) apply, run checks, push, rebase onto the base branch, and clean up. Works in the main checkout by default; only uses an isolated worktree after explicitly asking the user. Use when the user asks to address/pick up/process review feedback or reviewer comments on a PR/MR.
 ---
 
 # Address Review Comments Skill
@@ -48,18 +48,41 @@ proposed approach. For `suggestion` blocks, note whether applying verbatim still
 type-checks (e.g. a dropped helper whose return value is used elsewhere needs the
 value re-derived).
 
+End the proposal with the **workspace question**: propose working in the main
+checkout (default), or — only if the main checkout is genuinely blocked — ask
+whether an isolated worktree is OK (see step 4 for the placement rules). Never
+create a worktree without an explicit yes.
+
 Wait for approval before Phase B.
 
 ---
 
 ## Phase B — Apply, verify, push, rebase, clean up (after approval)
 
-### 4. Set up an isolated worktree
+### 4. Choose the workspace (main checkout by default)
+
+**Default: work in the main checkout.** If the working tree is clean (or the
+user agrees to stash), simply:
 
 ```bash
 git fetch <remote> <source_branch>
-git worktree add <path-outside-repo>/<repo>-<ticket> <source_branch>
+git switch <source_branch>
 ```
+
+Only fall back to a worktree when the main checkout is genuinely blocked (dirty
+state that can't be stashed, a dev server pinned to another branch) **and the
+user approved it in Phase A** — never unprompted.
+
+> ⚠️ **Worktrees can crash the user's IDE** when created inside the open
+> workspace: the file watcher and TS server index a full duplicate checkout
+> plus its freshly installed `node_modules`. If a worktree is approved:
+>
+> - Place it **outside the workspace root**, e.g. a sibling directory:
+>   `git worktree add ../<repo>-worktrees/<ticket> <source_branch>` — never
+>   under `.claude/worktrees/`, `.worktrees/`, or any path inside the open
+>   workspace/repo.
+> - Offer to open it as a **separate IDE window** (`code -n <path>`) so the
+>   main window never touches it.
 
 A fresh worktree has **no dependencies installed and no local env files**. Set
 it up the way this project requires before running anything:
@@ -74,7 +97,7 @@ assume a fixed list.
 
 ### 5. Apply the changes
 
-Edit in the worktree. When a `suggestion` drops a helper, make sure every later
+Edit in the chosen workspace. When a `suggestion` drops a helper, make sure every later
 use of that helper's value still resolves (re-derive inline, keep types intact —
 never introduce `any`/`as` to paper over it).
 
@@ -120,9 +143,14 @@ force a resolution.
 
 ### 9. Clean up
 
+Only when a worktree was used:
+
 ```bash
 git worktree remove <worktree> --force
 ```
+
+When working in the main checkout: switch back to the original branch and
+restore any stash.
 
 ### 10. Evaluate workflow updates
 

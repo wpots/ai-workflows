@@ -22,7 +22,7 @@ If any are missing, stop and tell the user what to install.
 ### 1. Clone the repo
 
 ```bash
-git clone https://gitlab.com/greenberrynl/config/ai-workflows.git ~/Web/ai-workflows
+git clone git@github.com:wpots/ai-workflows.git ~/Web/ai-workflows
 cd ~/Web/ai-workflows
 ```
 
