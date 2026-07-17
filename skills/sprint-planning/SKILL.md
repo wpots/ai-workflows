@@ -19,7 +19,8 @@ retrospective is the `close-sprint` flow; its changelog and gaps document are
 ## Workflow
 
 1. Read `commands/sprint-planning.md` (project root, or the synced `commands/`
-   dir).
+   dir). Use `skills/sprint-planning/templates/planning-template.md` and
+   `templates/refinement-template.md` as the skeletons for the two output docs.
 2. Follow the phases in order. Do not skip the Phase 7 review pause.
 3. A live tracker connection is mandatory (Phase 0). Use the most efficient
    method available: the tracker's MCP connector if connected, otherwise its
@@ -59,6 +60,13 @@ Written to `docs/sprint-<N>-planning.md`, plus:
 
 - BLIs created for any planned ticket missing a doc.
 - Planned BLIs marked `## Status` → `Planned for Sprint <N>.`
+- `docs/sprint-<N>-refinement.md` when any ticket in the sprint (sprint-wide,
+  not only the user's) has no story points in the tracker: a table of those
+  tickets (`Ticket | Summary | Status | Proposed SP | Rationale`) plus a short
+  action list for the refinement session. Proposals stay in the doc — the
+  tracker remains read-only. **Unsized tickets get no row in the planning
+  doc's planned-tickets table** — they live only in the refinement doc, and the
+  planning doc carries one reference line naming them and pointing there.
 - A planning document with: TL;DR decisions, planned-ticket table (spillover
   marked), dependency map, realism verdict (planned SP vs velocity vs capacity),
   proposed execution order with per-item rationale, doc actions, and local

@@ -196,6 +196,31 @@ Then build the **planned load** and compare:
   first sprint, holidays), lead with the capacity estimate and say so.
 - Call out any unsized ticket — it makes the load number untrustworthy.
 
+### Unsized tickets → refinement document
+
+**An unsized ticket never gets a row in the planning document's planned-tickets
+table** — a table row implies a committed, sized piece of load, and an unsized
+ticket has no trustworthy number. Instead, every ticket in the target sprint
+with no story points in the tracker (query the whole sprint, not just the
+user's) goes into `docs/sprint-<N>-refinement.md`, and the planning document
+carries a single **reference line** pointing there (see Phase 6). This holds
+even when the ticket is otherwise ready to work (e.g. a collector bug with BLIs
+already written) — size it in refinement first, then it earns a planning row
+next time.
+
+Write `docs/sprint-<N>-refinement.md` as refinement-session input. It contains
+a table per group — the user's own tickets (grounded against the codebase) and
+other/unassigned tickets (indicative) — with columns:
+`Ticket | Summary | Status | Proposed SP | Rationale`, using the team's
+story-point scale. Close with a short action list for the refinement session
+(scope questions, split advice, tickets whose work already landed). The
+proposals live **only** in this document — the tracker stays read-only; the
+user carries them into refinement.
+
+Consequence for the load math: unsized tickets contribute **0** to the planned
+load (they are not in the table). Say so explicitly in the Realism section —
+the load is a lower bound until refinement sizes them.
+
 ## Phase 5 — Proposed execution order
 
 Order the user's tickets for efficient flow, with a one-line rationale per
@@ -211,16 +236,23 @@ decision. Order by, in priority:
 
 ## Phase 6 — Write the planning document and mark planned BLIs
 
-Write `docs/sprint-<N>-planning.md` (alongside the changelog and gaps docs). Use
-this structure:
+Write `docs/sprint-<N>-planning.md` (alongside the changelog and gaps docs).
+Skeletons for both output docs live at
+`skills/sprint-planning/templates/planning-template.md` and
+`refinement-template.md`. Use this structure:
 
 - **Header** — target sprint, assignee planned in detail, when planned, and the
   velocity + capacity anchors used.
 - **TL;DR — decide first** — the 2–4 things that gate the sprint (over-commit,
   external blockers, unplanned spillover, unsized tickets).
 - **Planned tickets** — table: `Ticket | Title | SP | Code state | Remaining |
-  Doc`. Mark carried-in spillover and put their restpoints in the `Remaining`
-  column.
+  Doc`. **Only sized tickets appear here.** Mark carried-in spillover and put
+  their restpoints in the `Remaining` column.
+- **Unsized → refinement** — directly under the planned-tickets table, one
+  reference line naming the unsized tickets and pointing to the refinement doc,
+  e.g. `De N ongeschatte sprint-tickets (RFW-248, …) staan met
+  SP-voorstel in docs/sprint-<N>-refinement.md.` No SP, no row — just the
+  pointer, so the reader knows where that scope went.
 - **Dependency map** — internal ordering constraints and external blockers
   (Phase 2), with who/what blocks whom.
 - **Realism** — planned load (remaining SP + restpoints) vs velocity vs capacity,
@@ -245,7 +277,9 @@ Then stop. The document is the deliverable — do not edit the tracker.
 
 End with a concise list of:
 
-- The planning-doc path (`docs/sprint-<N>-planning.md`).
+- The planning-doc path (`docs/sprint-<N>-planning.md`), and the
+  refinement-doc path (`docs/sprint-<N>-refinement.md`) when unsized tickets
+  exist.
 - Planned load (remaining SP + restpoints) vs velocity/capacity verdict (over /
   under / on-track), and which tickets are already started in code.
 - BLIs created and BLIs marked `Planned for Sprint <N>`.

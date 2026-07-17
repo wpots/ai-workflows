@@ -52,8 +52,9 @@ particular, these flows end with a board update:
 
 An update means all three of:
 
-1. Move the item's line to the right status section (sections, not a status
-   column — the section order is the user's attention order).
+1. Move the item's row to the right status section's table (sections stay the
+   top-level attention order — each section renders as a table, not a single
+   grid with a status column).
 2. Stamp `Laatst bijgewerkt` at the top with today's date.
 3. Append one line to the `## Log` section:
    `- YYYY-MM-DD — <item>: <old> → <new> (<reason/link>)`.
@@ -69,12 +70,24 @@ it into the board sections like any other item, keeping a `[bijkomend]` tag.
 
 ## Item format
 
+Each status section is a **kanban table**, one row per item — scannable at a
+glance:
+
 ```
-- **RFW-123** — short title · `branch-name` · [MR !45](https://<mr-url>) · sinds 2026-07-14
-  - note only when something needs remembering (blocker, decision, next step)
+| Item | MR | Migr. | Kern / next |
+| --- | --- | --- | --- |
+| **RFW-123** — short title | !45 | nee | `branch-name`, sinds 2026-07-14 · blocker/decision/next step in één regel |
 ```
 
-Ticket key optional — incidental work often has none. Never invent ticket keys.
+- **Item** — ticket key (optional) + short title. Ticket key optional —
+  incidental work often has none. Never invent ticket keys.
+- **MR** — `!45` (plain, no fabricated URL), or `verify` / `—`.
+- **Migr.** — `nee` / `ja — <migration> (gedraaid|te doen)` / `—`.
+- **Kern / next** — one tight line: branch/worktree plus only what needs
+  remembering. Detail lives in `docs/backlog/` and the tracker, not here.
+
+`Done` uses the same shape (last column just `Kern`); `Bijkomend werk` swaps the
+`MR` column for a `Bron` column.
 
 ## Template
 
@@ -87,15 +100,31 @@ Laatst bijgewerkt: <date>
 
 ## In Progress
 
+| Item | MR | Migr. | Kern / next |
+| --- | --- | --- | --- |
+
 ## Rework
+
+_(leeg)_
 
 ## In Review
 
+| Item | MR | Migr. | Kern / next |
+| --- | --- | --- | --- |
+
 ## Todo
+
+_(leeg)_
 
 ## Done
 
+| Item | MR | Migr. | Kern |
+| --- | --- | --- | --- |
+
 ## Bijkomend werk
+
+| Item | Bron | Kern |
+| --- | --- | --- |
 
 ## Log
 ```
