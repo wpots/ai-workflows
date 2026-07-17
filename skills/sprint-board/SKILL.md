@@ -70,7 +70,7 @@ it into the board sections like any other item, keeping a `[bijkomend]` tag.
 ## Item format
 
 ```
-- **RFW-123** — short title · `branch-name` · [MR !45](link) · sinds 2026-07-14
+- **RFW-123** — short title · `branch-name` · [MR !45](https://<mr-url>) · sinds 2026-07-14
   - note only when something needs remembering (blocker, decision, next step)
 ```
 

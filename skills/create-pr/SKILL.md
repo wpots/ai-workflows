@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Push the current branch and create a pull request (GitHub or GitLab) with a structured description generated from the branch diff.
+description: Push the current branch and create a pull request (GitHub or GitLab) with a structured description generated from the branch diff. Use when the user asks to open, create, or submit a PR/MR.
 ---
 
 # Create PR Skill
@@ -107,7 +107,7 @@ with `<TICKET>: ` and open the description with a linked ticket section:
 ```markdown
 ## Jira
 
-[<TICKET>](<tracker-base>/<TICKET>)
+[<TICKET>](https://<tracker-base>/<TICKET>)
 ```
 
 If the branch has no ticket or no tracker base URL is configured, omit the

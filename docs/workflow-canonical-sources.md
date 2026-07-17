@@ -19,6 +19,18 @@ Use it to decide where updates should land first and whether a command is a full
 | `experimental.upstream-rules` | skill only | `skills/experimental.upstream-rules/SKILL.md` | none | n/a |
 | `experimental.new-device-setup` | command only | `commands/experimental.new-device-setup.md` | none | n/a |
 | `experimental.safe-kill-port` | command only | `commands/experimental.safe-kill-port.md` | none | n/a |
+| `backlog` | skill + command | `skills/backlog/SKILL.md` | `commands/backlog.md` | yes |
+| `close-sprint` | skill + command | `skills/close-sprint/SKILL.md` | `commands/close-sprint.md` | yes |
+| `refinement` | skill + command | `skills/refinement/SKILL.md` | `commands/refinement.md` | yes |
+| `sprint-demo` | skill + command | `skills/sprint-demo/SKILL.md` | `commands/sprint-demo.md` | yes |
+| `sprint-planning` | skill + command | `skills/sprint-planning/SKILL.md` | `commands/sprint-planning.md` | yes |
+| `experimental.work-backlog` | skill + command | `skills/experimental.work-backlog/SKILL.md` | `commands/experimental.work-backlog.md` | yes |
+| `address-review-comments` | skill only | `skills/address-review-comments/SKILL.md` | none | n/a |
+| `sprint-board` | skill only | `skills/sprint-board/SKILL.md` | none | n/a |
+| `jira-ticket` | skill only | `skills/jira-ticket/SKILL.md` | none | n/a |
+| `npm-maintenance` | skill only | `skills/npm-maintenance/SKILL.md` | none | n/a |
+| `experimental.improve-skill` | skill only | `skills/experimental.improve-skill/SKILL.md` | none | n/a |
+| `sustainable-review` | command only | `commands/sustainable-review.md` | none | n/a |
 
 ## Interpretation
 

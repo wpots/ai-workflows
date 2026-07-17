@@ -56,10 +56,10 @@ Actions:
 
 Primary files:
 
-- [AGENTS.md](/Users/wietekepots/Web/ai-workflows/AGENTS.md)
-- [README.md](/Users/wietekepots/Web/ai-workflows/README.md)
-- [scripts/sync.sh](/Users/wietekepots/Web/ai-workflows/scripts/sync.sh)
-- [templates/project-ai-workflows.md](/Users/wietekepots/Web/ai-workflows/templates/project-ai-workflows.md)
+- [AGENTS.md](../AGENTS.md)
+- [README.md](../README.md)
+- [scripts/sync.sh](../scripts/sync.sh)
+- [templates/project-ai-workflows.md](../templates/project-ai-workflows.md)
 
 Exit criteria:
 
@@ -151,9 +151,9 @@ Actions:
 
 Primary files:
 
-- [scripts/sync.sh](/Users/wietekepots/Web/ai-workflows/scripts/sync.sh)
-- [README.md](/Users/wietekepots/Web/ai-workflows/README.md)
-- [templates/project-ai-workflows.md](/Users/wietekepots/Web/ai-workflows/templates/project-ai-workflows.md)
+- [scripts/sync.sh](../scripts/sync.sh)
+- [README.md](../README.md)
+- [templates/project-ai-workflows.md](../templates/project-ai-workflows.md)
 
 ## Risks
 
