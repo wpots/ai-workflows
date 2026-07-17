@@ -45,3 +45,8 @@ Do not assume command files auto-run. Select and execute them when intent matche
 
 <!-- BEGIN SHARED:safety -->
 <!-- END SHARED:safety -->
+
+## Knowledge Graph (graphify)
+
+<!-- BEGIN SHARED:graphify -->
+<!-- END SHARED:graphify -->
