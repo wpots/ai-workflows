@@ -50,14 +50,18 @@ particular, these flows end with a board update:
 - `address-review-comments` — In Review → Rework on pickup, → In Review on push
 - `close-sprint` — merged items → Done; leftovers flagged as spillover
 
-An update means all three of:
+An update means both of:
 
 1. Move the item's row to the right status section's table (sections stay the
    top-level attention order — each section renders as a table, not a single
    grid with a status column).
 2. Stamp `Laatst bijgewerkt` at the top with today's date.
-3. Append one line to the `## Log` section:
-   `- YYYY-MM-DD — <item>: <old> → <new> (<reason/link>)`.
+
+**No log/history section.** The board is a live snapshot of current status, not
+an audit trail — keep it small and scannable. The row itself (status section +
+`Kern / next`) carries the only state worth remembering; the tracker and
+`docs/backlog/` hold the durable history. Do not add a `## Log`, `## History`,
+or per-transition changelog.
 
 ## Incidental work
 
@@ -125,8 +129,6 @@ _(leeg)_
 
 | Item | Bron | Kern |
 | --- | --- | --- |
-
-## Log
 ```
 
 ## Constraints
