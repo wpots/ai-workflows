@@ -39,6 +39,50 @@ GitHub-lineage history and respecting the constraints below.
 4. Going forward, follow `docs/repo-divergence.md`: GitLab by default, GitHub on
    explicit request.
 
+## Execution plan (for the next session)
+
+Kick off with: **"run the github reconciliation"** and point here.
+
+### Prerequisites
+
+- A **stable session** — the permission-prompt stream must work for
+  sandbox-disabled bash (GitHub ops need it).
+- `gh auth status` green for `wpots/ai-workflows` with push rights; SSH to
+  `git@github.com` working.
+- Run GitHub ops with the **sandbox disabled** — `github.com` is not in the
+  default network allowlist.
+
+### Decisions (proposed defaults — adjust if needed)
+
+- **End-state:** GitHub `main` = GitLab `main` content **minus** the GitLab-only
+  files (`.gitlab-ci.yml`, `docs/repo-divergence.md`).
+- **Mechanism:** reconcile **by content** via a branch off `origin/main` + a PR
+  on GitHub. No force-push, no re-seed (respects the constraints above).
+
+### Steps
+
+1. `git fetch origin && git fetch gitlab`
+2. Compute the delta (sanity-check scope):
+   `git diff --stat origin/main gitlab/main -- . ':(exclude).gitlab-ci.yml' ':(exclude)docs/repo-divergence.md'`
+3. Branch off GitHub: `git checkout -b chore/sync-github-content origin/main`
+4. Bring in GitLab's content for the changed paths, e.g.
+   `git checkout gitlab/main -- <changed paths>` — **never** `.gitlab-ci.yml`
+   or `docs/repo-divergence.md`.
+5. Resolve any content conflicts; preserve genuine GitHub-only bits if any surface.
+6. Validate: `node scripts/validate-skills.mjs` (GitHub has no CI, but keep it clean).
+7. `git push -u origin chore/sync-github-content`
+8. `gh pr create --repo wpots/ai-workflows --base main --title "…" --body "…"`
+9. Report the PR URL; merge after review.
+
+### Notes
+
+- The two `main` branches share ancestor `d50e5bf`, so a merge/content-apply
+  works; **GitLab → GitHub has no push block** (unlike the reverse).
+- The expected content gap is what landed on GitLab after the split: graphify,
+  `scripts/validate-skills.mjs` + the skills fixes, the recovered
+  `commands/backlog.md` + `skills/backlog/`, and the reconcile content — but
+  compute the real delta in step 2, don't assume.
+
 ## Migration
 
 No DB migration — tooling/config only.
