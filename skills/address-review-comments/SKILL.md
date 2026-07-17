@@ -81,6 +81,9 @@ user approved it in Phase A** — never unprompted.
 >   `git worktree add ../<repo>-worktrees/<ticket> <source_branch>` — never
 >   under `.claude/worktrees/`, `.worktrees/`, or any path inside the open
 >   workspace/repo.
+> - Use a **stable, pre-authorized** worktrees directory (added once to
+>   `additionalDirectories`) rather than a per-run temp path — a fresh path
+>   triggers a new directory-permission grant every time.
 > - Offer to open it as a **separate IDE window** (`code -n <path>`) so the
 >   main window never touches it.
 
