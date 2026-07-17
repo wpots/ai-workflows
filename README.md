@@ -169,6 +169,7 @@ sync model.
 - `.github/copilot-instructions.md`: Copilot adapter with important context inlined
 - `rules/` and `commands/`: shared baseline rules and reusable runbooks
 - `.github/prompts/`: Copilot prompt wrappers generated from `commands/`
+- `.cursor/rules/graphify.mdc`, `.claude/settings.json`: graphify knowledge-graph rule + hooks (both guarded; settings only written when the project has none)
 
 Project-local conventions always win over the shared baseline.
 
@@ -190,6 +191,27 @@ Current targets:
 - `~/.claude/skills`
 
 Commands and skills prefixed with `experimental.` are excluded by default from sync. Use `--include-experimental` to opt in.
+
+## Knowledge Graph (graphify)
+
+[graphify](https://github.com/safishamsi/graphify) builds a queryable knowledge
+graph of a codebase so agents can ask scoped questions instead of grepping raw
+files. The adapter guidance lives in `shared/graphify.md` (injected into the
+CLAUDE/AGENTS/Copilot templates), and project sync writes `.cursor/rules/graphify.mdc`
+plus a graphify-hooked `.claude/settings.json` (only when the project has none).
+Everything is guarded on `graphify-out/graph.json`, so it no-ops in repos without a graph.
+
+The graph data (`graphify-out/`) is gitignored, so each developer builds their own:
+
+```bash
+brew install uv                 # if uv is not installed
+uv tool install graphifyy       # installs the graphify CLI to ~/.local/bin
+graphify install                # register rules/hooks for the local agents
+graphify update .               # build the initial local graph
+```
+
+After that, `graphify update .` (also run automatically by the Claude PostToolUse
+hook) keeps the graph current — AST-only, no API cost.
 
 ## First-Time Setup
 
