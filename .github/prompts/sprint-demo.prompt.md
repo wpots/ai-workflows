@@ -153,8 +153,75 @@ Where a story is `needs-context`, make the value land:
 
 Write `docs/demo/sprint-<N>/deck.md` as a Marp deck (markdown):
 
-- Frontmatter: `marp: true` and a theme (the project brand theme if one exists,
-  otherwise a clean default).
+- Frontmatter: `marp: true` + the **Greenberry house-style theme** below. This
+  is the default for every sprint-demo deck; only deviate when the user asks
+  for a different look.
+- **Project logo on every slide**: find the project's logo in the repo (often
+  an SVG inside a `Logo` React component — extract the `<svg>` markup to a
+  standalone `.svg` next to the deck), then embed it as a **base64 `data:`
+  URI** in the theme CSS. Never reference the logo by relative path — PNG/PDF
+  export and moved files break relative `url()`s silently.
+
+  ```yaml
+  marp: true
+  theme: default
+  paginate: true
+  style: |
+    /* Greenberry huisstijl (greenberry.nl): paars #5801FF, koraal #FF554E,
+       antraciet #32323C, lime #DBFF00; koppen Modernmtstd, mono Courier Std. */
+    section {
+      font-family: "Segoe UI", "Avenir Next", Arial, sans-serif;
+      background: #fafafa;
+      color: #32323c;
+      padding: 64px 64px 56px;
+    }
+    h1, h2 {
+      font-family: Modernmtstd, "Arial Black", "Helvetica Neue", sans-serif;
+      letter-spacing: -0.02em;
+    }
+    h1 { color: #5801ff; }
+    h2 { color: #32323c; }
+    strong { color: #5801ff; }
+    em { color: #ff554e; font-style: normal; font-weight: 600; }
+    a { color: #5801ff; }
+    blockquote {
+      border-left: 6px solid #ff554e;
+      padding-left: 18px;
+      color: #5d6c7b;
+      font-size: 1.02em;
+    }
+    ul li::marker { color: #ff554e; }
+    section::after {
+      font-family: "Courier Std", "Courier New", monospace;
+      color: #758696;
+    }
+    /* Projectlogo rechtsboven op elke slide */
+    section::before {
+      content: "";
+      position: absolute;
+      top: 30px;
+      right: 48px;
+      width: 127px;
+      height: 36px;
+      background: url("<BASE64-DATA-URI-VAN-PROJECTLOGO>") no-repeat center / contain;
+    }
+    /* Titelslide: paars vlak, logo groot op witte chip */
+    section.lead { background: #5801ff; color: #fff; }
+    section.lead h1 { color: #fff; font-size: 2.3em; }
+    section.lead h2 { color: #dbff00; }
+    section.lead::before {
+      top: 56px;
+      right: auto;
+      left: 64px;
+      width: 240px;
+      height: 78px;
+      background: #fff url("<BASE64-DATA-URI-VAN-PROJECTLOGO>") no-repeat center / 82%;
+      border-radius: 10px;
+    }
+    section.lead::after { color: #fff; }
+    footer { color: #999; }
+  ```
+
 - Title slide: "Sprint <N> — wat is er nieuw".
 - One slide per `demoable` story, grouped by theme: the **headline is the
   value**, with one supporting line and an optional screenshot/visual. No
