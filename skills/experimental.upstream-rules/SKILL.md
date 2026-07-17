@@ -1,6 +1,6 @@
 ---
 name: upstream-rules
-description: When shared workflow assets are modified locally, ask the developer if the change should be upstreamed to ai-workflows. If yes, create a branch and PR on the ai-workflows repo. Use when the developer edits rules, skills, prompts, workflow adapters, or generic conventions — or explicitly asks to upstream, propose, or share a workflow change.
+description: When shared workflow assets are modified locally, ask the developer if the change should be upstreamed to ai-workflows. If yes, create a branch and a GitLab MR (the default remote; GitHub only when explicitly requested), then return the approval link. Use when the developer edits rules, skills, prompts, workflow adapters, or generic conventions — or explicitly asks to upstream, propose, or share a workflow change.
 ---
 
 # Upstream Rules Skill
@@ -30,27 +30,28 @@ workflow assets.
 
 ## Upstream Repositories (two remotes)
 
-ai-workflows lives on **two remotes that must both receive every shared-asset
-change**:
+ai-workflows lives on two remotes. **See `docs/repo-divergence.md` (GitLab-only)
+for the authoritative policy;** the essentials:
 
 | Remote | Repo | Role |
 |---|---|---|
-| `origin` | `wpots/ai-workflows` (GitHub) | Canonical source of truth |
-| `gitlab` | `greenberrynl/config/ai-workflows` (GitLab) | Greenberry team distribution |
+| `gitlab` | `greenberrynl/config/ai-workflows` (GitLab) | **Collaboration remote & default upstream** |
+| `origin` | `wpots/ai-workflows` (GitHub) | Personal remote / secondary mirror |
 
 Prefer the local clone at `~/Web/ai-workflows` (it has both remotes). Always
-fetch both before diffing so you compare against the latest state of each.
+fetch before diffing.
 
-**Their histories are divergent and cannot be unified — do not try.** GitLab was
-seeded as an independent import, so the two `main` branches share no common
-ancestor. Do **not** attempt to fix this by force-pushing one lineage onto the
-other or re-seeding: gitlab `main` is a **protected branch** *and* enforces a
-committer-email push rule that rejects GitHub's `*.noreply.github.com` committer
-identities, so GitHub's history can never be replayed onto GitLab (both were
-tried and both are hard-blocked). Treat the two as separate lineages that must
-be kept **content-identical**, applying each change to both (steps 5 + 5b).
-Never re-seed either remote from a fresh import — that is what caused the
-divergence in the first place.
+**Default rule: upstream to GitLab only — open the MR on GitLab. Push to GitHub
+only when the user explicitly asks.** Do not dual-push by reflex. (This replaces
+the older "apply every change to both remotes" convention.)
+
+The two `main` branches **do share a common ancestor** (`d50e5bf`) and can be
+reconciled by content — earlier "no common ancestor / cannot be unified" notes
+are outdated. When reconciling toward GitHub, remember GitLab `main` is a
+**protected branch** and enforces a committer-email rule rejecting
+`*.noreply.github.com` identities, so reconcile **by content via a branch + MR**,
+never by force-push or re-seed. What is GitLab-only vs shared is tracked in
+`docs/repo-divergence.md`.
 
 ## Steps
 
@@ -72,9 +73,9 @@ Common mappings:
 | `.github/copilot-instructions.md` | `templates/project-copilot-instructions.md` |
 | `.cursor/rules/conventions.mdc` | `templates/project-cursor-conventions.mdc` |
 
-Fetch the current upstream version of each mapped file from GitHub and diff it
-against the local source material. If the file is new upstream, note it as an
-addition.
+Fetch the current upstream version of each mapped file from GitLab (`gitlab/main`,
+the default remote) and diff it against the local source material. If the file is
+new upstream, note it as an addition.
 
 Summarize what changed and why.
 
@@ -129,7 +130,8 @@ else
   gh repo clone wpots/ai-workflows /tmp/ai-workflows-upstream
   cd /tmp/ai-workflows-upstream
 fi
-git checkout -b rules/<short-description> origin/main
+git fetch gitlab
+git checkout -b rules/<short-description> gitlab/main
 ```
 
 Apply the changes to the correct file(s).
@@ -138,56 +140,54 @@ If the change modifies shared rules or workflow adapters, fetch related files
 from the repo and verify it does not contradict existing guidance. If it does,
 flag the conflict to the developer and ask how to resolve it.
 
-### 5. Create PR
+### 5. Create the GitLab MR and capture its approval link
 
-Push the branch and open a PR against `wpots/ai-workflows`:
+GitLab is the default upstream. `main` is protected, so the change lands via an
+MR, never a push to `main`:
 
 ```bash
-git push -u origin rules/<short-description>
-gh pr create \
-  --repo wpots/ai-workflows \
-  --base main \
+git push -u gitlab rules/<short-description>
+gitlab_mr_url=$(glab mr create -R greenberrynl/config/ai-workflows \
+  --source-branch rules/<short-description> \
+  --target-branch main \
   --title "rules: <short description>" \
-  --body "<generated body>"
+  --description "<generated body>" --yes)
+printf 'GitLab MR: %s\\n' "$gitlab_mr_url"
 ```
 
-PR body should include:
+MR body should include:
 
 - What changed and why
 - Which project originated the change
 - Rule, prompt, skill, or template files affected
 - Any projects that may need re-sync after merge
 
-### 5b. Mirror the change to GitLab (greenberry)
+### 5b. GitHub — only when explicitly requested
 
-The same change must also land on the GitLab remote, on **its own lineage**. The
-two histories are unrelated, so you cannot merge or cherry-pick the GitHub commit
-across — re-apply the patch onto a branch off `gitlab/main`. GitLab `main` is
-protected, so it goes in via a Merge Request, never a push to `main`:
+Do **not** push to GitHub by default. Only when the user explicitly asks to also
+land the change on GitHub, mirror it there (GitLab → GitHub has no push block):
 
 ```bash
-git fetch gitlab main
-git checkout -b rules/<short-description>-gitlab gitlab/main
-# Re-apply the SAME edit here — apply the diff/patch, not the GitHub commit.
-# Fastest path: copy the touched files from the GitHub branch, then commit:
-git checkout rules/<short-description> -- <changed paths>
-git commit -am "<same conventional message>"
-git push gitlab rules/<short-description>-gitlab
-glab mr create -R greenberrynl/config/ai-workflows \
-  --target-branch main \
-  --title "<same title>" \
-  --description "<same body>" --yes
+git push -u origin rules/<short-description>
+github_pr_url=$(gh pr create --repo wpots/ai-workflows --base main \
+  --title "rules: <short description>" --body "<same body>")
+printf 'GitHub PR: %s\\n' "$github_pr_url"
 ```
 
-After both are merged, the two `main` branches should differ only in history,
-not content. Verify:
+Never mirror the GitLab-only files (`.gitlab-ci.yml`, `docs/repo-divergence.md`)
+to GitHub — see `docs/repo-divergence.md`.
 
-```bash
-git fetch origin main && git fetch gitlab main
-git diff origin/main gitlab/main -- <changed paths>   # expect: empty
-```
+### 6. Post-MR Guidance
 
-### 6. Post-PR Guidance
+Return a concise handoff with the actual URL(s) — never merely say a review was
+created:
+
+> Ready for approval:
+> - GitLab MR: <gitlab_mr_url>
+> - GitHub PR: <github_pr_url>   ← only if GitHub was explicitly requested
+
+If either command fails or does not return a URL, report that failure clearly
+and do not claim the corresponding review exists.
 
 After **both** the GitHub PR and the GitLab MR are merged, remind the developer:
 
@@ -206,6 +206,8 @@ assume this exists.
 - Always diff against the latest upstream state, not a stale local copy
 - Apply every shared-asset change to **both** remotes (GitHub `origin` and GitLab
   `gitlab`); landing it on only one leaves them out of sync
+- After creating reviews, always return the GitHub PR and GitLab MR URLs so the
+  developer can approve them directly
 - GitLab `main` is protected and enforces a committer-email push rule — reach it
   only via a Merge Request, never a direct or force push, and never try to
   reconcile its history with GitHub's

@@ -11,6 +11,8 @@ SRC_SHARED="$ROOT_DIR/shared"
 SRC_TEMPLATES="$ROOT_DIR/templates"
 SRC_AI_WORKFLOWS_TEMPLATE="$ROOT_DIR/templates/project-ai-workflows.md"
 SRC_CLAUDE_MD="$ROOT_DIR/CLAUDE.md"
+SRC_CURSOR_GRAPHIFY="$ROOT_DIR/templates/project-cursor-graphify.mdc"
+SRC_CLAUDE_SETTINGS="$ROOT_DIR/templates/project-claude-settings.json"
 
 TARGET_CURSOR="$HOME/.cursor"
 TARGET_ROO="$HOME/.roo"
@@ -353,6 +355,31 @@ if [[ -n "$PROJECT_DIR" ]]; then
         } > "$_prompt_file"
       done
       echo "  [ok] .github/prompts/ (generated from commands/)"
+    fi
+  fi
+
+  # Generate Cursor graphify adapter (guarded rule; harmless without a graph)
+  if [[ -f "$SRC_CURSOR_GRAPHIFY" ]]; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] generate .cursor/rules/graphify.mdc"
+    else
+      ensure_dir "$PROJECT_DIR/.cursor/rules"
+      cp "$SRC_CURSOR_GRAPHIFY" "$PROJECT_DIR/.cursor/rules/graphify.mdc"
+      echo "  [ok] .cursor/rules/graphify.mdc"
+    fi
+  fi
+
+  # Install graphify Claude hooks only when the project has no settings.json
+  # yet (never clobber project-owned Claude settings; merge manually otherwise)
+  if [[ -f "$SRC_CLAUDE_SETTINGS" ]]; then
+    if [[ -f "$PROJECT_DIR/.claude/settings.json" ]]; then
+      echo "  [ok] .claude/settings.json exists (preserved — merge graphify hooks manually if needed)"
+    elif [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] write .claude/settings.json (graphify hooks)"
+    else
+      ensure_dir "$PROJECT_DIR/.claude"
+      cp "$SRC_CLAUDE_SETTINGS" "$PROJECT_DIR/.claude/settings.json"
+      echo "  [ok] .claude/settings.json (graphify hooks)"
     fi
   fi
 

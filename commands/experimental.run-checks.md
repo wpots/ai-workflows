@@ -33,6 +33,21 @@ Run project quality checks in sequence with review prompts between failures.
 5. **Success handling** - If a check passes, automatically continue to the next one
 6. **Summary** - At the end, provide a summary of all checks run and their results
 
+## Sustainable verification
+
+Checks cost compute — run them leanly (sustainable IT):
+
+- Run the **full** pipeline once at a logical boundary (end of a coherent change,
+  pre-push, branch validation), not after every edit.
+- While iterating, prefer **targeted scopes** (`test <path>`, `lint <files>`,
+  `type-check` on demand) and reserve the full sweep for the boundary.
+- **Don't re-run** a check that already passed unless the files it covers changed
+  since; report "already green, unchanged" instead of re-running.
+- **Batch** independent checks into one invocation where the tooling allows it.
+
+This complements the pre-push full sweep in `create-pr` — that sweep is the
+single full run; do not duplicate it mid-task.
+
 ## Important
 
 - Do NOT modify any code unless explicitly asked

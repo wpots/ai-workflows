@@ -64,8 +64,15 @@ canonical path and use the command as fallback:
 - `new device`, `setup device`, `onboarding` -> `commands/experimental.new-device-setup.md`
 - `init project`, `setup project`, `apply ai-workflows` -> `skills/experimental.init-project` (canonical), `commands/experimental.init-project.md` (fallback)
 - `upstream rule`, `propose rule`, `share rule change` -> `skills/experimental.upstream-rules`
+- `improve skill`, `take learnings`, `verbeter je skill` -> `skills/experimental.improve-skill`
+- `work backlog`, `work the backlog`, `next backlog item`, `autonomous delivery` -> `skills/experimental.work-backlog` (canonical), `commands/experimental.work-backlog.md` (fallback; also installed globally at `~/.claude/skills/work-backlog`)
 
 Do not assume command files auto-run. Select and execute them when intent matches.
+
+After any skill or command run that required user intervention (corrections,
+re-steering, failed steps that needed a workaround), run
+`skills/experimental.improve-skill` before closing out: fold the durable
+learnings back into that skill's source in ai-workflows.
 
 ## Safety
 
