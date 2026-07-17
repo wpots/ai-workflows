@@ -1,6 +1,6 @@
 ---
 name: improve-skill
-description: Post-run retrospective for any skill or command. Collects friction from the session (user interventions, corrections, failed commands, retries) and folds durable learnings back into the skill's canonical source so the next run needs less hand-holding. Runs automatically after any skill run that required user intervention.
+description: Post-run retrospective for any skill or command. Collects friction from the session (user interventions, corrections, failed commands, retries) and folds durable learnings back into the skill's canonical source so the next run needs less hand-holding. Runs automatically after any skill run that required user intervention. Use when a skill or command run needed correction and its canonical source should absorb the learnings.
 ---
 
 # Improve Skill
