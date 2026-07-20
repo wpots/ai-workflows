@@ -49,6 +49,17 @@ the frontend transform layer and expose it to the rendered block component.
 - keep schema definitions, hooks, and admin concerns within Payload areas rather
   than spreading them through unrelated frontend folders
 
+## Migrations
+
+- agents must never run migration CLI commands (`migrate`, `migrate:create`,
+  `migrate:status`, `migrate:fresh`, `migrate:reset`, or any `payload migrate*`
+  variant) — the user applies migrations manually; tell them what to run after
+  schema changes
+- if the schema change lives on a branch checked out in a git worktree, check
+  that branch out in the project's main working directory as soon as a
+  migration is needed, and remove the now-unneeded worktree — migrations run
+  against the real local dev database from the main checkout, not a worktree
+
 ## Generated Artifacts
 
 - treat generated Payload types and special-case generated files as generated
