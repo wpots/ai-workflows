@@ -31,6 +31,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `npm-maintenance` | skill only | `skills/npm-maintenance/SKILL.md` | none | n/a |
 | `experimental.improve-skill` | skill only | `skills/experimental.improve-skill/SKILL.md` | none | n/a |
 | `sustainable-review` | command only | `commands/sustainable-review.md` | none | n/a |
+| `test-driven-development` | skill only | `skills/test-driven-development/SKILL.md` | none | n/a |
 
 ## Interpretation
 
