@@ -77,15 +77,19 @@ user approved it in Phase A** — never unprompted.
 > workspace: the file watcher and TS server index a full duplicate checkout
 > plus its freshly installed `node_modules`. If a worktree is approved:
 >
-> - Place it **outside the workspace root**, e.g. a sibling directory:
->   `git worktree add ../<repo>-worktrees/<ticket> <source_branch>` — never
->   under `.claude/worktrees/`, `.worktrees/`, or any path inside the open
->   workspace/repo.
-> - Use a **stable, pre-authorized** worktrees directory (added once to
->   `additionalDirectories`) rather than a per-run temp path — a fresh path
->   triggers a new directory-permission grant every time.
+> - Place it where the **IDE genuinely does not watch it**: outside the
+>   workspace root AND outside every harness `additionalDirectories` entry.
+>   A directory listed in `additionalDirectories` is still indexed by the IDE
+>   watcher, so a worktree there crashes just the same — prefer a path under the
+>   home dir (e.g. `~/.worktrees/<repo>-<ticket>`) and accept the one-time
+>   directory-permission grant. Never under `.claude/worktrees/`, `.worktrees/`,
+>   or any path inside the open workspace/repo, and never a per-run temp path
+>   (a fresh path re-grants every time).
 > - Offer to open it as a **separate IDE window** (`code -n <path>`) so the
 >   main window never touches it.
+> - **Remove the worktree immediately** once the branch is pushed
+>   (`git worktree remove --force <path>`; writing `.git/worktrees` may need the
+>   sandbox disabled). The branch and its commits survive removal.
 
 A fresh worktree has **no dependencies installed and no local env files**. Set
 it up the way this project requires before running anything:
