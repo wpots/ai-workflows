@@ -43,6 +43,7 @@ When user intent matches one of these prompts, skills, or command requests, read
 - `close sprint`, `sluit sprint af`, `sprint afsluiten` -> `commands/close-sprint.md`
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `commands/sprint-demo.md`
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `commands/sprint-planning.md`
+- `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `commands/sustainable-review.md`
 <!-- END SHARED:command-mappings -->
 
 For these stable workflows on skill-aware tools, prefer the skill as the
