@@ -20,6 +20,7 @@ In practice, treat this directory as a topic-based rule library:
 | `tailwind.md`                           | Tailwind 4, design tokens, Figma export workflow                    |
 | `testing.md`                            | Jest + Storybook split, query priority, coverage                    |
 | `accessibility.md`                      | WCAG requirements, ARIA, keyboard navigation                        |
+| `sustainability.md`                     | Sustainable IT: caching/rendering, LCP/assets, bundle & client JS, CI cost, deps |
 | `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
 | `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
 | `payload.md`                            | Payload schemas, generated types, hooks, admin integrations         |
@@ -40,7 +41,9 @@ In practice, treat this directory as a topic-based rule library:
 8. Load `accessibility.md` when building interactive UI components.
 9. Load `content-blocks.md` when building or reviewing CMS-backed content blocks.
 10. Load `payload.md` when working on Payload schemas, hooks, generated types, or admin integrations.
-11. Load the appropriate stack file based on detected stack (see below).
+11. Load `sustainability.md` when reviewing performance, caching, bundle size,
+    CI cost, or dependencies — or when changing public-route rendering.
+12. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection
 
