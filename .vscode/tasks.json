@@ -62,6 +62,16 @@
       "problemMatcher": []
     },
     {
+      "label": "sustainable-review",
+      "type": "shell",
+      "command": "cat commands/sustainable-review.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "validate-ai-instructions",
       "type": "shell",
       "command": "./scripts/validate-ai-instructions.sh",
