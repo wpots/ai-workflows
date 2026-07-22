@@ -160,6 +160,27 @@ Applies on every run, including updates to an existing PR/MR.
 - **GitHub prefilled URL**: `https://github.com/<org>/<repo>/compare/<base>...<branch>?expand=1&title=<encoded>&body=<encoded>`.
 - Only claim the PR/MR exists when the platform's output confirmed it.
 
+## Recap
+
+Close out with a **Recap** table so no closeout step depends on memory. Fixed
+row set, always in this order — never drop a row; set it to ➖ when not
+applicable, so a missed step stands out. Follow the table with one short
+"What & why" line.
+
+Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
+
+| Step | Status | Detail |
+| --- | --- | --- |
+| PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
+| Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
+| Checks | ✅ | lint ✓ · type-check ✓ · test ✓ |
+| Migration | ➖ | none needed / added `<name>` |
+| Board updated | ✅ | section it moved to (if the project keeps a board) |
+| Worktree cleaned up | ➖ | removed + pruned, or ➖ if none was used |
+| Open items | ⚠️ | remaining gates/assumptions (approval, follow-up) |
+
+"PR/MR opened" always carries the number **and** the full link.
+
 ## Guidelines
 
 - Keep the description concise and scannable.
