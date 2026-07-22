@@ -11,6 +11,15 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json,sys,re; c=json.load(sys.stdin).get('tool_input',{}).get('command',''); bad={'grep','rg','cat','echo','printf','less','head','tail','awk','sed','fd','find','diff','comm','xargs','bash','sh','python3','node','git','test','true','false'}; segs=re.split(r'[;&|]+', c); hit=any((s.strip().split()[:1] or [''])[0] not in bad and re.search(r'\\bmigrate:(fresh|create)\\b', s) for s in segs); print(json.dumps({'hookSpecificOutput':{'hookEventName':'PreToolUse','permissionDecision':'deny','permissionDecisionReason':'Blocked: migrate:fresh wipes the DB and migrate:create must be run manually by the user. Stop at the code change and flag that a migration is needed.'}})) if hit else None\" 2>/dev/null || true"
+          }
+        ]
+      },
+      {
         "matcher": "Read|Glob",
         "hooks": [
           {
@@ -21,6 +30,15 @@
       }
     ],
     "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CMD=$(python3 -c \"import json,sys; print(json.load(sys.stdin).get('tool_input',{}).get('command',''))\" 2>/dev/null || true); case \"$CMD\" in *\"glab mr create\"*|*\"gh pr create\"*) echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Sprint board: this item just moved to IN REVIEW (MR/PR created). Update docs/board/sprint-<N>-board.md in the same turn and re-stamp Laatst bijgewerkt.\"}}' ;; *\"glab mr merge\"*|*\"gh pr merge\"*) echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"Sprint board: this item just moved to DONE (MR/PR merged). Update docs/board/sprint-<N>-board.md in the same turn and re-stamp Laatst bijgewerkt.\"}}' ;; esac"
+          }
+        ]
+      },
       {
         "matcher": "Edit|Write|NotebookEdit",
         "hooks": [

@@ -50,6 +50,13 @@ particular, these flows end with a board update:
 - `address-review-comments` — In Review → Rework on pickup, → In Review on push
 - `close-sprint` — merged items → Done; leftovers flagged as spillover
 
+`templates/project-claude-settings.json` ships a PostToolUse hook that fires a
+reminder on `glab mr create`/`gh pr create` (→ In Review) and `glab mr
+merge`/`gh pr merge` (→ Done). It cannot update the board itself — that stays
+judgement work — but it flags the two deterministic transitions so they are not
+missed. Picking work up and receiving review comments have no local command
+signal, so those transitions still rely on this skill.
+
 An update means both of:
 
 1. Move the item's row to the right status section's table (sections stay the
