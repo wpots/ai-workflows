@@ -55,7 +55,15 @@ If the platform cannot be inferred, ask the user.
 2. Verify the detected CLI is authenticated. On GitLab this is not fatal —
    fall back to the push-options path in step 7. On GitHub without `gh`,
    fall back to the prefilled compare URL in step 7.
-3. Run `git status` — warn the user if there are uncommitted changes and ask whether to proceed.
+3. **Resolve the branch + working-tree state before anything else.** Run
+   `git status` and `git log --oneline <base>..HEAD` and answer two questions
+   explicitly: (a) does the branch carry commits unrelated to this PR, and
+   (b) does the working tree mix unrelated uncommitted/untracked work with the
+   changes to ship? If either is true, do **not** commit or push from this
+   state — resolve first: create a fresh branch from the base and stage only
+   the files that belong to this PR, leave unrelated WIP untouched where it
+   is, and ask the user when ownership of a change is unclear. Only proceed
+   when every commit and staged file on the branch belongs to the PR.
 4. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
