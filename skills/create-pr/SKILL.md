@@ -234,10 +234,51 @@ https://github.com/<org>/<repo>/compare/<resolved-base>...<branch>?expand=1&titl
 In every fallback case, report what the user still has to do — do not claim
 the PR/MR is created unless the platform's output confirmed it.
 
-### 9. Error Handling
+### 9. Notify (merge-request channel)
+
+Only when the project defines a merge-request channel policy (e.g. a
+`docs/MONITORING.md`, the project `CLAUDE.md`, or a memory noting a Slack
+channel for new MRs) **and** a Slack tool is available in the session:
+
+- Post **once, immediately after the PR/MR is created**: the one-line subject
+  + the PR/MR link, nothing else — no review-status suffixes.
+- One PR/MR = at most one channel post, at creation time. Never post again
+  for rework, comments, pipelines, or the merge.
+- This step exists because native platform→Slack integrations often cannot
+  distinguish "opened" from "merged"; when such an integration is disabled in
+  favour of workflow-side posting, skipping this step means new MRs go
+  unannounced.
+
+No policy or no Slack tool → skip silently.
+
+### 10. Error Handling
 
 - If push fails (e.g. no upstream, auth error), surface the error and stop.
 - If PR/MR creation fails, show the error. Do not retry automatically.
+
+### 11. Recap
+
+Close out with a **Recap** table so no closeout step depends on memory. Use a
+fixed row set, always in this order — never drop a row; set it to ➖ when not
+applicable, so a missed step stands out. Follow the table with one short
+"What & why" line stating the substantive change.
+
+Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
+
+| Step | Status | Detail |
+| --- | --- | --- |
+| PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
+| Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
+| Checks | ✅ | lint ✓ · type-check ✓ · test ✓ |
+| Migration | ➖ | none needed / added `<name>` |
+| Board updated | ✅ | section it moved to (if the project keeps a board) |
+| Worktree cleaned up | ➖ | removed + pruned, or ➖ if none was used |
+| Open items | ⚠️ | remaining gates/assumptions (approval, follow-up) |
+
+"PR/MR opened" always carries the number **and** the full link. "Open items"
+summarises anything still pending (approval, a follow-up, an unverified
+assumption). Rows that don't apply to this task (e.g. no worktree, no
+migration, no board) stay in the table on ➖.
 
 ## Guidelines
 
