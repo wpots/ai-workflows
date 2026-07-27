@@ -217,7 +217,7 @@ hook) keeps the graph current — AST-only, no API cost.
 ## First-Time Setup
 
 ```bash
-git clone git@github.com:wpots/ai-workflows.git ~/Web/ai-workflows
+git clone git@gitlab.com:greenberrynl/config/ai-workflows.git ~/Web/ai-workflows
 cd ~/Web/ai-workflows
 ./scripts/generate-adapters.sh
 ./scripts/sync.sh

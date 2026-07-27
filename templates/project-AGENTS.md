@@ -47,7 +47,8 @@ especially for Copilot-style flows or when a skill path is unavailable.
 ## Shared Workflow Source
 
 Changes to shared AI workflow assets should usually be proposed upstream in
-the [ai-workflows](https://github.com/wpots/ai-workflows) repo instead of living only in this synced target repo.
+the [ai-workflows](https://gitlab.com/greenberrynl/config/ai-workflows) repo
+instead of living only in this synced target repo.
 
 Treat these as shared workflow assets:
 
