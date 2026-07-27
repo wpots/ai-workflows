@@ -1,0 +1,14 @@
+{
+  "name": "ai-workflows",
+  "owner": {
+    "name": "Greenberry"
+  },
+  "description": "Internal Greenberry marketplace served from the ai-workflows repo. The repo root is the plugin: skills/ and commands/ are the canonical sources, so every commit to main ships automatically.",
+  "plugins": [
+    {
+      "name": "greenberry",
+      "source": "./",
+      "description": "Greenberry's shared skills and command runbooks for Claude Code."
+    }
+  ]
+}
