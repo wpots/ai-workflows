@@ -173,9 +173,17 @@ push must use `--force-with-lease`.
 >   **0 tests**. Override those patterns when running natively from the worktree,
 >   e.g. `npm test -- --testPathIgnorePatterns=/node_modules/ --modulePathIgnorePatterns=/__none__/ --coverage=false`.
 >
-> Run `lint` + `type-check` + `test` **manually** to confirm green, then push
-> with `--no-verify`. Skip only the hook that cannot execute — never the checks
-> themselves.
+> Do **not** assume the hook only runs lint/type-check/test — read the actual
+> hook file(s) (e.g. `.husky/pre-push`, `.husky/pre-commit`) and run **every**
+> command listed there, verbatim, in the worktree. Some projects wire in extra
+> steps (migration checks, `drizzle-kit check`, storybook build, etc.) that are
+> easy to miss if you go from memory instead of the file. Run the full
+> repo-wide command each hook step invokes (e.g. `npm run lint:check`), not a
+> git-diff-scoped subset — a partial run can pass while the real command still
+> fails. Do this immediately before pushing, on the exact commit being pushed
+> (a later commit added after "looks green" is unverified). If any command
+> fails, stop and fix it — `--no-verify` skips only the hook process that
+> cannot execute in a worktree, never the checks it would have run.
 
 1. **Show the base branch, title, and description to the user and get
    approval before pushing** — pushing is outward-facing. Skip the ask only
