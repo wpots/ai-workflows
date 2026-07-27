@@ -313,9 +313,14 @@ migration, no board) stay in the table on ➖.
 
 ## Guidelines
 
-- Write the PR/MR title and description in the repository's working language —
-  follow the template's language and the repo's existing PRs/MRs, not the
-  language you happen to be chatting in.
+- Write the PR/MR title, description, comments, and thread replies in the
+  language the repository uses for its MRs — never the language you happen to
+  be chatting in. Resolve that language in this order: (1) an explicit
+  instruction in the MR/PR template or a project rule (e.g. a template line
+  "Write this description in English") — this always wins; (2) otherwise the
+  template's own language. **Never infer it from other existing MRs** — they
+  may be inconsistent, and one MR in the chat language must not drag the rest
+  along.
 - Keep the description concise and scannable.
 - Prefer counts and impact summaries over long file lists.
 - Always show the base branch, title, and description for approval before
