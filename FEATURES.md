@@ -116,4 +116,3 @@ Shows the intended support model for the main workflow surfaces.
 | **Cursor** | `AGENTS.md` plus `.cursor/rules/*.md` | skills first, commands as fallback |
 | **Codex** | `AGENTS.md` | skills first, commands as fallback |
 | **Claude Code** | `CLAUDE.md` plus global/project rules | mixed: skills when supported, commands/rules as compatibility path |
-| **Roo** | synced rules and commands | commands/rules |

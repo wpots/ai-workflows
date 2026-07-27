@@ -182,8 +182,6 @@ Current targets:
 - `~/.cursor/commands`
 - `~/.cursor/skills-cursor/ai-workflows`
 - `~/.cursor/mcp/ai-workflows`
-- `~/.roo/commands`
-- `~/.roo/rules-code`
 - `~/.codex/skills/custom`
 - `~/.claude/CLAUDE.md`
 - `~/.claude/commands`

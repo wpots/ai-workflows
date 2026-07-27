@@ -15,7 +15,6 @@ SRC_CURSOR_GRAPHIFY="$ROOT_DIR/templates/project-cursor-graphify.mdc"
 SRC_CLAUDE_SETTINGS="$ROOT_DIR/templates/project-claude-settings.json"
 
 TARGET_CURSOR="$HOME/.cursor"
-TARGET_ROO="$HOME/.roo"
 TARGET_CODEX="$HOME/.codex"
 TARGET_CLAUDE="$HOME/.claude"
 TARGET_CURSOR_SKILLS_SUBPATH="skills-cursor/ai-workflows"
@@ -376,14 +375,6 @@ echo "Syncing ai-workflows from: $ROOT_DIR (dry-run=$DRY_RUN)"
 
 if [[ -d "$SRC_COMMANDS" && -d "$TARGET_CURSOR" ]]; then
   sync_dir "$SRC_COMMANDS" "$TARGET_CURSOR/commands"
-fi
-
-if [[ -d "$SRC_RULES" && -d "$TARGET_ROO" ]]; then
-  sync_dir "$SRC_RULES" "$TARGET_ROO/rules-code"
-fi
-
-if [[ -d "$SRC_COMMANDS" && -d "$TARGET_ROO" ]]; then
-  sync_dir "$SRC_COMMANDS" "$TARGET_ROO/commands"
 fi
 
 if [[ -d "$TARGET_CLAUDE" ]]; then
