@@ -62,6 +62,13 @@ corresponding runbook:
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `commands/sprint-demo.md`
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `commands/sprint-planning.md`
 - `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `commands/sustainable-review.md`
+- `run checks`, `run-checks`, `quality checks` -> `commands/run-checks.md`
+- `review code`, `code review`, `review changes` -> `commands/review-code.md`
+- `kill port`, `port 3000`, `eaddrinuse` -> `commands/safe-kill-port.md`
+- `new component`, `scaffold`, `create component` -> `commands/scaffold-component.md`
+- `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
+- `init project`, `setup project`, `apply ai-workflows`, `initialize project` -> `commands/init-project.md`
+- `work backlog`, `work the backlog`, `next backlog item`, `autonomous delivery` -> `commands/work-backlog.md`
 <!-- END SHARED:command-mappings -->
 
 Do not assume command files auto-run. Select and execute them when intent

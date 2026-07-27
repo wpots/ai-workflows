@@ -50,7 +50,6 @@ Actions:
 - Publish an explicit support matrix in repo docs.
 - Decide Claude’s official skill status:
   - first-class
-  - experimental
   - unsupported as a primary abstraction
 - Make the repo wording consistent with the chosen answer.
 
@@ -82,11 +81,11 @@ Recommended initial classification:
 | --- | --- |
 | `commit-message` | dual-surface |
 | `create-pr` | dual-surface |
-| `experimental.code-review` | skill-first |
-| `experimental.run-checks` | skill-first |
-| `experimental.scaffold-component` | skill-first |
-| `experimental.init-project` | skill-first |
-| `experimental.upstream-rules` | skill-first |
+| `code-review` | skill-first |
+| `run-checks` | skill-first |
+| `scaffold-component` | skill-first |
+| `init-project` | skill-first |
+| `upstream-rules` | skill-first |
 
 Exit criteria:
 
@@ -110,9 +109,9 @@ Actions:
 
 Good first candidates:
 
-- `experimental.code-review`
-- `experimental.run-checks`
-- `experimental.init-project`
+- `code-review`
+- `run-checks`
+- `init-project`
 
 Exit criteria:
 
@@ -168,7 +167,7 @@ Primary files:
 2. Mark canonical workflow sources for existing assets.
 3. Normalize the top 3 highest-value workflows to skill-first plus command fallback.
 4. Refresh docs and templates to match the chosen model.
-5. Revisit the remaining experimental workflows.
+5. Normalize the remaining workflows.
 
 ## Recommended Default Going Forward
 

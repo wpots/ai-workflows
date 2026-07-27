@@ -64,11 +64,17 @@ If the platform cannot be inferred, ask the user.
    the files that belong to this PR, leave unrelated WIP untouched where it
    is, and ask the user when ownership of a change is unclear. Only proceed
    when every commit and staged file on the branch belongs to the PR.
-4. Check whether the diff is primarily a shared AI workflow change.
+4. **Migration check.** If the branch diff adds or edits files under the Payload
+   `migrations/` directory, run the `migration-check` skill first (read-only; it
+   never runs `migrate`). If it reports a phantom/duplicate statement or a
+   regressed baseline snapshot, stop and surface it — a migration that fails
+   `migrate` must not land in the PR/MR. Continue only once it passes or the user
+   accepts the finding.
+5. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
      `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
-5. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in `~/Web/ai-workflows/`. Ask whether to:
+6. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in `~/Web/ai-workflows/`. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead
    - do both

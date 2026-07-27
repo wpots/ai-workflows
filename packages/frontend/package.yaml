@@ -9,7 +9,7 @@ includes:
     - rules/accessibility.md
   commands: []
   skills:
-    - skills/experimental.scaffold-component
+    - skills/scaffold-component
 recommended_with:
   - nextjs
   - accessibility

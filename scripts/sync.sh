@@ -23,11 +23,10 @@ TARGET_CURSOR_MCP_SUBPATH="mcp/ai-workflows"
 
 DRY_RUN=0
 PROJECT_DIR=""
-INCLUDE_EXPERIMENTAL=0
 
 usage() {
   cat << 'EOF_USAGE'
-Usage: ./scripts/sync.sh [--dry-run] [--project <path>] [--include-experimental]
+Usage: ./scripts/sync.sh [--dry-run] [--project <path>]
 
 Modes:
   (no flags)          Sync to global agent folders (~/.cursor, ~/.claude, etc.)
@@ -42,9 +41,8 @@ Project sync copies:
   .github/prompts/*.prompt.md       (attachable via #file: in Copilot chat)
 
 Options:
-  --dry-run                Show what would be synced without writing
-  --include-experimental   Include experimental.* commands and skills
-  -h, --help               Show this help message
+  --dry-run     Show what would be synced without writing
+  -h, --help    Show this help message
 EOF_USAGE
 }
 
@@ -52,10 +50,6 @@ while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run)
       DRY_RUN=1
-      shift
-      ;;
-    --include-experimental)
-      INCLUDE_EXPERIMENTAL=1
       shift
       ;;
     --project)
@@ -95,9 +89,6 @@ sync_dir() {
   if [[ "$DRY_RUN" -eq 1 ]]; then
     cmd+=(--dry-run)
   fi
-  if [[ "$INCLUDE_EXPERIMENTAL" -eq 0 ]]; then
-    cmd+=(--exclude='experimental.*')
-  fi
   cmd+=("$src/" "$dest/")
   "${cmd[@]}"
 }
@@ -109,9 +100,6 @@ sync_dir_merge() {
   local -a cmd=(rsync -av)
   if [[ "$DRY_RUN" -eq 1 ]]; then
     cmd+=(--dry-run)
-  fi
-  if [[ "$INCLUDE_EXPERIMENTAL" -eq 0 ]]; then
-    cmd+=(--exclude='experimental.*')
   fi
   cmd+=("$src/" "$dest/")
   "${cmd[@]}"
@@ -338,10 +326,6 @@ if [[ -n "$PROJECT_DIR" ]]; then
       for cmd_file in "$PROJECT_DIR/commands/"*.md; do
         [[ -f "$cmd_file" ]] || continue
         _basename="$(basename "$cmd_file" .md)"
-        # Skip experimental files
-        if [[ "$INCLUDE_EXPERIMENTAL" -eq 0 && "$_basename" == experimental.* ]]; then
-          continue
-        fi
         # Extract title from first heading
         _title="$(head -1 "$cmd_file" | sed 's/^# //')"
         _prompt_file="$PROJECT_DIR/.github/prompts/${_basename}.prompt.md"

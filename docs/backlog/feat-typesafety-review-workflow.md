@@ -22,8 +22,8 @@ As a developer using `ai-workflows` for code review, I want review output to fla
 
 ## Acceptance Criteria
 
-- [ ] The review skill in [skills/experimental.code-review/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/experimental.code-review/SKILL.md) explicitly reviews for real type safety, not only syntax-level TypeScript quality.
-- [ ] The review command in [commands/experimental.review-code.md](/Users/wietekepots/Web/ai-workflows/commands/experimental.review-code.md) includes mandatory checks for unsafe `as`, `any`, unchecked parsing, missing boundary validation, transport/domain leakage, unsafe indexing, and non-exhaustive unions.
+- [ ] The review skill in [skills/code-review/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/code-review/SKILL.md) explicitly reviews for real type safety, not only syntax-level TypeScript quality.
+- [ ] The review command in [commands/review-code.md](/Users/wietekepots/Web/ai-workflows/commands/review-code.md) includes mandatory checks for unsafe `as`, `any`, unchecked parsing, missing boundary validation, transport/domain leakage, unsafe indexing, and non-exhaustive unions.
 - [ ] Review output requires fixed sections such as `Type-Safety Risks`, `Boundary Validation Gaps`, `Unsafe Assertions`, `Workflow Guardrails`, and `Concrete Fixes`.
 - [ ] Each finding must explain why the code is unsafe, identify the trust boundary or failure mode, classify severity, and recommend the relevant guardrail type: code change, lint rule, `tsconfig` rule, CI check, or architecture rule.
 - [ ] The workflow states what to report when no issues are found, including why the code appears safe.
@@ -35,12 +35,12 @@ The current review assets already mention type safety, but only lightly. The gap
 
 Start by upgrading the existing assets before adding a new skill:
 
-- [skills/experimental.code-review/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/experimental.code-review/SKILL.md)
-- [commands/experimental.review-code.md](/Users/wietekepots/Web/ai-workflows/commands/experimental.review-code.md)
+- [skills/code-review/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/code-review/SKILL.md)
+- [commands/review-code.md](/Users/wietekepots/Web/ai-workflows/commands/review-code.md)
 
 Use the new dedicated type-safety rule as the checklist source so review logic does not drift from the written policy.
 
-If the expanded review scope becomes too heavy for the generic review workflow, split it into a separate skill such as `experimental.typesafe-review` and keep the generic review skill as the broad entry point.
+If the expanded review scope becomes too heavy for the generic review workflow, split it into a separate skill such as `typesafe-review` and keep the generic review skill as the broad entry point.
 
 ## Out of Scope
 
@@ -50,6 +50,6 @@ If the expanded review scope becomes too heavy for the generic review workflow, 
 
 ## Related
 
-- [skills/experimental.code-review/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/experimental.code-review/SKILL.md)
-- [commands/experimental.review-code.md](/Users/wietekepots/Web/ai-workflows/commands/experimental.review-code.md)
+- [skills/code-review/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/code-review/SKILL.md)
+- [commands/review-code.md](/Users/wietekepots/Web/ai-workflows/commands/review-code.md)
 - [rules/rules.md](/Users/wietekepots/Web/ai-workflows/rules/rules.md)

@@ -8,10 +8,10 @@ includes:
     - rules/testing.md
     - rules/type-safety.md
   commands:
-    - commands/experimental.run-checks.md
+    - commands/run-checks.md
   skills:
-    - skills/experimental.run-checks
-    - skills/experimental.code-review
+    - skills/run-checks
+    - skills/code-review
 notes:
   - Use when the project expects stronger automated quality gates.
-  - This package may opt into experimental workflows where appropriate.
+  - The quality-gate workflows are part of the default synced skill set.

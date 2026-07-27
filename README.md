@@ -93,7 +93,7 @@ The repo now treats type safety as a three-layer concern:
   into Copilot-facing instructions and mirrored by the general baseline rules
 - deeper policy: `rules/type-safety.md` for trust boundaries, strict `tsconfig`
   posture, lint guardrails, and transport-to-domain separation
-- review audit: `experimental.code-review` checks runtime validation gaps,
+- review audit: `code-review` checks runtime validation gaps,
   unsafe assertions, and missing workflow guardrails
 
 The recommended posture is compile-time strictness plus runtime validation at
@@ -190,7 +190,8 @@ Current targets:
 - `~/.claude/rules` with the universal subset only
 - `~/.claude/skills`
 
-Commands and skills prefixed with `experimental.` are excluded by default from sync. Use `--include-experimental` to opt in.
+All commands, rules, and skills are synced by default. The repository has no
+separate opt-in workflow tier.
 
 ## Knowledge Graph (graphify)
 
@@ -228,9 +229,6 @@ Useful variants:
 ```bash
 # preview sync changes
 ./scripts/sync.sh --dry-run
-
-# include experimental workflows
-./scripts/sync.sh --include-experimental
 
 # sync adapters and runbooks into a project
 ./scripts/sync.sh --project /path/to/project
@@ -302,10 +300,9 @@ Run this before merging changes that affect project templates or sync behavior:
 ./scripts/smoke-test-project-sync.sh
 ```
 
-This v1 smoke test covers the default project sync path, prompt generation
-alignment, and both `CONVENTIONS.md` present/missing behavior. Experimental
-inclusion via `--include-experimental` is still out of scope for the first
-version.
+This smoke test covers the default project sync path, all shared workflow
+assets, prompt generation alignment, and both `CONVENTIONS.md` present/missing
+behavior.
 
 ## Safety
 

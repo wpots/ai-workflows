@@ -26,7 +26,7 @@ As a maintainer of `ai-workflows`, I want the docs to match the current architec
 - [ ] The docs explain the role of `AI-WORKFLOWS.md`, `CONVENTIONS.md`, thin adapters, prompt generation, and the slim global Claude sync.
 - [ ] The inventory of generated versus canonical source files is unambiguous.
 - [ ] References to outdated assumptions are removed or explicitly reframed.
-- [ ] The documentation reflects the current sync behavior for experimental commands and skills.
+- [ ] The documentation reflects that all commands and skills sync by default.
 - [ ] The docs remain concise and do not duplicate large chunks of template content.
 
 ## Technical Notes

@@ -10,26 +10,26 @@ Use it to decide where updates should land first and whether a command is a full
 | --- | --- | --- | --- | --- |
 | `commit-message` | skill + command | `skills/commit-message/SKILL.md` | `commands/commit-message.md` | yes |
 | `create-pr` | skill + command | `skills/create-pr/SKILL.md` | `commands/create-pr.md` | yes |
-| `experimental.code-review` | skill + command | `skills/experimental.code-review/SKILL.md` | `commands/experimental.review-code.md` | yes |
-| `experimental.run-checks` | skill + command | `skills/experimental.run-checks/SKILL.md` | `commands/experimental.run-checks.md` | yes |
-| `experimental.init-project` | skill + command | `skills/experimental.init-project/SKILL.md` | `commands/experimental.init-project.md` | yes |
-| `experimental.scaffold-component` | skill + command | `skills/experimental.scaffold-component/SKILL.md` | `commands/experimental.scaffold-component.md` | yes |
-| `experimental.component-spec` | skill only | `skills/experimental.component-spec/SKILL.md` | none | n/a |
-| `experimental.architecture-review` | skill only | `skills/experimental.architecture-review/SKILL.md` | none | n/a |
-| `experimental.upstream-rules` | skill only | `skills/experimental.upstream-rules/SKILL.md` | none | n/a |
-| `experimental.new-device-setup` | command only | `commands/experimental.new-device-setup.md` | none | n/a |
-| `experimental.safe-kill-port` | command only | `commands/experimental.safe-kill-port.md` | none | n/a |
+| `code-review` | skill + command | `skills/code-review/SKILL.md` | `commands/review-code.md` | yes |
+| `run-checks` | skill + command | `skills/run-checks/SKILL.md` | `commands/run-checks.md` | yes |
+| `init-project` | skill + command | `skills/init-project/SKILL.md` | `commands/init-project.md` | yes |
+| `scaffold-component` | skill + command | `skills/scaffold-component/SKILL.md` | `commands/scaffold-component.md` | yes |
+| `component-spec` | skill only | `skills/component-spec/SKILL.md` | none | n/a |
+| `architecture-review` | skill only | `skills/architecture-review/SKILL.md` | none | n/a |
+| `upstream-rules` | skill only | `skills/upstream-rules/SKILL.md` | none | n/a |
+| `new-device-setup` | command only | `commands/new-device-setup.md` | none | n/a |
+| `safe-kill-port` | command only | `commands/safe-kill-port.md` | none | n/a |
 | `backlog` | skill + command | `skills/backlog/SKILL.md` | `commands/backlog.md` | yes |
 | `close-sprint` | skill + command | `skills/close-sprint/SKILL.md` | `commands/close-sprint.md` | yes |
 | `refinement` | skill + command | `skills/refinement/SKILL.md` | `commands/refinement.md` | yes |
 | `sprint-demo` | skill + command | `skills/sprint-demo/SKILL.md` | `commands/sprint-demo.md` | yes |
 | `sprint-planning` | skill + command | `skills/sprint-planning/SKILL.md` | `commands/sprint-planning.md` | yes |
-| `experimental.work-backlog` | skill + command | `skills/experimental.work-backlog/SKILL.md` | `commands/experimental.work-backlog.md` | yes |
+| `work-backlog` | skill + command | `skills/work-backlog/SKILL.md` | `commands/work-backlog.md` | yes |
 | `address-review-comments` | skill only | `skills/address-review-comments/SKILL.md` | none | n/a |
 | `sprint-board` | skill only | `skills/sprint-board/SKILL.md` | none | n/a |
 | `jira-ticket` | skill only | `skills/jira-ticket/SKILL.md` | none | n/a |
 | `npm-maintenance` | skill only | `skills/npm-maintenance/SKILL.md` | none | n/a |
-| `experimental.improve-skill` | skill only | `skills/experimental.improve-skill/SKILL.md` | none | n/a |
+| `improve-skill` | skill only | `skills/improve-skill/SKILL.md` | none | n/a |
 | `sustainable-review` | command only | `commands/sustainable-review.md` | none | n/a |
 | `test-driven-development` | skill only | `skills/test-driven-development/SKILL.md` | none | n/a |
 | `receiving-code-review` | skill only | `skills/receiving-code-review/SKILL.md` | none | n/a |

@@ -16,6 +16,16 @@ while IFS= read -r prompt_file; do
   GENERATED_FILES+=("${prompt_file#"$ROOT_DIR/"}")
 done < <(find "$ROOT_DIR/.github/prompts" -type f -name '*.prompt.md' | sort)
 
+# ── Static skill validation ──────────────────────────────────────────────────
+
+echo "Running skill validation..."
+if command -v node >/dev/null 2>&1; then
+  node "$ROOT_DIR/scripts/validate-skills.mjs"
+else
+  echo "node not found; skill validation requires Node 18+." >&2
+  exit 1
+fi
+
 # ── Run generation ───────────────────────────────────────────────────────────
 
 echo "Running generate-adapters.sh..."

@@ -23,7 +23,7 @@ As a maintainer of `ai-workflows`, I want an explicit strategy for skills, rules
 ## Acceptance Criteria
 
 - [ ] A canonical support matrix is defined for `rules`, `skills`, `commands`, and tool adapters across GitHub Copilot, Cursor, Codex, and Claude.
-- [ ] The repo makes an explicit decision on Claude skill support: first-class, experimental, or not part of the primary architecture.
+- [ ] The repo makes an explicit decision on Claude skill support: first-class or not part of the primary architecture.
 - [ ] The role of each surface is documented clearly:
   - `rules/` as reusable policy
   - `skills/` as reusable multi-step workflows

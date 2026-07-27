@@ -34,19 +34,18 @@ Command files live in `commands/` and serve two purposes:
 2. **Fallback dispatch** for skill-aware tools when a workflow is not yet
    modeled as a skill or when the skill path is unavailable.
 
-Stable command workflows:
+Command workflows:
 
 - `create pr`, `open pr`, `submit pr` -> `commands/create-pr.md`
 - `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
 
-Experimental command workflows (prefixed with `experimental.`, excluded from project sync by default):
-
-- `kill port`, `port 3000`, `eaddrinuse` -> `commands/experimental.safe-kill-port.md`
-- `new device`, `setup device`, `onboarding` -> `commands/experimental.new-device-setup.md`
-- `init project`, `setup project`, `apply ai-workflows`, `initialize project` -> `commands/experimental.init-project.md`
-- `run checks`, `run-checks`, `quality checks` -> `commands/experimental.run-checks.md`
-- `review code`, `code review`, `review changes` -> `commands/experimental.review-code.md`
-- `new component`, `scaffold`, `create component` -> `commands/experimental.scaffold-component.md`
+- `kill port`, `port 3000`, `eaddrinuse` -> `commands/safe-kill-port.md`
+- `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
+- `init project`, `setup project`, `apply ai-workflows`, `initialize project` -> `commands/init-project.md`
+- `run checks`, `run-checks`, `quality checks` -> `commands/run-checks.md`
+- `review code`, `code review`, `review changes` -> `commands/review-code.md`
+- `new component`, `scaffold`, `create component` -> `commands/scaffold-component.md`
+- `work backlog`, `work the backlog`, `next backlog item`, `autonomous delivery` -> `commands/work-backlog.md`
 
 Rules for command execution:
 
@@ -83,24 +82,19 @@ acts as a semantic trigger.
 
 Available skills:
 
-Stable skills:
-
 | Skill            | Trigger phrases                          |
 | ---------------- | ---------------------------------------- |
 | `commit-message` | commit message, write commit, git commit |
 | `create-pr`      | create pr, open pr, submit pr            |
-
-Experimental skills (prefixed with `experimental.`, excluded from project sync by default):
-
-| Skill                              | Trigger phrases                                                                          |
-| ---------------------------------- | ---------------------------------------------------------------------------------------- |
-| `experimental.scaffold-component`  | new component, scaffold, create component                                                |
-| `experimental.component-spec`      | component spec, spec component, write spec, spec out a component, document component api |
-| `experimental.code-review`         | review code, code review, review changes                                                 |
-| `experimental.run-checks`          | run checks, run-checks, quality checks                                                   |
-| `experimental.architecture-review` | review architecture, check clean arch, architecture audit, layer violation                |
-| `experimental.init-project`        | init project, setup project, apply ai-workflows, initialize project                      |
-| `experimental.upstream-rules`      | upstream rule, propose rule, share rule change, sync rule back                            |
+| `scaffold-component`  | new component, scaffold, create component                                                |
+| `component-spec`      | component spec, spec component, write spec, spec out a component, document component api |
+| `code-review`         | review code, code review, review changes                                                 |
+| `run-checks`          | run checks, run-checks, quality checks                                                   |
+| `architecture-review` | review architecture, check clean arch, architecture audit, layer violation                |
+| `init-project`        | init project, setup project, apply ai-workflows, initialize project                      |
+| `upstream-rules`      | upstream rule, propose rule, share rule change, sync rule back                            |
+| `improve-skill`       | improve skill, take learnings, verbeter je skill                                         |
+| `work-backlog`        | work backlog, next backlog item, autonomous delivery                                     |
 
 ### Packages
 

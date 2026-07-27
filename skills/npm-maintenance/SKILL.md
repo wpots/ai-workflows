@@ -1,92 +1,72 @@
 ---
 name: npm-maintenance
-description: Run npm audit and fix vulnerabilities. Two modes - monthly maintenance (from development) or urgent CVE fix (from main). Use when user asks to run npm maintenance, fix vulnerabilities, audit dependencies, or patch a CVE.
+description: Safely inspect and update Node.js dependencies, including routine minor or patch updates, npm audit remediation, and researched major-version migrations. Use when the user asks to update npm packages, run npm outdated or npm update, manage dependency versions, fix dependency vulnerabilities, or assess breaking changes from a package upgrade.
 ---
 
-# NPM Maintenance Skill
+# npm dependency maintenance
 
-Two modes based on arguments:
+Keep package updates deliberate, reproducible, and verified. Treat major-version changes and forceful vulnerability fixes as approval gates.
 
-- `/npm-maintenance` or `/npm-maintenance maintenance` — monthly maintenance
-- `/npm-maintenance cve` — urgent CVE patching
+## 1. Establish the project context
 
-## Mode Detection
+1. Check the working tree and preserve unrelated user changes. Do not change branches, create branches, stage, commit, push, or open a pull request unless the user asks.
+2. Read `package.json`, the lockfile, the package-manager configuration, and available scripts. Use the lockfile to select the package manager:
+   - `package-lock.json` → npm
+   - `pnpm-lock.yaml` → pnpm
+   - `yarn.lock` → Yarn
+   - `bun.lock` or `bun.lockb` → Bun
+3. Detect the supported runtime command before installing or validating:
+   - Prefer the repository's documented command or dev-container wrapper.
+   - Respect `.nvmrc`, `.node-version`, Volta configuration, or the package manager's `packageManager` field.
+   - Use DDEV when the project documentation or configuration makes it the supported environment.
+4. Inventory outdated packages and vulnerabilities with the selected package manager. Separate direct from transitive dependencies and minor or patch from major updates.
 
-- If argument contains `cve` (case-insensitive) → **CVE mode**
-- Otherwise → **Maintenance mode**
+Report the proposed scope before making a change when the update set is broad or ambiguous.
 
----
+## 2. Apply routine updates
 
-## Maintenance Mode
+For a requested minor or patch update:
 
-Fixes all known vulnerabilities on a scheduled cadence.
+1. Update only the requested packages. If the request is general maintenance, keep the batch limited to compatible minor and patch releases.
+2. Reinstall or update the lockfile using the selected package manager; never hand-edit a lockfile.
+3. Inspect `package.json` and the lockfile diff. Call out unexpected added, removed, or major-version transitive changes.
+4. Run the relevant checks in [Validation](#validation).
+5. Summarize updated packages, version transitions, audit status, changed files, and validation results.
 
-### Workflow
+## 3. Handle major updates
 
-1. Ensure working tree is clean (`git status`). Abort if dirty.
-2. `git checkout development && git pull origin development`
-3. Determine branch name: `chore/maintenance-<month-year>` (e.g., `chore/maintenance-april-2026`). Use lowercase month name.
-4. `git checkout -b <branch>`
-5. Run `npm audit --json` and `npm audit` (human-readable). Show the report to the user.
-6. If no vulnerabilities found, inform user and stop.
-7. Run `npm audit fix` to auto-fix what's safe.
-8. Run `npm audit` again. If **critical** or **high** vulnerabilities remain:
-   - Show which packages are still vulnerable and their CVE IDs.
-   - Ask user whether to run `npm audit fix --force` (may include breaking semver changes).
-   - If user approves, run it.
-9. Run `npm audit` a final time and show the remaining report.
-10. If `package-lock.json` or `package.json` changed:
-    - Run project checks if available (`npm run lint`, `npm run type-check`, `npm run build`). Skip missing scripts.
-    - Stage `package.json` and `package-lock.json`.
-    - Commit: `chore(deps): monthly dependency maintenance <month> <year>`
-11. Show summary: what was fixed, what remains, whether checks passed.
-12. Ask user if they want to push and create a PR targeting `development`.
+Before changing a direct dependency across a major version:
 
-### Target branch: `development`
+1. Identify the installed version, target version, package role, peer dependencies, and dependents in the repository.
+2. Research the upstream migration guide, release notes, changelog, and official documentation. Prefer primary sources. Summarize breaking changes with file-level codebase impact where discoverable.
+3. Propose a bounded migration plan, including configuration, API, type, build, and test changes.
+4. Obtain explicit approval for the target version and plan before modifying dependencies or application code.
+5. Apply the approved migration, then run validation. If checks fail, diagnose and report the failure; do not silently weaken tests, pins, or configuration to make the update pass.
 
----
+## 4. Address vulnerabilities
 
-## CVE Mode
+For an audit or CVE request:
 
-Discovers and patches CVE vulnerabilities, branching from and merging to `main`.
+1. Run the package manager's audit command in both machine-readable and readable formats when available.
+2. Report each actionable vulnerability: package, severity, direct or transitive path, affected range, and available remediation.
+3. Apply safe compatible fixes covered by the user's requested scope, then run the audit again.
+4. Never run `npm audit fix --force` or an equivalent breaking update without explicit user approval. Treat any remediation that upgrades a major version as a major update and follow the research workflow.
+5. Clearly distinguish unresolved vulnerabilities with no upstream fix from vulnerabilities deferred by the approved scope.
 
-### Workflow
+## Validation
 
-1. Ensure working tree is clean (`git status`). Abort if dirty.
-2. `git checkout main && git pull origin main`
-3. Run `npm audit --json` to discover vulnerabilities with CVE identifiers.
-4. Parse the audit output and list all CVEs found with severity, package name, and affected version.
-5. If no CVEs found, inform user and stop.
-6. Show the CVE list to the user and ask which to fix:
-   - **All** — fix everything
-   - **Critical/High only** — fix only critical and high severity
-   - **Specific CVE(s)** — user picks from the list
-7. Determine branch name from the CVEs being fixed:
-   - Single CVE: `chore/cve-<cve-id>` (e.g., `chore/cve-2024-12345`)
-   - Multiple CVEs: `chore/cve-patch-<date>` (e.g., `chore/cve-patch-2026-04-01`)
-8. `git checkout -b <branch>`
-9. Run `npm audit fix` to attempt automatic fixes.
-10. Run `npm audit --json` again and check which CVEs are resolved.
-    - If target CVEs still present: show affected package(s) and ask user whether to:
-      - `npm audit fix --force`
-      - Manually update specific packages
-      - Abort
-11. Run `npm audit` a final time to confirm status.
-12. If `package-lock.json` or `package.json` changed:
-    - Run project checks if available (`npm run lint`, `npm run type-check`, `npm run build`). Skip missing scripts.
-    - Stage `package.json` and `package-lock.json`.
-    - Commit: `fix(deps): patch <CVE-ID>` (single) or `fix(deps): patch <N> CVEs` (multiple)
-13. Show summary: which CVEs were resolved, which remain, check results.
-14. Ask user if they want to push and create a PR targeting `main`.
+Run only scripts present in `package.json`, preferring the project's documented validation command. Otherwise, use the smallest relevant set:
 
-### Target branch: `main`
+1. lint and type checks;
+2. focused tests for affected packages, then the normal test suite where practical;
+3. production build;
+4. Storybook build or tests when Storybook is configured and the update can affect UI tooling.
 
----
+For Next.js projects, include the production build. State any skipped check and why. Never claim validation passed when a required command was not run.
 
-## Constraints
+## Safety constraints
 
-- Never run `npm audit fix --force` without explicit user approval.
-- Never push or create a PR without asking.
-- If checks fail, stop and let the user decide.
-- Only stage `package.json` and `package-lock.json` — no other files.
-- If the project uses `yarn` or `pnpm` instead of `npm`, adapt commands accordingly (`yarn audit`, `pnpm audit`).
+- Never use `--force`, `--legacy-peer-deps`, `--ignore-scripts`, or equivalent bypasses to conceal an incompatibility without explicit user approval and a stated reason.
+- Never delete a lockfile or replace one package manager with another merely to resolve an update.
+- Preserve package-manager integrity: use immutable or frozen installs for verification when the project supports them.
+- Do not commit, push, or create a pull request without the user's explicit request.

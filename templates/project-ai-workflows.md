@@ -132,7 +132,7 @@ When user intent matches one of these triggers, read and follow the correspondin
 <!-- BEGIN SHARED:command-mappings -->
 <!-- END SHARED:command-mappings -->
 
-Experimental workflows are excluded from project sync by default. Re-run sync with `--include-experimental` if this project should opt into them.
+All shared command and rule workflows are included in project sync by default.
 
 ## Customizing This Setup
 

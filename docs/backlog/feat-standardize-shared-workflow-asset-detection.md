@@ -26,7 +26,7 @@ As a maintainer of `ai-workflows`, I want all upstream-aware workflows to use th
 - [ ] The definition includes the current project model, including `AI-WORKFLOWS.md`, `commands/**`, `rules/**`, `.github/prompts/**`, and relevant adapter files.
 - [ ] [commands/create-pr.md](/Users/wietekepots/Web/ai-workflows/commands/create-pr.md) uses the updated definition.
 - [ ] [skills/create-pr/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/create-pr/SKILL.md) uses the updated definition.
-- [ ] [skills/experimental.upstream-rules/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/experimental.upstream-rules/SKILL.md) is checked for consistency with the same terminology and file mapping.
+- [ ] [skills/upstream-rules/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/upstream-rules/SKILL.md) is checked for consistency with the same terminology and file mapping.
 - [ ] Shared-asset wording in templates does not conflict with workflow behavior.
 
 ## Technical Notes
@@ -37,7 +37,7 @@ Look at these files together:
 
 - [commands/create-pr.md](/Users/wietekepots/Web/ai-workflows/commands/create-pr.md)
 - [skills/create-pr/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/create-pr/SKILL.md)
-- [skills/experimental.upstream-rules/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/experimental.upstream-rules/SKILL.md)
+- [skills/upstream-rules/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/upstream-rules/SKILL.md)
 - [templates/project-AGENTS.md](/Users/wietekepots/Web/ai-workflows/templates/project-AGENTS.md)
 - [templates/project-CLAUDE.md](/Users/wietekepots/Web/ai-workflows/templates/project-CLAUDE.md)
 - [templates/project-copilot-instructions.md](/Users/wietekepots/Web/ai-workflows/templates/project-copilot-instructions.md)
@@ -54,4 +54,4 @@ Prefer one reusable definition source over repeating slightly different lists in
 
 - [commands/create-pr.md](/Users/wietekepots/Web/ai-workflows/commands/create-pr.md)
 - [skills/create-pr/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/create-pr/SKILL.md)
-- [skills/experimental.upstream-rules/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/experimental.upstream-rules/SKILL.md)
+- [skills/upstream-rules/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/upstream-rules/SKILL.md)

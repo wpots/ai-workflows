@@ -26,7 +26,7 @@ In practice, treat this directory as a topic-based rule library:
 | `payload.md`                            | Payload schemas, generated types, hooks, admin integrations         |
 | `clean-architecture.md`                 | Layer principles, dependency rules, forbidden patterns (all stacks) |
 | `stacks/nextjs-payload.md`              | Folder mapping + conventions for Next.js + Payload                  |
-| `stacks/experimental.react-native-expo.md` | React Native + Expo conventions (experimental; excluded from default project sync) |
+| `stacks/react-native-expo.md`              | React Native + Expo conventions                              |
 
 ## Loading Priority
 
@@ -53,9 +53,7 @@ Before loading a stack file, read the project's `package.json` and check
 - `"next"` present → load `stacks/nextjs-payload.md`
   (also applies when `@payloadcms/payload` is present alongside Next.js)
 - `"expo"` or `"react-native"` present → load
-  `stacks/experimental.react-native-expo.md` when available
-  - in synced projects, this file is excluded by default unless the project
-    opts into experimental workflow assets
+  `stacks/react-native-expo.md` when available
   - if the file is not available locally, fall back to
     `clean-architecture.md` plus a structure probe instead of assuming Expo
     conventions

@@ -72,6 +72,76 @@
       "problemMatcher": []
     },
     {
+      "label": "run-checks",
+      "type": "shell",
+      "command": "cat commands/run-checks.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "review-code",
+      "type": "shell",
+      "command": "cat commands/review-code.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "safe-kill-port",
+      "type": "shell",
+      "command": "cat commands/safe-kill-port.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "scaffold-component",
+      "type": "shell",
+      "command": "cat commands/scaffold-component.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "new-device-setup",
+      "type": "shell",
+      "command": "cat commands/new-device-setup.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "init-project",
+      "type": "shell",
+      "command": "cat commands/init-project.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "work-backlog",
+      "type": "shell",
+      "command": "cat commands/work-backlog.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "validate-ai-instructions",
       "type": "shell",
       "command": "./scripts/validate-ai-instructions.sh",

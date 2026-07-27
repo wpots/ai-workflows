@@ -29,6 +29,12 @@ const tracked = new Set(
     .filter(Boolean),
 );
 
+for (const rel of tracked) {
+  if (/^(skills|commands|rules\/stacks|\.github\/prompts)\/experimental\./.test(rel)) {
+    err(rel, "legacy experimental workflow namespace is not allowed");
+  }
+}
+
 const read = (rel) => readFileSync(path.join(ROOT, rel), "utf8");
 
 function parseFrontmatter(rel) {
@@ -89,14 +95,13 @@ for (const dir of skillDirs) {
     if (!KNOWN_KEYS.has(key)) warn(rel, `unknown frontmatter key '${key}'`);
   }
 
-  const expectedName = dir.replace(/^experimental\./, "");
+  const expectedName = dir;
   if (!fm.name) {
     err(rel, "frontmatter is missing 'name'");
   } else if (fm.name !== expectedName) {
     err(
       rel,
-      `frontmatter name '${fm.name}' should be '${expectedName}' ` +
-        "(directory name with the experimental. prefix stripped)",
+      `frontmatter name '${fm.name}' should match directory name '${expectedName}'`,
     );
   }
 
