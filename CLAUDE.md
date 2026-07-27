@@ -90,3 +90,50 @@ learnings back into that skill's source in ai-workflows.
 - Ask before destructive actions (force kill, reset, delete) unless explicitly requested.
 - Always summarize what was run and what changed.
 <!-- END SHARED:safety -->
+
+# graphify
+
+- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
+  When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
+
+## Shell-gebruik
+
+- Gebruik voor het lezen en doorzoeken van bestanden de Read-, Grep- en Glob-tools,
+  niet `cat`/`grep`/`find` via Bash.
+- Bash is bedoeld voor: git, glab, jira, npm/npx en projectscripts.
+
+### Autonomie: schrijf commando's die de allowlist matchen
+
+Dit is een harde regel, geen stijlvoorkeur. Permission-matching werkt per
+segment op prefix-regels (`Bash(git *)`, `Bash(npm run *)`, …). Elk segment dat
+niet matcht kost een menselijke goedkeuring en blokkeert autonome runs.
+
+- GEEN shell-variabelen of assignments (`wt="/pad"; cd "$wt"`) — een assignment
+  matcht nooit een allow-regel. Gebruik absolute paden letterlijk in elk
+  commando.
+- GEEN for-loops of command substitution (`$(...)`) — zelfde reden. Voer liever
+  meerdere simpele commando's afzonderlijk uit; onafhankelijke calls mogen
+  parallel in één blok.
+- GEEN heredocs of multi-line scripts in Bash; zet een script in een bestand
+  (scratchpad) en run het met `node scripts/*` of `python3 -c`.
+- GEEN bestandsbewerkingen via Bash (`sed -i`, `printf > file`, `>>`, `mv` over
+  source) — gebruik de Edit/Write-tools. Die zijn allowlisted (ook in
+  `~/.worktrees`), werken met checkpointing/rewind, en triggeren de juiste
+  hooks. Alleen `sed -n` (lezen) is toegestaan.
+- GEEN `cd` naar paden buiten de working directories (zoals `~/.worktrees/…`) —
+  die check zit boven de allowlist en vraagt ALTIJD om goedkeuring, ook al is
+  `cd` toegestaan. Gebruik in plaats daarvan `git -C <absoluut-pad> …`,
+  `npm --prefix <pad> …`, of tools met een absoluut pad als argument.
+- Ga je langer in een worktree werken (builds, typegen, tests die cwd nodig
+  hebben): gebruik de EnterWorktree-tool zodat de worktree een geregistreerde
+  working directory wordt — daarna prompt niets meer. Handmatig `cd`'en per
+  commando blijft elke keer om goedkeuring vragen.
+- Begin elk segment met een tool die op de allowlist staat (git, glab, npm,
+  npx, node, rg, jq, head/tail/cat/ls/echo). Twijfel je of een prefix gematcht
+  wordt: splits het commando op zodat de bekende prefix vooraan staat.
+- Uitzondering — secrets: plak NOOIT een secret letterlijk in een commando
+  (blijft achter in transcripts). Gebruik daar wél `$(npx dotenvx get …)` of
+  een variabele, en draai het commando gesandboxt (host moet in de
+  sandbox-netwerkallowlist staan) zodat het zonder prompt doorloopt.
+- Geef deze regels ook door aan subagents in hun prompt; die erven het
+  permission-systeem maar lezen dit bestand niet altijd.
