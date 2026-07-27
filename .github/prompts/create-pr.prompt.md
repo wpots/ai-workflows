@@ -148,6 +148,10 @@ Applies on every run, including updates to an existing PR/MR.
 3. Create the PR/MR:
    - GitHub: `gh pr create --base <base> --title "<title>" --body "<body>"`
    - GitLab: `glab mr create --target-branch <base> --title "<title>" --description "<body>"`
+   - Long bodies: don't pass them inline (quoting breaks, oversized arguments
+     can crash agent permission flows). GitHub: use `--body-file <file>`.
+     GitLab: create with a one-line placeholder, then
+     `glab api "projects/<encoded-path>/merge_requests/<iid>" --method PUT --field "description=@<file>"`.
 4. Output the PR/MR URL on success.
 
 ### No-CLI fallbacks

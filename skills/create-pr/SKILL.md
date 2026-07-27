@@ -198,6 +198,23 @@ glab mr create \
   --description "<generated-body>"
 ```
 
+> **Long descriptions go via a file, not inline.** A multi-paragraph body
+> passed inline (`--body`/`--description`) is fragile: shell quoting breaks
+> easily, and very large single arguments can crash agent permission flows
+> mid-command. Write the generated body to a temp file first, then:
+>
+> - **GitHub**: `gh pr create … --body-file <file>`.
+> - **GitLab**: `glab mr create` has no body-file flag — create the MR with a
+>   one-line placeholder description, then set the real body from the file:
+>
+>   ```bash
+>   glab api "projects/<url-encoded-project-path>/merge_requests/<iid>" \
+>     --method PUT --field "description=@<file>"
+>   ```
+>
+>   (`--field key=@file` reads the value from the file.) Verify with a GET
+>   that the description length is non-trivial before reporting the URL.
+
 4. Output the PR/MR URL on success.
 
 ### 8. Fallbacks When the CLI Is Unavailable
