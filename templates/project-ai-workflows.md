@@ -16,7 +16,7 @@ When `CONVENTIONS.md` conflicts with synced baseline rules, `CONVENTIONS.md` win
 | Tool | What it reliably loads | What that means in practice |
 | ---- | ---------------------- | --------------------------- |
 | GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. `.github/prompts/*.prompt.md` are attachable helpers, not guaranteed auto-context. |
-| Claude Code | Global `~/.claude/CLAUDE.md` and `~/.claude/rules/*.md`, plus project files when present | Global Claude rules must stay universal. Project-specific context belongs in `CONVENTIONS.md`, this guide, and project adapters. |
+| Claude Code | Global `~/.claude/CLAUDE.md` and `~/.claude/rules/*.md`, the `greenberry` plugin (auto-registered via `.claude/settings.json`), plus project files when present | Global Claude rules must stay universal. Skills/commands come from the plugin and auto-update. Project-specific context belongs in `CONVENTIONS.md`, this guide, and project adapters. |
 | Codex | `AGENTS.md` plus repo files it can inspect | `AGENTS.md` is the thin adapter; deeper project context lives in `CONVENTIONS.md`, `rules/`, and `commands/`. |
 | Cursor | `AGENTS.md` and `.cursor/rules/*.md` | Cursor can follow project files well, and `.cursor/rules/conventions.mdc` points it back to `CONVENTIONS.md` and `rules/`. |
 
@@ -48,7 +48,7 @@ Use this as the intended model inside synced projects:
 | GitHub Copilot | commands/runbooks |
 | Cursor | skills first, commands as fallback |
 | Codex | skills first, commands as fallback |
-| Claude Code | mixed: skills when supported, commands/rules as compatibility path |
+| Claude Code | skills first (via the `greenberry` plugin, e.g. `/greenberry:create-pr`), commands as fallback |
 
 ## Always-On Vs On-Demand
 

@@ -1,5 +1,19 @@
 # Skills-First Migration Plan
 
+## Decision Record (2026-07-27)
+
+Phase 1 is decided:
+
+- **Supported tools:** Cursor, Codex, Claude, and GitHub Copilot. Roo is
+  dropped as a sync target.
+- **Claude skill status: first-class.** Skills are the canonical workflow
+  surface on Claude and ship via the `greenberry` plugin from this repo's
+  marketplace (`.claude-plugin/`, root-as-plugin). Commands stay as the
+  Copilot and fallback surface.
+- **Claude distribution:** skills/commands come from the plugin and
+  auto-update; `~/.claude/CLAUDE.md` and the universal rules subset stay on
+  global sync because plugins have no primitive for always-on context.
+
 ## Goal
 
 Move `ai-workflows` toward a clearer skills-first model for repeatable workflows while keeping:
@@ -28,7 +42,7 @@ Tool support target:
 | GitHub Copilot | `.github/copilot-instructions.md` | command/runbook-first, no skills dependency |
 | Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | skill-first where possible, commands as fallback |
 | Codex | `AGENTS.md` | skill-first where possible, commands as fallback |
-| Claude | `CLAUDE.md` plus global/project rules | decide explicitly whether skills are first-class or fallback-only |
+| Claude | `CLAUDE.md` plus global/project rules | skill-first via the `greenberry` plugin, commands as fallback (decided 2026-07-27) |
 
 ## Principles
 

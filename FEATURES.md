@@ -42,7 +42,9 @@ rely on skills directly.
 
 Self-describing workflows in `skills/`. Each has a `SKILL.md` with frontmatter
 metadata. Skills are the canonical workflow surface on skill-aware tools.
-Commands remain the compatibility and fallback surface.
+Commands remain the compatibility and fallback surface. On Claude Code the
+skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
+`/greenberry:<skill>`.
 
 | Skill | Description | Has matching command? |
 |-------|-------------|----------------------|
@@ -115,4 +117,4 @@ Shows the intended support model for the main workflow surfaces.
 | **GitHub Copilot** | `.github/copilot-instructions.md` | commands/runbooks |
 | **Cursor** | `AGENTS.md` plus `.cursor/rules/*.md` | skills first, commands as fallback |
 | **Codex** | `AGENTS.md` | skills first, commands as fallback |
-| **Claude Code** | `CLAUDE.md` plus global/project rules | mixed: skills when supported, commands/rules as compatibility path |
+| **Claude Code** | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |

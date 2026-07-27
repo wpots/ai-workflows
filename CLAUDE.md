@@ -11,8 +11,11 @@ Keep the global rules universal, not stack-specific.
 
 Workflow surface strategy for Claude in this repo:
 
-- skills are available and may be used when they fit well
-- commands and runbooks remain the compatibility path
+- skills are first-class and the canonical surface for repeatable workflows;
+  they ship via the `greenberry` plugin from the ai-workflows marketplace and
+  auto-update (invoke as `/greenberry:<skill>`, natural-language triggers keep
+  working through each skill's description)
+- commands and runbooks remain the fallback path when no skill exists
 - rules stay the policy source of truth
 
 The ai-workflows sync intentionally keeps the global Claude rules slim:
