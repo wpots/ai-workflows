@@ -1,4 +1,16 @@
 {
+  "extraKnownMarketplaces": {
+    "ai-workflows": {
+      "source": {
+        "source": "url",
+        "url": "git@gitlab.com:greenberrynl/config/ai-workflows.git"
+      },
+      "autoUpdate": true
+    }
+  },
+  "enabledPlugins": {
+    "greenberry@ai-workflows": true
+  },
   "hooks": {
     "PreToolUse": [
       {
