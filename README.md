@@ -234,6 +234,75 @@ Useful variants:
 ./scripts/sync.sh --project /path/to/project
 ```
 
+## Project Sync Quick Start
+
+Use this flow when a developer starts on a new or existing project.
+
+### 1. Initialize the project context
+
+Open the target project in Codex, Claude, or Cursor and ask:
+
+> Initialize this project with the `init-project` workflow. Use
+> `~/Web/ai-workflows` as the canonical source.
+
+The workflow analyzes the stack and project structure and creates
+`CONVENTIONS.md`. This file is the project-owned source of truth for local
+scripts, structure, conventions, and intentional deviations from the shared
+baseline.
+
+### 2. Preview the project sync
+
+Run the sync command from the `ai-workflows` checkout. The target directory must
+already exist.
+
+```bash
+cd ~/Web/ai-workflows
+./scripts/sync.sh --dry-run --project ~/Web/my-project
+```
+
+Review the preview before writing files, especially when the project already
+contains agent instructions or workflow directories.
+
+### 3. Apply the project sync
+
+```bash
+./scripts/sync.sh --project ~/Web/my-project
+```
+
+The sync preserves the project-owned `CONVENTIONS.md` and installs or refreshes:
+
+- `AI-WORKFLOWS.md`
+- `AGENTS.md` and `CLAUDE.md`
+- `.github/copilot-instructions.md` and `.github/prompts/`
+- `.cursor/rules/`
+- `rules/` and `commands/`
+
+An existing `.claude/settings.json` is also preserved. Merge the generated
+graphify hooks manually when that project should use them.
+
+### 4. Review and commit
+
+In the target project:
+
+1. Run `git status --short` and review the generated changes.
+2. Confirm that `CONVENTIONS.md` accurately describes the project.
+3. Run the project's normal validation commands.
+4. Commit the synchronized files using the project's normal Git workflow.
+
+Put project-specific changes in `CONVENTIONS.md`. Treat the other synchronized
+workflow files as generated assets: a later sync can overwrite them. Make
+reusable workflow changes in this repository first, then re-sync the projects
+that should receive them.
+
+### 5. Keep a project current
+
+```bash
+cd ~/Web/ai-workflows
+git pull --ff-only
+./scripts/sync.sh --dry-run --project ~/Web/my-project
+./scripts/sync.sh --project ~/Web/my-project
+```
+
 ## Daily Use
 
 1. Edit the canonical source in this repo.
