@@ -1,0 +1,93 @@
+---
+name: watch-mrs
+description: Watch one or more of your open GitLab merge requests for new reviewer comments and merge-readiness (approval, pipeline, conflicts), optionally auto-merging once a MR becomes mergeable. Runs as a session-scoped background loop (Monitor + fallback heartbeat) built on `glab`. Use when the user asks to watch/monitor an MR, get notified on approval or new comments, or auto-merge when ready.
+---
+
+# Watch MRs Skill
+
+Sets up a recurring background check on one or more GitLab MRs and notifies on
+change — new comments, merge-status transitions, and (opt-in) an automatic
+merge once a MR becomes mergeable. This is a loop-building skill: it produces
+a running `Monitor` task, not a one-shot answer.
+
+## Inputs to confirm before starting
+
+Only ask what isn't already given in the user's request.
+
+- **Repo scope**: current repo only (default — infer from `git remote get-url
+  origin`), or an explicit list of other repos. Never silently expand to "all
+  repos the user has open MRs in" — that blast radius must be an explicit,
+  confirmed choice (use `AskUserQuestion` and show the actual list of open
+  MRs per repo via
+  `glab api "merge_requests?scope=created_by_me&state=opened&per_page=50"`
+  filtered/grouped by `project_id`).
+- **MR scope**: specific MR id(s), or "all my open MRs in this repo."
+- **Poll interval**: default 5 minutes (300s) unless told otherwise.
+- **Auto-merge**: default **off** (watch + notify only). If the user asks for
+  auto-merge, confirm in one `AskUserQuestion` round:
+  - merge method (squash vs merge commit vs rebase)
+  - delete source branch after merge (yes/no)
+  - whether to skip the final confirmation before merging, or notify and wait
+  Auto-merge is opt-in per invocation — never assume it from a prior session.
+
+## Implementation
+
+1. Resolve the repo slug in both forms: URL-encoded (`owner%2Fgroup%2Frepo`,
+   for `glab api` paths) and slash form (`owner/group/repo`, for `glab mr
+   merge --repo`).
+2. Resolve the MR id list (explicit ids, or fetch via the `scope=created_by_me`
+   query above and filter to the confirmed project).
+3. Write a bash watcher script to a **stable location outside any ephemeral
+   scratchpad** — `~/.claude/state/mr-watch/<repo-slug>/watch.sh` — so state
+   (which comments were already seen, last known merge status) survives
+   across sessions and re-invocations don't re-notify old items. Keep one
+   state subdirectory per MR id.
+4. Script logic, per poll cycle, per watched MR:
+   - Fetch notes: `glab api projects/<enc-repo>/merge_requests/<id>/notes`;
+     diff non-system note ids against `seen_notes.txt`; echo one line per new
+     note (author + body). Guard every `glab`/`jq` call against empty output
+     (`[ -n "$json" ]`) so a transient API hiccup doesn't kill the loop.
+   - Fetch the MR: `glab api projects/<enc-repo>/merge_requests/<id>`; read
+     `.detailed_merge_status`; echo on transition (`prev -> new`) — this field
+     alone captures approval, pipeline result, conflicts and draft state.
+   - If auto-merge is enabled and status is `mergeable`: run
+     `glab mr merge <id> --repo <repo-slash> [--squash|--rebase]
+     [--remove-source-branch] --yes`, echo the result, drop the MR from the
+     active watch list. If auto-merge is off, just report `mergeable` and keep
+     watching (nothing left to notify on unless someone re-opens/changes it).
+   - **Use `bash` explicitly** (`#!/usr/bin/env bash`, or invoke the file via
+     `bash path/to/watch.sh` from Monitor) — never assume the default shell.
+     `status` is a reserved read-only variable in zsh and crashes the script
+     silently if used as a variable name; this bit us once, use `merge_status`
+     instead.
+5. Start the script with the `Monitor` tool: `persistent: true`, a specific
+   `description` (repo + MR ids), no `timeout_ms` override needed.
+6. Arm a `ScheduleWakeup` fallback heartbeat (1200–1800s) with `prompt` set to
+   re-invoke this skill with the same resolved args (repo, MR ids, interval,
+   auto-merge config) — this is a safety net only; the Monitor is the real
+   wake signal. Re-arm it after every `<task-notification>` from the Monitor,
+   per the standard dynamic-loop pattern.
+7. On each notification, relay only what changed — one short line per event
+   (new comment / status transition / merge result). Don't restate unrelated
+   baseline info the user already saw.
+
+## Constraints
+
+- Never expand repo or MR scope beyond what was explicitly confirmed.
+- Auto-merge is opt-in per invocation, never a silent default carried over
+  from a previous session or a different MR.
+- This is a **session-scoped** loop: the Monitor and the heartbeat both stop
+  when the session ends. It is not a durable cross-session cloud schedule —
+  as of 2026-07, there is no GitLab connector for claude.ai remote-trigger
+  routines, so `glab` auth (local config/SSH-key based) isn't available in a
+  cloud sandbox. If the user asks for "keeps running after I close my
+  laptop," say so plainly rather than building something that will silently
+  fail on auth.
+- To stop watching: `TaskStop` the Monitor task, and stop the heartbeat by
+  simply not calling `ScheduleWakeup` again.
+
+## Output
+
+A running Monitor task (report its task id) watching the confirmed MRs, plus
+a confirmation of: repo/MR scope, poll interval, and the current auto-merge
+configuration.

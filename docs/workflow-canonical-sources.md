@@ -33,6 +33,8 @@ Use it to decide where updates should land first and whether a command is a full
 | `sustainable-review` | command only | `commands/sustainable-review.md` | none | n/a |
 | `test-driven-development` | skill only | `skills/test-driven-development/SKILL.md` | none | n/a |
 | `receiving-code-review` | skill only | `skills/receiving-code-review/SKILL.md` | none | n/a |
+| `skill-opportunity` | skill only | `skills/skill-opportunity/SKILL.md` | none | n/a |
+| `watch-mrs` | skill only | `skills/watch-mrs/SKILL.md` | none | n/a |
 
 ## Interpretation
 
