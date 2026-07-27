@@ -129,6 +129,19 @@ remove_file() {
   fi
 }
 
+remove_dir() {
+  local target="$1"
+  if [[ ! -d "$target" ]]; then
+    return
+  fi
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] rm -r $target"
+  else
+    rm -rf "$target"
+    echo "Removed $target"
+  fi
+}
+
 # --- Shared fragment injection (reused from generate-adapters pattern) ---
 
 inject_shared() {
@@ -387,10 +400,6 @@ if [[ -d "$TARGET_CLAUDE" ]]; then
     fi
   fi
 
-  if [[ -d "$SRC_COMMANDS" ]]; then
-    sync_dir "$SRC_COMMANDS" "$TARGET_CLAUDE/commands"
-  fi
-
   if [[ -d "$SRC_RULES" ]]; then
     ensure_dir "$TARGET_CLAUDE/rules"
     sync_file "$SRC_RULES/communication.md" "$TARGET_CLAUDE/rules/communication.md"
@@ -406,10 +415,27 @@ if [[ -d "$TARGET_CLAUDE" ]]; then
     remove_file "$TARGET_CLAUDE/rules/stacks/react-native-expo.md"
   fi
 
-  if [[ -d "$SRC_SKILLS" ]]; then
-    ensure_dir "$TARGET_CLAUDE/skills"
-    sync_dir "$SRC_SKILLS" "$TARGET_CLAUDE/skills"
+  # Claude skills and commands ship via the greenberry plugin (see
+  # .claude-plugin/). Remove copies left behind by earlier syncs so they
+  # cannot shadow or duplicate the plugin-provided versions. Only names
+  # owned by this repo are touched; personal skills/commands are kept.
+  if [[ -d "$SRC_COMMANDS" && -d "$TARGET_CLAUDE/commands" ]]; then
+    for cmd_file in "$SRC_COMMANDS"/*.md; do
+      [[ -f "$cmd_file" ]] || continue
+      remove_file "$TARGET_CLAUDE/commands/$(basename "$cmd_file")"
+    done
   fi
+
+  if [[ -d "$SRC_SKILLS" && -d "$TARGET_CLAUDE/skills" ]]; then
+    for skill_dir in "$SRC_SKILLS"/*/; do
+      [[ -d "$skill_dir" ]] || continue
+      remove_dir "$TARGET_CLAUDE/skills/$(basename "$skill_dir")"
+    done
+  fi
+
+  echo "Claude skills/commands are served by the greenberry plugin (auto-updating)."
+  echo "If it is not installed yet, run inside Claude Code:"
+  echo "  /plugin marketplace add git@gitlab.com:greenberrynl/config/ai-workflows.git"
 fi
 
 if [[ -d "$SRC_SKILLS" && -d "$TARGET_CURSOR" ]]; then
