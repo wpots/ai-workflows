@@ -121,7 +121,12 @@ for (const dir of skillDirs) {
           `keep it under ${DESCRIPTION_LIMIT} (Codex hard limit)`,
       );
     }
-    if (!/use (this skill )?when|use it when|gebruik/i.test(fm.description)) {
+    // A routing cue is an invocation verb followed closely by a temporal or
+    // conditional word, so "Use when the user asks", "Use it when", and
+    // "Use right after generating X" all count.
+    const ROUTING_CUE =
+      /\b(use|gebruik)\b[^.]{0,30}?\b(when|whenever|if|after|before|during|zodra|wanneer)\b/i;
+    if (!ROUTING_CUE.test(fm.description)) {
       warn(rel, "description has no 'Use when ...' routing cue");
     }
   }
