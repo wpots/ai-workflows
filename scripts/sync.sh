@@ -15,7 +15,6 @@ SRC_CURSOR_GRAPHIFY="$ROOT_DIR/templates/project-cursor-graphify.mdc"
 SRC_CLAUDE_SETTINGS="$ROOT_DIR/templates/project-claude-settings.json"
 
 TARGET_CURSOR="$HOME/.cursor"
-TARGET_ROO="$HOME/.roo"
 TARGET_CODEX="$HOME/.codex"
 TARGET_CLAUDE="$HOME/.claude"
 TARGET_CURSOR_SKILLS_SUBPATH="skills-cursor/ai-workflows"
@@ -126,6 +125,19 @@ remove_file() {
     echo "[dry-run] rm $target"
   else
     rm -f "$target"
+    echo "Removed $target"
+  fi
+}
+
+remove_dir() {
+  local target="$1"
+  if [[ ! -d "$target" ]]; then
+    return
+  fi
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] rm -r $target"
+  else
+    rm -rf "$target"
     echo "Removed $target"
   fi
 }
@@ -378,14 +390,6 @@ if [[ -d "$SRC_COMMANDS" && -d "$TARGET_CURSOR" ]]; then
   sync_dir "$SRC_COMMANDS" "$TARGET_CURSOR/commands"
 fi
 
-if [[ -d "$SRC_RULES" && -d "$TARGET_ROO" ]]; then
-  sync_dir "$SRC_RULES" "$TARGET_ROO/rules-code"
-fi
-
-if [[ -d "$SRC_COMMANDS" && -d "$TARGET_ROO" ]]; then
-  sync_dir "$SRC_COMMANDS" "$TARGET_ROO/commands"
-fi
-
 if [[ -d "$TARGET_CLAUDE" ]]; then
   if [[ -f "$SRC_CLAUDE_MD" ]]; then
     if [[ "$DRY_RUN" -eq 1 ]]; then
@@ -394,10 +398,6 @@ if [[ -d "$TARGET_CLAUDE" ]]; then
       cp "$SRC_CLAUDE_MD" "$TARGET_CLAUDE/CLAUDE.md"
       echo "Synced CLAUDE.md -> $TARGET_CLAUDE/CLAUDE.md"
     fi
-  fi
-
-  if [[ -d "$SRC_COMMANDS" ]]; then
-    sync_dir "$SRC_COMMANDS" "$TARGET_CLAUDE/commands"
   fi
 
   if [[ -d "$SRC_RULES" ]]; then
@@ -415,10 +415,27 @@ if [[ -d "$TARGET_CLAUDE" ]]; then
     remove_file "$TARGET_CLAUDE/rules/stacks/react-native-expo.md"
   fi
 
-  if [[ -d "$SRC_SKILLS" ]]; then
-    ensure_dir "$TARGET_CLAUDE/skills"
-    sync_dir "$SRC_SKILLS" "$TARGET_CLAUDE/skills"
+  # Claude skills and commands ship via the greenberry plugin (see
+  # .claude-plugin/). Remove copies left behind by earlier syncs so they
+  # cannot shadow or duplicate the plugin-provided versions. Only names
+  # owned by this repo are touched; personal skills/commands are kept.
+  if [[ -d "$SRC_COMMANDS" && -d "$TARGET_CLAUDE/commands" ]]; then
+    for cmd_file in "$SRC_COMMANDS"/*.md; do
+      [[ -f "$cmd_file" ]] || continue
+      remove_file "$TARGET_CLAUDE/commands/$(basename "$cmd_file")"
+    done
   fi
+
+  if [[ -d "$SRC_SKILLS" && -d "$TARGET_CLAUDE/skills" ]]; then
+    for skill_dir in "$SRC_SKILLS"/*/; do
+      [[ -d "$skill_dir" ]] || continue
+      remove_dir "$TARGET_CLAUDE/skills/$(basename "$skill_dir")"
+    done
+  fi
+
+  echo "Claude skills/commands are served by the greenberry plugin (auto-updating)."
+  echo "If it is not installed yet, run inside Claude Code:"
+  echo "  /plugin marketplace add git@gitlab.com:greenberrynl/config/ai-workflows.git"
 fi
 
 if [[ -d "$SRC_SKILLS" && -d "$TARGET_CURSOR" ]]; then

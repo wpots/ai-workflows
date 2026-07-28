@@ -49,10 +49,12 @@ Shared workflow assets:
 
 ## Workflow Strategy
 
-On Claude, use a mixed workflow model:
+On Claude, skills are first-class:
 
-- prefer a matching skill when the workflow is available and fits the task well
-- use `commands/` as the compatibility and fallback path
+- prefer the matching `greenberry` plugin skill for repeatable workflows
+  (for example `/greenberry:create-pr`); natural-language triggers work
+  through each skill's description
+- use `commands/` as the compatibility and fallback path when no skill exists
 - keep `rules/` as the policy source of truth
 
 ## Command Mapping

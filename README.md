@@ -19,7 +19,7 @@ The main design constraint in this repo is that the tools do not load instructio
 | Tool | What it reliably loads | Practical implication |
 | ---- | ---------------------- | --------------------- |
 | GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. Prompt files help, but are not guaranteed auto-context. |
-| Claude Code | `~/.claude/CLAUDE.md` and every file in `~/.claude/rules/` | Global Claude rules must stay universal and slim. Project-specific detail belongs in project files. |
+| Claude Code | `~/.claude/CLAUDE.md`, every file in `~/.claude/rules/`, and installed plugins | Global Claude rules must stay universal and slim. Skills and commands ship via the `greenberry` plugin (see Claude Plugin Marketplace below). |
 | Codex | `AGENTS.md`, skills, and repo files it can inspect | `AGENTS.md` should stay thin and point to the real project context. |
 | Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | Cursor can follow project files well, and its rules folder can auto-apply a small adapter. |
 
@@ -59,9 +59,9 @@ Use this as the intended support model for the repo:
 | GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
 | Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | skills first, commands as fallback |
 | Codex | `AGENTS.md` | skills first, commands as fallback |
-| Claude | `CLAUDE.md` plus global/project rules | mixed: skills when supported, commands/rules as compatibility path |
+| Claude | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
 
-That means the repo is intentionally not “skills only.” Copilot still needs command-friendly runbooks, and Claude should not depend exclusively on skills unless its support model is made more explicit in the future.
+That means the repo is intentionally not “skills only.” Copilot still needs command-friendly runbooks. Claude is skills-first as of 2026-07 (see the decision record in [docs/skills-first-migration-plan.md](docs/skills-first-migration-plan.md)): skills are canonical there and ship via the plugin marketplace, with commands as the fallback surface.
 
 ## Always-On Vs On-Demand Rules
 
@@ -182,16 +182,46 @@ Current targets:
 - `~/.cursor/commands`
 - `~/.cursor/skills-cursor/ai-workflows`
 - `~/.cursor/mcp/ai-workflows`
-- `~/.roo/commands`
-- `~/.roo/rules-code`
 - `~/.codex/skills/custom`
 - `~/.claude/CLAUDE.md`
-- `~/.claude/commands`
 - `~/.claude/rules` with the universal subset only
-- `~/.claude/skills`
 
 All commands, rules, and skills are synced by default. The repository has no
 separate opt-in workflow tier.
+
+Claude Code is the exception to file-copy sync: it gets skills and commands
+from the plugin marketplace below, and sync removes any copies left behind by
+earlier syncs (repo-owned names only) so they cannot shadow the plugin.
+
+## Claude Plugin Marketplace
+
+Claude Code loads skills and commands from the `greenberry` plugin instead of
+file copies. The repo root is the plugin (`.claude-plugin/` holds both the
+plugin and marketplace manifests), so `skills/` and `commands/` are served
+without duplication and every commit to `main` is a new plugin version.
+
+One-time install per developer, inside Claude Code:
+
+```
+/plugin marketplace add git@gitlab.com:greenberrynl/config/ai-workflows.git
+/plugin install greenberry@ai-workflows
+```
+
+How it behaves:
+
+- Synced projects auto-register the marketplace and enable the plugin via
+  `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`), so
+  teammates opening a synced project get a one-time install prompt instead of
+  needing a machine-level setup.
+- Use the SSH URL. Claude Code disables background HTTPS updates for
+  third-party marketplaces; SSH auto-updates work through `ssh-agent`.
+- Plugin skills invoke as `/greenberry:<skill>` (for example
+  `/greenberry:create-pr`). Natural-language triggers keep working through
+  each skill's `description` frontmatter.
+- Global sync still ships the ambient layer (`~/.claude/CLAUDE.md` and the
+  universal rules subset). Plugins have no primitive for always-on context,
+  so rules stay on sync by design.
+- Manual refresh when needed: `/plugin marketplace update ai-workflows`.
 
 ## Knowledge Graph (graphify)
 
@@ -222,6 +252,13 @@ cd ~/Web/ai-workflows
 ./scripts/generate-adapters.sh
 ./scripts/sync.sh
 ./scripts/install-hooks.sh
+```
+
+For Claude Code, also install the plugin once (inside Claude Code):
+
+```
+/plugin marketplace add git@gitlab.com:greenberrynl/config/ai-workflows.git
+/plugin install greenberry@ai-workflows
 ```
 
 Useful variants:

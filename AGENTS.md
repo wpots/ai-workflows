@@ -23,7 +23,7 @@ Use this surface model throughout the repo:
 | GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
 | Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | skills first, commands as fallback |
 | Codex | `AGENTS.md` | skills first, commands as fallback |
-| Claude | `CLAUDE.md` plus global/project rules | mixed: skills when supported, commands/rules as compatibility path |
+| Claude | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
 
 ### Command Files
 
