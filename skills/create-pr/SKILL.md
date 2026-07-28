@@ -218,16 +218,26 @@ glab mr create \
 > mid-command. Write the generated body to a temp file first, then:
 >
 > - **GitHub**: `gh pr create … --body-file <file>`.
-> - **GitLab**: `glab mr create` has no body-file flag — create the MR with a
->   one-line placeholder description, then set the real body from the file:
+> - **GitLab**: `glab mr create` has no body-file flag — create the MR in one
+>   API call with the body read from the file:
 >
 >   ```bash
->   glab api "projects/<url-encoded-project-path>/merge_requests/<iid>" \
->     --method PUT --field "description=@<file>"
+>   glab api "projects/<url-encoded-project-path>/merge_requests" \
+>     --method POST \
+>     --field "source_branch=<branch>" --field "target_branch=<base>" \
+>     --field "title=<title>" --field "description=@<file>"
 >   ```
 >
->   (`--field key=@file` reads the value from the file.) Verify with a GET
->   that the description length is non-trivial before reporting the URL.
+>   (`--field key=@file` reads the value from the file.) Verify the response
+>   echoes a non-trivial description before reporting the URL.
+
+> **Driving the repo from another directory** (e.g. a worktree via `git -C`):
+> `glab mr create` resolves its repo context from the current directory's git
+> remotes and fails even with `--repo` when the cwd points at a different
+> host's repo. The `glab api` call above has no cwd dependency — prefer it.
+> Related pitfall: when git uses glab as its HTTPS credential helper, an
+> expired glab OAuth token breaks `git push`/`fetch` too (`could not read
+> Username`) — `glab auth login` fixes both.
 
 4. Output the PR/MR URL on success.
 
