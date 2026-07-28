@@ -145,8 +145,11 @@ Applies on every run, including updates to an existing PR/MR.
    - GitLab: `glab mr create --target-branch <base> --title "<title>" --description "<body>"`
    - Long bodies: don't pass them inline (quoting breaks, oversized arguments
      can crash agent permission flows). GitHub: use `--body-file <file>`.
-     GitLab: create with a one-line placeholder, then
-     `glab api "projects/<encoded-path>/merge_requests/<iid>" --method PUT --field "description=@<file>"`.
+     GitLab: create the MR in one API call with the body read from a file:
+     `glab api "projects/<encoded-path>/merge_requests" --method POST --field "source_branch=<branch>" --field "target_branch=<base>" --field "title=<title>" --field "description=@<file>"`.
+     This also sidesteps `glab mr create`'s cwd dependency: it resolves repo
+     context from the current directory's git remotes and can fail despite
+     `--repo` (use the API call when driving the repo from another directory).
 4. Output the PR/MR URL on success.
 
 ### No-CLI fallbacks
