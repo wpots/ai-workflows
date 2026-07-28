@@ -30,12 +30,14 @@ Use it to decide where updates should land first and whether a command is a full
 | `jira-ticket` | skill only | `skills/jira-ticket/SKILL.md` | none | n/a |
 | `npm-maintenance` | skill only | `skills/npm-maintenance/SKILL.md` | none | n/a |
 | `improve-skill` | skill only | `skills/improve-skill/SKILL.md` | none | n/a |
-| `sustainable-review` | command only | `commands/sustainable-review.md` | none | n/a |
+| `sustainable-review` | skill + command | `skills/sustainable-review/SKILL.md` | `commands/sustainable-review.md` | yes |
 | `test-driven-development` | skill only | `skills/test-driven-development/SKILL.md` | none | n/a |
 | `receiving-code-review` | skill only | `skills/receiving-code-review/SKILL.md` | none | n/a |
 | `skill-opportunity` | skill only | `skills/skill-opportunity/SKILL.md` | none | n/a |
 | `watch-mrs` | skill only | `skills/watch-mrs/SKILL.md` | none | n/a |
 | `wcag-audit` | skill only | `skills/wcag-audit/SKILL.md` | none | n/a |
+| `migration-check` | skill only | `skills/migration-check/SKILL.md` | none | n/a |
+| `upstream-to-unicore` | skill only | `skills/upstream-to-unicore/SKILL.md` | none | n/a |
 
 ## Interpretation
 
