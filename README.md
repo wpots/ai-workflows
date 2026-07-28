@@ -200,28 +200,87 @@ file copies. The repo root is the plugin (`.claude-plugin/` holds both the
 plugin and marketplace manifests), so `skills/` and `commands/` are served
 without duplication and every commit to `main` is a new plugin version.
 
-One-time install per developer, inside Claude Code:
+### Migrating a developer machine (one-time, ~5 minutes)
 
+1. **Check GitLab access.** The marketplace clones over git. Test SSH with
+   `ssh -T git@gitlab.com` — a `Welcome to GitLab, @you!` means you are set.
+   No SSH key? Either add one under *GitLab → Preferences → SSH Keys*
+   (recommended; background auto-update only works over SSH), or use the
+   HTTPS URL in step 2 — install and manual refresh then run through your
+   glab login, but background auto-updates stay off.
+
+2. **Install the plugin — before running sync.** Inside Claude Code:
+
+   ```
+   /plugin marketplace add git@gitlab.com:greenberrynl/config/ai-workflows.git
+   /plugin install greenberry@ai-workflows
+   ```
+
+   (HTTPS variant: `/plugin marketplace add https://gitlab.com/greenberrynl/config/ai-workflows.git`)
+
+   The order is deliberate: the sync in step 3 removes the old skill copies
+   from `~/.claude`, so installing the plugin first means you are never
+   without skills.
+
+3. **Refresh the local sync.**
+
+   ```bash
+   cd ~/Web/ai-workflows
+   git checkout main && git pull --ff-only
+   ./scripts/sync.sh
+   ```
+
+   Sync removes the old copies in `~/.claude/skills` and `~/.claude/commands`
+   (repo-owned names only; personal skills stay) and refreshes `CLAUDE.md`
+   plus the universal rules subset.
+
+4. **Verify.** `/plugin` lists `greenberry` as installed and enabled, typing
+   `/greenberry:` shows the skills, and asking for e.g. a commit message in
+   plain language still triggers the skill through its description.
+
+### Existing projects
+
+Project sync never overwrites an existing `.claude/settings.json`. If a
+project already has one, merge these keys in manually — teammates opening the
+project then get a one-time install prompt:
+
+```json
+"extraKnownMarketplaces": {
+  "ai-workflows": {
+    "source": {
+      "source": "url",
+      "url": "git@gitlab.com:greenberrynl/config/ai-workflows.git"
+    },
+    "autoUpdate": true
+  }
+},
+"enabledPlugins": {
+  "greenberry@ai-workflows": true
+}
 ```
-/plugin marketplace add git@gitlab.com:greenberrynl/config/ai-workflows.git
-/plugin install greenberry@ai-workflows
-```
 
-How it behaves:
+Projects without their own settings get this automatically on the next
+`./scripts/sync.sh --project <path>`.
 
-- Synced projects auto-register the marketplace and enable the plugin via
-  `.claude/settings.json` (`extraKnownMarketplaces` + `enabledPlugins`), so
-  teammates opening a synced project get a one-time install prompt instead of
-  needing a machine-level setup.
-- Use the SSH URL. Claude Code disables background HTTPS updates for
-  third-party marketplaces; SSH auto-updates work through `ssh-agent`.
+### How it behaves
+
 - Plugin skills invoke as `/greenberry:<skill>` (for example
   `/greenberry:create-pr`). Natural-language triggers keep working through
   each skill's `description` frontmatter.
 - Global sync still ships the ambient layer (`~/.claude/CLAUDE.md` and the
   universal rules subset). Plugins have no primitive for always-on context,
   so rules stay on sync by design.
-- Manual refresh when needed: `/plugin marketplace update ai-workflows`.
+- Updates arrive automatically over SSH; Claude Code prompts to reload when
+  something new landed.
+
+### Troubleshooting
+
+| Symptom | Fix |
+| ------- | --- |
+| `Permission denied (publickey)` on marketplace add | No SSH key for gitlab.com — see step 1. |
+| Skills show up twice | Old copies still in `~/.claude/skills` — run `./scripts/sync.sh` again (step 3). |
+| glab reports `invalid_grant` and `git push` fails with `could not read Username` | The glab OAuth token broke and git-HTTPS auth runs through glab. Re-authenticate with `glab auth login` using a **Personal Access Token** (scopes `api` + `write_repository`) — PATs have no refresh races. |
+| A merged skill change is not visible yet | `/plugin marketplace update ai-workflows`, then `/reload-plugins`. |
 
 ## Knowledge Graph (graphify)
 
