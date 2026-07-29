@@ -11,8 +11,9 @@ TARGET="$TMP_DIR/claude"
 DATA="$TMP_DIR/plugin-data"
 mkdir -p "$TARGET/rules/stacks" "$DATA"
 
-# Two fake plugin versions. $CLAUDE_PLUGIN_ROOT is SHA-addressed, so a plugin
-# update is a different directory name -- that is the version signal.
+# Two fake plugin releases in separate directories -- the normal case, where a
+# bumped version gives $CLAUDE_PLUGIN_ROOT a new basename. The shared-directory
+# case is covered further down.
 V1="$TMP_DIR/plugin/aaaa1111"
 V2="$TMP_DIR/plugin/bbbb2222"
 for version in "$V1" "$V2"; do
@@ -49,20 +50,61 @@ grep -Fq "v1 ambient layer" "$TARGET/CLAUDE.md" || fail "wrong CLAUDE.md content
 if [[ -e "$TARGET/rules/tailwind.md" ]]; then fail "retired rule was not removed"; fi
 if [[ -e "$TARGET/rules/rules.md" ]]; then fail "absent retired rule was recreated"; fi
 
-echo "Smoke test: same plugin version is a silent no-op"
+echo "Smoke test: unchanged source is a silent no-op"
 OUT="$(run_hook "$V1")"
 [[ -z "$OUT" ]] || fail "second run should be silent, got: $OUT"
 
-echo "Smoke test: a local edit survives until the plugin actually updates"
+echo "Smoke test: a local edit survives until the plugin delivers new content"
 echo "locally edited" > "$TARGET/CLAUDE.md"
 OUT="$(run_hook "$V1")"
-[[ -z "$OUT" ]] || fail "unchanged plugin version must not fight a local edit"
+[[ -z "$OUT" ]] || fail "unchanged source must not fight a local edit"
 grep -Fq "locally edited" "$TARGET/CLAUDE.md" || fail "local edit was reverted"
 
 echo "Smoke test: a plugin update re-asserts the ambient layer"
 OUT="$(run_hook "$V2")"
 [[ -n "$OUT" ]] || fail "plugin update produced no hook output"
 grep -Fq "v2 ambient layer" "$TARGET/CLAUDE.md" || fail "update did not land"
+
+# Regression: the install path is version-keyed (.../greenberry/1.3.0), so every
+# commit to main that ships without a version bump reuses the same basename. A
+# gate keyed on that name skips the change forever.
+echo "Smoke test: new content under an unchanged directory name still lands"
+SAME="$TMP_DIR/plugin/1.3.0"
+TARGET2="$TMP_DIR/claude2"
+DATA2="$TMP_DIR/plugin-data2"
+mkdir -p "$SAME/rules" "$TARGET2/rules" "$DATA2"
+cp "$ROOT_DIR/rules/communication.md" "$SAME/rules/communication.md"
+cp "$ROOT_DIR/rules/project.md" "$SAME/rules/project.md"
+cp "$ROOT_DIR/rules/clean-architecture.md" "$SAME/rules/clean-architecture.md"
+echo "bumped release" > "$SAME/CLAUDE.md"
+
+run_hook_same() {
+  CLAUDE_PLUGIN_DATA="$DATA2" "$SYNC_SCRIPT" \
+    --source "$SAME" --target "$TARGET2" --hook
+}
+
+OUT="$(run_hook_same)"
+[[ -n "$OUT" ]] || fail "first run on the shared version directory did nothing"
+echo "unbumped release" > "$SAME/CLAUDE.md"
+OUT="$(run_hook_same)"
+[[ -n "$OUT" ]] || fail "content change under the same directory name was skipped"
+grep -Fq "unbumped release" "$TARGET2/CLAUDE.md" ||
+  fail "unbumped content change did not reach the target"
+OUT="$(run_hook_same)"
+[[ -z "$OUT" ]] || fail "run after the digest stamp should be silent, got: $OUT"
+
+echo "Smoke test: the retired version stamp is migrated away"
+rm -f "$DATA2/ambient-source-digest"
+echo "1.3.0" > "$DATA2/ambient-synced-from"
+echo "clobbered" > "$TARGET2/CLAUDE.md"
+OUT="$(run_hook_same)"
+[[ -n "$OUT" ]] || fail "a legacy version stamp suppressed the first digest run"
+grep -Fq "unbumped release" "$TARGET2/CLAUDE.md" ||
+  fail "legacy-stamp run did not re-assert the ambient layer"
+[[ -f "$DATA2/ambient-source-digest" ]] || fail "digest stamp was not written"
+if [[ -e "$DATA2/ambient-synced-from" ]]; then
+  fail "retired version stamp was not cleaned up"
+fi
 
 echo "Smoke test: --dry-run writes nothing"
 echo "pre-dry-run" > "$TARGET/CLAUDE.md"

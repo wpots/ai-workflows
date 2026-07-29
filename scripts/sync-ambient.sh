@@ -9,17 +9,24 @@
 #                      $CLAUDE_PLUGIN_ROOT points at the auto-updated plugin
 #                      copy of this repo
 #
-# The plugin cache is a complete checkout of this repo, so the auto-updating
+# The plugin cache holds a complete copy of this repo, so the auto-updating
 # channel can drive the file copy even though the files themselves are not
 # plugin components. That closes the gap where skills auto-updated but the
 # ambient layer silently rotted until someone remembered to run sync.sh.
 #
-# Hook mode is gated on the plugin version, not on file content. $CLAUDE_PLUGIN_ROOT
-# is SHA-addressed, so its basename is the version; the last one applied is
-# stamped in $CLAUDE_PLUGIN_DATA, which survives plugin updates. Acting only
-# when that changes means a manual `sync.sh` from a newer local checkout is
-# not reverted at the next session start, and a deliberate local edit to
-# ~/.claude survives until the next real plugin update.
+# Hook mode is gated on a digest of the source files this script delivers, and
+# deliberately NOT on the plugin version: $CLAUDE_PLUGIN_ROOT is version-keyed
+# (.../greenberry/1.3.0; only SHA-keyed while plugin.json carries no version at
+# all), so every commit to main that ships without a version bump reuses the
+# same directory name. A version gate reads that as "already applied" and skips
+# a real rules change forever. The digest is stamped in $CLAUDE_PLUGIN_DATA,
+# which survives plugin updates.
+#
+# Digesting the *source* keeps the property the version gate was there for: a
+# manual `sync.sh` from a newer local checkout is not reverted at the next
+# session start, and a deliberate local edit to ~/.claude survives until the
+# plugin actually delivers different content -- a local edit does not change
+# the source digest.
 #
 # Content equality still decides *which* files to touch, so the reported list
 # is accurate and untouched files keep their mtime.
@@ -39,9 +46,9 @@ Options:
   --source <path>  Repo to sync from (default: $CLAUDE_PLUGIN_ROOT, else this
                    script's repo)
   --target <path>  Claude config dir to sync into (default: ~/.claude)
-  --hook           SessionStart hook mode: acts once per plugin version, stays
-                   silent when there is nothing to do, emits hook JSON when it
-                   changed something, and never exits nonzero
+  --hook           SessionStart hook mode: acts once per distinct set of source
+                   files, stays silent when there is nothing to do, emits hook
+                   JSON when it changed something, and never exits nonzero
   --dry-run        Report what would change without writing
   -h, --help       Show this help message
 EOF_USAGE
@@ -106,21 +113,6 @@ fi
 # sync targets are none of this script's business.
 [[ -d "$TARGET_CLAUDE" ]] || exit 0
 
-# --- Version gate (hook mode only) ---
-#
-# sync.sh is an explicit "make it so" and always applies. The hook is ambient,
-# so it must not fight a manual sync -- it acts once per plugin version.
-STAMP_FILE=""
-if [[ "$HOOK_MODE" -eq 1 ]]; then
-  plugin_version="$(basename "$SOURCE_DIR")"
-  if [[ -n "${CLAUDE_PLUGIN_DATA:-}" ]]; then
-    STAMP_FILE="$CLAUDE_PLUGIN_DATA/ambient-synced-from"
-    if [[ -f "$STAMP_FILE" && "$(cat "$STAMP_FILE" 2>/dev/null)" == "$plugin_version" ]]; then
-      exit 0
-    fi
-  fi
-fi
-
 # The universal subset. Global Claude rules stay slim on purpose: anything
 # stack-specific belongs in a project, not in every conversation.
 UNIVERSAL_RULES=(
@@ -141,6 +133,41 @@ RETIRED_RULES=(
   stacks/nextjs-payload.md
   stacks/react-native-expo.md
 )
+
+# --- Content gate (hook mode only) ---
+#
+# sync.sh is an explicit "make it so" and always applies. The hook is ambient,
+# so it must not fight a manual sync -- it acts once per distinct source state.
+#
+# This script is part of the digest on purpose: changing the subset or the
+# retired list changes what a run delivers, even when no rule file moved.
+# cksum is POSIX and needs no extra tooling; collision resistance is irrelevant
+# here, the digest only has to differ when the bytes differ.
+source_digest() {
+  local rule
+  {
+    [[ -f "$SOURCE_DIR/CLAUDE.md" ]] && cat "$SOURCE_DIR/CLAUDE.md"
+    for rule in "${UNIVERSAL_RULES[@]}"; do
+      [[ -f "$SOURCE_DIR/rules/$rule" ]] && cat "$SOURCE_DIR/rules/$rule"
+    done
+    cat "${BASH_SOURCE[0]}"
+  } 2>/dev/null | cksum
+}
+
+# Stamp path is new: the retired `ambient-synced-from` held a plugin version, so
+# it can never equal a digest. Existing installs act once more, which just
+# re-asserts the files they should already have.
+STAMP_FILE=""
+LEGACY_STAMP_FILE=""
+SOURCE_DIGEST=""
+if [[ "$HOOK_MODE" -eq 1 && -n "${CLAUDE_PLUGIN_DATA:-}" ]]; then
+  STAMP_FILE="$CLAUDE_PLUGIN_DATA/ambient-source-digest"
+  LEGACY_STAMP_FILE="$CLAUDE_PLUGIN_DATA/ambient-synced-from"
+  SOURCE_DIGEST="$(source_digest)"
+  if [[ -f "$STAMP_FILE" && "$(cat "$STAMP_FILE" 2>/dev/null)" == "$SOURCE_DIGEST" ]]; then
+    exit 0
+  fi
+fi
 
 # Space-separated rather than an array: macOS still ships bash 3.2, where
 # expanding an empty array under `set -u` is an error.
@@ -166,12 +193,15 @@ remove_if_present() {
   CHANGED="$CHANGED -$label"
 }
 
-# Record the plugin version we just reconciled, so the next session is a no-op
-# until the plugin actually updates. Written even when nothing changed.
+# Record the source state we just reconciled, so the next session is a no-op
+# until the plugin delivers different content. Written even when nothing
+# changed. The retired version stamp is cleaned up on the way out.
 write_stamp() {
   [[ -n "$STAMP_FILE" && "$DRY_RUN" -eq 0 ]] || return 0
   mkdir -p "$(dirname "$STAMP_FILE")" 2>/dev/null || return 0
-  echo "$plugin_version" > "$STAMP_FILE" 2>/dev/null || return 0
+  echo "$SOURCE_DIGEST" > "$STAMP_FILE" 2>/dev/null || return 0
+  [[ -n "$LEGACY_STAMP_FILE" ]] && rm -f "$LEGACY_STAMP_FILE" 2>/dev/null
+  return 0
 }
 
 copy_if_changed "$SOURCE_DIR/CLAUDE.md" "$TARGET_CLAUDE/CLAUDE.md" "CLAUDE.md"
