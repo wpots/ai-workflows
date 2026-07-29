@@ -6,10 +6,11 @@ draft
 
 Readiness pass 2026-07-29 — not autonomously runnable yet: AC5's
 reproduce-locally step needs the CI-job→local-command mapping owned by
-chore-run-checks-ci-parity, and the watch-mrs hand-off overlaps
-chore-watch-mrs-pipeline-and-merge-handoff. Build after those two. Otherwise
-the most concrete of the CI items (exact `glab` calls, classification set,
-and negative constraints are all specified).
+chore-run-checks-ci-parity. The watch-mrs side is delivered (the watcher now
+offers `skills/pipeline-triage` on a failed pipeline), so this skill has a
+live caller waiting. Otherwise the most concrete of the CI items (exact
+`glab` calls, classification set, and negative constraints are all
+specified).
 
 ## Priority
 
