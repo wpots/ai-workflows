@@ -261,7 +261,7 @@ project then get a one-time install prompt:
 "extraKnownMarketplaces": {
   "ai-workflows": {
     "source": {
-      "source": "url",
+      "source": "git",
       "url": "git@gitlab.com:greenberrynl/config/ai-workflows.git"
     },
     "autoUpdate": true
