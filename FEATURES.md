@@ -99,6 +99,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `npm-maintenance` | Inspect and update Node.js dependencies, npm audit remediation, and major-version migrations | No (skill only) |
 | `maintenance` | Periodic project maintenance sweep — deps, runtime EOL, credential/API-key currency (incl. Prepr tokens), quality baseline, CI, data, doc drift | No (skill only) |
 | `upstream-to-unicore` | Upstream a reusable change from a synced project into the unicore-template repo via a GitLab MR | No (skill only) |
+| `mr-merged` | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup | No (skill only) |
 
 ## MCP Servers
 

@@ -39,6 +39,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `wcag-audit` | skill only | `skills/wcag-audit/SKILL.md` | none | n/a |
 | `migration-check` | skill only | `skills/migration-check/SKILL.md` | none | n/a |
 | `upstream-to-unicore` | skill only | `skills/upstream-to-unicore/SKILL.md` | none | n/a |
+| `mr-merged` | skill only | `skills/mr-merged/SKILL.md` | none | n/a |
 
 ## Interpretation
 

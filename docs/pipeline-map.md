@@ -254,9 +254,11 @@ can sit unnoticed. See [Gaps](#gaps).
 | `skills/sprint-demo` | skill | `/sprint-demo` · `"demo voorbereiden"`, `"demo script"` | Presenter runsheet plus a Marp deck for sprint review |
 | `commands/close-sprint.md`, `commands/sprint-demo.md` | commands | trigger phrase → command | Fallback runbooks |
 | `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr merge` | Moves the item to *done* the moment it merges |
+| `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup |
 
-**Gate — Deploy health: absent.** Nothing verifies a deploy, drafts release notes,
-or hands the PO a way to test what shipped. See [Gaps](#gaps).
+**Gate — Deploy health: partial.** `skills/mr-merged` hands the PO a way to test
+what shipped; nothing verifies a deploy or drafts release notes yet. See
+[Gaps](#gaps).
 
 ### Operate — run + observe
 
@@ -352,9 +354,9 @@ The repo-owned half, in real paths:
 | `graphify-out/` | Generated knowledge graph over the repo, queried before re-reading files |
 
 Live context — the Jira box in the diagram — is read through MCP at run time. Every
-tracker-reading skill treats it as **read-only**; only `skills/jira-ticket` writes,
-and only after explicit confirmation. `docs/backlog/feat-mr-merged.md` adds the second
-sanctioned write: the "how to test this" comment for the product owner.
+tracker-reading skill treats it as **read-only**; only `skills/jira-ticket` and
+`skills/mr-merged` write, and only after explicit confirmation — the second
+sanctioned write is the mr-merged "how to test this" comment for the product owner.
 
 ## Coverage against the pipeline spec
 
@@ -404,7 +406,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 3 | No surface triages a failing pipeline | The same CI failure recurs because nobody reads the job trace | `docs/backlog/feat-pipeline-triage.md` |
 | 4 | `skills/watch-mrs` reports merge status, not pipeline detail, and hands off to nothing | You learn *that* it failed, not *which job* — and merge is a dead end | `docs/backlog/chore-watch-mrs-pipeline-and-merge-handoff.md` |
 | 5 | The local check sweep is not derived from the CI job list | Green locally, red in CI | `docs/backlog/chore-run-checks-ci-parity.md` |
-| 6 | Nothing happens after merge | The PO never gets a "how to test this"; the board and ticket drift | `docs/backlog/feat-mr-merged.md` |
+| 6 | ~~Nothing happens after merge~~ | Delivered 2026-07-29: `skills/mr-merged` closes out board, PO handoff, ticket proposal, and cleanup | `docs/backlog/feat-mr-merged.md` (done) |
 | 7 | ~~No policy or review dimension for stale comments and docs~~ | Delivered 2026-07-29: `rules/documentation.md` + the doc-freshness dimension in `skills/code-review` | `docs/backlog/feat-doc-and-comment-freshness.md` (done) |
 | 8 | Project kickoff starts at stack detection, not at intent | Brief, spec and architecture decisions live in someone's head or in Slack | `docs/backlog/feat-start-project.md` |
 | 9 | "Run `improve-skill` after a run that needed intervention" is prose, not a hook | The retrospective happens when someone remembers | `docs/backlog/chore-improve-skill-stop-hook.md` |
