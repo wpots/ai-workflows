@@ -1,6 +1,6 @@
 ---
 name: watch-mrs
-description: Watch one or more of your open GitLab merge requests for new reviewer comments and merge-readiness (approval, pipeline, conflicts), optionally auto-merging once a MR becomes mergeable. Runs as a session-scoped background loop (Monitor + fallback heartbeat) built on `glab`. Use when the user asks to watch/monitor an MR, get notified on approval or new comments, or auto-merge when ready.
+description: Watch one or more of your open GitLab merge requests for new reviewer comments, merge-readiness (approval, pipeline, conflicts), and pipeline failures — naming the failing job and offering triage — optionally auto-merging once a MR becomes mergeable and handing off to the mr-merged closeout after a merge. Runs as a session-scoped background loop (Monitor + fallback heartbeat) built on `glab`. Use when the user asks to watch/monitor an MR, get notified on approval or new comments, or auto-merge when ready.
 ---
 
 # Watch MRs Skill
@@ -50,11 +50,26 @@ Only ask what isn't already given in the user's request.
    - Fetch the MR: `glab api projects/<enc-repo>/merge_requests/<id>`; read
      `.detailed_merge_status`; echo on transition (`prev -> new`) — this field
      alone captures approval, pipeline result, conflicts and draft state.
+   - **Pipeline state, tracked separately**: keep `pipeline.txt` (last seen
+     pipeline id + status) in the MR's state subdirectory, alongside
+     `seen_notes.txt` — do not overload the merge-status file. Only when
+     `.detailed_merge_status` indicates a CI problem (e.g. `ci_must_pass`,
+     `ci_still_running` after a failure was seen), fetch the detail:
+     `.head_pipeline.id`/`.status` from the MR payload, and on `failed` the
+     jobs endpoint
+     (`glab api projects/<enc-repo>/pipelines/<pipeline-id>/jobs`) filtered to
+     `.status == "failed"`. Echo one line per pipeline transition — pipeline id
+     + status change, and for failures the **failing job name and stage** —
+     never re-report a pipeline id + status pair already in `pipeline.txt`.
+     Keep the poll light: no pipeline fetch while CI is green.
    - If auto-merge is enabled and status is `mergeable`: run
      `glab mr merge <id> --repo <repo-slash> [--squash|--rebase]
      [--remove-source-branch] --yes`, echo the result, drop the MR from the
      active watch list. If auto-merge is off, just report `mergeable` and keep
      watching (nothing left to notify on unless someone re-opens/changes it).
+   - If the MR comes back with `.state == "merged"` (someone else merged it),
+     echo that and drop the MR from the active watch list — the hand-off below
+     still applies.
    - **Use `bash` explicitly** (`#!/usr/bin/env bash`, or invoke the file via
      `bash path/to/watch.sh` from Monitor) — never assume the default shell.
      `status` is a reserved read-only variable in zsh and crashes the script
@@ -68,8 +83,23 @@ Only ask what isn't already given in the user's request.
    wake signal. Re-arm it after every `<task-notification>` from the Monitor,
    per the standard dynamic-loop pattern.
 7. On each notification, relay only what changed — one short line per event
-   (new comment / status transition / merge result). Don't restate unrelated
-   baseline info the user already saw.
+   (new comment / status transition / pipeline transition / merge result).
+   Don't restate unrelated baseline info the user already saw.
+
+## Hand-offs
+
+Hand-offs are **proposals surfaced to the user, not silent autonomous fixes**:
+the loop detects, the skills act — and only after the user (or the invocation's
+explicit configuration) says go.
+
+- **Failed pipeline** → report the failing job and stage, and offer
+  `skills/pipeline-triage` for that MR. Until that skill exists, the
+  notification plus the failing job/stage and a suggested next step is the
+  behaviour.
+- **Merged** (auto-merge or observed external merge) → offer the post-merge
+  closeout via `skills/mr-merged` (board to done, "How to test this" comment,
+  branch/worktree cleanup), then drop the MR from the active watch list either
+  way.
 
 ## Constraints
 

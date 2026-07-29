@@ -11,6 +11,19 @@ don't bump.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-29
+
+### Changed
+
+- `skills/watch-mrs` — the watcher now tracks pipeline state separately
+  (per-MR `pipeline.txt`, one report per transition, detail fetched only when
+  merge status indicates a CI problem), names the failing job and stage on a
+  failed pipeline, and hands off after any merge: pipeline failures offer
+  `skills/pipeline-triage` (interim: failing job + suggested next step until
+  that skill exists), merges offer the `skills/mr-merged` closeout. Hand-offs
+  are proposals surfaced to the user, never silent autonomous fixes.
+  Auto-merge stays opt-in per invocation.
+
 ## [1.1.0] - 2026-07-29
 
 ### Added

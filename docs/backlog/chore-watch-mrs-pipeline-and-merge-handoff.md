@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+done
 
 Readiness pass 2026-07-29. Depends on feat-mr-merged so the merge hand-off
 references a tracked skill. ACs 4 and 5 are already true in the committed
@@ -32,19 +32,19 @@ watching an MR produces action instead of a notification I have to interpret.
 
 ## Acceptance Criteria
 
-- [ ] The watcher tracks pipeline status separately from merge status, in the existing
+- [x] The watcher tracks pipeline status separately from merge status, in the existing
       per-MR state directory (alongside `seen_notes.txt`), so a pipeline transition is
       reported once and not re-reported every cycle.
-- [ ] On a failed pipeline the notification names the failing job (and stage), not
+- [x] On a failed pipeline the notification names the failing job (and stage), not
       just "failed", and offers `skills/pipeline-triage` for that MR.
-- [ ] On merge the watcher hands off to `skills/mr-merged` and then drops the MR from
+- [x] On merge the watcher hands off to `skills/mr-merged` and then drops the MR from
       the active watch list.
-- [ ] Auto-merge behaviour is unchanged: still opt-in per invocation, never inherited
+- [x] Auto-merge behaviour is unchanged: still opt-in per invocation, never inherited
       from a previous session.
-- [ ] The script keeps using `bash` explicitly and keeps guarding `glab`/`jq` output
+- [x] The script keeps using `bash` explicitly and keeps guarding `glab`/`jq` output
       against emptiness; the `merge_status` naming caveat (zsh reserves `status`)
       stays documented.
-- [ ] The skill body states that hand-offs are proposals surfaced to the user, not
+- [x] The skill body states that hand-offs are proposals surfaced to the user, not
       silent autonomous fixes.
 
 ## Technical Notes
@@ -72,3 +72,4 @@ plus a clear next step is the acceptable interim behaviour.
 - [feat-pipeline-triage.md](feat-pipeline-triage.md)
 - Depends on: [feat-mr-merged.md](feat-mr-merged.md)
 - [../pipeline-map.md](../pipeline-map.md)
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/48>

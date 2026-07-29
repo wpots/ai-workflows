@@ -237,7 +237,7 @@ building instead of re-running everything.
 | `skills/code-review` | skill | `/code-review` · also accepts an MR/PR **URL** | Review a branch, MR, or PR by URL; can post inline MR comments after a go-ahead |
 | `skills/receiving-code-review` | skill | `/receiving-code-review` · `"reviewer comments"`, `"reageer op review"` | Evaluate incoming feedback with rigour — verify, push back where wrong, then apply |
 | `skills/address-review-comments` | skill | `/address-review-comments` · `"pick up review feedback"` · handed off from `skills/receiving-code-review` | Apply approved feedback, run checks, push, rebase, clean up |
-| `skills/watch-mrs` | skill | `/watch-mrs` · `"watch my MR"`, `"notify me on approval"` → then runs as a **loop** (`Monitor` + heartbeat), session-scoped | Background loop over new comments and merge-readiness; opt-in auto-merge |
+| `skills/watch-mrs` | skill | `/watch-mrs` · `"watch my MR"`, `"notify me on approval"` → then runs as a **loop** (`Monitor` + heartbeat), session-scoped | Background loop over new comments, merge-readiness, and pipeline transitions — names the failing job/stage, offers triage, hands merges to `skills/mr-merged`; opt-in auto-merge |
 | `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr create` | Moves the item to *in review* / *rework* |
 | `rules/documentation.md` | rule | loaded — diffs touching commented/documented code, and during review | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
 
@@ -249,7 +249,7 @@ can sit unnoticed. See [Gaps](#gaps).
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
-| `skills/watch-mrs` | skill | **loop**, already running — acts on its own once armed with auto-merge | Merges once the MR is mergeable, when auto-merge was explicitly enabled for that invocation |
+| `skills/watch-mrs` | skill | **loop**, already running — acts on its own once armed with auto-merge | Merges once the MR is mergeable, when auto-merge was explicitly enabled for that invocation; offers the `skills/mr-merged` closeout after any merge |
 | `skills/close-sprint` | skill | `/close-sprint` · `"sluit sprint af"`, `"wrap up sprint"` | Sprint changelog, gaps/spillover, delivered BLIs moved into a sprint folder |
 | `skills/sprint-demo` | skill | `/sprint-demo` · `"demo voorbereiden"`, `"demo script"` | Presenter runsheet plus a Marp deck for sprint review |
 | `commands/close-sprint.md`, `commands/sprint-demo.md` | commands | trigger phrase → command | Fallback runbooks |
@@ -404,7 +404,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 1 | Nothing arms a monitor after the MR is opened; no review or ticket-drift pre-flight | A red pipeline sits unnoticed; a reviewer sees what a self-review would have caught | `docs/backlog/chore-create-pr-preflight-and-monitor.md` |
 | 2 | No requirements snapshot pinned per branch, so no check that the ticket still says what it said when work started | AC changed or a comment moved the scope, and the MR silently misses it — and a gate that reads live Jira is not reproducible | `docs/backlog/feat-ticket-drift-check.md` |
 | 3 | No surface triages a failing pipeline | The same CI failure recurs because nobody reads the job trace | `docs/backlog/feat-pipeline-triage.md` |
-| 4 | `skills/watch-mrs` reports merge status, not pipeline detail, and hands off to nothing | You learn *that* it failed, not *which job* — and merge is a dead end | `docs/backlog/chore-watch-mrs-pipeline-and-merge-handoff.md` |
+| 4 | ~~`skills/watch-mrs` reports merge status, not pipeline detail, and hands off to nothing~~ | Delivered 2026-07-29: the watcher tracks pipeline transitions, names the failing job/stage, offers triage, and hands merges to `skills/mr-merged` | delivered |
 | 5 | The local check sweep is not derived from the CI job list | Green locally, red in CI | `docs/backlog/chore-run-checks-ci-parity.md` |
 | 6 | ~~Nothing happens after merge~~ | Delivered 2026-07-29: `skills/mr-merged` closes out board, PO handoff, ticket proposal, and cleanup | `docs/backlog/feat-mr-merged.md` (done) |
 | 7 | ~~No policy or review dimension for stale comments and docs~~ | Delivered 2026-07-29: `rules/documentation.md` + the doc-freshness dimension in `skills/code-review` | `docs/backlog/feat-doc-and-comment-freshness.md` (done) |
