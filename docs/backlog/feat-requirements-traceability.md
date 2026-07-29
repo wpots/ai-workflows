@@ -4,6 +4,11 @@
 
 draft
 
+Readiness pass 2026-07-29 — blocked on a maintainer decision: own skill vs an
+extension of `skills/run-checks` (no AC names the owning surface). Also
+depends on the requirements snapshot from feat-ticket-drift-check, which is
+unbuilt and whose format is undecided.
+
 ## Priority
 
 high

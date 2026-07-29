@@ -4,6 +4,13 @@
 
 draft
 
+Readiness pass 2026-07-29 — blocked on two maintainer decisions: this adds a
+third sanctioned tracker write (commenting on tickets) against the repo-wide
+read-only policy, and no AC names the deliverable surface (new skill vs
+extension of address-review-comments). Build last of the tracker chain, after
+feat-ticket-drift-check and feat-requirements-traceability (it consumes the
+snapshot and reuses the QA gates).
+
 ## Priority
 
 high

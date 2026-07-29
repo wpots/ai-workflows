@@ -2,7 +2,14 @@
 
 ## Status
 
-draft
+ready
+
+Readiness pass 2026-07-29: verified against the repo — nothing delivered yet,
+ACs are concrete and self-contained. Two delivery requirements not in the ACs:
+register `rules/documentation.md` in `docs/pipeline-map.md`
+(`validate-skills.mjs` warns on unplaced rules), and follow the plugin release
+rule if it has landed (changes to `skills/` or `commands/` need a
+`.claude-plugin/plugin.json` bump plus a matching `CHANGELOG.md` entry).
 
 ## Priority
 

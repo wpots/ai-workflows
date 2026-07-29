@@ -4,6 +4,12 @@
 
 draft
 
+Readiness pass 2026-07-29 — blocked on a maintainer decision: the snapshot
+format and location must be agreed with feat-requirements-traceability before
+either is built (this item's own Technical Notes require it). Note the
+create-pr wiring is owned by chore-create-pr-preflight-and-monitor, not this
+item. First of the tracker chain: this → traceability → jira-feedback-loop.
+
 ## Priority
 
 high
