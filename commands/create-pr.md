@@ -152,10 +152,12 @@ Applies on every run, including updates to an existing PR/MR.
      `--repo` (use the API call when driving the repo from another directory).
    - **Canonical config repos** (`greenberrynl/config/ai-workflows`,
      `greenberrynl/the-greenhouse/unicore-template`): the MR must carry
-     `--reviewer wieteke.pots` (API: `--field "reviewer_ids[]=<id>"`). Fix a
-     dropped reviewer with `glab mr update <iid> --reviewer wieteke.pots` and
-     verify with `glab mr view <iid>`. Never push straight to the base branch
-     there.
+     `--reviewer wieteke.pots`. The API path takes numeric ids only
+     (`--field "reviewer_ids[]=<id>"`), so prefer `glab mr create --reviewer
+     <username>` with a placeholder body and then PUT the real description from
+     a file. Fix a dropped reviewer with
+     `glab mr update <iid> --reviewer wieteke.pots` and verify with
+     `glab mr view <iid>`. Never push straight to the base branch there.
 4. Output the PR/MR URL on success.
 
 ### No-CLI fallbacks
