@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+done
 
 Rescoped 2026-07-29: the README half of this item is delivered (loading-model
 table, project/global sync split, plugin marketplace docs, "all commands and
@@ -31,29 +31,29 @@ synced-project behavior is clear to contributors.
 
 ## Acceptance Criteria
 
-- [ ] The FEATURES.md skills table lists every directory under `skills/`
+- [x] The FEATURES.md skills table lists every directory under `skills/`
       (currently 12 of 29 are listed; missing rows include
       address-review-comments, backlog, close-sprint, jira-ticket,
       migration-check, npm-maintenance, receiving-code-review, refinement,
       skill-opportunity, sprint-board, sprint-demo, sprint-planning,
       sustainable-review, test-driven-development, upstream-to-unicore,
       watch-mrs, wcag-audit).
-- [ ] The FEATURES.md commands table lists every file under `commands/`
+- [x] The FEATURES.md commands table lists every file under `commands/`
       (currently 9 of 15; missing backlog, close-sprint, refinement,
       sprint-demo, sprint-planning, sustainable-review).
-- [ ] The FEATURES.md rules table includes `rules/sonarqube.md` and
+- [x] The FEATURES.md rules table includes `rules/sonarqube.md` and
       `rules/sustainability.md`, and `rules/rules.md` indexes
       `sonarqube.md`.
-- [ ] FEATURES.md describes the project model: `AI-WORKFLOWS.md`,
+- [x] FEATURES.md describes the project model: `AI-WORKFLOWS.md`,
       `CONVENTIONS.md`, thin adapters, prompt generation, and the slim
       global Claude sync (today it only covers the plugin/matrix part).
-- [ ] The README "Repository Structure" section includes `.claude-plugin/`,
+- [x] The README "Repository Structure" section includes `.claude-plugin/`,
       `docs/workflow-canonical-sources.md`, and `scripts/validate-skills.mjs`.
-- [ ] The README description of `validate-ai-instructions.sh` reflects
+- [x] The README description of `validate-ai-instructions.sh` reflects
       everything it runs (skill validation, adapter regeneration,
       project-sync smoke test, drift checks), not only "regenerates adapters
       and checks for drift".
-- [ ] The docs remain concise and do not duplicate large chunks of template
+- [x] The docs remain concise and do not duplicate large chunks of template
       content.
 
 ## Technical Notes
@@ -81,3 +81,4 @@ Review at least:
 - [README.md](/Users/wietekepots/Web/ai-workflows/README.md)
 - [FEATURES.md](/Users/wietekepots/Web/ai-workflows/FEATURES.md)
 - [rules/rules.md](/Users/wietekepots/Web/ai-workflows/rules/rules.md)
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/40>

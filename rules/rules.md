@@ -21,6 +21,7 @@ In practice, treat this directory as a topic-based rule library:
 | `testing.md`                            | Jest + Storybook split, query priority, coverage                    |
 | `accessibility.md`                      | WCAG requirements, ARIA, keyboard navigation                        |
 | `sustainability.md`                     | Sustainable IT: caching/rendering, LCP/assets, bundle & client JS, CI cost, deps |
+| `sonarqube.md`                          | Opt-in SonarQube/SonarLint rule parity: avoid flagged patterns, apply preferred fixes |
 | `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
 | `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
 | `payload.md`                            | Payload schemas, generated types, hooks, admin integrations         |
@@ -43,7 +44,9 @@ In practice, treat this directory as a topic-based rule library:
 10. Load `payload.md` when working on Payload schemas, hooks, generated types, or admin integrations.
 11. Load `sustainability.md` when reviewing performance, caching, bundle size,
     CI cost, or dependencies — or when changing public-route rendering.
-12. Load the appropriate stack file based on detected stack (see below).
+12. Load `sonarqube.md` when a SonarQube or SonarLint finding is mentioned, or
+    when editing code that could trip one of its opted-in rules.
+13. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection
 
