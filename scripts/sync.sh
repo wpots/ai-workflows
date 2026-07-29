@@ -10,7 +10,6 @@ SRC_MCP="$ROOT_DIR/mcp"
 SRC_SHARED="$ROOT_DIR/shared"
 SRC_TEMPLATES="$ROOT_DIR/templates"
 SRC_AI_WORKFLOWS_TEMPLATE="$ROOT_DIR/templates/project-ai-workflows.md"
-SRC_CLAUDE_MD="$ROOT_DIR/CLAUDE.md"
 SRC_CURSOR_GRAPHIFY="$ROOT_DIR/templates/project-cursor-graphify.mdc"
 SRC_CLAUDE_SETTINGS="$ROOT_DIR/templates/project-claude-settings.json"
 
@@ -397,29 +396,12 @@ if [[ -d "$SRC_COMMANDS" && -d "$TARGET_CURSOR" ]]; then
 fi
 
 if [[ -d "$TARGET_CLAUDE" ]]; then
-  if [[ -f "$SRC_CLAUDE_MD" ]]; then
-    if [[ "$DRY_RUN" -eq 1 ]]; then
-      echo "[dry-run] cp $SRC_CLAUDE_MD $TARGET_CLAUDE/CLAUDE.md"
-    else
-      cp "$SRC_CLAUDE_MD" "$TARGET_CLAUDE/CLAUDE.md"
-      echo "Synced CLAUDE.md -> $TARGET_CLAUDE/CLAUDE.md"
-    fi
-  fi
-
-  if [[ -d "$SRC_RULES" ]]; then
-    ensure_dir "$TARGET_CLAUDE/rules"
-    sync_file "$SRC_RULES/communication.md" "$TARGET_CLAUDE/rules/communication.md"
-    sync_file "$SRC_RULES/project.md" "$TARGET_CLAUDE/rules/project.md"
-    sync_file "$SRC_RULES/clean-architecture.md" "$TARGET_CLAUDE/rules/clean-architecture.md"
-
-    remove_file "$TARGET_CLAUDE/rules/rules.md"
-    remove_file "$TARGET_CLAUDE/rules/tailwind.md"
-    remove_file "$TARGET_CLAUDE/rules/testing.md"
-    remove_file "$TARGET_CLAUDE/rules/accessibility.md"
-    remove_file "$TARGET_CLAUDE/rules/backlog.md"
-    remove_file "$TARGET_CLAUDE/rules/stacks/nextjs-payload.md"
-    remove_file "$TARGET_CLAUDE/rules/stacks/react-native-expo.md"
-  fi
+  # The ambient layer (CLAUDE.md + universal rules subset) is owned by
+  # sync-ambient.sh, because the plugin's SessionStart hook delivers the same
+  # files without waiting for a manual sync. One owner, no drift.
+  ambient_args=(--source "$ROOT_DIR")
+  [[ "$DRY_RUN" -eq 1 ]] && ambient_args+=(--dry-run)
+  "$ROOT_DIR/scripts/sync-ambient.sh" "${ambient_args[@]}"
 
   # Claude skills and commands ship via the greenberry plugin (see
   # .claude-plugin/). Remove copies left behind by earlier syncs so they
@@ -439,7 +421,8 @@ if [[ -d "$TARGET_CLAUDE" ]]; then
     done
   fi
 
-  echo "Claude skills/commands are served by the greenberry plugin (auto-updating)."
+  echo "Claude skills/commands are served by the greenberry plugin (auto-updating),"
+  echo "which also refreshes the ambient layer above at every session start."
   echo "If it is not installed yet, run inside Claude Code:"
   echo "  /plugin marketplace add git@gitlab.com:greenberrynl/config/ai-workflows.git"
 fi
