@@ -79,7 +79,7 @@ output advance. Two principles follow from that:
 | Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity | `skills/refinement` + `rules/backlog.md` | ⚠️ partial — encoded, never blocking |
 | Build health | done | exit from Build — compiles, types, lint, unit tests, no committed secrets | `skills/run-checks`, plus `skills/migration-check` when the diff touches migrations | ✅ automated, ⚠️ not derived from the CI job list |
 | QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review` — but nothing maps a result back to a specific criterion | ⚠️ partial — verification without traceability |
-| Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift or doc-freshness check |
+| Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift check (doc freshness covered via `rules/documentation.md`) |
 | Release readiness | done | safe to ship — dependency and licence scanning, API-contract/breaking-change detection, docs updated | `skills/watch-mrs` (approval, pipeline, conflicts via `detailed_merge_status`), `skills/npm-maintenance` (dependencies, out of band) | ⚠️ partial — merge-readiness only, armed by hand |
 | Deploy health | done | the release is healthy in production — smoke tests, canary, rollback ready | nothing | ❌ absent |
 | Feedback triage | gate on the loop | is this comment actionable at all, before anything is reproduced or fixed | nothing | ❌ absent |
@@ -239,6 +239,7 @@ building instead of re-running everything.
 | `skills/address-review-comments` | skill | `/address-review-comments` · `"pick up review feedback"` · handed off from `skills/receiving-code-review` | Apply approved feedback, run checks, push, rebase, clean up |
 | `skills/watch-mrs` | skill | `/watch-mrs` · `"watch my MR"`, `"notify me on approval"` → then runs as a **loop** (`Monitor` + heartbeat), session-scoped | Background loop over new comments and merge-readiness; opt-in auto-merge |
 | `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr create` | Moves the item to *in review* / *rework* |
+| `rules/documentation.md` | rule | loaded — diffs touching commented/documented code, and during review | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
 
 **Gate — Release readiness: automated but armed by hand.** `skills/watch-mrs` can
 watch a MR the moment it exists, but nothing arms it — which is why a red pipeline
@@ -384,7 +385,7 @@ actually stands against it — the alignment view, not a wish list.
 | Ship | release notes / changelog + semver suggestion | ⚠️ | `skills/close-sprint` at sprint level, not per release |
 | Operate | incident triage: error spike → likely PRs | ❌ | — |
 | Operate | log/error summarisation, on-call assistant | ❌ | — |
-| Operate | docs-in-sync: code changed, which docs/ADRs are stale | ⚠️ | filed per-MR: `docs/backlog/feat-doc-and-comment-freshness.md` |
+| Operate | docs-in-sync: code changed, which docs/ADRs are stale | ✅ | per-MR: doc-freshness dimension in `skills/code-review` (`rules/documentation.md`); periodic sweep: `skills/maintenance` |
 | Loop | Jira comment → triage → reproduce → fix → draft MR | ❌ | filed: `docs/backlog/feat-jira-feedback-loop.md` |
 | Context | read-only snapshot pinned per branch | ❌ | filed: `docs/backlog/feat-ticket-drift-check.md` |
 
@@ -404,7 +405,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 4 | `skills/watch-mrs` reports merge status, not pipeline detail, and hands off to nothing | You learn *that* it failed, not *which job* — and merge is a dead end | `docs/backlog/chore-watch-mrs-pipeline-and-merge-handoff.md` |
 | 5 | The local check sweep is not derived from the CI job list | Green locally, red in CI | `docs/backlog/chore-run-checks-ci-parity.md` |
 | 6 | Nothing happens after merge | The PO never gets a "how to test this"; the board and ticket drift | `docs/backlog/feat-mr-merged.md` |
-| 7 | No policy or review dimension for stale comments and docs | Outdated comments mislead the next reader — human or agent | `docs/backlog/feat-doc-and-comment-freshness.md` |
+| 7 | ~~No policy or review dimension for stale comments and docs~~ | Delivered 2026-07-29: `rules/documentation.md` + the doc-freshness dimension in `skills/code-review` | `docs/backlog/feat-doc-and-comment-freshness.md` (done) |
 | 8 | Project kickoff starts at stack detection, not at intent | Brief, spec and architecture decisions live in someone's head or in Slack | `docs/backlog/feat-start-project.md` |
 | 9 | "Run `improve-skill` after a run that needed intervention" is prose, not a hook | The retrospective happens when someone remembers | `docs/backlog/chore-improve-skill-stop-hook.md` |
 | 10 | QA verifies, but no result maps back to a specific acceptance criterion | "Done" stays an assertion instead of something provable per criterion | `docs/backlog/feat-requirements-traceability.md` |
