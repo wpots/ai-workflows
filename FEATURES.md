@@ -77,6 +77,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `run-checks` | Run project quality checks sequentially, stop on failures for user decision, summarize results | Yes |
 | `architecture-review` | Review codebase for clean architecture violations — probes folder structure, maps to CA layers, checks principles | No (skill only) |
 | `component-spec` | Generate component specification from design or requirements | No (skill only) |
+| `start-project` | Capture project intent on day one — brief, release spec, and architecture doc (layer mapping, trust boundaries, topology, decision log), then hand over to `init-project` | No (skill only) |
 | `init-project` | Initialize a new project with ai-workflows setup, thin adapters, and type-safety deviation detection | Yes |
 | `upstream-rules` | Propose rule changes back to the ai-workflows repo | No (skill only) |
 | `improve-skill` | Fold durable session learnings back into workflow sources | No (skill only) |

@@ -11,6 +11,37 @@ don't bump.
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-29
+
+### Added
+
+- `skills/start-project` — day-one intent capture, before any tooling runs:
+  a grouped-rounds interview (never one questionnaire, never invented facts)
+  that produces `docs/project-brief.md` (why, stakeholders, audiences, goals
+  and how they are measured, risks), `docs/project-spec.md` (release rules,
+  roles, domain entities, non-functionals, integrations, environments, open
+  decisions) and `docs/architecture.md` (intended layer mapping, data model,
+  trust boundaries, deployment topology, ADR-style decision log), then hands
+  over to `skills/init-project`. Runs on a fresh template clone and as a
+  retrofit on an existing codebase, where it harvests the repo first and asks
+  only what cannot be derived. Unanswered questions are recorded as open
+  questions/decisions rather than filled in.
+- `templates/project-brief.md`, `templates/project-spec.md`,
+  `templates/project-architecture.md` — the content contract for those three
+  documents.
+
+### Changed
+
+- `skills/init-project` — defers to `docs/architecture.md` when it exists
+  instead of re-deriving the layer mapping: `CONVENTIONS.md` lists the folders
+  that exist and links there for the layer and the reason, divergences are
+  reported as findings, and the three intent documents are never modified.
+  Closes the drift risk between the two documents.
+- `skills/architecture-review` — reads `docs/architecture.md` as the *intended*
+  mapping and reviews against it, reporting unmapped folders, contradicted
+  mappings and stale paths as findings instead of silently substituting an
+  inferred mapping. Says so in the output when it had to infer.
+
 ## [1.2.0] - 2026-07-29
 
 ### Changed

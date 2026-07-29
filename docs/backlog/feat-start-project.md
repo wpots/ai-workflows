@@ -2,7 +2,7 @@
 
 ## Status
 
-draft
+done
 
 Readiness pass 2026-07-29 — blocked on maintainer decisions: the content
 contracts for the three project documents (brief / spec / architecture) are
@@ -12,6 +12,25 @@ human-driven first run. Gap to add when picking this up: `init-project` gets
 no AC preventing it from re-deriving structure when `docs/architecture.md`
 exists, so the two documents can drift; `skills/architecture-review` also
 never reads `docs/architecture.md`.
+
+Delivered 2026-07-29. Maintainer decisions taken at pickup:
+
+1. **Content contracts** — derived from the RefugeeWork website, which already
+   runs on `docs/project-brief.md` and `docs/project-spec.md`; those two
+   documents' section structure is the contract. No precedent existed for the
+   architecture doc.
+2. **Architecture doc scope** — the full document (layer mapping + data model +
+   trust boundaries + deployment topology + ADR log), not a decision log only.
+   The drift risk that follows is closed on the consumer side instead: the
+   `init-project` and `architecture-review` gaps named above are fixed in the
+   same MR, so `docs/architecture.md` is the single master of the intended
+   mapping and `CONVENTIONS.md` links to it.
+3. **Run modes** — fresh template clone *and* retrofit on an existing codebase
+   (RFW is the second case), with a harvest-before-asking step so a retrofit
+   confirms facts instead of re-answering them.
+
+Still open: the RED rule. This skill has not yet run against a real fresh
+project, so run `skills/improve-skill` after the first live kickoff.
 
 ## Priority
 
