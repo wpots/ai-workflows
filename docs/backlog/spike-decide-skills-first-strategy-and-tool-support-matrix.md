@@ -2,7 +2,15 @@
 
 ## Status
 
-draft
+superseded
+
+Superseded 2026-07-29 by
+[spike-ratify-claude-skill-status-and-cursor-pointer.md](spike-ratify-claude-skill-status-and-cursor-pointer.md).
+Most of this spike landed: the support matrix is published in four places, the
+surface-role model is documented, the skills-first shortlist was executed via
+`docs/skills-first-migration-plan.md`, and the experimental tier was removed.
+The one remaining decision — Claude's official skill status — moved to the
+superseding item.
 
 ## Ticket
 

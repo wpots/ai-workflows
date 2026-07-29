@@ -2,7 +2,9 @@
 
 ## Status
 
-draft
+done
+
+Delivered (verified 2026-07-29): `shared/workflow-assets.md` is the single canonical list, injected into all four adapters via the `SHARED:workflow-assets` markers by `scripts/sync.sh`; `commands/create-pr.md`, `skills/create-pr/SKILL.md`, and `skills/upstream-rules/SKILL.md` all defer to the `Shared Workflow Assets` section in `AI-WORKFLOWS.md` as the source of truth. Known residual nits (non-blocking): `.claude/settings.json` is in the canonical list but missing from the upstream-rules trigger list and mapping table, and the create-pr fallback list is still a hand-written subset.
 
 ## Ticket
 
@@ -22,12 +24,12 @@ As a maintainer of `ai-workflows`, I want all upstream-aware workflows to use th
 
 ## Acceptance Criteria
 
-- [ ] A single canonical definition of shared workflow assets is chosen.
-- [ ] The definition includes the current project model, including `AI-WORKFLOWS.md`, `commands/**`, `rules/**`, `.github/prompts/**`, and relevant adapter files.
-- [ ] [commands/create-pr.md](/Users/wietekepots/Web/ai-workflows/commands/create-pr.md) uses the updated definition.
-- [ ] [skills/create-pr/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/create-pr/SKILL.md) uses the updated definition.
-- [ ] [skills/upstream-rules/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/upstream-rules/SKILL.md) is checked for consistency with the same terminology and file mapping.
-- [ ] Shared-asset wording in templates does not conflict with workflow behavior.
+- [x] A single canonical definition of shared workflow assets is chosen.
+- [x] The definition includes the current project model, including `AI-WORKFLOWS.md`, `commands/**`, `rules/**`, `.github/prompts/**`, and relevant adapter files.
+- [x] [commands/create-pr.md](/Users/wietekepots/Web/ai-workflows/commands/create-pr.md) uses the updated definition.
+- [x] [skills/create-pr/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/create-pr/SKILL.md) uses the updated definition.
+- [x] [skills/upstream-rules/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/upstream-rules/SKILL.md) is checked for consistency with the same terminology and file mapping.
+- [x] Shared-asset wording in templates does not conflict with workflow behavior.
 
 ## Technical Notes
 

@@ -2,7 +2,9 @@
 
 ## Status
 
-draft
+done
+
+Delivered (verified 2026-07-29): `scripts/generate-adapters.sh` documents its three stages against the current model; `.vscode/tasks.json` is explicitly demoted to "a generated convenience surface, not a primary project-model artifact" in the generator, README, and FEATURES; `scripts/validate-ai-instructions.sh` now runs skill validation, adapter regeneration, the project-sync smoke test, and drift checks on all generated artifacts. Known residual (non-blocking): `.claude-plugin/*.json` is not yet validated, and the README one-liner for the validator understates what it runs.
 
 ## Ticket
 
@@ -22,12 +24,12 @@ As a maintainer of `ai-workflows`, I want generation and drift validation to mat
 
 ## Acceptance Criteria
 
-- [ ] The responsibilities of [scripts/generate-adapters.sh](/Users/wietekepots/Web/ai-workflows/scripts/generate-adapters.sh) are reviewed against the current repo model.
-- [ ] A clear decision is made on whether `.vscode/tasks.json` remains a generated primary artifact, becomes optional, or is removed from the critical path.
-- [ ] [scripts/validate-ai-instructions.sh](/Users/wietekepots/Web/ai-workflows/scripts/validate-ai-instructions.sh) validates the artifacts that matter most in the current model.
-- [ ] Generated artifacts and validated artifacts are documented consistently.
-- [ ] If `.vscode/tasks.json` stays, its role is explicitly documented in the repo architecture.
-- [ ] If `.vscode/tasks.json` is de-emphasized or removed, the generator and validator are updated together so no stale drift checks remain.
+- [x] The responsibilities of [scripts/generate-adapters.sh](/Users/wietekepots/Web/ai-workflows/scripts/generate-adapters.sh) are reviewed against the current repo model.
+- [x] A clear decision is made on whether `.vscode/tasks.json` remains a generated primary artifact, becomes optional, or is removed from the critical path.
+- [x] [scripts/validate-ai-instructions.sh](/Users/wietekepots/Web/ai-workflows/scripts/validate-ai-instructions.sh) validates the artifacts that matter most in the current model.
+- [x] Generated artifacts and validated artifacts are documented consistently.
+- [x] If `.vscode/tasks.json` stays, its role is explicitly documented in the repo architecture.
+- [x] If `.vscode/tasks.json` is de-emphasized or removed, the generator and validator are updated together so no stale drift checks remain.
 
 ## Technical Notes
 

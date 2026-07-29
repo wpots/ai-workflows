@@ -2,7 +2,9 @@
 
 ## Status
 
-draft
+done
+
+Delivered (verified 2026-07-29): README ("Type-Safety Model") and FEATURES both cover the rule and the upgraded review coverage; `skills/init-project/SKILL.md` detects tsconfig strictness, lint posture, and trust-boundary deviations and writes a `## Type Safety` section into `CONVENTIONS.md`; `templates/project-ai-workflows.md` distinguishes baseline vs detailed policy vs review audit.
 
 ## Ticket
 
@@ -22,12 +24,12 @@ As a maintainer of `ai-workflows`, I want the new type-safety policy to be visib
 
 ## Acceptance Criteria
 
-- [ ] [README.md](/Users/wietekepots/Web/ai-workflows/README.md) mentions the new type-safety baseline and where the deeper enforcement guidance lives.
-- [ ] [FEATURES.md](/Users/wietekepots/Web/ai-workflows/FEATURES.md) lists the new rule and any new or upgraded review skill coverage.
-- [ ] If a new rule file or skill is added, the repo’s inventory and trigger documentation are updated consistently.
-- [ ] [skills/init-project/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/init-project/SKILL.md) is updated so new projects can surface TypeScript strictness, lint posture, and trust-boundary deviations in `CONVENTIONS.md` when relevant.
-- [ ] The project bootstrap guidance distinguishes between universal baseline rules, detailed type-safety policy, and review-specific audit behavior.
-- [ ] The resulting docs make clear that `ai-workflows` recommends compile-time strictness plus runtime validation at trust boundaries, not TypeScript-only confidence.
+- [x] [README.md](/Users/wietekepots/Web/ai-workflows/README.md) mentions the new type-safety baseline and where the deeper enforcement guidance lives.
+- [x] [FEATURES.md](/Users/wietekepots/Web/ai-workflows/FEATURES.md) lists the new rule and any new or upgraded review skill coverage.
+- [x] If a new rule file or skill is added, the repo’s inventory and trigger documentation are updated consistently.
+- [x] [skills/init-project/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/init-project/SKILL.md) is updated so new projects can surface TypeScript strictness, lint posture, and trust-boundary deviations in `CONVENTIONS.md` when relevant.
+- [x] The project bootstrap guidance distinguishes between universal baseline rules, detailed type-safety policy, and review-specific audit behavior.
+- [x] The resulting docs make clear that `ai-workflows` recommends compile-time strictness plus runtime validation at trust boundaries, not TypeScript-only confidence.
 
 ## Technical Notes
 

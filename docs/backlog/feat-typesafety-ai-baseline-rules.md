@@ -2,7 +2,9 @@
 
 ## Status
 
-draft
+done
+
+Delivered (verified 2026-07-29): the baseline lives in `shared/core-rules.md` (untrusted boundaries, no `any`, no broad `as`, discriminated unions, validated parsing), is inlined into the Copilot adapters via the `SHARED:core-rules` markers, and has the companion note in `rules/project.md`. README documents the three-layer type-safety model.
 
 ## Ticket
 
@@ -22,12 +24,12 @@ As a maintainer of `ai-workflows`, I want the shared AI rules to prefer real typ
 
 ## Acceptance Criteria
 
-- [ ] `shared/core-rules.md` includes a concise baseline covering untrusted boundary data, avoidance of broad `as`, avoidance of `any`, and preference for narrowing over coercion.
-- [ ] The baseline keeps the always-loaded guidance compact and does not duplicate a full TypeScript handbook.
-- [ ] The wording applies to both generated code and refactors, not only to code review.
-- [ ] The rule explicitly prefers discriminated unions and validated boundary parsing over loose optional shapes and asserted certainty.
-- [ ] The updated baseline is reflected in generated adapters that already inline `core-rules`, including [.github/copilot-instructions.md](/Users/wietekepots/Web/ai-workflows/.github/copilot-instructions.md).
-- [ ] The repo documentation explains that this is the universal default and that deeper type-safety policy lives in a dedicated rule or review workflow.
+- [x] `shared/core-rules.md` includes a concise baseline covering untrusted boundary data, avoidance of broad `as`, avoidance of `any`, and preference for narrowing over coercion.
+- [x] The baseline keeps the always-loaded guidance compact and does not duplicate a full TypeScript handbook.
+- [x] The wording applies to both generated code and refactors, not only to code review.
+- [x] The rule explicitly prefers discriminated unions and validated boundary parsing over loose optional shapes and asserted certainty.
+- [x] The updated baseline is reflected in generated adapters that already inline `core-rules`, including [.github/copilot-instructions.md](/Users/wietekepots/Web/ai-workflows/.github/copilot-instructions.md).
+- [x] The repo documentation explains that this is the universal default and that deeper type-safety policy lives in a dedicated rule or review workflow.
 
 ## Technical Notes
 
