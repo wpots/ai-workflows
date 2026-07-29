@@ -264,6 +264,25 @@ without duplication and every commit to `main` is a new plugin version.
    from `~/.claude`, so installing the plugin first means you are never
    without skills.
 
+   **Then turn on auto-update — `/plugin marketplace add` does not.** Without
+   this the install is frozen at whatever `main` looked like the day you ran
+   it. Add the flag to `~/.claude/settings.json`:
+
+   ```json
+   "extraKnownMarketplaces": {
+     "ai-workflows": {
+       "source": {
+         "source": "git",
+         "url": "git@gitlab.com:greenberrynl/config/ai-workflows.git"
+       },
+       "autoUpdate": true
+     }
+   }
+   ```
+
+   Verify with `/plugin` — the installed version should track `main`, not the
+   commit you installed at.
+
 3. **Refresh the local sync.**
 
    ```bash
@@ -359,7 +378,7 @@ sync by hand still works and always applies, regardless of plugin version.
 | Skills show up twice | Old copies still in `~/.claude/skills` — run `./scripts/sync.sh` again (step 3). |
 | glab reports `invalid_grant` and `git push` fails with `could not read Username` | The glab OAuth token broke and git-HTTPS auth runs through glab. Re-authenticate with `glab auth login` using a **Personal Access Token** (scopes `api` + `write_repository`) — PATs have no refresh races. |
 | A merged skill change is not visible yet | `/plugin marketplace update ai-workflows`, then `/reload-plugins`. |
-| The installed plugin lags `main` by many commits | Background auto-update is not running. Check that the marketplace was added over SSH (HTTPS installs never auto-update) and that `autoUpdate: true` is set. Until it is fixed the ambient-layer hook is pinned to that stale version — `./scripts/sync.sh` overrides it in the meantime. |
+| The installed plugin lags `main` by many commits | Almost always a missing `"autoUpdate": true` on the marketplace entry in `~/.claude/settings.json` — `/plugin marketplace add` does not set it (see step 2). Otherwise check that the marketplace was added over SSH; HTTPS installs never auto-update. Until it is fixed the ambient-layer hook is pinned to that stale version — `./scripts/sync.sh` overrides it in the meantime. |
 
 ## Knowledge Graph (graphify)
 
