@@ -283,6 +283,44 @@ if (tracked.has(PIPELINE)) {
   warn(PIPELINE, "file not found; pipeline-map check skipped");
 }
 
+// ── Plugin manifest is versioned and the changelog matches ──────────────────
+
+const PLUGIN = ".claude-plugin/plugin.json";
+const CHANGELOG = "CHANGELOG.md";
+
+if (tracked.has(PLUGIN)) {
+  let manifest = null;
+  try {
+    manifest = JSON.parse(read(PLUGIN));
+  } catch {
+    err(PLUGIN, "is not valid JSON");
+  }
+
+  if (manifest) {
+    if (!manifest.version) {
+      err(
+        PLUGIN,
+        "is missing 'version' — without it every commit to main ships as an unversioned plugin release",
+      );
+    } else if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) {
+      err(
+        PLUGIN,
+        `version '${manifest.version}' is not plain semver (MAJOR.MINOR.PATCH)`,
+      );
+    } else if (!tracked.has(CHANGELOG)) {
+      err(CHANGELOG, "is missing — every plugin version needs a changelog entry");
+    } else if (!read(CHANGELOG).includes(`## [${manifest.version}]`)) {
+      err(
+        CHANGELOG,
+        `has no entry for plugin version ${manifest.version} — add ` +
+          `'## [${manifest.version}] - YYYY-MM-DD' in the same MR as the bump`,
+      );
+    }
+  }
+} else {
+  warn(PLUGIN, "file not found; plugin version check skipped");
+}
+
 // ── Report ───────────────────────────────────────────────────────────────────
 
 if (warnings.length > 0) {
