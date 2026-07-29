@@ -107,19 +107,63 @@ Every change to this repo passes that gate — a developer editing a rule by han
 an agent running an upstream skill are treated identically. No direct pushes to
 `main`, and the GitHub mirror is not a substitute.
 
+## How a surface is invoked
+
+The phase tables below carry an **Invoked by** column. Six modes exist, and they differ
+in one thing that matters: who decides to run it.
+
+| Mode | Notation | Who triggers it |
+| --- | --- | --- |
+| Direct | `/name` | The developer, by name |
+| Intent match | `"phrase"` | The tool, by matching the skill's `description` — this is why the validator warns on a description without a `Use when …` routing cue |
+| Trigger phrase | `"phrase" → command` | The tool, from `shared/command-mappings.md`, inlined into every generated adapter — the fallback path for tools that cannot use skills |
+| Delegation | `via skills/x` | Another skill, as a step in its own flow. No human decision at all |
+| Hook | `hook: Event(Matcher)` | The harness, on a tool event. Fires whether or not anyone remembered |
+| Loop | `loop` | Started once, then keeps running on its own until stopped |
+| Rules | `loaded` | Nothing invokes a rule — it is read into context, ambient or on demand |
+
+`shared/command-mappings.md` covers 14 of the 15 command runbooks;
+`commands/refinement.md` has no trigger phrase, so on a command-only tool it is
+effectively unreachable. Skill-only workflows get their trigger phrases from the
+generated adapters instead (`CLAUDE.md`, `AGENTS.md`).
+
+### Hooks and loops
+
+Automation that runs without being asked is thin but real, and it is not evenly
+distributed. Five harness hooks ship to every synced project through
+`templates/project-claude-settings.json`:
+
+| Hook | Event | Does |
+| --- | --- | --- |
+| Migration guard | `PreToolUse(Bash)` | **Denies** `migrate:fresh` and `migrate:create` — the only mechanically blocking gate in the whole pipeline |
+| Graphify-before-grep | `PreToolUse(Bash)` | Requires a graph query before raw grep/find, when `graphify-out/graph.json` exists |
+| Graphify-before-read | `PreToolUse(Read\|Glob)` | Same, for reading source files |
+| Board on MR | `PostToolUse(Bash)` | On `glab mr create` / `gh pr create` / merge, requires the sprint board to move in the same turn |
+| Graph refresh | `PostToolUse(Edit\|Write)` | Rebuilds the knowledge graph in the background after an edit |
+
+One loop: `skills/watch-mrs` runs as a `Monitor` task with a `ScheduleWakeup`
+heartbeat. It is **session-scoped** — no durable cross-session schedule exists for
+GitLab, so nothing survives closing the laptop.
+
+Two asymmetries worth naming. This repo ships harness hooks to projects but configures
+none for itself; its only own automation is the git pre-commit hook from
+`scripts/install-hooks.sh`, which runs the validators. And the hooks that exist are
+mostly *nudges* — only the migration guard actually blocks. That is the gap
+`docs/backlog/chore-improve-skill-stop-hook.md` starts closing.
+
 ## Phase by phase
 
 ### Design — design → code
 
 Turning a design or a requirement into something implementable.
 
-| Surface | Type | Role |
-| --- | --- | --- |
-| `skills/component-spec` | skill | Production-ready component spec: API, a11y requirements, keyboard + screen-reader behaviour, testing guidance, open questions |
-| `rules/tailwind.md` | rule | Design tokens via `@theme`; how a design system maps onto utilities |
-| `rules/accessibility.md` | rule | Semantics, contrast, keyboard behaviour — decided here, not patched in QA |
-| `packages/accessibility` | package | Optional a11y preset bundle for a target project |
-| Figma MCP | connector | `get_design_context`, `get_variable_defs`, `get_screenshot` — provided by the Figma connector, not by `mcp/servers.json` |
+| Surface | Type | Invoked by | Role |
+| --- | --- | --- | --- |
+| `skills/component-spec` | skill | `/component-spec` · `"component spec"`, `"document component api"` | Production-ready component spec: API, a11y requirements, keyboard + screen-reader behaviour, testing guidance, open questions |
+| `rules/tailwind.md` | rule | loaded — styling and token tasks | Design tokens via `@theme`; how a design system maps onto utilities |
+| `rules/accessibility.md` | rule | loaded — interactive UI and a11y tasks | Semantics, contrast, keyboard behaviour — decided here, not patched in QA |
+| `packages/accessibility` | package | applied once at setup, via `skills/init-project` | Optional a11y preset bundle for a target project |
+| Figma MCP | connector | MCP tool call, mid-task | `get_design_context`, `get_variable_defs`, `get_screenshot` — provided by the Figma connector, not by `mcp/servers.json` |
 
 **Gate — Design readiness: absent.** Nothing checks that design tokens, states, and
 a11y behaviour are settled before a ticket is written. See [Gaps](#gaps).
@@ -128,36 +172,39 @@ a11y behaviour are settled before a ticket is written. See [Gaps](#gaps).
 
 Turning intent into work items with acceptance criteria.
 
-| Surface | Type | Role |
-| --- | --- | --- |
-| `skills/refinement` | skill | Prep and record refinement: grouping, story points, conflicts, per-ticket questions — tracker read-only |
-| `skills/sprint-planning` | skill | Sprint scope, spillover carry-in, dependency mapping, realism against velocity |
-| `skills/backlog` | skill | Draft or update a local backlog item in `docs/backlog/` |
-| `skills/jira-ticket` | skill | Create a Jira bug/story/task from a type-specific template — the one sanctioned tracker **write** |
-| `skills/sprint-board` | skill | Opens the item on the per-sprint board and tracks it through every later status |
-| `commands/refinement.md`, `commands/sprint-planning.md`, `commands/backlog.md` | commands | Fallback runbooks for tools that cannot use skills |
-| `rules/backlog.md` | rule | User story, spec, and backlog-item structure |
-| `docs/backlog/` | context | Local BLIs — the definition of done that `skills/work-backlog` consumes |
+| Surface | Type | Invoked by | Role |
+| --- | --- | --- | --- |
+| `skills/refinement` | skill | `/refinement` · `"refine tickets"`, `"prepare refinement"` | Prep and record refinement: grouping, story points, conflicts, per-ticket questions — tracker read-only |
+| `skills/sprint-planning` | skill | `/sprint-planning` · `"plan sprint"`, `"start sprint"` | Sprint scope, spillover carry-in, dependency mapping, realism against velocity |
+| `skills/backlog` | skill | `/backlog` · `"backlog item"`, `"user story"`, `"bli"` | Draft or update a local backlog item in `docs/backlog/` |
+| `skills/jira-ticket` | skill | `/jira-ticket` · `"maak een jira ticket"`, `"file a story"` | Create a Jira bug/story/task from a type-specific template — the one sanctioned tracker **write** |
+| `skills/sprint-board` | skill | `/sprint-board` · `"waar ben ik mee bezig"` · **hook** `PostToolUse(Bash)` on MR create/merge · delegated by every status-changing workflow | Opens the item on the per-sprint board and tracks it through every later status |
+| `commands/refinement.md`, `commands/sprint-planning.md`, `commands/backlog.md` | commands | trigger phrase → command; `refinement.md` has **no** mapping | Fallback runbooks for tools that cannot use skills |
+| `rules/backlog.md` | rule | loaded — user story, spec, backlog work | User story, spec, and backlog-item structure |
+| `docs/backlog/` | context | read by `skills/work-backlog` at pickup | Local BLIs — the definition of done that `skills/work-backlog` consumes |
 
 **Gate — Definition of ready: partial.** `skills/refinement` and `rules/backlog.md`
 define readiness; nothing prevents an unready item from being picked up.
 
 ### Build — implement
 
-| Surface | Type | Role |
-| --- | --- | --- |
-| `skills/work-backlog` | skill | Autonomous delivery of one BLI, WIP limit 1 — spans Plan → Review and calls the phases below |
-| `skills/test-driven-development` | skill | Strict RED-GREEN-REFACTOR for a feature or bugfix |
-| `skills/scaffold-component` | skill | New component with the project's file structure and conventions |
-| `skills/commit-message` | skill | Conventional commit message from the diff |
-| `commands/work-backlog.md`, `commands/scaffold-component.md`, `commands/commit-message.md`, `commands/safe-kill-port.md` | commands | Fallback runbooks; `safe-kill-port` is local-dev hygiene (`EADDRINUSE`) |
-| `rules/project.md` | rule | Structure, naming, component architecture, function style |
-| `rules/type-safety.md` | rule | Trust boundaries, strict TS posture, lint guardrails |
-| `rules/clean-architecture.md` | rule | Layer boundaries and dependency direction |
-| `rules/content-blocks.md`, `rules/payload.md` | rules | CMS-backed block architecture; Payload schemas, generated types, hooks |
-| `rules/testing.md` | rule | Testing strategy and query priority while writing code |
-| `rules/sustainability.md` | rule | Runtime, bundle, and asset cost as a build-time concern |
-| `rules/stacks/nextjs-payload.md`, `rules/stacks/react-native-expo.md` | rules | Stack-specific conventions layered on the baseline |
+| Surface | Type | Invoked by | Role |
+| --- | --- | --- | --- |
+| `skills/work-backlog` | skill | `/work-backlog` · `"work the backlog"`, `"next backlog item"` | Autonomous delivery of one BLI, WIP limit 1 — spans Plan → Review and calls the phases below |
+| `skills/test-driven-development` | skill | `/test-driven-development` · `"tdd"`, `"test eerst"` · delegated by `skills/work-backlog` | Strict RED-GREEN-REFACTOR for a feature or bugfix |
+| `skills/scaffold-component` | skill | `/scaffold-component` · `"new component"`, `"scaffold"` | New component with the project's file structure and conventions |
+| `skills/commit-message` | skill | `/commit-message` · `"commit message"`, `"git commit"` | Conventional commit message from the diff |
+| `commands/work-backlog.md`, `commands/scaffold-component.md`, `commands/commit-message.md`, `commands/safe-kill-port.md` | commands | trigger phrase → command (`"kill port"`, `"eaddrinuse"`) | Fallback runbooks; `safe-kill-port` is local-dev hygiene |
+| Migration guard | hook | **hook** `PreToolUse(Bash)` — denies `migrate:fresh` / `migrate:create` | The one gate in the pipeline that mechanically blocks instead of warning |
+| Graphify guards | hooks | **hooks** `PreToolUse(Bash)` and `PreToolUse(Read\|Glob)` | Query the knowledge graph before grepping or reading source, when a graph exists |
+| Graph refresh | hook | **hook** `PostToolUse(Edit\|Write)` | Rebuilds `graphify-out/` in the background after an edit |
+| `rules/project.md` | rule | loaded — ambient for code work | Structure, naming, component architecture, function style |
+| `rules/type-safety.md` | rule | loaded — TS-heavy code, API/JSON/env/DB boundaries | Trust boundaries, strict TS posture, lint guardrails |
+| `rules/clean-architecture.md` | rule | loaded — ambient for code work | Layer boundaries and dependency direction |
+| `rules/content-blocks.md`, `rules/payload.md` | rules | loaded — CMS blocks; Payload schemas and hooks | CMS-backed block architecture; Payload schemas, generated types, hooks |
+| `rules/testing.md` | rule | loaded — tests and test reviews | Testing strategy and query priority while writing code |
+| `rules/sustainability.md` | rule | loaded — perf, bundle, asset work | Runtime, bundle, and asset cost as a build-time concern |
+| `rules/stacks/nextjs-payload.md`, `rules/stacks/react-native-expo.md` | rules | loaded — after checking `package.json` | Stack-specific conventions layered on the baseline |
 
 **Gate — Build health: automated** via `skills/run-checks`.
 
@@ -166,16 +213,16 @@ define readiness; nothing prevents an unready item from being picked up.
 Verifying the change against its acceptance criteria and the project's standards,
 before another human is asked to look at it.
 
-| Surface | Type | Role |
-| --- | --- | --- |
-| `skills/run-checks` | skill | Lint, type-check, stylelint, test, build in sequence; stops on failure for a decision |
-| `skills/code-review` | skill | Severity-ordered self-review of the branch diff with explicit type-safety audit |
-| `skills/architecture-review` | skill | Clean-architecture violations against the project's *actual* folder mapping |
-| `skills/migration-check` | skill | Static check of a generated Payload/Postgres migration for snapshot drift — read-only, never runs `migrate` |
-| `skills/wcag-audit` | skill | Static WCAG review against `rules/accessibility.md` (the automated production scan sits in Operate) |
-| `skills/sustainable-review` | skill | Runtime, bundle, asset, dependency and CI cost of the change |
-| `commands/run-checks.md`, `commands/review-code.md`, `commands/sustainable-review.md` | commands | Fallback runbooks |
-| `rules/sonarqube.md` | rule | Quality-gate expectations for static analysis |
+| Surface | Type | Invoked by | Role |
+| --- | --- | --- | --- |
+| `skills/run-checks` | skill | `/run-checks` · `"run checks"`, `"quality checks"` · delegated by `skills/work-backlog` and `skills/create-pr` | Lint, type-check, stylelint, test, build in sequence; stops on failure for a decision |
+| `skills/code-review` | skill | `/code-review` · `"review changes"`, `"code review"` | Severity-ordered self-review of the branch diff with explicit type-safety audit |
+| `skills/architecture-review` | skill | `/architecture-review` · `"check clean arch"`, `"audit layer violations"` | Clean-architecture violations against the project's *actual* folder mapping |
+| `skills/migration-check` | skill | delegated by `skills/create-pr` when the diff touches `migrations/` · `/migration-check` | Static check of a generated Payload/Postgres migration for snapshot drift — read-only, never runs `migrate` |
+| `skills/wcag-audit` | skill | `/wcag-audit` · `"a11y audit"`, `"wcag compliance audit"` | Static WCAG review against `rules/accessibility.md` (the automated production scan sits in Operate) |
+| `skills/sustainable-review` | skill | `/sustainable-review` · `"performance audit"`, `"green refactor"`, `"ci review"` | Runtime, bundle, asset, dependency and CI cost of the change |
+| `commands/run-checks.md`, `commands/review-code.md`, `commands/sustainable-review.md` | commands | trigger phrase → command | Fallback runbooks |
+| `rules/sonarqube.md` | rule | loaded — static-analysis and quality-gate work | Quality-gate expectations for static analysis |
 
 **Gate — Build health: automated.** Note the sustainability constraint: the full
 sweep runs **once**, immediately before pushing — QA scopes checks narrowly while
@@ -183,15 +230,15 @@ building instead of re-running everything.
 
 ### Review — MR vs ticket
 
-| Surface | Type | Role |
-| --- | --- | --- |
-| `skills/create-pr` | skill | Rebase onto base, push, open PR/MR with a description generated from the diff; pre-flight delegates to `skills/migration-check` |
-| `commands/create-pr.md` | command | Fallback runbook |
-| `skills/code-review` | skill | Review a branch, MR, or PR by URL; can post inline MR comments after a go-ahead |
-| `skills/receiving-code-review` | skill | Evaluate incoming feedback with rigour — verify, push back where wrong, then apply |
-| `skills/address-review-comments` | skill | Apply approved feedback, run checks, push, rebase, clean up |
-| `skills/watch-mrs` | skill | Background loop over new comments and merge-readiness; opt-in auto-merge |
-| `skills/sprint-board` | skill | Moves the item to *in review* / *rework* |
+| Surface | Type | Invoked by | Role |
+| --- | --- | --- | --- |
+| `skills/create-pr` | skill | `/create-pr` · `"open pr"`, `"submit pr"` · delegated at the end of `skills/work-backlog` | Rebase onto base, push, open PR/MR with a description generated from the diff; pre-flight delegates to `skills/migration-check` |
+| `commands/create-pr.md` | command | `"create pr"` → command | Fallback runbook |
+| `skills/code-review` | skill | `/code-review` · also accepts an MR/PR **URL** | Review a branch, MR, or PR by URL; can post inline MR comments after a go-ahead |
+| `skills/receiving-code-review` | skill | `/receiving-code-review` · `"reviewer comments"`, `"reageer op review"` | Evaluate incoming feedback with rigour — verify, push back where wrong, then apply |
+| `skills/address-review-comments` | skill | `/address-review-comments` · `"pick up review feedback"` · handed off from `skills/receiving-code-review` | Apply approved feedback, run checks, push, rebase, clean up |
+| `skills/watch-mrs` | skill | `/watch-mrs` · `"watch my MR"`, `"notify me on approval"` → then runs as a **loop** (`Monitor` + heartbeat), session-scoped | Background loop over new comments and merge-readiness; opt-in auto-merge |
+| `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr create` | Moves the item to *in review* / *rework* |
 
 **Gate — Release readiness: automated but armed by hand.** `skills/watch-mrs` can
 watch a MR the moment it exists, but nothing arms it — which is why a red pipeline
@@ -199,24 +246,29 @@ can sit unnoticed. See [Gaps](#gaps).
 
 ### Ship — release
 
-| Surface | Type | Role |
-| --- | --- | --- |
-| `skills/watch-mrs` | skill | Merges once the MR is mergeable, when auto-merge was explicitly enabled for that invocation |
-| `skills/close-sprint` | skill | Sprint changelog, gaps/spillover, delivered BLIs moved into a sprint folder |
-| `skills/sprint-demo` | skill | Presenter runsheet plus a Marp deck for sprint review |
-| `commands/close-sprint.md`, `commands/sprint-demo.md` | commands | Fallback runbooks |
+| Surface | Type | Invoked by | Role |
+| --- | --- | --- | --- |
+| `skills/watch-mrs` | skill | **loop**, already running — acts on its own once armed with auto-merge | Merges once the MR is mergeable, when auto-merge was explicitly enabled for that invocation |
+| `skills/close-sprint` | skill | `/close-sprint` · `"sluit sprint af"`, `"wrap up sprint"` | Sprint changelog, gaps/spillover, delivered BLIs moved into a sprint folder |
+| `skills/sprint-demo` | skill | `/sprint-demo` · `"demo voorbereiden"`, `"demo script"` | Presenter runsheet plus a Marp deck for sprint review |
+| `commands/close-sprint.md`, `commands/sprint-demo.md` | commands | trigger phrase → command | Fallback runbooks |
+| `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr merge` | Moves the item to *done* the moment it merges |
 
 **Gate — Deploy health: absent.** Nothing verifies a deploy, drafts release notes,
 or hands the PO a way to test what shipped. See [Gaps](#gaps).
 
 ### Operate — run + observe
 
-| Surface | Type | Role |
-| --- | --- | --- |
-| `skills/npm-maintenance` | skill | Dependency updates, `npm audit` remediation, researched major migrations |
-| `skills/wcag-audit` | skill | axe-core/Playwright scan of the live site, combined with the static findings |
-| `skills/sustainable-review` | skill | Production runtime, caching, asset and CI-cost audit |
-| `skills/jira-ticket`, `skills/backlog` | skills | The landing point of feedback triage: an observation becomes a ticket or a BLI |
+| Surface | Type | Invoked by | Role |
+| --- | --- | --- | --- |
+| `skills/npm-maintenance` | skill | `/npm-maintenance` · `"audit dependencies"`, `"patch a CVE"` | Dependency updates, `npm audit` remediation, researched major migrations |
+| `skills/wcag-audit` | skill | `/wcag-audit` · `"a11y audit of production"` | axe-core/Playwright scan of the live site, combined with the static findings |
+| `skills/sustainable-review` | skill | `/sustainable-review` · `"sustainability review"` | Production runtime, caching, asset and CI-cost audit |
+| `skills/jira-ticket`, `skills/backlog` | skills | `/jira-ticket`, `/backlog` — by hand, after a human reads a report | The landing point of feedback triage: an observation becomes a ticket or a BLI |
+
+Nothing in this phase runs on a schedule. Every row above is invoked by hand, which is
+the honest reason periodic maintenance slips: no cron, no routine, and — per
+`skills/watch-mrs` — no durable cross-session scheduling available for GitLab.
 
 A broader periodic project-maintenance sweep (deps, runtime EOL, credential and
 API-key currency, CI hygiene, doc drift) is in flight on another branch and lands
@@ -235,19 +287,20 @@ which is exactly why an AI-authored change gets neither skipped.
 
 ### Improve — maintaining the pipeline
 
-| Surface | Type | Role |
-| --- | --- | --- |
-| `skills/improve-skill` | skill | Post-run retrospective: fold friction back into the skill's canonical source, or author a new skill |
-| `skills/skill-opportunity` | skill | Decide from working sessions whether a new or updated skill is warranted |
-| `skills/upstream-rules` | skill | Propose a rule/skill change back to this repo as a GitLab MR |
-| `skills/upstream-to-unicore` | skill | Port a reusable change into `unicore-template` |
-| `skills/init-project` | skill | Generate `CONVENTIONS.md`, thin tool adapters, and sync shared assets into a project |
-| `commands/init-project.md`, `commands/new-device-setup.md` | commands | Fallback runbook; new-machine bootstrap |
-| `scripts/sync.sh`, `scripts/generate-adapters.sh` | scripts | Distribute canonical sources to projects and regenerate derived adapters |
-| `scripts/validate-ai-instructions.sh`, `scripts/validate-skills.mjs`, `scripts/install-hooks.sh`, `scripts/smoke-test-project-sync.sh` | scripts | Drift detection: CI and the pre-commit hook run the same validators |
-| `docs/workflow-canonical-sources.md` | doc | Which surface is canonical per workflow |
-| `docs/skills-first-migration-plan.md` | doc | Why skills are canonical and commands are the fallback |
-| `shared/workflow-assets.md` | shared | What counts as a shared workflow asset, and how it lands |
+| Surface | Type | Invoked by | Role |
+| --- | --- | --- | --- |
+| `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"` · **policy says** after any run that needed intervention — enforced by nothing | Post-run retrospective: fold friction back into the skill's canonical source, or author a new skill |
+| `skills/skill-opportunity` | skill | `/skill-opportunity` · `"learn from sessions"`, `"spot repeated patterns"` | Decide from working sessions whether a new or updated skill is warranted |
+| `skills/upstream-rules` | skill | `/upstream-rules` · `"propose rule"` · **should** fire whenever a shared asset is edited in a synced project | Propose a rule/skill change back to this repo as a GitLab MR |
+| `skills/upstream-to-unicore` | skill | `/upstream-to-unicore` · `"port to unicore"` | Port a reusable change into `unicore-template` |
+| `skills/init-project` | skill | `/init-project` · `"apply ai-workflows"`, `"setup project"` | Generate `CONVENTIONS.md`, thin tool adapters, and sync shared assets into a project |
+| `commands/init-project.md`, `commands/new-device-setup.md` | commands | trigger phrase → command (`"new device"`, `"onboarding"`) | Fallback runbook; new-machine bootstrap |
+| `scripts/sync.sh`, `scripts/generate-adapters.sh` | scripts | shell, by hand: `./scripts/sync.sh --project <path>` | Distribute canonical sources to projects and regenerate derived adapters |
+| `scripts/validate-ai-instructions.sh`, `scripts/validate-skills.mjs`, `scripts/smoke-test-project-sync.sh` | scripts | **git pre-commit hook** + CI (`.gitlab-ci.yml`) — the repo's only self-enforcing automation | Drift detection: CI and the hook run the same validators |
+| `scripts/install-hooks.sh` | script | once per clone, by hand | Installs that pre-commit hook |
+| `docs/workflow-canonical-sources.md` | doc | read when adding a surface; completeness checked by the validator | Which surface is canonical per workflow |
+| `docs/skills-first-migration-plan.md` | doc | read for context on the surface strategy | Why skills are canonical and commands are the fallback |
+| `shared/workflow-assets.md` | shared | inlined into every generated adapter | What counts as a shared workflow asset, and how it lands |
 
 ## Shared context layer
 
@@ -356,6 +409,12 @@ Ordered by how often they bite. Each is filed as a backlog item.
 
 Everything else the spec proposes is in the coverage table above rather than filed —
 recording it beats twenty draft items nobody picks up.
+
+Also known-open: **nothing runs on a schedule.** The five shipped hooks fire on tool
+events and four of them only nudge; the one loop (`skills/watch-mrs`) dies with the
+session; and no cron or routine exists, so every periodic sweep in Operate waits for
+someone to ask. That is a mechanism gap rather than a missing skill, which is why it is
+recorded here instead of filed as a feature.
 
 **Build order.** The spec's own sequencing argues for the context layer and the ticket
 quality gate first, because every downstream automation reasons from ticket quality,

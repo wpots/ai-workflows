@@ -23,14 +23,16 @@ back into the skill instead of being noticed and forgotten.
 
 ## Acceptance Criteria
 
-- [ ] A `hooks` block in `.claude/settings.json` fires on session stop and surfaces the
-      `improve-skill` prompt when the run involved corrections, retries, or a failed
-      step that needed a workaround.
+- [ ] A `Stop` hook joins the existing `hooks` block in
+      `templates/project-claude-settings.json` and surfaces the `improve-skill` prompt
+      when the run involved corrections, retries, or a failed step that needed a
+      workaround.
 - [ ] The hook is a reminder, not an autonomous run: it must not edit skills or open
       MRs on its own.
 - [ ] It is quiet when nothing needed intervention — no prompt on a clean run.
-- [ ] `templates/project-claude-settings.json` carries the same hook, so synced
-      projects inherit it.
+- [ ] This repo gets the same hook for itself: it ships harness hooks to projects while
+      configuring none for its own sessions, which is backwards for the repo where
+      workflow friction actually surfaces.
 - [ ] The prose rule stays in place as documentation of intent; the hook is the
       enforcement.
 - [ ] Documented in `README.md` next to the existing `scripts/install-hooks.sh`
@@ -38,10 +40,20 @@ back into the skill instead of being noticed and forgotten.
 
 ## Technical Notes
 
-This repo currently configures exactly one hook — the git pre-commit hook installed by
-`scripts/install-hooks.sh`, which runs the validators. There is no `hooks` block in
-`.claude/settings.json` yet, so this adds a second, different kind: a harness hook, not
-a git hook. Say which is which in the docs, or the next maintainer will conflate them.
+Two different kinds of hook already exist and are easy to conflate. Say which is which
+in the docs:
+
+- a **git** pre-commit hook, installed by `scripts/install-hooks.sh`, which runs the
+  validators in this repo;
+- five **harness** hooks in `templates/project-claude-settings.json`, shipped to every
+  synced project — a migration guard that denies `migrate:fresh`/`migrate:create`, two
+  graphify-before-read/grep guards, a sprint-board reminder on MR create and merge, and
+  a background graph refresh after edits.
+
+This item adds a sixth harness hook to that block. The migration guard is the precedent
+worth studying: it is the only hook that returns a `deny` decision instead of context,
+and this one should deliberately *not* — a retrospective prompt must never block a
+session from ending.
 
 Use the `update-config` skill to author the settings change rather than hand-editing
 JSON, so the hook shape matches what the harness actually expects.
