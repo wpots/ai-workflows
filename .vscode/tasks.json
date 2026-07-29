@@ -132,9 +132,9 @@
       "problemMatcher": []
     },
     {
-      "label": "init-project",
+      "label": "setup-ai-workflows",
       "type": "shell",
-      "command": "cat commands/init-project.md",
+      "command": "cat commands/setup-ai-workflows.md",
       "presentation": {
         "reveal": "always",
         "panel": "shared"
