@@ -85,3 +85,4 @@ staging/production" step without building it now.
 - [../../skills/jira-ticket/SKILL.md](../../skills/jira-ticket/SKILL.md)
 - [../../skills/improve-skill/SKILL.md](../../skills/improve-skill/SKILL.md)
 - [../pipeline-map.md](../pipeline-map.md)
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/46>
