@@ -108,6 +108,7 @@ Defined in `mcp/servers.json`. Secrets use environment variables.
 |--------|---------|---------|
 | `github` | `@modelcontextprotocol/server-github` | GitHub API access (issues, PRs, repos) |
 | `filesystem` | `@modelcontextprotocol/server-filesystem` | Local filesystem read/write via MCP |
+| `react-aria` | `@react-aria/mcp` | React Aria component APIs and accessibility patterns |
 | `context7` | `@upstash/context7-mcp` | Up-to-date library documentation and code examples |
 
 ## Rules
