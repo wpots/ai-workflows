@@ -261,18 +261,21 @@ or hands the PO a way to test what shipped. See [Gaps](#gaps).
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
+| `skills/maintenance` | skill | `/maintenance` · `"onderhoud"`, `"monthly health check"`, `"api key check"` | Periodic sweep across every lane that rots silently: deps, runtime EOL, credential and API-key currency, quality baseline, CI, data, doc drift |
 | `skills/npm-maintenance` | skill | `/npm-maintenance` · `"audit dependencies"`, `"patch a CVE"` | Dependency updates, `npm audit` remediation, researched major migrations |
 | `skills/wcag-audit` | skill | `/wcag-audit` · `"a11y audit of production"` | axe-core/Playwright scan of the live site, combined with the static findings |
 | `skills/sustainable-review` | skill | `/sustainable-review` · `"sustainability review"` | Production runtime, caching, asset and CI-cost audit |
 | `skills/jira-ticket`, `skills/backlog` | skills | `/jira-ticket`, `/backlog` — by hand, after a human reads a report | The landing point of feedback triage: an observation becomes a ticket or a BLI |
 
-Nothing in this phase runs on a schedule. Every row above is invoked by hand, which is
-the honest reason periodic maintenance slips: no cron, no routine, and — per
-`skills/watch-mrs` — no durable cross-session scheduling available for GitLab.
+`skills/maintenance` is the entry point for this phase: it diagnoses across all
+lanes and delegates the deep work to the lane-specific skills above, landing one
+ranked report instead of several partial ones.
 
-A broader periodic project-maintenance sweep (deps, runtime EOL, credential and
-API-key currency, CI hygiene, doc drift) is in flight on another branch and lands
-in this phase.
+That makes the sweep one invocation instead of five, but it does not make it
+automatic: nothing in this phase runs on a schedule. Every row above is invoked by
+hand, which is the honest reason periodic maintenance slips — no cron, no routine,
+and, per `skills/watch-mrs`, no durable cross-session scheduling available for
+GitLab.
 
 **Feedback triage** is the dotted arrow back into Build, and it is a gate before it is
 an automation: classify whether the comment is actionable at all, reproduce it as a
