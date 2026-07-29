@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+done
 
 Readiness pass 2026-07-29, with the two open points pinned down:
 
@@ -37,25 +37,25 @@ changed and where to look.
 
 ## Acceptance Criteria
 
-- [ ] New `skills/mr-merged/SKILL.md` with valid frontmatter and a `Use when …`
+- [x] New `skills/mr-merged/SKILL.md` with valid frontmatter and a `Use when …`
       routing cue ("MR merged", "post-merge", "afgerond na merge").
-- [ ] Works standalone (someone else merged it) and when invoked by
+- [x] Works standalone (someone else merged it) and when invoked by
       `skills/watch-mrs`.
-- [ ] Moves the item to done on the sprint board when the project keeps one
+- [x] Moves the item to done on the sprint board when the project keeps one
       (`skills/sprint-board`).
-- [ ] Drafts a **"How to test this"** comment aimed at a non-developer: what changed,
+- [x] Drafts a **"How to test this"** comment aimed at a non-developer: what changed,
       where to see it, what to click, what to expect, and what is explicitly not
       included. Derived from the MR description and diff, not invented.
-- [ ] The comment is shown for approval and only then posted to the ticket; the skill
+- [x] The comment is shown for approval and only then posted to the ticket; the skill
       never posts silently.
-- [ ] Proposes the ticket transition (e.g. to review/done) and reports it as a
+- [x] Proposes the ticket transition (e.g. to review/done) and reports it as a
       suggestion — the transition is a human decision unless the user says otherwise.
-- [ ] Deletes the merged branch and prunes any worktree used for it, after asking.
-- [ ] Ends by checking whether the run needed intervention and, if so, hands off to
+- [x] Deletes the merged branch and prunes any worktree used for it, after asking.
+- [x] Ends by checking whether the run needed intervention and, if so, hands off to
       `skills/improve-skill`.
-- [ ] Degrades honestly when no tracker is available: still does board and cleanup,
+- [x] Degrades honestly when no tracker is available: still does board and cleanup,
       reports the comment as undelivered.
-- [ ] Listed in `docs/workflow-canonical-sources.md` and placed in
+- [x] Listed in `docs/workflow-canonical-sources.md` and placed in
       `docs/pipeline-map.md`.
 
 ## Technical Notes
@@ -85,3 +85,4 @@ staging/production" step without building it now.
 - [../../skills/jira-ticket/SKILL.md](../../skills/jira-ticket/SKILL.md)
 - [../../skills/improve-skill/SKILL.md](../../skills/improve-skill/SKILL.md)
 - [../pipeline-map.md](../pipeline-map.md)
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/46>

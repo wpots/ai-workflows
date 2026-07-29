@@ -11,6 +11,21 @@ don't bump.
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-07-29
+
+### Added
+
+- `skills/mr-merged` — post-merge closeout: sprint board to done, a
+  "How to test this" comment for the product owner (drafted from the MR,
+  posted to the ticket only after approval — the plugin's second sanctioned
+  tracker write), proposed ticket transition, and branch/worktree cleanup.
+  Standalone or as the hand-off target when `skills/watch-mrs` reports a
+  merge.
+- `skills/code-review` and `commands/review-code.md` gained a diff-scoped
+  documentation-and-comment freshness dimension backed by the new
+  `rules/documentation.md` (shipped unversioned in !44 on the same day;
+  recorded here).
+
 ## [1.0.0] - 2026-07-29
 
 ### Added

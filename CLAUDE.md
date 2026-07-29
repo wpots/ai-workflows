@@ -66,6 +66,7 @@ canonical path and use the command as fallback:
 - `upstream to unicore`, `port to unicore`, `upstream to template`, `unicore-template` -> `skills/upstream-to-unicore` (skill only, no fallback)
 - `wcag audit`, `accessibility audit`, `wcag compliance audit`, `a11y audit` -> `skills/wcag-audit` (skill only, no fallback)
 - `maintenance`, `project maintenance`, `onderhoud`, `maintenance sweep`, `monthly check`, `health check`, `api key check` -> `skills/maintenance` (skill only, no fallback; delegates the dependency lane to `skills/npm-maintenance`)
+- `mr merged`, `post-merge`, `afgerond na merge`, `close out merged MR` -> `skills/mr-merged` (skill only, no fallback; also the hand-off target when `skills/watch-mrs` reports a merge)
 
 ### Additional Commands & Skills
 
