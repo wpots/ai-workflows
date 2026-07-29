@@ -164,16 +164,20 @@ Turning a design or a requirement into something implementable.
 | --- | --- | --- | --- |
 | `skills/start-project` | skill | `/start-project` · `"project kickoff"`, `"nieuw project"`, `"project brief"` | Runs once, before the first ticket: interviews in rounds, then writes docs/project-brief.md (why, audiences, goals), docs/project-spec.md (release rules, domain, non-functionals), docs/architecture.md (intended layer mapping, trust boundaries, topology, decision log) — then hands over to `skills/init-project` |
 | `templates/project-brief.md`, `templates/project-spec.md`, `templates/project-architecture.md` | templates | read by `skills/start-project` | The content contract for those three documents |
+| `skills/user-journeys` | skill | `/user-journeys` · `"user journeys"`, `"user flows"`, `"journeys uitwerken"` · delegated by `skills/start-project` | One document per journey in docs/journeys/ (per project): walked path, decision points, alternate and error paths, per-surface states, permissions, keyboard route, measurement — plus the **slice candidates** the backlog is cut from. Reads the spec and the Figma frames; harvests routes and roles on a retrofit |
+| `templates/user-journey.md` | template | read by `skills/user-journeys` | The content contract for a journey document |
 | `skills/component-spec` | skill | `/component-spec` · `"component spec"`, `"document component api"` | Production-ready component spec: API, a11y requirements, keyboard + screen-reader behaviour, testing guidance, open questions |
 | `rules/tailwind.md` | rule | loaded — styling and token tasks | Design tokens via `@theme`; how a design system maps onto utilities |
 | `rules/accessibility.md` | rule | loaded — interactive UI and a11y tasks | Semantics, contrast, keyboard behaviour — decided here, not patched in QA |
 | Figma MCP | connector | MCP tool call, mid-task | `get_design_context`, `get_variable_defs`, `get_screenshot` — provided by the Figma connector, not by `mcp/servers.json` |
 
 **Gate — Design readiness: absent.** Nothing checks that design tokens, states, and
-a11y behaviour are settled before a ticket is written. `skills/start-project` now
-gives that gate something concrete to check against — a release spec with rules,
-non-functionals and recorded open decisions — but writing the spec is not the same
-as blocking on it. See [Gaps](#gaps).
+a11y behaviour are settled before a ticket is written. `skills/start-project` gives
+that gate something concrete to check against — a release spec with rules,
+non-functionals and recorded open decisions — and `skills/user-journeys` narrows it
+per step: a journey document names the steps whose design is missing, whose keyboard
+route is unclear, or whose state is undecided. Writing that list is still not the
+same as blocking on it. See [Gaps](#gaps).
 
 ### Plan — tickets
 
@@ -354,6 +358,7 @@ The repo-owned half, in real paths:
 | --- | --- |
 | `CONVENTIONS.md` (per project) | The single source of project truth; every tool adapter points at it |
 | docs/project-brief.md, docs/project-spec.md, docs/architecture.md (per project) | Day-one intent: why the product exists, what this release does, and the decisions behind the structure — the input the Design-readiness and Definition-of-ready gates lack today |
+| docs/journeys/ (per project) | One document per user journey: the walked path, its branches and states, and the slice candidates the backlog is cut from — written by `skills/user-journeys` |
 | `rules/rules.md` | Index — which rule file loads when |
 | `rules/communication.md` | Tone and response style, tool-independent |
 | `shared/core-rules.md`, `shared/command-mappings.md`, `shared/skill-mappings.md`, `shared/safety.md`, `shared/graphify.md`, `shared/workflow-assets.md` | Fragments injected into generated adapters, so every tool sees the same baseline. `command-mappings` and `skill-mappings` are the routing registries: a workflow absent from them is unreachable by intent, which `scripts/validate-skills.mjs` treats as an error |
@@ -381,7 +386,7 @@ actually stands against it — the alignment view, not a wish list.
 | Design | token drift: codebase vs Figma source | ❌ | — |
 | Design | responsive/interaction spec extraction | ⚠️ | `skills/component-spec`, from requirements rather than from frames |
 | Plan | ticket quality gate (blocking) | ⚠️ | `skills/refinement` advises, never blocks |
-| Plan | epic decomposition with dependencies | ⚠️ | `skills/sprint-planning` maps dependencies; no decomposition |
+| Plan | epic decomposition with dependencies | ⚠️ | `skills/user-journeys` proposes the slices per journey and `rules/mr-sizing.md` bounds them; `skills/sprint-planning` maps the dependencies. Nothing decomposes a tracker epic on its own |
 | Plan | duplicate/overlap detection, auto-linking to past work | ❌ | — |
 | Plan | acceptance criteria → test cases | ❌ | filed: `docs/backlog/feat-requirements-traceability.md` |
 | Build | scaffold from ticket (files, components, failing test) | ⚠️ | `skills/work-backlog` + `skills/scaffold-component`, no test skeleton from criteria |

@@ -53,6 +53,10 @@ Detailed release scope and product rules live in `docs/project-spec.md`.
 
 ## Core User Journeys
 
+One paragraph each — this is the list of journeys, not their specification. Each
+one is walked step by step in `docs/journeys/<slug>.md` (written by
+`skills/user-journeys`); link the document once it exists.
+
 ### 1. <journey name>
 
 <One short paragraph: what the user is trying to achieve and what "done" looks
