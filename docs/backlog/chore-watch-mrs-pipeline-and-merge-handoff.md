@@ -72,3 +72,4 @@ plus a clear next step is the acceptable interim behaviour.
 - [feat-pipeline-triage.md](feat-pipeline-triage.md)
 - Depends on: [feat-mr-merged.md](feat-mr-merged.md)
 - [../pipeline-map.md](../pipeline-map.md)
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/48>
