@@ -211,7 +211,7 @@ sync model.
 - `.github/copilot-instructions.md`: Copilot adapter with important context inlined
 - `rules/` and `commands/`: shared baseline rules and reusable runbooks
 - `.github/prompts/`: Copilot prompt wrappers generated from `commands/`
-- `.cursor/rules/graphify.mdc`, `.claude/settings.json`: graphify knowledge-graph rule + hooks (both guarded; settings only written when the project has none)
+- `.cursor/rules/graphify.mdc`, `.claude/settings.json`: graphify knowledge-graph rule + hooks and a Bash permissions baseline matching the Shell Usage doctrine (both guarded; settings only written when the project has none)
 
 Project-local conventions always win over the shared baseline.
 
@@ -474,7 +474,8 @@ The sync preserves the project-owned `CONVENTIONS.md` and installs or refreshes:
 - `rules/` and `commands/`
 
 An existing `.claude/settings.json` is also preserved. Merge the generated
-graphify hooks manually when that project should use them.
+graphify hooks and the `permissions` baseline manually when that project
+should use them.
 
 ### 4. Review and commit
 
