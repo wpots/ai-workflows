@@ -20,8 +20,13 @@ one with the highest `<N>`.
 - If `docs/board/` is not gitignored, add `docs/board` to `.gitignore` (same
   treatment as `docs/refine` and `docs/todo`) and tell the user this needs
   committing.
-- If no board exists for the current sprint, create one from the template
-  below. Seed it from `docs/sprint-<N>-planning.md` when that exists;
+- If `docs/board/` does not exist at all in the project (no prior sprint has
+  ever used one), this project has not opted in — ask the user whether they
+  want a board before creating the first one. Do not bootstrap it silently
+  just because a workflow's post-hook or instructions mention updating one.
+- Once a project has an existing `docs/board/`, rolling over to a new sprint's
+  file needs no confirmation — create the next `sprint-<N>-board.md` from the
+  template below. Seed it from `docs/sprint-<N>-planning.md` when that exists;
   otherwise seed from what is visibly in flight (current branch, open MRs,
   untracked backlog items) and mark guessed statuses with `(verify)`.
 
