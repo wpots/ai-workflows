@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SYNC_SCRIPT="$ROOT_DIR/scripts/sync.sh"
 
-TMP_DIR="$(mktemp -d /tmp/ai-workflows-project-sync.XXXXXX)"
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ai-workflows-project-sync.XXXXXX")"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 assert_exists() {

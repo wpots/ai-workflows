@@ -19,7 +19,7 @@ role. Cloning is a one-time, ~5-minute cost; only some roles pay a recurring one
 
 | You are… | How often you run `sync.sh` |
 | -------- | --------------------------- |
-| A Claude Code user working in already-synced projects | Once at setup, then only when the ambient layer changes (`CLAUDE.md`, or `rules/communication.md` / `project.md` / `clean-architecture.md`). Skills and commands arrive through the `greenberry` plugin and auto-update — sync does not deliver them. |
+| A Claude Code user working in already-synced projects | Never, in the normal case. Skills and commands arrive through the `greenberry` plugin, and the plugin's `SessionStart` hook refreshes the ambient layer (`CLAUDE.md` and the universal rules) on its own — see [The ambient layer updates itself](#the-ambient-layer-updates-itself). |
 | A Cursor or Codex user | After every update you want. Those tools have no plugin path, so `sync.sh` is their only delivery mechanism for skills, commands, and MCP definitions. |
 | Onboarding a project, or refreshing one | Every time. `sync.sh --project <path>` renders adapters from `templates/` and `shared/` inside the checkout, so it cannot run without one. |
 | Editing the shared config itself | Per change — see [Daily Use](#daily-use). |
@@ -32,8 +32,9 @@ from the repo you are working in. The global layer is what covers work *outside*
 a synced project.
 
 Why Claude is the odd one out: plugins have no primitive for always-on context,
-so the ambient layer stays on file sync by design, while everything invocable
-(skills, commands) moved to the plugin and updates itself.
+so the ambient layer stays a file copy into `~/.claude` by design. It is still
+delivered by the plugin, though — a `SessionStart` hook does the copy — so
+Claude users get both halves automatically.
 
 ## How Tools Load Instructions
 
@@ -153,12 +154,14 @@ Practical guidance:
 - `templates/`: thin project adapter templates
 - `mcp/`: canonical MCP server definitions
 - `.claude-plugin/`: plugin and marketplace manifests that ship the skills as the `greenberry` Claude Code plugin
+- `hooks/hooks.json`: hooks shipped by that plugin — currently the `SessionStart` hook that keeps the ambient layer current
 - `AGENTS.md`: canonical repo policy for agents that can inspect the repo
 - `CLAUDE.md`: global Claude adapter
 - `.github/copilot-instructions.md`: canonical Copilot adapter for this repo
 - `scripts/generate-adapters.sh`: injects shared fragments and regenerates derived files
 - `scripts/sync.sh`: syncs either global agent folders or a target project
-- `scripts/validate-ai-instructions.sh`: full validation pipeline — runs skill validation, regenerates adapters, runs the project-sync smoke test, and checks generated artifacts for drift
+- `scripts/sync-ambient.sh`: owns the Claude ambient layer (`~/.claude/CLAUDE.md` + universal rules); called by `sync.sh` and by the plugin's `SessionStart` hook
+- `scripts/validate-ai-instructions.sh`: full validation pipeline — runs skill validation, regenerates adapters, runs the project-sync and ambient-sync smoke tests, and checks generated artifacts for drift
 - `scripts/validate-skills.mjs`: validates skill frontmatter, doc links, the canonical-sources inventory, and pipeline-map entries
 - `docs/pipeline-map.md`: which rule, skill, command, hook, and loop fires in which delivery phase, and how each is invoked
 - `docs/workflow-canonical-sources.md`: declared canonical source (skill or command) per reusable workflow
@@ -313,11 +316,39 @@ is the git-repo type. Don't copy one into the other.)
 - Plugin skills invoke as `/greenberry:<skill>` (for example
   `/greenberry:create-pr`). Natural-language triggers keep working through
   each skill's `description` frontmatter.
-- Global sync still ships the ambient layer (`~/.claude/CLAUDE.md` and the
-  universal rules subset). Plugins have no primitive for always-on context,
-  so rules stay on sync by design.
 - Updates arrive automatically over SSH; Claude Code prompts to reload when
   something new landed.
+- The ambient layer (`~/.claude/CLAUDE.md` and the universal rules subset)
+  rides along automatically too — see below.
+
+### The ambient layer updates itself
+
+Plugins have no primitive for always-on context, so `CLAUDE.md` and the
+universal rules cannot ship as plugin *components*. They no longer need a
+manual sync anyway: the plugin cache is a full checkout of this repo, so a
+`SessionStart` hook in `hooks/hooks.json` runs
+[`scripts/sync-ambient.sh`](scripts/sync-ambient.sh) from
+`$CLAUDE_PLUGIN_ROOT` and refreshes those files in `~/.claude`. The hook ships
+in the plugin, so nobody edits their own `settings.json` to get it.
+
+It is gated on the plugin version, not on file content. `$CLAUDE_PLUGIN_ROOT`
+is SHA-addressed, and the last version applied is stamped in
+`$CLAUDE_PLUGIN_DATA`, which survives plugin updates. Consequences worth
+knowing:
+
+- Sessions where the plugin did not update are a silent no-op.
+- A deliberate local edit to `~/.claude/CLAUDE.md` survives until the next
+  real plugin update, rather than being reverted at every session start.
+- When it does act, it says so in the session context — you are never
+  silently running on refreshed rules.
+- Because a plugin update re-asserts the files, a stale plugin will pin the
+  ambient layer to an older version. If `/plugin` shows an install that lags
+  `main`, fix the auto-update first (see Troubleshooting) — the hook only
+  helps if the channel it rides is current.
+
+`./scripts/sync.sh` calls the same script (with `--source` pointing at your
+local checkout) so there is one owner for the universal-subset list. Running
+sync by hand still works and always applies, regardless of plugin version.
 
 ### Troubleshooting
 
@@ -328,6 +359,7 @@ is the git-repo type. Don't copy one into the other.)
 | Skills show up twice | Old copies still in `~/.claude/skills` — run `./scripts/sync.sh` again (step 3). |
 | glab reports `invalid_grant` and `git push` fails with `could not read Username` | The glab OAuth token broke and git-HTTPS auth runs through glab. Re-authenticate with `glab auth login` using a **Personal Access Token** (scopes `api` + `write_repository`) — PATs have no refresh races. |
 | A merged skill change is not visible yet | `/plugin marketplace update ai-workflows`, then `/reload-plugins`. |
+| The installed plugin lags `main` by many commits | Background auto-update is not running. Check that the marketplace was added over SSH (HTTPS installs never auto-update) and that `autoUpdate: true` is set. Until it is fixed the ambient-layer hook is pinned to that stale version — `./scripts/sync.sh` overrides it in the meantime. |
 
 ## Knowledge Graph (graphify)
 

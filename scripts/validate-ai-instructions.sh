@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 GENERATE="$ROOT_DIR/scripts/generate-adapters.sh"
 SMOKE_TEST="$ROOT_DIR/scripts/smoke-test-project-sync.sh"
+AMBIENT_SMOKE_TEST="$ROOT_DIR/scripts/smoke-test-ambient-sync.sh"
 
 GENERATED_FILES=(
   "AGENTS.md"
@@ -33,6 +34,9 @@ echo "Running generate-adapters.sh..."
 
 echo "Running project sync smoke test..."
 "$SMOKE_TEST"
+
+echo "Running ambient sync smoke test..."
+"$AMBIENT_SMOKE_TEST"
 
 # ── Check for drift ──────────────────────────────────────────────────────────
 
