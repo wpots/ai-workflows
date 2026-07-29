@@ -140,13 +140,28 @@ Review the full branch diff against `origin/main` (use the code-review skill
 if available) and fix findings before opening the MR: correctness first, then
 convention violations. Re-run checks if the fixes were non-trivial.
 
-### 8. Close out the BLI
+### 8. Write `How to verify`, then close out the BLI
 
-On the branch: flip `Status` to `done` and commit. After step 9 produces the
+Fill the BLI's `## How to verify` section **from what you actually ran**, not
+from intent (`rules/backlog.md`). It is the developer-facing proof:
+
+- the commands you ran and what they reported (`npm run test -- <path>` → 12
+  passing, the one that fails without the change)
+- the route to open, as which role, and the observable result
+- the states worth checking by hand: empty, error, unauthorised — where the BLI
+  has criteria for them
+- one line per acceptance criterion that needs more than "the test passes"
+
+No invented steps, no "verify that it works". A step you did not run does not go
+in. If a criterion could not be verified locally (needs a preview deploy, a real
+credential), say that instead of implying you checked it.
+
+Then on the branch: flip `Status` to `done` and commit. After step 9 produces the
 MR URL, append it to the BLI's `## Related` section, commit
 (`docs: link MR for <bli-name>`), and push — the MR picks up the new commit
-automatically. A merged MR thus lands the BLI as `done` with its MR link, and
-step 3's dependency check needs nothing but `origin/main`.
+automatically. A merged MR thus lands the BLI as `done` with its MR link and its
+verification steps, and step 3's dependency check needs nothing but
+`origin/main`.
 
 ### 9. Open the MR
 
@@ -155,7 +170,12 @@ Use the create-pr skill (it handles rebase onto base, MR templates, push, and
 
 - Title: conventional (`feat(session): create & join a session room`).
 - Description must link the BLI file and map the diff to its acceptance
-  criteria (checked list). Note the preview URL if the platform provides one.
+  criteria (checked list), and repeat the `How to verify` steps so a reviewer can
+  reproduce them without opening the BLI. Note the preview URL if the platform
+  provides one.
+- When the BLI is one slice of several, say so: which slice, which ticket, what
+  the remaining slices still cover. A reviewer who does not know that will read
+  the diff as an incomplete feature.
 - Draft MR + a **Blocked on** section when Contract #5 or #6 applies.
 - This is an autonomous run: skip create-pr's interactive approval pause —
   the MR itself is the review surface.
@@ -173,8 +193,11 @@ project's merge-request channel. If neither, say so in the final report.
 ### 11. Report
 
 End with: item picked (and why it was next), branch + MR URL, checks run and
-their results, acceptance criteria coverage, and anything a reviewer should
-look at first. If anything was skipped or blocked, state it plainly.
+their results, acceptance criteria coverage, the `How to verify` steps, and
+anything a reviewer should look at first. When the item is a slice, add the
+ticket's standing — "slice 2/3 for PROJ-123; slice 3 remains" — so it is visible
+that the product owner cannot test the feature yet. If anything was skipped or
+blocked, state it plainly.
 
 ## Edge cases
 

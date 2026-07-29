@@ -23,6 +23,21 @@ under `docs/backlog/`.
   item, not the ticket — so a ticket without a matching backlog file is not yet
   pickable.
 
+## The ticket is the feature, not the MR
+
+A ticket describes the capability the product owner asked for. It is **not** sized
+to one merge request: `skills/backlog` cuts it into as many items as
+`rules/mr-sizing.md` requires, and each item becomes one MR.
+
+So do not shrink a ticket to make it "MR-sized", and do not file several tickets
+for what is one capability. Write the ticket at feature level, and mention in the
+recap when the capability will obviously need several items — that is the
+handover, not a warning.
+
+The ticket is delivered when every local item carrying its key is done on the
+default branch; `skills/mr-merged` posts the product-owner test instructions at
+that moment, not per MR.
+
 ## Tracker write — safety
 
 - This skill creates a Jira issue. **Always confirm the issue type, summary,

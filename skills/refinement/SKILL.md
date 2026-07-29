@@ -31,6 +31,10 @@ the same workflow; Copilot follows the runbook directly.
 - Story points are **proposed in the doc only** — the user sets them in the
   tracker.
 - Story-point scale: small change = 1, 13+ = split.
+- Readiness includes **size**: a ticket that trips a split trigger in
+  `rules/mr-sizing.md` is not ready, however clear its criteria are. Propose the
+  slices in the document (one per reviewable MR, in dependency order) instead of
+  only raising the story points.
 - Never run `git commit` — the user commits themselves.
 - Ground every question in the code first (Phase 2); never ask about something
   the codebase already answers.

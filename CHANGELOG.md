@@ -13,6 +13,40 @@ here **in the same MR** whenever a change alters what the plugin ships. See
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-07-29
+
+### Added
+
+- `skills/mr-merged` — a **ticket-completeness gate** before the product-owner
+  handoff. One ticket can carry several items (one per reviewable MR), so the
+  "How to test this" comment now waits until every item carrying the ticket key
+  is `done` **on the default branch** — read from `docs/backlog/` via
+  `git show origin/main:<path>`, so a `done` that only exists on a branch does
+  not count. While slices remain it reports "2/3 merged, waiting on `<item>`",
+  posts nothing, and proposes no transition beyond what partial delivery
+  justifies. When the ticket does complete, the comment covers the whole
+  capability, drawn from every slice's `How to verify` and MR description. No
+  local items for the key → the MR is treated as the whole ticket, as before.
+- `skills/work-backlog` — fills the BLI's `How to verify` **from what it actually
+  ran** before opening the MR: commands and their output, route and role,
+  hand-checked states, one line per criterion that needs more than a passing
+  test. A step that was not run does not go in, and anything only verifiable on a
+  preview deploy is stated as such. The MR description repeats those steps and
+  names the slice when a ticket has several.
+
+### Changed
+
+- `skills/backlog` — one item is one MR, blocking: an item that trips a split
+  trigger in `rules/mr-sizing.md` may not be written as one item or marked
+  `ready`. When `docs/journeys/` exists, the journey's slice candidates are the
+  input, in order, chained with `Depends on:`.
+- `skills/jira-ticket` — the ticket is the feature, not the MR: tickets stay at
+  capability level and are never shrunk to fit one MR, and the product-owner
+  instructions arrive when the last item merges.
+- `skills/refinement` + `commands/refinement.md` — size is part of readiness. A
+  ticket that trips a split trigger is not ready, and the refinement document now
+  proposes the slices in dependency order instead of only raising story points.
+
 ## [1.7.0] - 2026-07-29
 
 ### Changed

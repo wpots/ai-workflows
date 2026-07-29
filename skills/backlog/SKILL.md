@@ -22,9 +22,24 @@ creates, edits, or transitions an issue-tracker ticket.
   skill with the real ticket key so the local item and the tracker agree.
 - Given a ticket key, treat the tracker as read-only context here.
 
+## One item is one MR
+
+An item is not a ticket. It is what **one reviewable MR** delivers, so a ticket
+whose MR would be too large gets several items — slices — and `rules/mr-sizing.md`
+decides where the cuts go.
+
+This is blocking, not advisory: an item that trips a split trigger in that rule
+may not be written as one item, and may not be marked `ready`. Slicing here costs
+a sentence; slicing after the branch exists costs a rebase.
+
+When `docs/journeys/` exists, the journey document's **Slice Candidates** table is
+the input — one item per candidate, in its order, each `Depends on:` the previous
+one. Do not re-cut those boundaries silently; if a candidate is wrong, say why and
+propose the new cut.
+
 ## Context To Load
 
-1. Read `rules/backlog.md`.
+1. Read `rules/backlog.md` and `rules/mr-sizing.md`.
 2. Read `CONVENTIONS.md` for project-specific filename and tracker-key rules.
 3. If present, inspect `docs/backlog/_template.md` and keep it aligned with the
    backlog rules rather than treating it as a competing source of truth.
@@ -48,7 +63,12 @@ creates, edits, or transitions an issue-tracker ticket.
    the backlog rules.
 7. Keep acceptance criteria PO-friendly and move implementation detail into
    `Technical Notes`.
-8. If the request changes the reusable template, update `docs/backlog/_template.md`
+8. **Check the size before finishing.** Run the item past the split triggers in
+   `rules/mr-sizing.md`. Too big → write it as several slices instead: number
+   them in the filename, fill the `Slice` field, chain them with `Depends on:`,
+   and say in the recap why the cut sits there. Leave `How to verify` empty —
+   whoever delivers the item fills it before the MR opens.
+9. If the request changes the reusable template, update `docs/backlog/_template.md`
    so it stays consistent with the current backlog rules.
 
 ## Constraints
@@ -65,6 +85,7 @@ creates, edits, or transitions an issue-tracker ticket.
 
 ## Output
 
-- The backlog file path that was created or updated.
+- The backlog file path(s) that were created or updated — one line per slice when
+  a ticket produced several, with the dependency order.
 - Any assumptions that still need PO or developer confirmation.
 - Whether the local backlog template was also updated for consistency.
