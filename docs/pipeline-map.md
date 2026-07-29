@@ -435,3 +435,9 @@ coverage ahead of anything else that merely makes existing work faster.
 So adding a skill without placing it in the process is a visible warning, not a
 silent omission. When a phase or gate itself changes, update the Mermaid diagram
 and the gate table by hand — that structure is deliberately not generated.
+
+One step the validator cannot check: this file is also **published as a shareable
+rendered copy** (the link lives in `README.md`, under "Shared Pipeline Map"). It is a
+snapshot, not a second source, so after editing this file republish it to the same URL.
+An unpublished edit means the people reading the shared copy are reading last month's
+pipeline.
