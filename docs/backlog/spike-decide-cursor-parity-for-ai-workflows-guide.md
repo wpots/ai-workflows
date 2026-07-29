@@ -2,7 +2,15 @@
 
 ## Status
 
-draft
+superseded
+
+Superseded 2026-07-29 by
+[spike-ratify-claude-skill-status-and-cursor-pointer.md](spike-ratify-claude-skill-status-and-cursor-pointer.md).
+Note: the premise in the Technical Notes is partly wrong — Cursor already
+reaches `AI-WORKFLOWS.md` via `AGENTS.md` (its always-on entry point alongside
+`.cursor/rules/*.md`), so the open question is only whether the 18-line `.mdc`
+gets a duplicate pointer or its minimalism is documented as intentional. That
+decision moved to the superseding item.
 
 ## Ticket
 

@@ -2,7 +2,9 @@
 
 ## Status
 
-draft
+done
+
+Delivered (verified 2026-07-29): `scripts/smoke-test-project-sync.sh` runs sync against a disposable temp dir, asserts all eight generated paths in both the CONVENTIONS-present and CONVENTIONS-missing scenarios, and checks prompt/command alignment. Documented in the README ("Smoke test project sync") and wired into `scripts/validate-ai-instructions.sh`. The experimental-inclusion criterion is moot: `sync.sh` no longer has an experimental tier or flag.
 
 ## Ticket
 
@@ -22,12 +24,12 @@ As a maintainer of `ai-workflows`, I want a repeatable project-sync verification
 
 ## Acceptance Criteria
 
-- [ ] There is a documented or scripted smoke test that runs `scripts/sync.sh --project <temp-dir>` against a disposable target.
-- [ ] The smoke test verifies creation or update of `AI-WORKFLOWS.md`, `CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`, `.cursor/rules/conventions.mdc`, `rules/`, `commands/`, and `.github/prompts/`.
-- [ ] The smoke test covers behavior when `CONVENTIONS.md` exists and when it is missing.
-- [ ] The smoke test verifies that generated prompt files align with synced commands.
-- [ ] Experimental inclusion behavior is covered or explicitly documented as out of scope for the first version.
-- [ ] The smoke test is easy for a maintainer to run before merging repo-level workflow changes.
+- [x] There is a documented or scripted smoke test that runs `scripts/sync.sh --project <temp-dir>` against a disposable target.
+- [x] The smoke test verifies creation or update of `AI-WORKFLOWS.md`, `CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`, `.cursor/rules/conventions.mdc`, `rules/`, `commands/`, and `.github/prompts/`.
+- [x] The smoke test covers behavior when `CONVENTIONS.md` exists and when it is missing.
+- [x] The smoke test verifies that generated prompt files align with synced commands.
+- [x] Experimental inclusion behavior is covered or explicitly documented as out of scope for the first version. (Moot: the experimental tier was removed from `sync.sh`; all commands, rules, and skills sync by default.)
+- [x] The smoke test is easy for a maintainer to run before merging repo-level workflow changes.
 
 ## Technical Notes
 

@@ -2,7 +2,9 @@
 
 ## Status
 
-draft
+done
+
+Delivered (verified 2026-07-29): `skills/code-review/SKILL.md` and `commands/review-code.md` both carry the explicit type-safety audit, all seven mandatory checks, the five fixed output sections, per-finding guardrail classification, and the clean-report requirement. The design decision (extend the general review workflow rather than add a separate skill) is documented in the skill itself.
 
 ## Ticket
 
@@ -22,12 +24,12 @@ As a developer using `ai-workflows` for code review, I want review output to fla
 
 ## Acceptance Criteria
 
-- [ ] The review skill in [skills/code-review/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/code-review/SKILL.md) explicitly reviews for real type safety, not only syntax-level TypeScript quality.
-- [ ] The review command in [commands/review-code.md](/Users/wietekepots/Web/ai-workflows/commands/review-code.md) includes mandatory checks for unsafe `as`, `any`, unchecked parsing, missing boundary validation, transport/domain leakage, unsafe indexing, and non-exhaustive unions.
-- [ ] Review output requires fixed sections such as `Type-Safety Risks`, `Boundary Validation Gaps`, `Unsafe Assertions`, `Workflow Guardrails`, and `Concrete Fixes`.
-- [ ] Each finding must explain why the code is unsafe, identify the trust boundary or failure mode, classify severity, and recommend the relevant guardrail type: code change, lint rule, `tsconfig` rule, CI check, or architecture rule.
-- [ ] The workflow states what to report when no issues are found, including why the code appears safe.
-- [ ] The design decision is documented: either extend the existing review skill or add a dedicated type-safety review skill, with the simpler option preferred unless overlap becomes unmanageable.
+- [x] The review skill in [skills/code-review/SKILL.md](/Users/wietekepots/Web/ai-workflows/skills/code-review/SKILL.md) explicitly reviews for real type safety, not only syntax-level TypeScript quality.
+- [x] The review command in [commands/review-code.md](/Users/wietekepots/Web/ai-workflows/commands/review-code.md) includes mandatory checks for unsafe `as`, `any`, unchecked parsing, missing boundary validation, transport/domain leakage, unsafe indexing, and non-exhaustive unions.
+- [x] Review output requires fixed sections such as `Type-Safety Risks`, `Boundary Validation Gaps`, `Unsafe Assertions`, `Workflow Guardrails`, and `Concrete Fixes`.
+- [x] Each finding must explain why the code is unsafe, identify the trust boundary or failure mode, classify severity, and recommend the relevant guardrail type: code change, lint rule, `tsconfig` rule, CI check, or architecture rule.
+- [x] The workflow states what to report when no issues are found, including why the code appears safe.
+- [x] The design decision is documented: either extend the existing review skill or add a dedicated type-safety review skill, with the simpler option preferred unless overlap becomes unmanageable.
 
 ## Technical Notes
 
