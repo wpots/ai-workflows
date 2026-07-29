@@ -81,3 +81,4 @@ Review at least:
 - [README.md](/Users/wietekepots/Web/ai-workflows/README.md)
 - [FEATURES.md](/Users/wietekepots/Web/ai-workflows/FEATURES.md)
 - [rules/rules.md](/Users/wietekepots/Web/ai-workflows/rules/rules.md)
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/40>
