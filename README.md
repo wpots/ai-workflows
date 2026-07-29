@@ -152,13 +152,16 @@ Practical guidance:
 - `packages/`: optional preset bundles that can be combined per target project
 - `templates/`: thin project adapter templates
 - `mcp/`: canonical MCP server definitions
+- `.claude-plugin/`: plugin and marketplace manifests that ship the skills as the `greenberry` Claude Code plugin
 - `AGENTS.md`: canonical repo policy for agents that can inspect the repo
 - `CLAUDE.md`: global Claude adapter
 - `.github/copilot-instructions.md`: canonical Copilot adapter for this repo
 - `scripts/generate-adapters.sh`: injects shared fragments and regenerates derived files
 - `scripts/sync.sh`: syncs either global agent folders or a target project
-- `scripts/validate-ai-instructions.sh`: regenerates adapters and checks for drift
+- `scripts/validate-ai-instructions.sh`: full validation pipeline — runs skill validation, regenerates adapters, runs the project-sync smoke test, and checks generated artifacts for drift
+- `scripts/validate-skills.mjs`: validates skill frontmatter, doc links, the canonical-sources inventory, and pipeline-map entries
 - `docs/pipeline-map.md`: which rule, skill, command, hook, and loop fires in which delivery phase, and how each is invoked
+- `docs/workflow-canonical-sources.md`: declared canonical source (skill or command) per reusable workflow
 
 ### Shared Pipeline Map
 
