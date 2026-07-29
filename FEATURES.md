@@ -59,6 +59,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `upstream-rules` | Propose rule changes back to the ai-workflows repo | No (skill only) |
 | `improve-skill` | Fold durable session learnings back into workflow sources | No (skill only) |
 | `work-backlog` | Deliver the next eligible backlog item with a WIP limit of one | Yes |
+| `maintenance` | Periodic project maintenance sweep — deps, runtime EOL, credential/API-key currency (incl. Prepr tokens), quality baseline, CI, data, doc drift | No (skill only) |
 
 ## MCP Servers
 

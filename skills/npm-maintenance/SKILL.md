@@ -23,6 +23,35 @@ Keep package updates deliberate, reproducible, and verified. Treat major-version
 
 Report the proposed scope before making a change when the update set is broad or ambiguous.
 
+## Inventory mode (report-only)
+
+Use this mode when the caller wants the dependency picture without changing
+anything — a periodic sweep (`skills/maintenance/SKILL.md` lane A), a pre-sprint
+check, or a "how bad is it" question.
+
+In this mode, after step 1:
+
+1. Run only read commands: the package manager's `outdated` and `audit`
+   (machine-readable where available). Never `update`, `install`, `audit fix`,
+   or a lockfile write — not even to "see if it resolves".
+2. Report, without acting:
+   - direct dependencies behind a major, with the current → latest jump, split
+     from minor/patch drift;
+   - high and critical vulnerabilities: package, direct or transitive path,
+     whether an upstream fix exists, and whether the fix is itself a major;
+   - deprecated or unmaintained packages (deprecation notices, last publish
+     older than ~18 months);
+   - lockfile ↔ `package.json` drift — verify with a **frozen/immutable
+     install into a throwaway location** or a dry run; never write the
+     project's lockfile to find out;
+   - whether an automated updater (Renovate, Dependabot) is configured and
+     actually opening MRs.
+3. End with the smallest set of *proposed* next actions, ranked, each tagged
+   routine (§2) or major (§3). The caller decides; this mode never applies them.
+
+Skip [Validation](#validation) entirely — nothing changed, so there is nothing
+to validate. Saying "checks passed" after an inventory run is a false claim.
+
 ## 2. Apply routine updates
 
 For a requested minor or patch update:
