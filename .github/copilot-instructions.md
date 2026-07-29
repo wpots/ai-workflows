@@ -59,6 +59,7 @@ corresponding runbook:
 - `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
 - `backlog item`, `user story`, `feature spec`, `bug item`, `bli` -> `commands/backlog.md`
 - `close sprint`, `sluit sprint af`, `sprint afsluiten` -> `commands/close-sprint.md`
+- `refinement`, `prepare refinement`, `refine tickets`, `refinement vastleggen` -> `commands/refinement.md`
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `commands/sprint-demo.md`
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `commands/sprint-planning.md`
 - `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `commands/sustainable-review.md`

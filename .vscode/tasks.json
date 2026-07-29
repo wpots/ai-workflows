@@ -42,6 +42,16 @@
       "problemMatcher": []
     },
     {
+      "label": "refinement",
+      "type": "shell",
+      "command": "cat commands/refinement.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "sprint-demo",
       "type": "shell",
       "command": "cat commands/sprint-demo.md",

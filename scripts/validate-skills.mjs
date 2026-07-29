@@ -4,7 +4,8 @@
 //
 // Errors (exit 1): broken frontmatter, name/directory mismatch, duplicate
 // names, references to files that don't exist, broken relative links,
-// command-mapping targets that don't exist, canonical-sources rows pointing
+// mapping targets that don't exist, a skill or command missing from its routing
+// registry, an adapter missing a shared marker, canonical-sources rows pointing
 // at missing files, pipeline-map paths that don't exist, FEATURES.md rows
 // naming untracked paths.
 //
@@ -13,6 +14,12 @@
 // paths that exist but are untracked, skills/commands/rules/MCP servers missing
 // from the FEATURES.md inventories, descriptions without a routing cue,
 // unknown frontmatter keys.
+//
+// Why routing gaps are errors and inventory gaps are warnings: the two docs are
+// documentation, but shared/command-mappings.md and shared/skill-mappings.md are
+// functional. A workflow missing there cannot be reached by intent on any tool,
+// which is how skills/jira-ticket stayed unroutable while both inventories
+// listed it.
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
@@ -179,17 +186,117 @@ for (const rel of linkScanFiles) {
   }
 }
 
-// ── Command mappings point at real files ─────────────────────────────────────
+// ── Routing registries are accurate and complete ──────────────────────────────
+// Every trigger phrase a tool can route on lives in one of these two fragments.
+// A target that does not exist is a dead route; a workflow that appears in
+// neither cannot be reached by intent at all.
 
-const MAPPINGS = "shared/command-mappings.md";
-if (tracked.has(MAPPINGS)) {
-  for (const match of read(MAPPINGS).matchAll(/->\s*`([^`]+)`/g)) {
-    if (!tracked.has(match[1])) {
-      err(MAPPINGS, `maps to \`${match[1]}\`, which is not a tracked file`);
+const COMMAND_MAPPINGS = "shared/command-mappings.md";
+const SKILL_MAPPINGS = "shared/skill-mappings.md";
+
+// Collect the routing targets on the right-hand side of each mapping line, so a
+// fallback named alongside the canonical target counts as routed too. Everything
+// after the first `;` is a prose note — a path mentioned there is a
+// cross-reference, not a route, and must not count as coverage.
+function mappedTargets(rel) {
+  const targets = new Set();
+  if (!tracked.has(rel)) return targets;
+  for (const line of read(rel).split("\n")) {
+    const arrow = line.indexOf("->");
+    if (arrow === -1) continue;
+    const routed = line.slice(arrow).split(";")[0];
+    for (const match of routed.matchAll(/`((?:skills|commands)\/[^`\s]+)`/g)) {
+      targets.add(match[1].replace(/\/$/, ""));
     }
   }
-} else {
-  warn(MAPPINGS, "file not found; command-mapping check skipped");
+  return targets;
+}
+
+if (!tracked.has(COMMAND_MAPPINGS)) {
+  warn(COMMAND_MAPPINGS, "file not found; command-routing check skipped");
+}
+if (!tracked.has(SKILL_MAPPINGS)) {
+  warn(SKILL_MAPPINGS, "file not found; skill-routing check skipped");
+}
+
+const commandRoutes = mappedTargets(COMMAND_MAPPINGS);
+const skillRoutes = mappedTargets(SKILL_MAPPINGS);
+
+for (const [rel, routes] of [
+  [COMMAND_MAPPINGS, commandRoutes],
+  [SKILL_MAPPINGS, skillRoutes],
+]) {
+  for (const target of routes) {
+    const isSkillDir = target.startsWith("skills/");
+    const exists = isSkillDir ? tracked.has(`${target}/SKILL.md`) : tracked.has(target);
+    if (!exists) {
+      err(rel, `routes to \`${target}\`, which is not a tracked workflow`);
+    }
+  }
+}
+
+if (tracked.has(COMMAND_MAPPINGS)) {
+  for (const rel of [...tracked].filter(
+    (f) => f.startsWith("commands/") && f.endsWith(".md"),
+  )) {
+    if (!commandRoutes.has(rel)) {
+      err(
+        COMMAND_MAPPINGS,
+        `command \`${rel}\` has no trigger phrases; nothing can route to it`,
+      );
+    }
+  }
+}
+
+if (tracked.has(SKILL_MAPPINGS)) {
+  for (const dir of skillDirs) {
+    if (tracked.has(`skills/${dir}/SKILL.md`) && !skillRoutes.has(`skills/${dir}`)) {
+      err(
+        SKILL_MAPPINGS,
+        `skill \`skills/${dir}\` has no trigger phrases; nothing can route to it`,
+      );
+    }
+  }
+}
+
+// ── Adapters compose the shared fragments instead of copying them ─────────────
+// A hand-maintained copy of a shared list drifts silently — that is how
+// AGENTS.md ended up routing fewer commands than the fragment it duplicated.
+
+const REQUIRED_MARKERS = {
+  "CLAUDE.md": ["command-mappings", "skill-mappings", "safety", "graphify"],
+  "AGENTS.md": ["command-mappings", "skill-mappings", "safety", "graphify"],
+  ".github/copilot-instructions.md": ["core-rules", "command-mappings", "safety"],
+  "templates/project-CLAUDE.md": ["command-mappings", "safety", "graphify", "workflow-assets"],
+  "templates/project-AGENTS.md": ["command-mappings", "safety", "graphify", "workflow-assets"],
+  "templates/project-copilot-instructions.md": [
+    "core-rules",
+    "command-mappings",
+    "safety",
+    "graphify",
+    "workflow-assets",
+  ],
+};
+
+for (const [rel, markers] of Object.entries(REQUIRED_MARKERS)) {
+  if (!tracked.has(rel)) {
+    err(rel, "adapter file is missing");
+    continue;
+  }
+  const text = read(rel);
+  for (const marker of markers) {
+    if (!tracked.has(`shared/${marker}.md`)) {
+      err(rel, `expects shared fragment \`shared/${marker}.md\`, which does not exist`);
+      continue;
+    }
+    if (!text.includes(`<!-- BEGIN SHARED:${marker} -->`)) {
+      err(
+        rel,
+        `is missing the \`${marker}\` marker; inject the shared fragment instead ` +
+          "of maintaining a copy",
+      );
+    }
+  }
 }
 
 // ── Canonical-sources inventory is accurate and complete ─────────────────────

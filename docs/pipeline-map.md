@@ -116,16 +116,18 @@ in one thing that matters: who decides to run it.
 | --- | --- | --- |
 | Direct | `/name` | The developer, by name |
 | Intent match | `"phrase"` | The tool, by matching the skill's `description` — this is why the validator warns on a description without a `Use when …` routing cue |
-| Trigger phrase | `"phrase" → command` | The tool, from `shared/command-mappings.md`, inlined into every generated adapter — the fallback path for tools that cannot use skills |
+| Trigger phrase | `"phrase" → command` | The tool, from `shared/command-mappings.md` (commands) or `shared/skill-mappings.md` (skills), inlined into every generated adapter — the fallback path for tools that cannot use skills |
 | Delegation | `via skills/x` | Another skill, as a step in its own flow. No human decision at all |
 | Hook | `hook: Event(Matcher)` | The harness, on a tool event. Fires whether or not anyone remembered |
 | Loop | `loop` | Started once, then keeps running on its own until stopped |
 | Rules | `loaded` | Nothing invokes a rule — it is read into context, ambient or on demand |
 
-`shared/command-mappings.md` covers 14 of the 15 command runbooks;
-`commands/refinement.md` has no trigger phrase, so on a command-only tool it is
-effectively unreachable. Skill-only workflows get their trigger phrases from the
-generated adapters instead (`CLAUDE.md`, `AGENTS.md`).
+`shared/command-mappings.md` covers all 15 command runbooks and
+`shared/skill-mappings.md` all 30 skills; `scripts/validate-skills.mjs` errors
+when either falls behind, so a runbook like `commands/refinement.md` can no
+longer sit in the repo without a trigger phrase. Both fragments are injected into
+the generated adapters (`CLAUDE.md`, `AGENTS.md`), which is where a tool actually
+reads them; on Claude the skill descriptions route in parallel via the plugin.
 
 ### Hooks and loops
 
@@ -350,7 +352,7 @@ The repo-owned half, in real paths:
 | docs/project-brief.md, docs/project-spec.md, docs/architecture.md (per project) | Day-one intent: why the product exists, what this release does, and the decisions behind the structure — the input the Design-readiness and Definition-of-ready gates lack today |
 | `rules/rules.md` | Index — which rule file loads when |
 | `rules/communication.md` | Tone and response style, tool-independent |
-| `shared/core-rules.md`, `shared/command-mappings.md`, `shared/safety.md`, `shared/graphify.md` | Fragments injected into generated adapters, so every tool sees the same baseline |
+| `shared/core-rules.md`, `shared/command-mappings.md`, `shared/skill-mappings.md`, `shared/safety.md`, `shared/graphify.md`, `shared/workflow-assets.md` | Fragments injected into generated adapters, so every tool sees the same baseline. `command-mappings` and `skill-mappings` are the routing registries: a workflow absent from them is unreachable by intent, which `scripts/validate-skills.mjs` treats as an error |
 | `templates/project-CLAUDE.md`, `templates/project-AGENTS.md`, `templates/project-copilot-instructions.md`, `templates/project-cursor-conventions.mdc`, `templates/project-cursor-graphify.mdc`, `templates/project-ai-workflows.md`, `templates/project-claude-settings.json` | Thin per-tool adapters generated into a project |
 | `templates/pull_request_template.md` | Last-resort MR body skeleton for `skills/create-pr` |
 | `packages/selection.md`, `packages/greenberry-base`, `packages/frontend`, `packages/nextjs`, `packages/payload`, `packages/testing` | Composable convention bundles per target project |
