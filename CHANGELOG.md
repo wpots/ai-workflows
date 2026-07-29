@@ -1,15 +1,41 @@
 # Changelog
 
 Release notes for the `greenberry` plugin — everything the plugin ships from
-this repo: `skills/`, `commands/`, and the `.claude-plugin/` manifests.
+this repo: `skills/`, `commands/`, the `.claude-plugin/` manifests, `hooks/`
+plus the scripts they run, and the ambient layer those hooks deliver
+(`CLAUDE.md` and the universal `rules/` subset).
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are
 plain semver. Bump `version` in `.claude-plugin/plugin.json` and add the entry
 here **in the same MR** whenever a change alters what the plugin ships. See
-"Ship a plugin release" in `README.md` for the bump rule. Docs-only changes
-don't bump.
+"Ship a plugin release" in `README.md` for the bump rule. Repo-internal changes
+(`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
+
+## [1.3.1] - 2026-07-29
+
+### Fixed
+
+- The `SessionStart` ambient-layer hook no longer keys its "already applied"
+  stamp on the plugin version. `$CLAUDE_PLUGIN_ROOT` is version-keyed
+  (`…/greenberry/1.3.0`), so any release that shipped without a `plugin.json`
+  bump reused that directory name, the gate read it as already applied, and the
+  changed `CLAUDE.md` or universal rule never reached `~/.claude` — silently,
+  for as long as the version stood still. `scripts/sync-ambient.sh` now stamps a
+  `cksum` digest of the files it delivers (plus itself, so a change to the
+  subset or the retired list counts), migrating away from the old
+  `ambient-synced-from` stamp on first run. Local edits to `~/.claude` are still
+  never reverted: they do not change the source digest.
+
+### Changed
+
+- The release rule now covers everything the plugin delivers — `hooks/`, the
+  scripts hooks run, and the ambient layer — not only `skills/`, `commands/`,
+  and `.claude-plugin/`. An unbumped release lands in the previous version's
+  directory and is invisible in `/plugin`, so the bump is load-bearing.
+  (`shared/upstream-mr.md`, rendered into `CLAUDE.md`, `AGENTS.md`, the Copilot
+  instructions, and the project adapters.)
 
 ## [1.3.0] - 2026-07-29
 

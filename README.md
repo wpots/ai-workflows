@@ -344,30 +344,35 @@ is the git-repo type. Don't copy one into the other.)
 
 Plugins have no primitive for always-on context, so `CLAUDE.md` and the
 universal rules cannot ship as plugin *components*. They no longer need a
-manual sync anyway: the plugin cache is a full checkout of this repo, so a
+manual sync anyway: the plugin cache holds a full copy of this repo, so a
 `SessionStart` hook in `hooks/hooks.json` runs
 [`scripts/sync-ambient.sh`](scripts/sync-ambient.sh) from
 `$CLAUDE_PLUGIN_ROOT` and refreshes those files in `~/.claude`. The hook ships
 in the plugin, so nobody edits their own `settings.json` to get it.
 
-It is gated on the plugin version, not on file content. `$CLAUDE_PLUGIN_ROOT`
-is SHA-addressed, and the last version applied is stamped in
-`$CLAUDE_PLUGIN_DATA`, which survives plugin updates. Consequences worth
-knowing:
+It is gated on a digest of the files it delivers — `CLAUDE.md`, the universal
+rules, and the sync script itself — stamped in `$CLAUDE_PLUGIN_DATA`, which
+survives plugin updates. Deliberately *not* on the plugin version:
+`$CLAUDE_PLUGIN_ROOT` is version-keyed
+(`~/.claude/plugins/cache/ai-workflows/greenberry/1.3.0`, and only SHA-keyed
+while `plugin.json` carries no `version` at all), so two different commits of
+`main` share one directory name whenever an MR skips the bump. A version gate
+reads that as "already applied" and skips the change forever — which is exactly
+the bug this replaced. Consequences worth knowing:
 
-- Sessions where the plugin did not update are a silent no-op.
-- A deliberate local edit to `~/.claude/CLAUDE.md` survives until the next
-  real plugin update, rather than being reverted at every session start.
+- Sessions where the delivered files are byte-identical are a silent no-op.
+- A deliberate local edit to `~/.claude/CLAUDE.md` survives until the plugin
+  delivers different content, rather than being reverted at every session
+  start — a local edit does not change the source digest.
 - When it does act, it says so in the session context — you are never
   silently running on refreshed rules.
-- Because a plugin update re-asserts the files, a stale plugin will pin the
-  ambient layer to an older version. If `/plugin` shows an install that lags
-  `main`, fix the auto-update first (see Troubleshooting) — the hook only
-  helps if the channel it rides is current.
+- A stale plugin still pins the ambient layer to older content. If `/plugin`
+  shows an install that lags `main`, fix the auto-update first (see
+  Troubleshooting) — the hook only helps if the channel it rides is current.
 
 `./scripts/sync.sh` calls the same script (with `--source` pointing at your
 local checkout) so there is one owner for the universal-subset list. Running
-sync by hand still works and always applies, regardless of plugin version.
+sync by hand still works and always applies, regardless of the stamp.
 
 ### Troubleshooting
 
@@ -589,7 +594,14 @@ so every merged MR that touches them is a release. Make releases visible:
 3. `./scripts/validate-ai-instructions.sh` errors when the manifest version
    has no changelog entry, so pre-commit and CI both catch a missed step.
 
-Docs-, template-, or script-only MRs don't bump the version.
+The bump covers everything the plugin delivers, not just `skills/` and
+`commands/`: `hooks/`, a script a hook runs, and the ambient layer (`CLAUDE.md`
+plus the universal `rules/` subset) all reach teammates through this channel.
+The install path is version-keyed, so an unbumped release lands in the previous
+version's directory and is invisible in `/plugin`.
+
+Only repo-internal changes skip the bump — `README.md`, `docs/`, `FEATURES.md`,
+CI config, and templates that project sync renders rather than the plugin.
 
 ### Add or update a shared fragment
 

@@ -10,10 +10,13 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
 - Always request review from the maintainer, `wieteke.pots`, on that MR:
   `glab mr create … --reviewer wieteke.pots`. On an MR that already exists:
   `glab mr update <iid> --reviewer wieteke.pots`.
-- When the MR changes what the `greenberry` plugin ships (`skills/`,
-  `commands/`, `.claude-plugin/`), bump the `version` in
+- When the MR changes what the `greenberry` plugin ships or how it behaves —
+  `skills/`, `commands/`, `.claude-plugin/`, `hooks/`, a script a hook runs, or
+  the ambient layer (`CLAUDE.md`, `rules/communication.md`,
+  `rules/project.md`, `rules/clean-architecture.md`) — bump the `version` in
   `.claude-plugin/plugin.json` and add the matching `CHANGELOG.md` entry in
-  the same MR.
+  the same MR. The install path is version-keyed, so an unbumped release is
+  invisible in `/plugin` and indistinguishable from the previous one.
 - An MR without that reviewer is not done. Confirm it with
   `glab mr view <iid>` before reporting, and report the real MR URL — never
   claim an MR or a reviewer the CLI did not confirm.
