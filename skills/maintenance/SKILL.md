@@ -1,6 +1,6 @@
 ---
 name: maintenance
-description: Run a periodic project maintenance sweep — dependency and vulnerability status, runtime/platform EOL, credential and API-key currency (including Prepr CMS tokens), quality baseline, repo and CI hygiene, migrations, backups, and doc drift — landing one prioritized report plus backlog-ready follow-ups. Read-only by default; fixes only after approval. Use when the user asks for project maintenance, onderhoud, a monthly or periodic health check, or to verify that API keys and env config are still current.
+description: Run a periodic project maintenance sweep — dependency and vulnerability status, runtime/platform EOL, credential and API-key currency (Prepr CMS content tokens, GitLab/deploy token expiry), quality baseline, repo and CI hygiene, migrations, backups, and doc drift — landing one prioritized report plus backlog-ready follow-ups. Read-only by default; fixes only after approval. Use when the user asks for project maintenance, onderhoud, a monthly or periodic health check, or to verify that API keys and env config are still current.
 ---
 
 # Project Maintenance Sweep
@@ -10,12 +10,18 @@ lane that rots silently — dependencies, runtime versions, credentials, quality
 baseline, CI, data, docs — and lands **one ranked report** so the user can
 decide what to fix.
 
-Skill-only — no command-runbook fallback. Default cadence: monthly, or before
-picking a project back up after a quiet period.
+Skill-only — no command-runbook fallback.
 
 This skill is an **orchestrator**. It never re-implements a lane that already
 has its own skill; it runs that skill in inventory mode and folds the result
 into the report.
+
+**Cadence is manual, deliberately.** Run it monthly, or before picking a
+project back up after a quiet period. There is no cron or scheduled variant:
+the sweep needs a human to act on the report, and an unattended sweep just
+produces reports nobody reads. Continuity comes from the previous report — the
+sweep reads it and reports *deltas*, which is what makes a monthly rhythm cheap
+without automating it.
 
 ## Contract (read first)
 
@@ -27,7 +33,8 @@ into the report.
 3. **Never rotate, revoke, or create a credential.** That happens in the
    vendor dashboard, by the user. This skill reports and asks.
 4. **Delegate, don't duplicate:**
-   - dependencies + vulnerabilities → `skills/npm-maintenance/SKILL.md`
+   - dependencies + vulnerabilities → `skills/npm-maintenance/SKILL.md`,
+     specifically its **Inventory mode** (report-only; no updates, no audit fix)
    - quality pipeline → `skills/run-checks/SKILL.md`
    - perf / CI cost / dependency weight → `skills/sustainable-review/SKILL.md`
    - accessibility → `skills/wcag-audit/SKILL.md`
@@ -78,8 +85,8 @@ Do this first; every lane below refers back to it, and it goes in the report.
 
 ### A. Dependencies and vulnerabilities
 
-Run `skills/npm-maintenance/SKILL.md` in **inventory only** mode — outdated +
-audit, no updates. Record:
+Run the **Inventory mode** of `skills/npm-maintenance/SKILL.md` — outdated +
+audit, no updates, no `audit fix`. Record:
 
 - direct dependencies behind a major, with the current → latest jump;
 - high/critical vulnerabilities: package, path, whether a fix exists upstream;
@@ -113,11 +120,22 @@ The lane that most often turns into an incident. Procedure per credential:
    present in an env file but undocumented) are findings. So is a variable
    whose fingerprint is *identical* across environments where it must differ
    (production vs preview tokens), or *different* where it must match.
-3. **Probe liveness.** Use the credential in a minimal read-only request and
+3. **Probe liveness.** Use the credential in a minimal **read-only** request and
    read only the status code. Write the probe to the scratchpad with the Write
-   tool and run it via the project's env loader:
-   `npx dotenvx run -f .env.<env> -- node <scratchpad>/probe-<service>.mjs`.
-   Never inline the secret in a command, and never `echo` it.
+   tool, and load the secret through the project's own env mechanism so it never
+   appears in a command:
+   - dotenvx projects: `npx dotenvx run -f .env.<env> -- node <scratchpad>/probe-<service>.mjs`
+   - plain `.env` projects: `node --env-file=<abs-path>/.env <scratchpad>/probe-<service>.mjs`
+
+   Never inline a secret in a command, never `echo` it, and redact it out of any
+   response body you print (`text.replaceAll(token, "<redacted>")`) — error
+   pages echo credentials back surprisingly often.
+
+   **Not everything may be probed.** A credential whose only endpoint *does*
+   something — deploy hooks and build triggers (`VERCEL_BUILD_TRIGGER_*`,
+   `NETLIFY_*` build hooks), webhook URLs, queue producers — is verified by
+   presence and fingerprint plus a manual dashboard check. Firing it is a
+   deploy, not a probe.
 4. **Classify** each credential: `live` · `revoked/expired (401/403)` ·
    `wrong scope` · `service unreachable` · `not verifiable — manual dashboard
    check`. Record the date it was verified; that date is the baseline the next
@@ -130,60 +148,177 @@ The lane that most often turns into an incident. Procedure per credential:
 
 **Detect** via `prepr.config.ts`, `config/prepr.*`, `src/vendor/prepr/`,
 references to `graphql.prepr.io`, a `codegen.config.ts` pointing at the Prepr
-schema, or env vars matching `PREPR*`. Typical variables:
-`PREPRIO_TOKEN` (published scope), `PREPRIO_TOKEN_PREVIEW` (preview scope),
-`PREPR_WEBHOOK_REVALIDATE_SECRET`.
+schema, or env vars matching `PREPR*`.
+
+**Never assume variable names.** Across Greenberry projects the same token
+appears as `PREPRIO_TOKEN`, `PREPR_ACCESS_TOKEN`, or
+`PREPR_GRAPHQL_ACCESS_TOKEN`, and its preview twin as `PREPRIO_TOKEN_PREVIEW`,
+`PREPR_PREVIEW_TOKEN`, or `PREPR_GRAPHQL_PREVIEW_ACCESS_TOKEN`. Discover every
+`PREPR*` variable, then classify by **role** — and only probe the two roles that
+belong to the GraphQL API:
+
+| Role | Name pattern | GraphQL probe? |
+| --- | --- | --- |
+| Content token, published scope | `*TOKEN*` / `*ACCESS_TOKEN*` without `PREVIEW` | yes |
+| Content token, preview scope | same, with `PREVIEW` | yes |
+| Tracking/events token | `*TRACKING_TOKEN*`, often `NEXT_PUBLIC_` | **no** — different API (`tracking.prepr.io`); probing it against GraphQL yields a false "revoked" |
+| Webhook secret | `*WEBHOOK*SECRET*` | no — not a token at all |
+| API base URL | `PREPR_API_BASE_URL` | no — config, but must match the probed host |
+
+A cheap sanity check before probing: Prepr GraphQL access tokens are prefixed
+`ac_` (67 chars in the projects checked). A `PREPR*` variable whose value does
+not start with `ac_` is almost certainly not a content token — check the prefix,
+never print the value.
 
 Checks:
 
 1. **Token liveness.** In Prepr's GraphQL API the token *is* the path segment:
-   `POST https://graphql.prepr.io/<token>`. `200` with a `data` object → live.
-   `401`/`403` → revoked or expired; treat as **urgent**, because the next
-   deploy renders empty or 500s. `404` → wrong or truncated token.
-2. **Scope.** The preview token must return draft content, the published token
-   must not. Query the same model with both and compare item counts — equal
-   counts on a project that demonstrably has drafts means the "preview" token
-   is really a published token.
+   `POST https://graphql.prepr.io/<token>` with `{ __typename }`. `200` with a
+   `data` object → live. `401`/`403` → revoked or expired; treat as **urgent**,
+   because the next deploy renders empty or 500s. `404` → wrong or truncated
+   token.
+2. **Scope.** Verified recipe — the published and preview tokens expose an
+   **identical schema** (same query fields), so scope is only visible in the
+   *data*:
+   - introspect once (`{ __schema { queryType { fields { name } } } }`; plain
+     access tokens are allowed to introspect);
+   - attempt `{ <Field> { total } }` per candidate and keep the ones that answer.
+     Plural names lie: in one real project `Redirects` and `CareersVacancies`
+     are singletons that error with `Cannot query field "total"`. Skip those.
+     Do **not** pass `limit:` — several collections reject it.
+   - compare `total` per collection across both tokens. Need **≥3** usable
+     collections before drawing a conclusion.
+   - **Any** delta means the scopes genuinely differ. Direction is *not* the
+     signal: in a real project preview was higher for most collections
+     (drafts) but *lower* for others (`Locations` 564 published vs 558 preview),
+     so "preview must be bigger" is wrong.
+   - **All** totals identical across every collection is the finding: the two
+     variables probably hold the same-scope token, so preview/draft rendering
+     is silently broken.
 3. **Per environment.** Probe once per env file in scope, plus the CI and
    hosting copies. A token that works locally proves nothing about production.
-4. **Schema freshness.** Run the project's codegen against the live schema in
-   a scratch copy and diff the generated output. A non-empty diff means the
-   CMS model has moved ahead of the repo → report it and backlog the regen.
-   Never silently commit regenerated types as part of a sweep.
+4. **Schema freshness.** Introspection works with the project's own token, so
+   run the project's codegen against the live schema in a scratch copy and diff
+   the generated output. A non-empty diff means the CMS model has moved ahead of
+   the repo → report it and backlog the regen. Never silently commit
+   regenerated types as part of a sweep.
 5. **Asset host.** `cdnHostname` in `prepr.config.ts` and the Next image
    remote patterns must still match the Prepr environment's file host,
    otherwise images 404 in production only.
 6. **Webhook secret.** Not probeable. Manual check item: in Prepr → Webhooks,
    confirm the revalidate webhook exists, targets the current deploy URL, and
-   its secret matches `PREPR_WEBHOOK_REVALIDATE_SECRET` (compare fingerprints).
-7. **Expiry.** Prepr access tokens are managed per environment in the
-   dashboard and carry no expiry in the API response — liveness is the only
+   its secret matches the webhook-secret variable (compare fingerprints).
+7. **Expiry.** Prepr access tokens are managed per environment in the dashboard
+   and carry **no expiry field in the API response** — liveness is the only
    automated signal. Ask the user to confirm the token list and last rotation
    date in Prepr → Settings → Access tokens, and record the confirmed date in
-   the report.
+   the report as the baseline for the next sweep.
 
-Probe script — write it with the Write tool, never as a Bash heredoc:
+Probe script — write it with the Write tool, never as a Bash heredoc. Take the
+variable names from discovery instead of hardcoding them:
 
 ```js
-// probe-prepr.mjs — token comes from the environment and is never printed
-const token = process.env.PREPRIO_TOKEN;
-if (!token) {
-  console.log("MISSING: PREPRIO_TOKEN not set for this environment");
-  process.exit(1);
+// probe-prepr.mjs — tokens come from the environment and are never printed
+const [pubVar, prevVar] = process.argv.slice(2); // e.g. PREPRIO_TOKEN PREPRIO_TOKEN_PREVIEW
+const tokens = { published: process.env[pubVar], preview: process.env[prevVar] };
+const secrets = Object.values(tokens).filter(Boolean);
+const redact = (t) => secrets.reduce((acc, s) => acc.replaceAll(s, "<redacted>"), t);
+
+async function gql(token, query) {
+  const res = await fetch(`https://graphql.prepr.io/${token}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  const text = await res.text();
+  try {
+    return { status: res.status, json: JSON.parse(text) };
+  } catch {
+    return { status: res.status, body: redact(text).slice(0, 200) };
+  }
 }
-const res = await fetch(`https://graphql.prepr.io/${token}`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ query: "{ __typename }" }),
-});
-const body = (await res.text()).slice(0, 300).replaceAll(token, "<redacted>");
-console.log(`status=${res.status} body=${body}`);
+
+const totals = {};
+for (const [role, token] of Object.entries(tokens)) {
+  if (!token) {
+    console.log(`${role}: MISSING in this env file`);
+    continue;
+  }
+  console.log(`${role}: ${token.slice(0, 4)}…${token.slice(-4)} prefix_ok=${token.startsWith("ac_")}`);
+  const live = await gql(token, "{ __typename }");
+  console.log(`  liveness status=${live.status} ${live.json ? "data ok" : live.body}`);
+  if (live.status !== 200) continue;
+
+  const intro = await gql(token, "{ __schema { queryType { fields { name } } } }");
+  const fields = (intro.json?.data?.__schema?.queryType?.fields ?? []).map((f) => f.name);
+  totals[role] = {};
+  for (const name of fields.filter((f) => /^[A-Z]/.test(f) && !/^(Similar_|Popular_|PeopleAlsoViewed_)/.test(f))) {
+    const r = await gql(token, `{ ${name} { total } }`);
+    const total = r.json?.data?.[name]?.total;
+    if (typeof total === "number") totals[role][name] = total; // singletons error out; skipped
+  }
+  console.log(`  usable collections: ${Object.keys(totals[role]).length}`);
+}
+
+const shared = Object.keys(totals.published ?? {}).filter((k) => k in (totals.preview ?? {}));
+const deltas = shared.filter((k) => totals.published[k] !== totals.preview[k]);
+console.log(
+  shared.length < 3
+    ? `scope: INCONCLUSIVE (${shared.length} shared collections, need 3)`
+    : `scope: ${deltas.length ? `OK — ${deltas.length}/${shared.length} differ` : "SUSPECT — every total identical, likely same scope twice"}`,
+);
 ```
 
 > Sandbox note: `graphql.prepr.io` is not on the default sandbox network
 > allowlist, so the first probe fails with a network error. Either add the host
-> to the sandbox allowlist or run that one command unsandboxed — and state in
-> the report which of the two you did.
+> to `.claude/settings.json` in the **target project** (a sandbox network
+> allowlist entry — not in ai-workflows, and not shipped by the project template,
+> since it only applies to Prepr projects) or run that one command unsandboxed.
+> State in the report which of the two you did.
+
+#### Repo, CI, and deploy tokens (when detected)
+
+The only credentials in the stack with a **machine-readable expiry** — so this
+is where a sweep buys the most, and where the failure is a hard deadline rather
+than a slow rot.
+
+1. **The user's own GitLab PAT** — `glab api personal_access_tokens/self`
+   returns `name`, `scopes`, `expires_at`, `active`, `revoked`, `last_used_at`.
+   Report the days remaining; flag under 30 days as high (GitLab caps PAT
+   lifetime, so this *will* fire on schedule and takes CI, `glab`, and any
+   token-based clone down with it).
+2. **PATs living in env vars** (observed: `COMPONENT_LIBRARY_REPO_TOKEN`, used
+   to clone a private component library during install/build). Probe read-only
+   with the token as a `PRIVATE-TOKEN` header against `/user`, and read its
+   expiry from `personal_access_tokens/self` with that same token. An expiring
+   one breaks `npm install` in CI, which reads as a dependency failure and
+   costs a debugging session.
+3. **Project and group tokens** — `glab api projects/<enc-slug>/access_tokens`
+   and `glab api projects/<enc-slug>/deploy_tokens` (both carry `expires_at`;
+   an empty array is a valid answer, not an error).
+4. **CI variables** — `glab variable list --repo <slug>` lists names, protection
+   and masking, never values. Check: every secret the app needs at build time is
+   present, masked, and scoped to the right environment; nothing lingers that
+   the code no longer reads (a stale secret is still a leak surface).
+5. **Deploy hooks and build triggers** — presence and fingerprint only. Never
+   fire them; see the "not everything may be probed" rule above.
+
+#### Analytics, maps, and other browser-exposed keys
+
+`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_GOOGLE_GTM_ID`, analytics IDs.
+These are shipped to the browser, so treat them as configuration, not secrets —
+but they still break, and differently:
+
+- **Do not probe.** A key restricted by HTTP referrer answers fine from a dev
+  machine while failing in production, and every call may be billable. A green
+  probe here would be actively misleading.
+- **Check instead:** the key exists per environment and differs where it should
+  (a production Maps key in an acceptance build inflates the production quota);
+  it is not committed to git; it is documented in `.env.example`.
+- **Manual dashboard items:** referrer/API restrictions still match the current
+  domains, billing is active, and quota headroom is sane. Record the date the
+  user confirmed these — this lane is confirmation-based by design, and the
+  report must say so rather than implying a probe happened.
 
 ### D. Quality baseline
 
@@ -240,8 +375,18 @@ Write `docs/maintenance/maintenance-<YYYY-MM-DD>.md`:
   webhooks, DNS/cert expiry).
 - **Parked** — findings below the backlog threshold, listed explicitly.
 
-Then hand findings at or above the threshold to `skills/backlog/SKILL.md` so
-they land as real BLIs.
+### Backlog handoff — propose, then confirm
+
+The sweep never creates backlog items on its own. For findings at or above the
+threshold, end the report with a **proposed BLI list**: one line per item
+(title + severity + the finding it comes from), plus an explicit note for any
+finding that looks like it duplicates an item from an earlier sweep or an
+existing `docs/backlog/` entry. The user picks which ones to create; only then
+hand those to `skills/backlog/SKILL.md`.
+
+Rationale: a monthly sweep re-finds the same slow rot every run. Auto-creating
+above a threshold fills the backlog with near-duplicates that then need manual
+pruning — more work than confirming a short list once.
 
 ## Fixes
 
@@ -266,6 +411,11 @@ describe the repo it was written about.
   explicitly put in scope.
 - Never call a credential current without a successful probe or an explicit
   user confirmation.
+- Never trigger a deploy hook, build trigger, or webhook "to test it" — that is
+  a deploy. Presence and fingerprint only.
+- Never probe a browser-exposed key (Maps, analytics): the result is misleading
+  and the call may be billable.
+- Never create backlog items without the user confirming the proposed list.
 - Never regenerate CMS or database types as part of the sweep — report drift.
 
 ## Anti-patterns
@@ -273,6 +423,10 @@ describe the repo it was written about.
 - ❌ Treating `npm audit` output as the whole sweep.
 - ❌ Concluding "the API key is fine" because the variable exists.
 - ❌ Assuming a working local token means production works.
+- ❌ Probing every `PREPR*` variable against the GraphQL endpoint — the tracking
+  token and the webhook secret belong to other APIs and will read as "revoked".
+- ❌ Calling the preview/published scope check conclusive on one collection, or
+  concluding from the *direction* of the delta rather than its presence.
 - ❌ A silent codegen regen that hides a CMS model change.
 - ❌ Forty undifferentiated findings with no ranking, owners, or parked list.
 - ❌ Fixing during the sweep so the report no longer matches the repo.
