@@ -4,6 +4,15 @@
 
 draft
 
+Readiness pass 2026-07-29 — blocked on maintainer decisions: the content
+contracts for the three project documents (brief / spec / architecture) are
+product-shaping calls, and an autonomous run cannot satisfy the improve-skill
+RED rule (no fresh project to watch the baseline fail in), so this needs a
+human-driven first run. Gap to add when picking this up: `init-project` gets
+no AC preventing it from re-deriving structure when `docs/architecture.md`
+exists, so the two documents can drift; `skills/architecture-review` also
+never reads `docs/architecture.md`.
+
 ## Priority
 
 medium

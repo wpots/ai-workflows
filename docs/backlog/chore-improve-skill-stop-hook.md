@@ -4,6 +4,16 @@
 
 draft
 
+Readiness pass 2026-07-29 — blocked on a maintainer decision: there is no
+observable predicate for "this run needed intervention" — a Stop hook gets no
+correction/retry signal from the harness, so the detection heuristic must be
+designed first. Premise corrections for whoever picks this up: the prose rule
+lives only in this repo's `CLAUDE.md` (not in the generated adapters or
+templates); `scripts/install-hooks.sh` installs pre-commit *and* pre-push
+hooks; and `sync.sh` does not update an existing project
+`.claude/settings.json`, so a new template hook will not reach already-synced
+projects without extra work.
+
 ## Priority
 
 low

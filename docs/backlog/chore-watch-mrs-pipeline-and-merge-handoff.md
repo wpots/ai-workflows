@@ -2,7 +2,16 @@
 
 ## Status
 
-draft
+ready
+
+Readiness pass 2026-07-29. Depends on feat-mr-merged so the merge hand-off
+references a tracked skill. ACs 4 and 5 are already true in the committed
+skill (auto-merge opt-in per invocation; bash/emptiness guardrails) — verify
+and tick rather than re-implement. Reference `skills/pipeline-triage` without
+the `.md` extension until that skill exists (`validate-skills.mjs` errors on
+backticked paths that are not tracked files). Bump
+`.claude-plugin/plugin.json` + `CHANGELOG.md` if the plugin release rule has
+landed.
 
 ## Priority
 
@@ -61,5 +70,5 @@ plus a clear next step is the acceptable interim behaviour.
 
 - [../../skills/watch-mrs/SKILL.md](../../skills/watch-mrs/SKILL.md)
 - [feat-pipeline-triage.md](feat-pipeline-triage.md)
-- [feat-mr-merged.md](feat-mr-merged.md)
+- Depends on: [feat-mr-merged.md](feat-mr-merged.md)
 - [../pipeline-map.md](../pipeline-map.md)

@@ -4,6 +4,14 @@
 
 draft
 
+Readiness pass 2026-07-29 — blocked on maintainer decisions: interim behavior
+when `skills/ticket-drift-check` does not exist is unstated (AC 2 requires it,
+Out of Scope forbids building it), and "stops on high-severity findings" needs
+a defined threshold — code-review defines an ordered severity list, not named
+levels. Delivery notes: reference not-yet-existing skills without the `.md`
+extension (`validate-skills.mjs` errors otherwise); regenerating
+`.github/prompts/create-pr.prompt.md` is required when the command changes.
+
 ## Priority
 
 high

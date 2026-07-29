@@ -4,6 +4,14 @@
 
 draft
 
+Readiness pass 2026-07-29 — blocked on a maintainer decision: how a CI job
+`script:` line maps to a locally runnable command (container images, `apk
+add`, monorepo/matrix jobs) is undefined, and the Technical Notes resolve it
+with "ask instead of guessing", which an autonomous run cannot do. Delivery
+note: the fallback `commands/run-checks.md` change must regenerate
+`.github/prompts/run-checks.prompt.md` via `scripts/generate-adapters.sh` or
+validation fails on drift.
+
 ## Priority
 
 medium

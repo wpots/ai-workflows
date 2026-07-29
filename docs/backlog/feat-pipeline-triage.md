@@ -4,6 +4,13 @@
 
 draft
 
+Readiness pass 2026-07-29 — not autonomously runnable yet: AC5's
+reproduce-locally step needs the CI-job→local-command mapping owned by
+chore-run-checks-ci-parity, and the watch-mrs hand-off overlaps
+chore-watch-mrs-pipeline-and-merge-handoff. Build after those two. Otherwise
+the most concrete of the CI items (exact `glab` calls, classification set,
+and negative constraints are all specified).
+
 ## Priority
 
 high

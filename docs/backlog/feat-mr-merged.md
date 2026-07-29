@@ -2,7 +2,21 @@
 
 ## Status
 
-draft
+ready
+
+Readiness pass 2026-07-29, with the two open points pinned down:
+
+1. Invocation context: accept an MR URL or iid as argument; when absent,
+   resolve the most recently merged MR for the current branch via `glab`.
+2. Sprint board: follow that skill's opt-in rule — update the board only when
+   `docs/board/` already exists, never create it.
+
+Delivery notes: reference not-yet-existing skills without the `.md` extension
+(`validate-skills.mjs` errors on backticked skill paths that are not tracked
+files); register the skill in `CLAUDE.md` and `FEATURES.md` as well as
+canonical-sources and pipeline-map (maintenance-skill precedent); bump
+`.claude-plugin/plugin.json` + `CHANGELOG.md` if the plugin release rule has
+landed.
 
 ## Priority
 
