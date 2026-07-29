@@ -122,10 +122,11 @@ in one thing that matters: who decides to run it.
 | Loop | `loop` | Started once, then keeps running on its own until stopped |
 | Rules | `loaded` | Nothing invokes a rule — it is read into context, ambient or on demand |
 
-`shared/command-mappings.md` covers all 15 command runbooks and
-`shared/skill-mappings.md` all 30 skills; `scripts/validate-skills.mjs` errors
-when either falls behind, so a runbook like `commands/refinement.md` can no
-longer sit in the repo without a trigger phrase. Both fragments are injected into
+`shared/command-mappings.md` covers every command runbook and
+`shared/skill-mappings.md` every skill; `scripts/validate-skills.mjs` errors when
+either falls behind, so a runbook like `commands/refinement.md` can no longer sit
+in the repo without a trigger phrase. The counts are deliberately not written out
+here — the validator is the guarantee, and a number in prose only goes stale. Both fragments are injected into
 the generated adapters (`CLAUDE.md`, `AGENTS.md`), which is where a tool actually
 reads them; on Claude the skill descriptions route in parallel via the plugin.
 
