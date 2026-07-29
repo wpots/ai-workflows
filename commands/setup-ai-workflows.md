@@ -47,7 +47,13 @@ Preferred path:
    - `rules/`
    - `commands/`
    - `.github/prompts/`
-8. Summarize:
+8. Emit project tooling: write a checked-in, env-var-based `.mcp.json`
+   (plus a `.cursor/mcp.json` mirror) for detected needs — Playwright in
+   devDependencies → `playwright`, live-browser debugging →
+   `chrome-devtools` — and record servers + env vars in the `## Tooling`
+   section of `CONVENTIONS.md`. Skip existing files; merge manually.
+   Doctrine: `docs/tooling.md` in ai-workflows.
+9. Summarize:
    - detected stack
    - created or updated files
    - deviations from global rules

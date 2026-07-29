@@ -6,7 +6,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC_COMMANDS="$ROOT_DIR/commands"
 SRC_RULES="$ROOT_DIR/rules"
 SRC_SKILLS="$ROOT_DIR/skills"
-SRC_MCP="$ROOT_DIR/mcp"
 SRC_SHARED="$ROOT_DIR/shared"
 SRC_TEMPLATES="$ROOT_DIR/templates"
 SRC_AI_WORKFLOWS_TEMPLATE="$ROOT_DIR/templates/project-ai-workflows.md"
@@ -17,7 +16,6 @@ TARGET_CURSOR="$HOME/.cursor"
 TARGET_CODEX="$HOME/.codex"
 TARGET_CLAUDE="$HOME/.claude"
 TARGET_CURSOR_SKILLS_SUBPATH="skills-cursor/ai-workflows"
-TARGET_CURSOR_MCP_SUBPATH="mcp/ai-workflows"
 
 DRY_RUN=0
 PROJECT_DIR=""
@@ -429,10 +427,6 @@ fi
 
 if [[ -d "$SRC_SKILLS" && -d "$TARGET_CURSOR" ]]; then
   sync_dir "$SRC_SKILLS" "$TARGET_CURSOR/$TARGET_CURSOR_SKILLS_SUBPATH"
-fi
-
-if [[ -d "$SRC_MCP" && -d "$TARGET_CURSOR" ]]; then
-  sync_dir "$SRC_MCP" "$TARGET_CURSOR/$TARGET_CURSOR_MCP_SUBPATH"
 fi
 
 if [[ -d "$SRC_SKILLS" && -d "$TARGET_CODEX/skills" ]]; then

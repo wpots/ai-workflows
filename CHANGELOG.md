@@ -13,6 +13,25 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-07-30
+
+### Added
+
+- `skills/setup-ai-workflows` emits per-project integration tooling: a
+  checked-in, env-var-based `.mcp.json` plus a `.cursor/mcp.json` mirror,
+  documented in a `## Tooling` section of `CONVENTIONS.md`. Doctrine in the
+  new `docs/tooling.md` — CLI-first for scriptable/headless work; MCP for
+  browser control, design context, and OAuth SaaS.
+- `commands/new-device-setup.md` installs and verifies the machine CLI
+  baseline: glab (PAT, api + write_repository), jira-cli, dotenvx via npx,
+  plus the claude.ai connector authorization note.
+
+### Removed
+
+- The global MCP definitions (`mcp/servers.json`, `mcp/README.md`) and the
+  `~/.cursor/mcp/ai-workflows` sync target — superseded by the per-project
+  `.mcp.json` convention.
+
 ## [1.8.0] - 2026-07-29
 
 ### Added

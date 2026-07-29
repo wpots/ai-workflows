@@ -1,6 +1,6 @@
 ---
 name: setup-ai-workflows
-description: Set up or refresh the AI-workflow configuration of a project — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), adds a developer-facing AI-WORKFLOWS.md guide, and detects deviations from global rules including type-safety and trust-boundary posture. This is the config lane, not the project kickoff — a whole new project starts with skills/start-project. Use when the user asks to apply ai-workflows to a project, (re)generate CONVENTIONS.md or the tool adapters, or refresh a project's synced workflow assets.
+description: Set up or refresh the AI-workflow configuration of a project — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), adds a developer-facing AI-WORKFLOWS.md guide, emits an env-var-based project .mcp.json for integration tooling, and detects deviations from global rules including type-safety and trust-boundary posture. This is the config lane, not the project kickoff — a whole new project starts with skills/start-project. Use when the user asks to apply ai-workflows to a project, (re)generate CONVENTIONS.md or the tool adapters, or refresh a project's synced workflow assets.
 ---
 
 # Set Up AI Workflows In A Project
@@ -144,6 +144,11 @@ reasoning behind it: `docs/architecture.md`" — and no restated rationale>
 | `npm run dev` | <description> |
 | ... | ... |
 
+## Tooling
+
+- <MCP servers from `.mcp.json` and the env vars each expects>
+- <project CLIs beyond the machine baseline — see docs/tooling.md in ai-workflows>
+
 ## Conventions
 
 - <project-specific conventions detected from config files>
@@ -215,7 +220,41 @@ The type-safety split should stay visible in the generated project guidance:
 - deeper enforcement policy in `rules/type-safety.md`
 - audit behavior in the review workflow
 
-### 8. Summary
+### 8. Emit Project Tooling
+
+Detect integration tooling needs and write the project MCP config. Doctrine
+(CLI for scriptable/headless work, MCP for browser control, design context,
+and OAuth SaaS) lives in `docs/tooling.md` in ai-workflows.
+
+| Signal | Server entry |
+| ------ | ------------ |
+| `@playwright/test` in devDependencies | `playwright` |
+| UI/e2e work needing a live, inspectable browser | `chrome-devtools` |
+| Other detected SaaS/tool needs | case by case, env-var-based |
+
+Write two files, then document them:
+
+- `.mcp.json` at the project root — checked in; secrets only as `${ENV_VAR}`
+  references, never literal values
+- `.cursor/mcp.json` — Cursor mirror of the same servers
+- record every server and its env vars in the `## Tooling` section of
+  CONVENTIONS.md
+
+```json
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    }
+  }
+}
+```
+
+If either file already exists, do not overwrite it — report what a manual
+merge should add instead.
+
+### 9. Summary
 
 Output a summary of what was created/synced:
 
@@ -231,6 +270,8 @@ Initialized <project-name> with ai-workflows:
   rules/                [synced]           — shared baseline coding rules
   commands/             [synced]           — shared workflow runbooks
   .github/prompts/      [synced]           — Copilot prompt files generated from commands/
+  .mcp.json             [created/skipped]  — project MCP servers (env-var-based, checked in)
+  .cursor/mcp.json      [created/skipped]  — Cursor mirror of the MCP config
 
   Stack: <detected stack>
   Deviations: <count> from global rules
@@ -248,3 +289,5 @@ If deviations were detected, list them briefly so the developer is aware.
 - Do not duplicate an architecture decision into CONVENTIONS.md. Link to it.
 - Tool adapters (CLAUDE.md, AGENTS.md, etc.) can be regenerated freely.
 - Keep CONVENTIONS.md concise — under 80 lines.
+- Never write a secret value into `.mcp.json` or `.cursor/mcp.json` —
+  env-var references (`${VAR}`) only.

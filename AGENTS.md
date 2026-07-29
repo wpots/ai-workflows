@@ -153,13 +153,15 @@ These return a scoped subgraph, usually much smaller than raw grep output or `GR
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 <!-- END SHARED:graphify -->
 
-### MCP Definitions
+### Integration Tooling
 
-Canonical MCP server definitions live in `mcp/`.
+The CLI-vs-MCP doctrine lives in `docs/tooling.md`.
 
-- Keep `mcp/servers.json` as the source of truth.
-- Prefer environment variables for secrets.
-- Sync into namespaced client folders to avoid overwriting active local MCP config.
+- Machine-level CLIs (`glab`, `jira`, `dotenvx`) install once per developer
+  via `commands/new-device-setup.md`.
+- Project-level MCP servers are per project: a checked-in, env-var-based
+  `.mcp.json` (plus `.cursor/mcp.json`), emitted by `init-project`.
+- Prefer environment variables for secrets — never literal values in config.
 
 ## Shared Workflow Assets Land via MR
 
