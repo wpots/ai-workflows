@@ -5,11 +5,13 @@
 // Errors (exit 1): broken frontmatter, name/directory mismatch, duplicate
 // names, references to files that don't exist, broken relative links,
 // command-mapping targets that don't exist, canonical-sources rows pointing
-// at missing files, pipeline-map paths that don't exist.
+// at missing files, pipeline-map paths that don't exist, FEATURES.md rows
+// naming untracked paths.
 //
 // Warnings (exit 0): skills/commands missing from the canonical-sources
 // inventory, skills/commands/rules not placed in the pipeline map, pipeline-map
-// paths that exist but are untracked, descriptions without a routing cue,
+// paths that exist but are untracked, skills/commands/rules/MCP servers missing
+// from the FEATURES.md inventories, descriptions without a routing cue,
 // unknown frontmatter keys.
 
 import { execFileSync } from "node:child_process";
@@ -225,6 +227,69 @@ if (tracked.has(CANONICAL)) {
   }
 } else {
   warn(CANONICAL, "file not found; canonical-sources check skipped");
+}
+
+// ── Feature reference stays in sync with the tree ───────────────────────────
+
+const FEATURES = "FEATURES.md";
+
+if (tracked.has(FEATURES)) {
+  const features = read(FEATURES);
+
+  // Repo paths named in FEATURES.md must be tracked files, or directories
+  // that contain tracked files (same rule as the canonical-sources check).
+  const featureDirs = new Set();
+  for (const file of tracked) {
+    const parts = file.split("/");
+    for (let i = 1; i < parts.length; i += 1) {
+      featureDirs.add(parts.slice(0, i).join("/"));
+    }
+  }
+  for (const match of features.matchAll(
+    /`((?:skills|commands|rules|shared|scripts|templates|mcp|packages)\/[^`\s]*)`/g,
+  )) {
+    if (/[<>*]/.test(match[1])) continue; // placeholder, not a concrete path
+    const target = match[1].replace(/\/$/, "");
+    if (!tracked.has(target) && !featureDirs.has(target)) {
+      err(FEATURES, `lists \`${match[1]}\`, which is not a tracked path`);
+    }
+  }
+
+  // Coverage: every skill, command, rule, and MCP server appears in a table.
+  for (const dir of skillDirs) {
+    if (tracked.has(`skills/${dir}/SKILL.md`) && !features.includes(`\`${dir}\``)) {
+      warn(FEATURES, `skill \`${dir}\` is missing from the skills table`);
+    }
+  }
+  for (const rel of [...tracked].filter(
+    (f) => f.startsWith("commands/") && f.endsWith(".md"),
+  )) {
+    if (!features.includes(`\`${rel}\``)) {
+      warn(FEATURES, `command \`${rel}\` is missing from the commands table`);
+    }
+  }
+  for (const rel of [...tracked].filter(
+    (f) => f.startsWith("rules/") && f.endsWith(".md"),
+  )) {
+    if (!features.includes(`\`${rel}\``)) {
+      warn(FEATURES, `rule \`${rel}\` is missing from the rules table`);
+    }
+  }
+  if (tracked.has("mcp/servers.json")) {
+    let servers = {};
+    try {
+      servers = JSON.parse(read("mcp/servers.json")).mcpServers ?? {};
+    } catch {
+      // servers.json validity is not this block's concern
+    }
+    for (const server of Object.keys(servers)) {
+      if (!features.includes(`\`${server}\``)) {
+        warn(FEATURES, `MCP server \`${server}\` is missing from the MCP table`);
+      }
+    }
+  }
+} else {
+  warn(FEATURES, "file not found; feature-reference check skipped");
 }
 
 // ── Pipeline map places every surface in the process ──────────────────────────

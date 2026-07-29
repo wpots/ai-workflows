@@ -548,7 +548,8 @@ IDE.
 ### Add or update a skill
 
 1. Edit or create `skills/<name>/SKILL.md`.
-2. Record the canonical surface in `docs/workflow-canonical-sources.md`.
+2. Record the canonical surface in `docs/workflow-canonical-sources.md` and add
+   the inventory row in `FEATURES.md`.
 3. Place it in the process in `docs/pipeline-map.md` — which phase it fires in,
    which gate it helps close, and how it is invoked.
 4. Run `./scripts/validate-ai-instructions.sh`; steps 2 and 3 are checked, so a
