@@ -11,6 +11,43 @@
   "enabledPlugins": {
     "greenberry@ai-workflows": true
   },
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(glab mr *)",
+      "Bash(glab ci *)",
+      "Bash(glab api *)",
+      "Bash(glab auth *)",
+      "Bash(jira *)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npm ci *)",
+      "Bash(npx tsc *)",
+      "Bash(npx jest *)",
+      "Bash(npx eslint *)",
+      "Bash(npx playwright *)",
+      "Bash(npx next *)",
+      "Bash(npx dotenvx *)",
+      "Bash(node scripts/*)",
+      "Bash(node -e *)",
+      "Bash(rg *)",
+      "Bash(jq *)",
+      "Bash(sed -n *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(echo *)",
+      "Bash(wc *)",
+      "Bash(command -v *)"
+    ],
+    "ask": [
+      "Bash(git push --force*)",
+      "Bash(git push * --force*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean *)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {

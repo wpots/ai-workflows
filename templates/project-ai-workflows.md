@@ -139,6 +139,24 @@ When user intent matches one of these triggers, read and follow the correspondin
 
 All shared command and rule workflows are included in project sync by default.
 
+## Permissions Baseline
+
+Synced projects ship a Bash allowlist in `.claude/settings.json` that matches
+the Shell Usage doctrine: git, glab (mr/ci/api/auth), jira, npm/npx runners,
+`node scripts/*`, and read-only utilities (`rg`, `jq`, `sed -n`, `head`,
+`tail`, `cat`, `ls`, `echo`, `wc`) run without a prompt, while destructive git
+(`push --force`, `reset --hard`, `clean`) always asks first. This is why
+agents are told to phrase commands so each segment starts with an allowlisted
+tool — a command shaped outside the list costs a human approval and blocks
+autonomous runs.
+
+- Extend per project by adding rules to `permissions.allow` (for example a
+  project CLI, or `curl` against the local dev URL).
+- Never put secrets tooling or destructive commands in `allow`; destructive
+  git stays in `ask` on purpose.
+- Sync preserves an existing `settings.json`; projects that predate the
+  baseline merge the `permissions` block manually.
+
 ## Customizing This Setup
 
 - Adjust selected packages when the project should opt into a reusable
