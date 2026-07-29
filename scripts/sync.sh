@@ -370,6 +370,12 @@ if [[ -n "$PROJECT_DIR" ]]; then
   if [[ -f "$SRC_CLAUDE_SETTINGS" ]]; then
     if [[ -f "$PROJECT_DIR/.claude/settings.json" ]]; then
       echo "  [ok] .claude/settings.json exists (preserved — merge graphify hooks manually if needed)"
+      # Older templates wrote the marketplace source as "url", which Claude Code
+      # only accepts for a direct marketplace.json address — a git@ URL under it
+      # fails with 'invalid url'. We never clobber project settings, so warn.
+      if grep -q '"source": *"url"' "$PROJECT_DIR/.claude/settings.json"; then
+        echo "  [warn] .claude/settings.json has a marketplace \"source\": \"url\" — change it to \"git\" (see README > Existing projects)"
+      fi
     elif [[ "$DRY_RUN" -eq 1 ]]; then
       echo "[dry-run] write .claude/settings.json (graphify hooks)"
     else

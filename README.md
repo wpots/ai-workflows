@@ -298,6 +298,13 @@ project then get a one-time install prompt:
 Projects without their own settings get this automatically on the next
 `./scripts/sync.sh --project <path>`.
 
+The inner `"source": "git"` is load-bearing. For a *marketplace* source,
+Claude Code reads `"git"` as "clone this repository" and `"url"` as "download a
+`marketplace.json` from this address" — and validates the latter as a real URL,
+so `"url"` plus our `git@…` address fails with `invalid url`. (Inside a
+`marketplace.json`, *plugin* entries use the opposite convention, where `"url"`
+is the git-repo type. Don't copy one into the other.)
+
 ### How it behaves
 
 - Plugin skills invoke as `/greenberry:<skill>` (for example
@@ -314,6 +321,7 @@ Projects without their own settings get this automatically on the next
 | Symptom | Fix |
 | ------- | --- |
 | `Permission denied (publickey)` on marketplace add | No SSH key for gitlab.com — see step 1. |
+| `invalid url` on startup or marketplace add | Hand-written `extraKnownMarketplaces` with `"source": "url"`. Change it to `"source": "git"` — see [Existing projects](#existing-projects). |
 | Skills show up twice | Old copies still in `~/.claude/skills` — run `./scripts/sync.sh` again (step 3). |
 | glab reports `invalid_grant` and `git push` fails with `could not read Username` | The glab OAuth token broke and git-HTTPS auth runs through glab. Re-authenticate with `glab auth login` using a **Personal Access Token** (scopes `api` + `write_repository`) — PATs have no refresh races. |
 | A merged skill change is not visible yet | `/plugin marketplace update ai-workflows`, then `/reload-plugins`. |
