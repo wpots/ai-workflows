@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Readiness pass 2026-07-29, with the two open points pinned down:
 
