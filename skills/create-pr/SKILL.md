@@ -220,6 +220,12 @@ glab mr create \
 > `glab mr update <iid> --reviewer wieteke.pots`, and verify with
 > `glab mr view <iid>` before reporting. Never bypass the MR with a direct push
 > to the base branch there — not even for a one-line doc change.
+>
+> The reviewer only accepts a **username** on `glab mr create`; the `glab api`
+> POST path takes numeric ids (`--field "reviewer_ids[]=<id>"`). So when the
+> body also has to come from a file, create the MR with `glab mr create
+> --reviewer <username>` plus a one-line placeholder description, then PUT the
+> real body from the file (see below) — that gets both without looking up an id.
 
 > **Long descriptions go via a file, not inline.** A multi-paragraph body
 > passed inline (`--body`/`--description`) is fragile: shell quoting breaks
