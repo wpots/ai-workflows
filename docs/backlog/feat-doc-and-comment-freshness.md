@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Readiness pass 2026-07-29: verified against the repo — nothing delivered yet,
 ACs are concrete and self-contained. Two delivery requirements not in the ACs:
