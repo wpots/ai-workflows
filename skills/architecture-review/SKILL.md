@@ -47,6 +47,16 @@ documented mapping looks wrong, say so as a finding with the evidence (the
 imports you read), and let the fix land in `docs/architecture.md` as a
 decision-log entry.
 
+**Then read its "Known Architectural Debt" section.** Deviations listed there are
+already known and tracked, so reporting them as new findings buries the ones
+nobody has seen yet. Report them as `Known` with the tracker they name, and keep
+them out of the finding counts. Two exceptions worth raising:
+
+| Situation | Report as |
+| --- | --- |
+| listed deviation has grown beyond what the entry describes | Warning — the tracked scope no longer matches the code |
+| entry names a tracker, todo, or path that no longer exists | Suggestion — stale debt entry, the deviation lost its owner |
+
 If `docs/architecture.md` does not exist, infer the mapping as below — and note
 in the output that the review ran against an inferred mapping, so a
 disagreement about layers cannot be settled by a document.
@@ -169,8 +179,12 @@ File: src/components/OrderSummary.tsx:22-26
 Tax calculation performed inline inside JSX.
 Fix: Extract to src/hooks/useOrderTotal.ts.
 
+### Known (tracked in docs/architecture.md)
+- Loader/vendor import boundary is warn-level, not error → RFW-241
+- `workers/` unmapped since the queue migration → docs/todo/queue-layering.md
+
 ### Summary
-3 Critical · 2 Warnings · 1 Suggestion
+3 Critical · 2 Warnings · 1 Suggestion · 2 known/tracked
 ```
 
 ---
