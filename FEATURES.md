@@ -83,6 +83,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `maintenance` | Periodic project maintenance sweep — deps, runtime EOL, credential/API-key currency (incl. Prepr tokens), quality baseline, CI, data, doc drift | No (skill only) |
 | `upstream-to-unicore` | Upstream a reusable change from a synced project into the unicore-template repo via a GitLab MR | No (skill only) |
 | `mr-merged` | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup | No (skill only) |
+| `user-journeys` | Spec each user journey into `docs/journeys/` — walked path, branches, states, permissions, keyboard route, and the slice candidates the backlog is cut from | No (skill only) |
 
 ## MCP Servers
 

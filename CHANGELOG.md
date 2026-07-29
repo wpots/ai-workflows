@@ -13,6 +13,31 @@ here **in the same MR** whenever a change alters what the plugin ships. See
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-07-29
+
+### Added
+
+- `skills/user-journeys` — the missing lane between a release spec and a
+  backlog. One document per journey in `docs/journeys/`: actor, trigger, the
+  main path step by step (surface, data touched, design frame per step),
+  decision points, alternate and error paths, per-surface states, permissions,
+  content/localisation, the keyboard route, the non-functionals that bite, and
+  how completion is measured. It closes with **slice candidates** cut per
+  `rules/mr-sizing.md`, walking skeleton marked — which is what
+  `skills/backlog` writes items from. Four modes (spec-driven, design-driven,
+  retrofit from a running app, interview-only), Figma frames read through the
+  connector, and a two-way coverage check between spec rules and walked steps.
+  Callable on its own, and the journeys lane of `skills/start-project`.
+- `templates/user-journey.md` — the content contract for a journey document,
+  with the same never-invent discipline as the brief and spec templates: an
+  unstated step, state, role, or metric becomes an open question with an owner.
+
+### Changed
+
+- `templates/project-brief.md` — the `Core User Journeys` section now states
+  that it lists journeys rather than specifying them, and points at
+  `docs/journeys/<slug>.md` for the walked path.
+
 ## [1.4.0] - 2026-07-29
 
 ### Changed

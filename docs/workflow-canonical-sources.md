@@ -41,6 +41,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `upstream-to-unicore` | skill only | `skills/upstream-to-unicore/SKILL.md` | none | n/a |
 | `mr-merged` | skill only | `skills/mr-merged/SKILL.md` | none | n/a |
 | `start-project` | skill only | `skills/start-project/SKILL.md` | none | n/a |
+| `user-journeys` | skill only | `skills/user-journeys/SKILL.md` | none | n/a |
 
 ## Interpretation
 
