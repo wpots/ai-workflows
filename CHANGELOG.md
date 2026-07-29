@@ -13,6 +13,38 @@ here **in the same MR** whenever a change alters what the plugin ships. See
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-07-29
+
+### Changed
+
+- `skills/start-project` is now the **single kickoff entry**, restructured into
+  six ordered lanes instead of an interview plus a hand-off:
+  - **Lane 0 · Repository** (new) — production repos must come from GitLab's
+    *Create from template* flow into the client's group (Notion guide linked).
+    Checks the namespace, template lineage (shared history with
+    `unicore-template`, file fingerprint as fallback), default branch and merge
+    settings, protected branches and approval rules, CI/CD variable **names**,
+    Jira/Slack integrations, and the kickoff items the repo cannot answer
+    (Jira set up, hosting contract, CMS contract). Reports ok/deviation/unknown,
+    fixes nothing silently, and never creates a production repo from the CLI.
+    **PoC escape**: skipping the template method is allowed but must be recorded
+    as `Project type: PoC` in the brief *and* a decision-log entry, otherwise it
+    is not a waiver.
+  - **Lane 1 · Config** — runs `skills/setup-ai-workflows` when the project has
+    no (or stale) `CONVENTIONS.md`, and offers the refresh after the
+    architecture doc exists so the mapping is linked instead of re-derived.
+  - **Lane 2 · Resources** (new) — design/prototype links, CMS instance,
+    tracker, hosting, integrations and credential owners, brand/legal, test
+    accounts — collected *before* any document is written, which is what keeps
+    journeys and specs from being rewritten when the frames arrive.
+  - **Lane 3 · Intent** — the existing harvest, four interview rounds, and the
+    three documents. Round 2 now only *names* the journeys.
+  - **Lane 4 · Journeys** — delegates to `skills/user-journeys`.
+  - **Lane 5 · Plan** — slice candidates to `skills/backlog` /
+    `skills/jira-ticket`, sized per `rules/mr-sizing.md`.
+- `templates/project-brief.md` — new optional `Project Type` section that
+  carries the PoC/spike waiver and points at its decision-log entry.
+
 ## [1.6.0] - 2026-07-29
 
 ### Changed
