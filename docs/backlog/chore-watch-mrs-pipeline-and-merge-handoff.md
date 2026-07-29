@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Readiness pass 2026-07-29. Depends on feat-mr-merged so the merge hand-off
 references a tracked skill. ACs 4 and 5 are already true in the committed
