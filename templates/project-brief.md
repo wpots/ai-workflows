@@ -20,6 +20,14 @@ Rules for filling it in:
 
 <Draft | Reviewed | Approved> — <date>
 
+## Project Type
+
+<production | PoC | spike> — <for a PoC or spike that skipped the GitLab
+template method: "template method waived", who decided it, when, and what has to
+happen before it can go to production. The matching decision-log entry lives in
+`docs/architecture.md`. Leave this out for a normal production project set up
+from the template.>
+
 ## Reference Point
 
 <What this brief is based on: kickoff call of <date>, the live product reviewed
