@@ -12,6 +12,17 @@ The goal: every ticket lands in Jira with a predictable, type-appropriate
 template, so a developer can pick it up directly. The skill is project-agnostic —
 resolve every instance-specific value at runtime rather than assuming it.
 
+## Scope — tracker ticket, not a local backlog item
+
+This skill creates the tracker issue and stops there. It does not write anything
+under `docs/backlog/`.
+
+- Need the local spec (acceptance criteria, technical notes) as well? Run
+  `skills/backlog` afterwards with the key this skill returns.
+- Delivering the work autonomously? `skills/work-backlog` consumes the local
+  item, not the ticket — so a ticket without a matching backlog file is not yet
+  pickable.
+
 ## Tracker write — safety
 
 - This skill creates a Jira issue. **Always confirm the issue type, summary,

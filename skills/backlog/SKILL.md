@@ -11,6 +11,17 @@ backlog item.
 This skill is the canonical workflow source for backlog work on skill-aware
 tools. The matching command runbook is a compatibility and fallback surface.
 
+## Scope — local file, not a tracker ticket
+
+This skill writes **only** the local backlog file under `docs/backlog/`. It never
+creates, edits, or transitions an issue-tracker ticket.
+
+- Need a Jira issue (bug, story, task)? That is `skills/jira-ticket` — the one
+  skill sanctioned to write to the tracker.
+- Need both? Create the ticket first with `skills/jira-ticket`, then run this
+  skill with the real ticket key so the local item and the tracker agree.
+- Given a ticket key, treat the tracker as read-only context here.
+
 ## Context To Load
 
 1. Read `rules/backlog.md`.
