@@ -1,0 +1,159 @@
+# Adopt In An Existing Project
+
+Use this when the project already has code — and usually already has *some* AI
+setup: a hand-written `CLAUDE.md`, a few `.cursor/rules/`, Copilot instructions
+someone wrote a year ago, or nothing but a long README that agents keep missing.
+
+This is the most common starting point, and the retrofit is cheaper than it
+looks: the repo already answers half the questions a new project has to answer by
+interview.
+
+Project already on ai-workflows and you just want it up to date? →
+[keep-current.md](keep-current.md).
+
+## What Happens To The Files You Already Have
+
+Know this before you run anything.
+
+| File | What adoption does |
+| --- | --- |
+| `CONVENTIONS.md` | Created if missing. **Never overwritten** by sync — it is project-owned. |
+| `CLAUDE.md`, `AGENTS.md` | Regenerated as thin adapters. Existing content is **replaced** — `init-project` asks first. |
+| `.cursor/rules/conventions.mdc` | Created or updated. Your other `.cursor/rules/*` files are left alone. |
+| `.github/copilot-instructions.md` | Replaced by the generated adapter, with conventions inlined. |
+| `.claude/settings.json` | **Preserved** if present — nothing is merged for you. See [below](#merge-claudesettingsjson-by-hand). |
+| `rules/`, `commands/` | Shared baseline written in. Treat as generated from then on. |
+| Anything else | Untouched. |
+
+So the one thing to do first is rescue the content that matters.
+
+## Step 0 — Rescue What Your Old Instructions Knew
+
+Read your existing AI files and sort every statement into its new home. Do this
+before `init-project` regenerates the adapters, or you lose the good parts.
+
+| Something your old file said | New home |
+| --- | --- |
+| "we run `npm run type-check`, not `tsc`", folder layout, stack versions | `CONVENTIONS.md` (or let `init-project` detect it) |
+| "never fetch in a page component", coding patterns | project-local `rules/`, or the shared baseline if it is generally true |
+| "this repo deviates from the standard because …" | `CONVENTIONS.md` → *Deviations* |
+| why the architecture is shaped this way, layer intent, trust boundaries | `docs/architecture.md` (from `start-project`) |
+| product rules, domain vocabulary, who the users are | `docs/project-brief.md` / `docs/project-spec.md` |
+| generic coding standards that any Greenberry project would want | upstream them into this repo instead — see [contributing.md](contributing.md) |
+
+If you would rather keep the originals around while you work:
+`git mv CLAUDE.md docs/legacy-ai-instructions.md`, then delete it once
+`CONVENTIONS.md` covers everything.
+
+## Step 1 — Retrofit The Intent Docs (Optional But Recommended)
+
+Skip only if `docs/project-brief.md`, `docs/project-spec.md`, and
+`docs/architecture.md` already exist.
+
+Ask for the `start-project` workflow (Claude: `/greenberry:start-project`). In
+retrofit mode it *harvests before asking* — README, `package.json`, `src/` layout,
+env schema, migrations, CI config, `git log` on config files — and presents a
+confirm-or-correct list instead of a questionnaire. You correct a handful of
+lines rather than answering twenty questions.
+
+It detects retrofit mode itself and states the mode back to you in one line
+before continuing. It never overwrites an existing document without asking.
+
+Worth the time even on an old project: it is the only place where *why* gets
+written down, and the architecture doc is what makes later reviews
+(`architecture-review`) able to distinguish a deliberate exception from drift.
+
+## Step 2 — Generate The Project Context
+
+Ask for the `init-project` workflow (Claude: `/greenberry:init-project`):
+
+> Initialize this project with the `init-project` workflow. Use
+> `~/Web/ai-workflows` as the canonical source.
+
+On an existing codebase it:
+
+1. Confirms the target and asks before overwriting `CONVENTIONS.md`, `CLAUDE.md`,
+   `AGENTS.md`, or the Cursor adapter.
+2. Detects the stack (Next.js, Next.js + Payload, React Native + Expo, or
+   generic), test runner, and linting.
+3. Probes the real folder structure rather than assuming canonical names.
+4. **Detects deviations from the global rules** — including type-safety and
+   trust-boundary posture — and records them explicitly instead of silently
+   conforming.
+5. Writes `CONVENTIONS.md` with the precedence order spelled out.
+
+Step 4 is the one that matters on a retrofit. An existing project *will* deviate;
+the point is that the deviations become visible and intentional instead of
+turning every future review into an argument.
+
+## Step 3 — Preview And Apply The Sync
+
+```bash
+cd ~/Web/ai-workflows
+./scripts/sync.sh --dry-run --project ~/Web/my-project
+```
+
+Review the preview properly here — this is exactly the case the dry run exists
+for, because the project already contains agent instructions and possibly its own
+`rules/` or `commands/` directories. Then:
+
+```bash
+./scripts/sync.sh --project ~/Web/my-project
+```
+
+See [adopt-new-project.md](adopt-new-project.md#3-sync-the-shared-assets) for the
+full list of what lands.
+
+### Merge `.claude/settings.json` by hand
+
+Project sync never overwrites an existing `.claude/settings.json`. Merge these
+keys in manually — teammates opening the project then get a one-time install
+prompt for the plugin:
+
+```json
+"extraKnownMarketplaces": {
+  "ai-workflows": {
+    "source": {
+      "source": "git",
+      "url": "git@gitlab.com:greenberrynl/config/ai-workflows.git"
+    },
+    "autoUpdate": true
+  }
+},
+"enabledPlugins": {
+  "greenberry@ai-workflows": true
+}
+```
+
+The inner `"source": "git"` is load-bearing — see
+[setup-machine.md](setup-machine.md#3-turn-on-auto-update--plugin-marketplace-add-does-not)
+for why `"source": "url"` fails with `invalid url`.
+
+Merge the generated graphify hooks the same way if this project should use them.
+
+## Step 4 — Review And Commit
+
+1. `git status --short` and review every generated change.
+2. Read `CONVENTIONS.md` end to end — on a retrofit this is where detection gets
+   things subtly wrong, and it is the file everything else trusts.
+3. Delete the legacy instruction files once their content has a new home.
+4. Run the project's validation commands.
+5. Commit via the project's normal git workflow.
+
+## Precedence, Once Adopted
+
+Project-local conventions always win over the shared baseline:
+
+1. project-local `CLAUDE.md` / `AGENTS.md` and `CONVENTIONS.md`
+2. project-local `rules/`
+3. the shared baseline from this repo
+
+If the project changes a shared workflow file in a generally reusable way,
+upstream it back into this repo rather than letting the project drift — the
+`upstream-rules` skill does the MR for you.
+
+## Next
+
+- Staying current → [keep-current.md](keep-current.md)
+- The loading model per tool → [how-it-works.md](how-it-works.md)
+- Something wrong → [troubleshooting.md](troubleshooting.md)

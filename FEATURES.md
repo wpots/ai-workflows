@@ -4,7 +4,8 @@ Quick inventory of everything in this repo.
 
 ## Project Model
 
-Synced projects follow one model (see the README for the full loading table):
+Synced projects follow one model (see [docs/how-it-works.md](docs/how-it-works.md)
+for the full loading table):
 
 - `CONVENTIONS.md` is the project-owned single source of project context.
 - `AI-WORKFLOWS.md` is the developer guide explaining how the synced files
