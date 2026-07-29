@@ -19,7 +19,7 @@ Output — three tracked documents at the project root:
 | --- | --- | --- |
 | `docs/project-brief.md` | why the product exists, for whom, what success looks like | release scope, technical choices |
 | `docs/project-spec.md` | what this release does: rules, domain, non-functionals, integrations | vision, folder structure |
-| `docs/architecture.md` | intended layer mapping, data model, trust boundaries, deployment, decisions + rationale | detected stack versions, scripts |
+| `docs/architecture.md` | system context, runtime paths, intended layer mapping, data model, trust boundaries, deployment, decisions + rationale | detected stack versions, scripts |
 
 Templates back all three: `templates/project-brief.md`,
 `templates/project-spec.md`, `templates/project-architecture.md`.
@@ -76,6 +76,13 @@ is one question the user does not have to answer:
 - env schema (`src/env.ts` or equivalent) and validation helpers — trust boundaries
 - deploy config (`.gitlab-ci.yml`, hosting config, `docker-compose*.yml`) — topology
 - migrations or CMS collections — the real data model
+- middleware/proxy and route groups — the request paths and what they exclude
+- cache tags, revalidation hooks, storage adapters, cron or queue config — the
+  runtime paths that the diagrams have to show
+- import-boundary lint config, and at which severity — whether the layer mapping
+  is enforced or merely intended
+- `docs/todo/`, `docs/backlog/`, existing epics — the known architectural debt,
+  already tracked; the doc links to those items instead of restating them
 - `git log` on config files — decisions someone already made silently
 
 Present the harvest as a **confirm-or-correct list**, not as questions:
@@ -125,11 +132,17 @@ integrations and who owns their credentials · environments · release constrain
 ("no X in this phase").
 
 **Round 4 — Architecture** (feeds the architecture doc)
-Intended layer mapping for this project's actual folders · where the schema
-lives and how it changes · every edge untrusted data enters, and what validates
-it · hosting, database, media, email, preview, CI, observability · the
-cross-cutting choices (rendering and caching, authentication, localization) ·
-and for each real choice: what was decided, when, why, and what was rejected.
+System context: which processes serve which surfaces, and every external service
+they talk to · the runtime paths — how a request reaches a surface, what is
+cached cross-request and what may never be, what invalidates it, scheduled work
+and what keeps it from running twice · intended layer mapping for this project's
+actual folders, and whether anything enforces it · where the schema lives and how
+it changes · every edge untrusted data enters, and what validates it · hosting,
+database, media, email, preview, CI, observability, plus the runtime constraints
+those imply · the cross-cutting choices (authentication, localization, headers,
+consent, testing) · known deviations that exist in the code today and what
+tracks them · and for each real choice: what was decided, when, why, and what
+was rejected.
 
 Two rules that outrank finishing the round:
 
@@ -158,14 +171,36 @@ the interview ran in Dutch, so the docs stay usable for every tool and reader.
 
 For the architecture doc specifically:
 
+- **It is a map, not a rulebook.** Open with the link table: which document
+  answers which question, and that the rule wins when a rule and this file
+  disagree. Every section links to the rule or spec that owns the detail instead
+  of restating it. Restating is how the copy rots.
+- **Write the diagrams.** Mermaid, inline, because it renders on GitLab and
+  GitHub and stays reviewable in a diff. A system-context diagram is the
+  minimum — it is the one thing a new developer reads first. Add a request-path
+  diagram once more than one surface shares the runtime, and a read/invalidation
+  pair once anything is cached cross-request. Diagram the shape; put the
+  exceptions a reader cannot guess in the notes under it.
+- **Work outside in**: system context → topology → request paths → read path →
+  layers → data → boundaries. A reader who stops after the first diagram should
+  still have the right mental model.
 - The layer mapping covers the folders that **actually exist** (or, on a fresh
   clone, the ones the stack rules prescribe) — check it against
-  `rules/clean-architecture.md` and the stack rule for the detected stack.
+  `rules/clean-architecture.md` and the stack rule for the detected stack. Say
+  what enforces it and at which severity; "intended, unenforced" is a finding
+  worth writing down.
 - Trust boundaries follow `rules/type-safety.md`: every inbound edge gets a row,
   including the ones with no validation today. Those rows are the honest ones.
+- **Known architectural debt is a deliverable.** Every deviation the harvest
+  surfaced goes in that section with the item that tracks it — including any
+  document or rule you found pointing at something that no longer exists. Debt
+  with no tracker gets one proposed, not omitted. Keep it out of Open Questions:
+  debt has an answer, it just is not implemented.
 - The decision log starts with the decisions made in Round 4 **and** the ones
   the harvest surfaced as already-made. Date them; mark status; keep superseded
-  entries with a pointer to their replacement.
+  entries with a pointer to their replacement. A retrofit doc that honestly has
+  no recorded decisions yet ships with an empty log and a full debt section —
+  that is a real state, not a gap to fill with guesses.
 
 ---
 
@@ -209,11 +244,13 @@ Started <project-name>:
 
   docs/project-brief.md    [created]   why, audiences, goals, risks
   docs/project-spec.md     [created]   <release> scope, roles, entities, non-functionals
-  docs/architecture.md     [created]   layer mapping, boundaries, topology, 4 decisions
+  docs/architecture.md     [created]   system context + 3 diagrams, layer mapping,
+                                       boundaries, topology, 4 decisions
 
   Mode:            retrofit (existing codebase)
-  Harvested:       stack, entities, env boundary, topology
+  Harvested:       stack, entities, env boundary, topology, routing, cache tags
   Open questions:  3 in the brief, 5 open decisions in the spec, 2 architectural
+  Tracked debt:    3 known deviations, 1 stale doc reference
   Next:            init-project for CONVENTIONS.md and the tool adapters
 ```
 
@@ -228,7 +265,9 @@ List the open questions in the summary. They are the reason to read the docs.
 - Do not create backlog items or tickets from the spec — that is `skills/backlog/SKILL.md`
   and `skills/jira-ticket/SKILL.md`, and the spec has to be agreed first.
 - Do not restate the stack in `docs/architecture.md`; name paths and reasons.
+- Do not restate what a rule or a spec already says — link to it. Two copies of a
+  boundary means one of them is wrong within a sprint.
 - Keep each document scannable — the brief and spec around 150 lines, the
-  architecture doc as long as its decision log needs.
+  architecture doc as long as its diagrams, decision log, and debt list need.
 - The three documents are tracked in git: this repo is the master for
   architectural decisions, and an untracked decision is a lost one.

@@ -13,6 +13,36 @@ here **in the same MR** whenever a change alters what the plugin ships. See
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-07-29
+
+### Changed
+
+- `templates/project-architecture.md` — restructured outside-in (system context →
+  topology → request paths → read path and invalidation → layers → data →
+  boundaries) and turned from a table-only skeleton into a **map**: it opens with
+  a question-to-document link table and the rule that a rule wins when the two
+  disagree, so no section restates what a rule or spec owns. Mermaid diagrams are
+  now part of the contract (system context minimum; request paths once surfaces
+  share a runtime; a read/invalidation pair once anything is cached
+  cross-request). New sections: runtime constraints the topology implies, how the
+  layer boundary is enforced and at which severity, auth surfaces, background
+  jobs, media, and **Known Architectural Debt** — tracked deviations with the
+  item that owns each one, kept separate from Open Questions. Distilled from the
+  RefugeeWork website's `docs/architecture.md`, the first real instance of this
+  document.
+- `skills/start-project` — Round 4 now covers system context, the runtime paths,
+  boundary enforcement, and known deviations; the harvest additionally reads
+  middleware/route groups, cache tags, revalidation hooks, cron and queue config,
+  import-boundary lint severity, and `docs/todo/` plus the backlog for debt that
+  is already tracked. Writing rules gained the map-not-rulebook framing, the
+  diagram requirement, outside-in ordering, and the rule that a retrofit with no
+  recorded decisions ships an empty log and a full debt section rather than
+  invented ADRs.
+- `skills/architecture-review` — reads the new debt section and reports listed
+  deviations as `Known` with their tracker instead of as fresh findings, so
+  unseen problems stay visible. Two exceptions still surface: a deviation that
+  outgrew its entry, and an entry whose tracker or path no longer exists.
+
 ## [1.3.1] - 2026-07-29
 
 ### Fixed
