@@ -13,6 +13,25 @@ here **in the same MR** whenever a change alters what the plugin ships. See
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-07-29
+
+### Changed
+
+- **Renamed `init-project` → `setup-ai-workflows`** (skill, command runbook, and
+  the generated Copilot prompt). The old name read as "initialize the project",
+  which is not what it does: it generates `CONVENTIONS.md` and the tool
+  adapters. Invocation changes to `/greenberry:setup-ai-workflows`; the old
+  name no longer resolves.
+- **Routing follows the meaning.** `init project`, `setup project`, and
+  `initialize project` now route to `skills/start-project` — the project
+  kickoff, which runs `setup-ai-workflows` as one of its lanes. The config
+  workflow keeps `apply ai-workflows` and gains `setup ai-workflows`,
+  `generate conventions`, and `refresh project config`.
+- References updated across the mappings and generated adapters, `FEATURES.md`,
+  the canonical-sources and pipeline-map registries, the skills-first migration
+  plan, `README.md`, `scripts/sync.sh` and its smoke test, and the Copilot
+  template's no-CONVENTIONS hint.
+
 ## [1.5.0] - 2026-07-29
 
 ### Added

@@ -5,7 +5,7 @@ Copilot reliably auto-loads this file, so important coding rules are inlined her
 ## Project Conventions
 
 <!-- BEGIN CONVENTIONS -->
-No CONVENTIONS.md found. Run init-project to generate one.
+No CONVENTIONS.md found. Run setup-ai-workflows to generate one.
 <!-- END CONVENTIONS -->
 
 ## Core Rules

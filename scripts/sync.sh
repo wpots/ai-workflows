@@ -200,7 +200,7 @@ inject_conventions() {
       if [[ -f "$conventions_file" ]]; then
         cat "$conventions_file"
       else
-        echo "No CONVENTIONS.md found. Run init-project to generate one."
+        echo "No CONVENTIONS.md found. Run setup-ai-workflows to generate one."
       fi
       in_block=1
       found=1
@@ -234,7 +234,7 @@ if [[ -n "$PROJECT_DIR" ]]; then
   if [[ -f "$CONVENTIONS_FILE" ]]; then
     echo "  [ok] CONVENTIONS.md exists (preserved — project-owned)"
   else
-    echo "  [warn] No CONVENTIONS.md found. Run init-project to generate one."
+    echo "  [warn] No CONVENTIONS.md found. Run setup-ai-workflows to generate one."
   fi
 
   # Generate AI-WORKFLOWS.md from template

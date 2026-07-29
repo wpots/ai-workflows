@@ -68,7 +68,7 @@ corresponding runbook:
 - `kill port`, `port 3000`, `eaddrinuse` -> `commands/safe-kill-port.md`
 - `new component`, `scaffold`, `create component` -> `commands/scaffold-component.md`
 - `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
-- `init project`, `setup project`, `apply ai-workflows`, `initialize project` -> `commands/init-project.md`
+- `apply ai-workflows`, `setup ai-workflows`, `generate conventions`, `refresh project config` -> `commands/setup-ai-workflows.md`
 - `work backlog`, `work the backlog`, `next backlog item`, `autonomous delivery` -> `commands/work-backlog.md`
 <!-- END SHARED:command-mappings -->
 

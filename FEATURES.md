@@ -31,7 +31,7 @@ rely on skills directly.
 | Backlog | `commands/backlog.md` | Draft or update a backlog item in `docs/backlog/` following the backlog rules | `backlog item`, `user story`, `feature spec`, `bug item`, `bli` |
 | Scaffold Component | `commands/scaffold-component.md` | Create a new React component with correct file structure and conventions | `new component`, `scaffold`, `create component` |
 | Code Review | `commands/review-code.md` | Review code changes against remote base branch | `review code`, `code review`, `review changes` |
-| Init Project | `commands/init-project.md` | Apply ai-workflows to a project and generate thin adapters plus developer guide | `init project`, `setup project`, `apply ai-workflows`, `initialize project` |
+| Set Up AI Workflows | `commands/setup-ai-workflows.md` | Apply ai-workflows to a project and generate thin adapters plus developer guide | `apply ai-workflows`, `setup ai-workflows`, `generate conventions`, `refresh project config` |
 | Run Checks | `commands/run-checks.md` | Run lint, type-check, stylelint, test, build in sequence | `run checks`, `run-checks`, `quality checks` |
 | Refinement | `commands/refinement.md` | Prepare or record a backlog refinement grounded in tracker tickets and the codebase | `refinement`, `refine tickets` |
 | Sprint Planning | `commands/sprint-planning.md` | Plan the upcoming sprint from tracker tickets, spillover, dependencies, and capacity | `sprint planning`, `plan sprint`, `start sprint` |
@@ -59,8 +59,8 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `run-checks` | Run project quality checks sequentially, stop on failures for user decision, summarize results | Yes |
 | `architecture-review` | Review codebase for clean architecture violations — probes folder structure, maps to CA layers, checks principles | No (skill only) |
 | `component-spec` | Generate component specification from design or requirements | No (skill only) |
-| `start-project` | Capture project intent on day one — brief, release spec, and architecture doc (layer mapping, trust boundaries, topology, decision log), then hand over to `init-project` | No (skill only) |
-| `init-project` | Initialize a new project with ai-workflows setup, thin adapters, and type-safety deviation detection | Yes |
+| `start-project` | Capture project intent on day one — brief, release spec, and architecture doc (layer mapping, trust boundaries, topology, decision log), then hand over to `setup-ai-workflows` | No (skill only) |
+| `setup-ai-workflows` | Set up or refresh a project's AI-workflow config: CONVENTIONS.md, thin adapters, type-safety deviation detection | Yes |
 | `upstream-rules` | Propose rule changes back to the ai-workflows repo | No (skill only) |
 | `improve-skill` | Fold durable session learnings back into workflow sources | No (skill only) |
 | `skill-opportunity` | Decide from working sessions whether a new skill or a skill update would be useful | No (skill only) |
