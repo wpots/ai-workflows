@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Rescoped 2026-07-29: the README half of this item is delivered (loading-model
 table, project/global sync split, plugin marketplace docs, "all commands and
