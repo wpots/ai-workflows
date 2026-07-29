@@ -12,6 +12,29 @@ This repo is the source of truth for reusable:
 - MCP definitions
 - sync scripts
 
+## Do I Need This Repo Locally?
+
+Yes — but how often you run `sync.sh` depends entirely on your tool and your
+role. Cloning is a one-time, ~5-minute cost; only some roles pay a recurring one.
+
+| You are… | How often you run `sync.sh` |
+| -------- | --------------------------- |
+| A Claude Code user working in already-synced projects | Once at setup, then only when the ambient layer changes (`CLAUDE.md`, or `rules/communication.md` / `project.md` / `clean-architecture.md`). Skills and commands arrive through the `greenberry` plugin and auto-update — sync does not deliver them. |
+| A Cursor or Codex user | After every update you want. Those tools have no plugin path, so `sync.sh` is their only delivery mechanism for skills, commands, and MCP definitions. |
+| Onboarding a project, or refreshing one | Every time. `sync.sh --project <path>` renders adapters from `templates/` and `shared/` inside the checkout, so it cannot run without one. |
+| Editing the shared config itself | Per change — see [Daily Use](#daily-use). |
+
+What you give up by never cloning at all: the global ambient baseline in
+`~/.claude/CLAUDE.md` and `~/.claude/rules/`. Inside an already-synced project
+that matters less than it sounds, because project sync writes `rules/`,
+`commands/`, and the tool adapters into the project itself — that context loads
+from the repo you are working in. The global layer is what covers work *outside*
+a synced project.
+
+Why Claude is the odd one out: plugins have no primitive for always-on context,
+so the ambient layer stays on file sync by design, while everything invocable
+(skills, commands) moved to the plugin and updates itself.
+
 ## How Tools Load Instructions
 
 The main design constraint in this repo is that the tools do not load instructions the same way.
