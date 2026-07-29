@@ -98,7 +98,7 @@ Recommended initial classification:
 | `code-review` | skill-first |
 | `run-checks` | skill-first |
 | `scaffold-component` | skill-first |
-| `init-project` | skill-first |
+| `setup-ai-workflows` | skill-first |
 | `upstream-rules` | skill-first |
 
 Exit criteria:
@@ -125,7 +125,7 @@ Good first candidates:
 
 - `code-review`
 - `run-checks`
-- `init-project`
+- `setup-ai-workflows`
 
 Exit criteria:
 

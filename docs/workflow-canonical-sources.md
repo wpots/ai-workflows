@@ -12,7 +12,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `create-pr` | skill + command | `skills/create-pr/SKILL.md` | `commands/create-pr.md` | yes |
 | `code-review` | skill + command | `skills/code-review/SKILL.md` | `commands/review-code.md` | yes |
 | `run-checks` | skill + command | `skills/run-checks/SKILL.md` | `commands/run-checks.md` | yes |
-| `init-project` | skill + command | `skills/init-project/SKILL.md` | `commands/init-project.md` | yes |
+| `setup-ai-workflows` | skill + command | `skills/setup-ai-workflows/SKILL.md` | `commands/setup-ai-workflows.md` | yes |
 | `scaffold-component` | skill + command | `skills/scaffold-component/SKILL.md` | `commands/scaffold-component.md` | yes |
 | `component-spec` | skill only | `skills/component-spec/SKILL.md` | none | n/a |
 | `architecture-review` | skill only | `skills/architecture-review/SKILL.md` | none | n/a |

@@ -1,15 +1,19 @@
 ---
-name: init-project
-description: Initialize a project with AI workflow configuration — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), adds a developer-facing AI-WORKFLOWS.md guide, and detects deviations from global rules including type-safety and trust-boundary posture. Use when the user asks to set up, initialize, or apply ai-workflows to a project.
+name: setup-ai-workflows
+description: Set up or refresh the AI-workflow configuration of a project — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), adds a developer-facing AI-WORKFLOWS.md guide, and detects deviations from global rules including type-safety and trust-boundary posture. This is the config lane, not the project kickoff — a whole new project starts with skills/start-project. Use when the user asks to apply ai-workflows to a project, (re)generate CONVENTIONS.md or the tool adapters, or refresh a project's synced workflow assets.
 ---
 
-# Initialize a Project
+# Set Up AI Workflows In A Project
 
 Use this skill when the user asks to apply ai-workflows rules, skills, and
-commands to a project — or to initialize/set up a project for AI-assisted
-development.
+commands to a project — or to regenerate `CONVENTIONS.md` and the tool adapters
+after the project changed.
 
-This skill is the canonical workflow source for project initialization on
+It configures **tooling**, not the project itself. Starting a whole new project
+(repository, intent documents, journeys, first backlog) is
+`skills/start-project/SKILL.md`, which runs this skill as one of its lanes.
+
+This skill is the canonical workflow source for AI-workflow setup on
 skill-aware tools. The matching command runbook is a compatibility and fallback
 surface.
 
@@ -20,10 +24,10 @@ surface.
 
 ## Relationship to start-project
 
-`skills/start-project/SKILL.md` runs **before** this skill and captures intent:
-`docs/project-brief.md`, `docs/project-spec.md`, and `docs/architecture.md`.
-This skill captures **detected facts**. The split is what keeps them from
-drifting:
+`skills/start-project/SKILL.md` owns the kickoff and calls this skill as its
+configuration lane. It captures intent — `docs/project-brief.md`,
+`docs/project-spec.md`, `docs/architecture.md` — while this skill captures
+**detected facts**. The split is what keeps them from drifting:
 
 | This skill writes | That skill wrote |
 | --- | --- |

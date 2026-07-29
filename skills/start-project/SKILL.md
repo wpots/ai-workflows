@@ -1,12 +1,12 @@
 ---
 name: start-project
-description: Capture project intent on day one — interview the team, then write docs/project-brief.md (why and for whom), docs/project-spec.md (what this release does), and docs/architecture.md (intended layer mapping, trust boundaries, deployment topology, decision log), and hand over to init-project for CONVENTIONS.md and the tool adapters. Works on a fresh clone of the template and as a retrofit on an existing project that never wrote these down. Use when the user starts a new project, runs a project kickoff, asks for a project brief or spec, or says "nieuw project" / "project opzetten" / "na de unicore template".
+description: Capture project intent on day one — interview the team, then write docs/project-brief.md (why and for whom), docs/project-spec.md (what this release does), and docs/architecture.md (intended layer mapping, trust boundaries, deployment topology, decision log), and hand over to setup-ai-workflows for CONVENTIONS.md and the tool adapters. Works on a fresh clone of the template and as a retrofit on an existing project that never wrote these down. Use when the user starts a new project, runs a project kickoff, asks for a project brief or spec, or says "nieuw project" / "project opzetten" / "na de unicore template".
 ---
 
 # Start a Project
 
 Use this skill at project kickoff, before tooling. It captures **intent**;
-`skills/init-project/SKILL.md` captures **detected facts**. Run this one first,
+`skills/setup-ai-workflows/SKILL.md` captures **detected facts**. Run this one first,
 then hand over.
 
 Also use it as a retrofit on an existing project that has code but no brief,
@@ -204,19 +204,19 @@ For the architecture doc specifically:
 
 ---
 
-## Step 5 — Hand Over To init-project
+## Step 5 — Hand Over To setup-ai-workflows
 
 Do not detect the stack, generate `CONVENTIONS.md`, or write tool adapters here.
-That is `skills/init-project/SKILL.md`. Offer the hand-off:
+That is `skills/setup-ai-workflows/SKILL.md`. Offer the hand-off:
 
 ```
-Brief, spec, and architecture are written. Next: init-project generates
+Brief, spec, and architecture are written. Next: setup-ai-workflows generates
 CONVENTIONS.md and the tool adapters, and will reference docs/architecture.md
 for the intended layer mapping instead of re-deriving it. Run it now?
 ```
 
 If `CONVENTIONS.md` already exists, say what should change in it as a result of
-this run — usually a pointer to `docs/architecture.md` — and let init-project
+this run — usually a pointer to `docs/architecture.md` — and let setup-ai-workflows
 regenerate it.
 
 ---
@@ -251,7 +251,7 @@ Started <project-name>:
   Harvested:       stack, entities, env boundary, topology, routing, cache tags
   Open questions:  3 in the brief, 5 open decisions in the spec, 2 architectural
   Tracked debt:    3 known deviations, 1 stale doc reference
-  Next:            init-project for CONVENTIONS.md and the tool adapters
+  Next:            setup-ai-workflows for CONVENTIONS.md and the tool adapters
 ```
 
 List the open questions in the summary. They are the reason to read the docs.
@@ -261,7 +261,7 @@ List the open questions in the summary. They are the reason to read the docs.
 ## Constraints
 
 - Do not modify source code, install dependencies, or configure tooling.
-- Do not generate `CONVENTIONS.md` or tool adapters — that is init-project.
+- Do not generate `CONVENTIONS.md` or tool adapters — that is setup-ai-workflows.
 - Do not create backlog items or tickets from the spec — that is `skills/backlog/SKILL.md`
   and `skills/jira-ticket/SKILL.md`, and the spec has to be agreed first.
 - Do not restate the stack in `docs/architecture.md`; name paths and reasons.

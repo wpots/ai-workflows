@@ -459,7 +459,7 @@ Use this flow when a developer starts on a new or existing project.
 
 Open the target project in Codex, Claude, or Cursor and ask:
 
-> Initialize this project with the `init-project` workflow. Use
+> Set up this project with the `setup-ai-workflows` workflow. Use
 > `~/Web/ai-workflows` as the canonical source.
 
 The workflow analyzes the stack and project structure and creates

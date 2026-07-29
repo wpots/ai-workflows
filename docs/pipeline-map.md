@@ -162,7 +162,7 @@ Turning a design or a requirement into something implementable.
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
-| `skills/start-project` | skill | `/start-project` · `"project kickoff"`, `"nieuw project"`, `"project brief"` | Runs once, before the first ticket: interviews in rounds, then writes docs/project-brief.md (why, audiences, goals), docs/project-spec.md (release rules, domain, non-functionals), docs/architecture.md (intended layer mapping, trust boundaries, topology, decision log) — then hands over to `skills/init-project` |
+| `skills/start-project` | skill | `/start-project` · `"project kickoff"`, `"nieuw project"`, `"project brief"` | Runs once, before the first ticket: interviews in rounds, then writes docs/project-brief.md (why, audiences, goals), docs/project-spec.md (release rules, domain, non-functionals), docs/architecture.md (intended layer mapping, trust boundaries, topology, decision log) — then hands over to `skills/setup-ai-workflows` |
 | `templates/project-brief.md`, `templates/project-spec.md`, `templates/project-architecture.md` | templates | read by `skills/start-project` | The content contract for those three documents |
 | `skills/user-journeys` | skill | `/user-journeys` · `"user journeys"`, `"user flows"`, `"journeys uitwerken"` · delegated by `skills/start-project` | One document per journey in docs/journeys/ (per project): walked path, decision points, alternate and error paths, per-surface states, permissions, keyboard route, measurement — plus the **slice candidates** the backlog is cut from. Reads the spec and the Figma frames; harvests routes and roles on a retrofit |
 | `templates/user-journey.md` | template | read by `skills/user-journeys` | The content contract for a journey document |
@@ -314,8 +314,8 @@ which is exactly why an AI-authored change gets neither skipped.
 | `skills/skill-opportunity` | skill | `/skill-opportunity` · `"learn from sessions"`, `"spot repeated patterns"` | Decide from working sessions whether a new or updated skill is warranted |
 | `skills/upstream-rules` | skill | `/upstream-rules` · `"propose rule"` · **should** fire whenever a shared asset is edited in a synced project | Propose a rule/skill change back to this repo as a GitLab MR |
 | `skills/upstream-to-unicore` | skill | `/upstream-to-unicore` · `"port to unicore"` | Port a reusable change into `unicore-template` |
-| `skills/init-project` | skill | `/init-project` · `"apply ai-workflows"`, `"setup project"` | Generate `CONVENTIONS.md`, thin tool adapters, and sync shared assets into a project |
-| `commands/init-project.md`, `commands/new-device-setup.md` | commands | trigger phrase → command (`"new device"`, `"onboarding"`) | Fallback runbook; new-machine bootstrap |
+| `skills/setup-ai-workflows` | skill | `/setup-ai-workflows` · `"apply ai-workflows"`, `"generate conventions"` | Generate `CONVENTIONS.md`, thin tool adapters, and sync shared assets into a project |
+| `commands/setup-ai-workflows.md`, `commands/new-device-setup.md` | commands | trigger phrase → command (`"new device"`, `"onboarding"`) | Fallback runbook; new-machine bootstrap |
 | `scripts/sync.sh`, `scripts/generate-adapters.sh` | scripts | shell, by hand: `./scripts/sync.sh --project <path>` | Distribute canonical sources to projects and regenerate derived adapters |
 | `scripts/validate-ai-instructions.sh`, `scripts/validate-skills.mjs`, `scripts/smoke-test-project-sync.sh` | scripts | **git pre-commit hook** + CI (`.gitlab-ci.yml`) — the repo's only self-enforcing automation | Drift detection: CI and the hook run the same validators |
 | `scripts/install-hooks.sh` | script | once per clone, by hand | Installs that pre-commit hook |
@@ -424,7 +424,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 5 | The local check sweep is not derived from the CI job list | Green locally, red in CI | `docs/backlog/chore-run-checks-ci-parity.md` |
 | 6 | ~~Nothing happens after merge~~ | Delivered 2026-07-29: `skills/mr-merged` closes out board, PO handoff, ticket proposal, and cleanup | delivered |
 | 7 | ~~No policy or review dimension for stale comments and docs~~ | Delivered 2026-07-29: `rules/documentation.md` + the doc-freshness dimension in `skills/code-review` | delivered |
-| 8 | ~~Project kickoff starts at stack detection, not at intent~~ | Delivered 2026-07-29: `skills/start-project` writes brief, release spec and architecture doc before `skills/init-project` detects anything, and both `init-project` and `skills/architecture-review` now defer to the intended layer mapping instead of re-deriving it | delivered |
+| 8 | ~~Project kickoff starts at stack detection, not at intent~~ | Delivered 2026-07-29: `skills/start-project` writes brief, release spec and architecture doc before `skills/setup-ai-workflows` detects anything, and both `setup-ai-workflows` and `skills/architecture-review` now defer to the intended layer mapping instead of re-deriving it | delivered |
 | 9 | "Run `improve-skill` after a run that needed intervention" is prose, not a hook | The retrospective happens when someone remembers | `docs/backlog/chore-improve-skill-stop-hook.md` |
 | 10 | QA verifies, but no result maps back to a specific acceptance criterion | "Done" stays an assertion instead of something provable per criterion | `docs/backlog/feat-requirements-traceability.md` |
 | 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | `docs/backlog/feat-jira-feedback-loop.md` |

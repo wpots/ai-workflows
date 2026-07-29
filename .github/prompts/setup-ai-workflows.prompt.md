@@ -1,12 +1,19 @@
-# Initialize Project With ai-workflows
+---
+name: setup-ai-workflows
+description: "Set Up AI Workflows In A Project"
+---
+
+# Set Up AI Workflows In A Project
 
 This runbook is the compatibility and fallback surface for the canonical
-`init-project` skill.
+`setup-ai-workflows` skill. It configures tooling in an existing project; a
+whole new project starts with `skills/start-project/SKILL.md`, which calls this
+workflow as its configuration lane.
 
 Preferred path:
 
 1. If the current tool supports skills reliably, use
-   `skills/init-project/SKILL.md` as the primary workflow.
+   `skills/setup-ai-workflows/SKILL.md` as the primary workflow.
 2. Use this runbook when the tool is prompt/runbook-oriented or when the skill
    path is unavailable.
 
