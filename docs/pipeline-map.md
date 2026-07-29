@@ -166,7 +166,6 @@ Turning a design or a requirement into something implementable.
 | `skills/component-spec` | skill | `/component-spec` · `"component spec"`, `"document component api"` | Production-ready component spec: API, a11y requirements, keyboard + screen-reader behaviour, testing guidance, open questions |
 | `rules/tailwind.md` | rule | loaded — styling and token tasks | Design tokens via `@theme`; how a design system maps onto utilities |
 | `rules/accessibility.md` | rule | loaded — interactive UI and a11y tasks | Semantics, contrast, keyboard behaviour — decided here, not patched in QA |
-| `packages/accessibility` | package | applied once at setup, via `skills/init-project` | Optional a11y preset bundle for a target project |
 | Figma MCP | connector | MCP tool call, mid-task | `get_design_context`, `get_variable_defs`, `get_screenshot` — provided by the Figma connector, not by `mcp/servers.json` |
 
 **Gate — Design readiness: absent.** Nothing checks that design tokens, states, and
@@ -355,7 +354,6 @@ The repo-owned half, in real paths:
 | `shared/core-rules.md`, `shared/command-mappings.md`, `shared/skill-mappings.md`, `shared/safety.md`, `shared/graphify.md`, `shared/workflow-assets.md` | Fragments injected into generated adapters, so every tool sees the same baseline. `command-mappings` and `skill-mappings` are the routing registries: a workflow absent from them is unreachable by intent, which `scripts/validate-skills.mjs` treats as an error |
 | `templates/project-CLAUDE.md`, `templates/project-AGENTS.md`, `templates/project-copilot-instructions.md`, `templates/project-cursor-conventions.mdc`, `templates/project-cursor-graphify.mdc`, `templates/project-ai-workflows.md`, `templates/project-claude-settings.json` | Thin per-tool adapters generated into a project |
 | `templates/pull_request_template.md` | Last-resort MR body skeleton for `skills/create-pr` |
-| `packages/selection.md`, `packages/greenberry-base`, `packages/frontend`, `packages/nextjs`, `packages/payload`, `packages/testing` | Composable convention bundles per target project |
 | `mcp/servers.json` | Canonical MCP server definitions (github, filesystem, context7) |
 | `docs/backlog/` | Local backlog items — the contract `skills/work-backlog` delivers against |
 | `docs/board/sprint-<N>-board.md` | Per-sprint work board (untracked, project-local) |
