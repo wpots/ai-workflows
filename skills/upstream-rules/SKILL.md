@@ -137,10 +137,17 @@ git push -u <gitlab-remote> rules/<short-description>
 gitlab_mr_url=$(glab mr create -R greenberrynl/config/ai-workflows \
   --source-branch rules/<short-description> \
   --target-branch main \
+  --reviewer wieteke.pots \
   --title "rules: <short description>" \
   --description "<generated body>" --yes)
 printf 'GitLab MR: %s\\n' "$gitlab_mr_url"
 ```
+
+**The reviewer is mandatory.** `--reviewer wieteke.pots` is part of the MR, not
+an optional extra — an MR without that reviewer is not done. If the flag is
+unsupported or silently dropped, set it afterwards with
+`glab mr update <iid> --reviewer wieteke.pots` and verify with
+`glab mr view <iid>` before reporting.
 
 MR body should include:
 
@@ -178,5 +185,7 @@ assume this exists.
 - Use only the remote that resolves to the canonical GitLab repository
 - After creating a review, always return the GitLab MR URL so the developer can
   approve it directly
+- Always request review from `wieteke.pots` on the MR, and verify it is set
+  before reporting — never leave an upstream MR without a reviewer
 - GitLab `main` is protected and enforces a committer-email push rule — reach it
   only via a Merge Request, never a direct or force push

@@ -333,6 +333,27 @@ For Claude Code, also install the plugin once (inside Claude Code):
 /plugin install greenberry@ai-workflows
 ```
 
+`install-hooks.sh` installs two hooks: a pre-commit drift check
+(`validate-ai-instructions.sh`) and a pre-push guard that refuses direct pushes
+to `main`/`master`.
+
+## Contributing to This Repo
+
+Every change here lands via a **GitLab MR with `wieteke.pots` as reviewer** —
+never a direct push to `main`, not even a one-line doc fix. The same rule
+applies to the `upstream-rules` and `upstream-to-unicore` skills when they are
+run from a project. The canonical wording lives in `shared/upstream-mr.md` and
+is injected into every adapter (`CLAUDE.md`, `AGENTS.md`, Copilot instructions,
+project templates).
+
+```bash
+git switch -c <type>/<slug>
+git push -u <gitlab-remote> HEAD
+glab mr create -R greenberrynl/config/ai-workflows \
+  --target-branch main --reviewer wieteke.pots \
+  --title "<type>: <summary>" --description "<body>"
+```
+
 Useful variants:
 
 ```bash

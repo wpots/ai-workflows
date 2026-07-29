@@ -68,6 +68,11 @@ When user intent matches a trigger phrase, read and follow the corresponding run
 
 Do not assume command files auto-run. Select and execute them when intent matches.
 
+## Shared Workflow Assets Land via MR
+
+<!-- BEGIN SHARED:upstream-mr -->
+<!-- END SHARED:upstream-mr -->
+
 ## Safety
 
 <!-- BEGIN SHARED:safety -->

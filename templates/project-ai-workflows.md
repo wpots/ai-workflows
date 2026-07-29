@@ -39,6 +39,11 @@ Treat these as the reusable shared workflow assets in a synced project:
 <!-- BEGIN SHARED:workflow-assets -->
 <!-- END SHARED:workflow-assets -->
 
+### Shared Workflow Assets Land via MR
+
+<!-- BEGIN SHARED:upstream-mr -->
+<!-- END SHARED:upstream-mr -->
+
 ## Tool Support Matrix
 
 Use this as the intended model inside synced projects:

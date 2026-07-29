@@ -42,6 +42,11 @@ When user intent matches one of these prompts, read and follow the corresponding
 
 Do not assume command files auto-run. Select and execute them when intent matches.
 
+## Shared Workflow Assets Land via MR
+
+<!-- BEGIN SHARED:upstream-mr -->
+<!-- END SHARED:upstream-mr -->
+
 ## Safety
 
 <!-- BEGIN SHARED:safety -->

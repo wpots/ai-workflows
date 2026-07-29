@@ -150,6 +150,12 @@ Applies on every run, including updates to an existing PR/MR.
      This also sidesteps `glab mr create`'s cwd dependency: it resolves repo
      context from the current directory's git remotes and can fail despite
      `--repo` (use the API call when driving the repo from another directory).
+   - **Canonical config repos** (`greenberrynl/config/ai-workflows`,
+     `greenberrynl/the-greenhouse/unicore-template`): the MR must carry
+     `--reviewer wieteke.pots` (API: `--field "reviewer_ids[]=<id>"`). Fix a
+     dropped reviewer with `glab mr update <iid> --reviewer wieteke.pots` and
+     verify with `glab mr view <iid>`. Never push straight to the base branch
+     there.
 4. Output the PR/MR URL on success.
 
 ### No-CLI fallbacks
