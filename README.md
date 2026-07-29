@@ -521,6 +521,21 @@ IDE.
 5. Republish the pipeline map so the shared copy matches the repo (see
    "Shared Pipeline Map" above).
 
+### Ship a plugin release
+
+The `greenberry` plugin serves `skills/` and `commands/` straight from `main`,
+so every merged MR that touches them is a release. Make releases visible:
+
+1. Bump `version` in `.claude-plugin/plugin.json` in the same MR — MAJOR for
+   breaking changes (removed/renamed skill or command, changed workflow
+   contract), MINOR for new skills/commands or notable behavior changes,
+   PATCH for fixes and wording.
+2. Add the matching `## [x.y.z] - YYYY-MM-DD` entry to `CHANGELOG.md`.
+3. `./scripts/validate-ai-instructions.sh` errors when the manifest version
+   has no changelog entry, so pre-commit and CI both catch a missed step.
+
+Docs-, template-, or script-only MRs don't bump the version.
+
 ### Add or update a shared fragment
 
 1. Create or edit `shared/<name>.md`.
