@@ -159,6 +159,8 @@ Turning a design or a requirement into something implementable.
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
+| `skills/start-project` | skill | `/start-project` · `"project kickoff"`, `"nieuw project"`, `"project brief"` | Runs once, before the first ticket: interviews in rounds, then writes docs/project-brief.md (why, audiences, goals), docs/project-spec.md (release rules, domain, non-functionals), docs/architecture.md (intended layer mapping, trust boundaries, topology, decision log) — then hands over to `skills/init-project` |
+| `templates/project-brief.md`, `templates/project-spec.md`, `templates/project-architecture.md` | templates | read by `skills/start-project` | The content contract for those three documents |
 | `skills/component-spec` | skill | `/component-spec` · `"component spec"`, `"document component api"` | Production-ready component spec: API, a11y requirements, keyboard + screen-reader behaviour, testing guidance, open questions |
 | `rules/tailwind.md` | rule | loaded — styling and token tasks | Design tokens via `@theme`; how a design system maps onto utilities |
 | `rules/accessibility.md` | rule | loaded — interactive UI and a11y tasks | Semantics, contrast, keyboard behaviour — decided here, not patched in QA |
@@ -166,7 +168,10 @@ Turning a design or a requirement into something implementable.
 | Figma MCP | connector | MCP tool call, mid-task | `get_design_context`, `get_variable_defs`, `get_screenshot` — provided by the Figma connector, not by `mcp/servers.json` |
 
 **Gate — Design readiness: absent.** Nothing checks that design tokens, states, and
-a11y behaviour are settled before a ticket is written. See [Gaps](#gaps).
+a11y behaviour are settled before a ticket is written. `skills/start-project` now
+gives that gate something concrete to check against — a release spec with rules,
+non-functionals and recorded open decisions — but writing the spec is not the same
+as blocking on it. See [Gaps](#gaps).
 
 ### Plan — tickets
 
@@ -319,7 +324,7 @@ master. The decision per data type is what keeps it from rotting:
 | Tickets, acceptance criteria, comments | **Jira, live** | Authored elsewhere, changes on its own schedule. Mirroring it into the repo creates two masters — prose conflicts, stale copies, sync-commit noise — and quietly demotes Jira from single source of truth. Fetch it; never mirror-and-sync. |
 | Design tokens | **repo** (Figma upstream, one-way) | The committed token file is a code artefact; Figma generates into it, never the reverse. |
 | Conventions | **repo** | Already code: lint config, `rules/`, `CONVENTIONS.md`. |
-| Architectural decisions | **repo** | ADRs are committed markdown next to the code they explain. |
+| Architectural decisions | **repo** | ADRs are committed markdown next to the code they explain — docs/architecture.md, written by `skills/start-project` and extended per decision. It owns *intent and rationale*; `CONVENTIONS.md` owns *detected facts* and links to it, so the layer mapping has exactly one master. |
 | The requirements a branch was built against | **read-only snapshot, pinned per branch** | See below. |
 
 **The snapshot pattern.** A gate that checks work against *live* Jira is not
@@ -342,6 +347,7 @@ The repo-owned half, in real paths:
 | Asset | What it carries |
 | --- | --- |
 | `CONVENTIONS.md` (per project) | The single source of project truth; every tool adapter points at it |
+| docs/project-brief.md, docs/project-spec.md, docs/architecture.md (per project) | Day-one intent: why the product exists, what this release does, and the decisions behind the structure — the input the Design-readiness and Definition-of-ready gates lack today |
 | `rules/rules.md` | Index — which rule file loads when |
 | `rules/communication.md` | Tone and response style, tool-independent |
 | `shared/core-rules.md`, `shared/command-mappings.md`, `shared/safety.md`, `shared/graphify.md` | Fragments injected into generated adapters, so every tool sees the same baseline |
@@ -408,7 +414,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 5 | The local check sweep is not derived from the CI job list | Green locally, red in CI | `docs/backlog/chore-run-checks-ci-parity.md` |
 | 6 | ~~Nothing happens after merge~~ | Delivered 2026-07-29: `skills/mr-merged` closes out board, PO handoff, ticket proposal, and cleanup | `docs/backlog/feat-mr-merged.md` (done) |
 | 7 | ~~No policy or review dimension for stale comments and docs~~ | Delivered 2026-07-29: `rules/documentation.md` + the doc-freshness dimension in `skills/code-review` | `docs/backlog/feat-doc-and-comment-freshness.md` (done) |
-| 8 | Project kickoff starts at stack detection, not at intent | Brief, spec and architecture decisions live in someone's head or in Slack | `docs/backlog/feat-start-project.md` |
+| 8 | ~~Project kickoff starts at stack detection, not at intent~~ | Delivered 2026-07-29: `skills/start-project` writes brief, release spec and architecture doc before `skills/init-project` detects anything, and both `init-project` and `skills/architecture-review` now defer to the intended layer mapping instead of re-deriving it | `docs/backlog/feat-start-project.md` (done) |
 | 9 | "Run `improve-skill` after a run that needed intervention" is prose, not a hook | The retrospective happens when someone remembers | `docs/backlog/chore-improve-skill-stop-hook.md` |
 | 10 | QA verifies, but no result maps back to a specific acceptance criterion | "Done" stays an assertion instead of something provable per criterion | `docs/backlog/feat-requirements-traceability.md` |
 | 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | `docs/backlog/feat-jira-feedback-loop.md` |

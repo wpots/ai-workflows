@@ -31,6 +31,26 @@ Do not assume any canonical folder names exist.
 
 ## Step 3 — Map Folders to CA Layers
 
+**First, look for the intended mapping.** If `docs/architecture.md` exists, its
+layer-mapping table is what this project decided its layers are — written by
+`skills/start-project/SKILL.md`. Use it as the mapping instead of inferring one,
+and treat any difference between it and the tree as a finding of its own:
+
+| Situation | Report as |
+| --- | --- |
+| folder in the tree, absent from the table | Warning — unmapped folder, the intended mapping never decided where it belongs |
+| folder mapped to a layer its imports contradict | Critical or Warning, depending on the dependency-rule breach it causes |
+| table names a path that no longer exists | Suggestion — stale intended mapping, update the decision |
+
+Do not silently substitute your own mapping for the documented one. When the
+documented mapping looks wrong, say so as a finding with the evidence (the
+imports you read), and let the fix land in `docs/architecture.md` as a
+decision-log entry.
+
+If `docs/architecture.md` does not exist, infer the mapping as below — and note
+in the output that the review ran against an inferred mapping, so a
+disagreement about layers cannot be settled by a document.
+
 Use the mapping table from the loaded stack file. If no stack file was loaded,
 use the universal mapping below:
 
@@ -122,19 +142,20 @@ Report findings ordered by severity. For each finding include:
 | Severity   | Examples                                                                      |
 | ---------- | ----------------------------------------------------------------------------- |
 | Critical   | Infrastructure imported directly in a component; Domain importing a framework |
-| Warning    | Business logic inside a screen/component file; raw API calls in hooks         |
-| Suggestion | Folder structure unclear; ambiguous utility code that could move inward       |
+| Warning    | Business logic inside a screen/component file; raw API calls in hooks; folder missing from the intended mapping |
+| Suggestion | Folder structure unclear; ambiguous utility code that could move inward; `docs/architecture.md` names a path that no longer exists |
 
 ### Output format
 
 ```
 ## Architecture Review
 
-### Layer Mapping (resolved)
+### Layer Mapping (from docs/architecture.md | inferred)
 - `services/` → Infrastructure
 - `hooks/`    → Application
 - `screens/`  → Presentation
 - `types/`    → Domain
+- `workers/`  → not in the intended mapping
 
 ### Findings
 

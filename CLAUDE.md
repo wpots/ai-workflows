@@ -67,6 +67,7 @@ canonical path and use the command as fallback:
 - `wcag audit`, `accessibility audit`, `wcag compliance audit`, `a11y audit` -> `skills/wcag-audit` (skill only, no fallback)
 - `maintenance`, `project maintenance`, `onderhoud`, `maintenance sweep`, `monthly check`, `health check`, `api key check` -> `skills/maintenance` (skill only, no fallback; delegates the dependency lane to `skills/npm-maintenance`)
 - `mr merged`, `post-merge`, `afgerond na merge`, `close out merged MR` -> `skills/mr-merged` (skill only, no fallback; also the hand-off target when `skills/watch-mrs` reports a merge)
+- `start project`, `new project`, `project kickoff`, `project brief`, `project spec`, `nieuw project`, `project opzetten` -> `skills/start-project` (skill only, no fallback; writes brief/spec/architecture, then hands over to `skills/init-project`)
 
 ### Additional Commands & Skills
 

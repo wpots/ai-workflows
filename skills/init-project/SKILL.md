@@ -18,6 +18,21 @@ surface.
 1. **Project path** — absolute path or relative to `~/Web/`. Ask if not provided.
 2. **Project name** — inferred from the directory name if not given.
 
+## Relationship to start-project
+
+`skills/start-project/SKILL.md` runs **before** this skill and captures intent:
+`docs/project-brief.md`, `docs/project-spec.md`, and `docs/architecture.md`.
+This skill captures **detected facts**. The split is what keeps them from
+drifting:
+
+| This skill writes | That skill wrote |
+| --- | --- |
+| stack versions, scripts, the folders that exist today, deviations | why the product exists, release rules, intended layer mapping, decisions + rationale |
+
+So when `docs/architecture.md` exists, it is the authority on the intended
+mapping — see Step 3. If none of the three documents exist and this is a fresh
+project rather than an existing codebase, offer `start-project` first.
+
 ## Steps
 
 ### 1. Validate Target
@@ -62,8 +77,17 @@ Also detect:
 ### 3. Probe Project Structure
 
 List top-level directories under `src/` (or project root if no `src/`).
-Map them to Clean Architecture layers using the relevant stack rules table.
-Record the mapping for use in CONVENTIONS.md.
+
+**If `docs/architecture.md` exists**, do not re-derive the mapping. Read its
+layer-mapping table and use it as-is; `CONVENTIONS.md` then lists the folders
+that exist and links to that document for the layer and the reason. Only report
+a divergence — a folder present in the tree but absent from the table, or mapped
+differently — as a finding under Step 4. Never restate the rationale, and never
+silently correct the table: an intended mapping changes in
+`docs/architecture.md` first, as a decision-log entry.
+
+**If it does not exist**, map the folders to Clean Architecture layers using the
+relevant stack rules table and record the mapping for use in CONVENTIONS.md.
 
 ### 4. Detect Deviations from Global Rules
 
@@ -106,6 +130,8 @@ truth** for project-specific context. All tool adapters reference this file.
 ## Structure
 
 <mapped folder structure with CA layer annotations>
+<when docs/architecture.md exists: one line — "Intended layer mapping and the
+reasoning behind it: `docs/architecture.md`" — and no restated rationale>
 
 ## Scripts
 
@@ -138,6 +164,8 @@ When conflicts arise, this file wins for project-specific decisions.
 
 Guidelines:
 - Only include sections that have meaningful content.
+- When `docs/project-brief.md`, `docs/project-spec.md`, or `docs/architecture.md`
+  exist, link them once under `## Project` instead of summarizing them.
 - Pull the description from `package.json` or the first paragraph of `README.md`.
 - List only scripts that exist in `package.json`.
 - Keep it under 80 lines — concise and scannable.
@@ -211,5 +239,8 @@ If deviations were detected, list them briefly so the developer is aware.
 - Do not modify existing source code.
 - Do not install dependencies.
 - Do not overwrite CONVENTIONS.md without asking first — it's project-owned.
+- Do not touch `docs/project-brief.md`, `docs/project-spec.md`, or
+  `docs/architecture.md` — they are owned by `skills/start-project/SKILL.md`.
+- Do not duplicate an architecture decision into CONVENTIONS.md. Link to it.
 - Tool adapters (CLAUDE.md, AGENTS.md, etc.) can be regenerated freely.
 - Keep CONVENTIONS.md concise — under 80 lines.
