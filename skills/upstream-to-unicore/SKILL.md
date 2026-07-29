@@ -108,9 +108,18 @@ git push -u origin <type>/<short-description>
 glab mr create -R greenberrynl/the-greenhouse/unicore-template \
   --source-branch <type>/<short-description> \
   --target-branch <target-branch> \
+  --reviewer wieteke.pots \
   --title "<type>: <short description>" \
   --description "<generated body>" --yes
 ```
+
+**The reviewer is mandatory.** `--reviewer wieteke.pots` is part of the MR, not
+an optional extra — an MR without that reviewer is not done. If the flag is
+unsupported or silently dropped, set it afterwards with
+`glab mr update <iid> --reviewer wieteke.pots` and verify with
+`glab mr view <iid>` before reporting. When the MR had to be opened through the
+browser fallback below, say explicitly that the reviewer still has to be added
+there.
 
 **glab API fallback**: `glab` API calls can fail in a sandboxed/TLS-restricted
 environment (`tls: failed to verify certificate`). If `glab mr create` fails:
@@ -137,6 +146,8 @@ its state.
 
 ## Constraints
 
+- Every change lands via an MR with `wieteke.pots` as reviewer — never a direct
+  push to the target branch, and never an MR without that reviewer.
 - Keep the template client-agnostic — no RefugeeWork/RFW naming, no Jira refs.
 - Always adapt project-specific wrappers/paths to template conventions; never
   copy them verbatim.

@@ -212,6 +212,15 @@ glab mr create \
   --description "<generated-body>"
 ```
 
+> **Reviewer — hard rule in the canonical config repos.** When the resolved
+> remote points at `greenberrynl/config/ai-workflows` or
+> `greenberrynl/the-greenhouse/unicore-template`, the MR must be created with
+> `--reviewer wieteke.pots`. An MR in those repos without that reviewer is not
+> done: if the flag was dropped, run
+> `glab mr update <iid> --reviewer wieteke.pots`, and verify with
+> `glab mr view <iid>` before reporting. Never bypass the MR with a direct push
+> to the base branch there — not even for a one-line doc change.
+
 > **Long descriptions go via a file, not inline.** A multi-paragraph body
 > passed inline (`--body`/`--description`) is fragile: shell quoting breaks
 > easily, and very large single arguments can crash agent permission flows
@@ -317,6 +326,7 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | Step | Status | Detail |
 | --- | --- | --- |
 | PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
+| Reviewer requested | ✅ | `<username>`, verified — or ➖ when the repo has no reviewer policy |
 | Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
 | Checks | ✅ | lint ✓ · type-check ✓ · test ✓ |
 | Migration | ➖ | none needed / added `<name>` |
@@ -345,3 +355,6 @@ migration, no board) stay in the table on ➖.
   pushing, unless the user already said to proceed without asking.
 - Always keep the PR/MR mergeable: rebase onto the latest base before every
   push (create or update), never let the branch drift behind base.
+- In the canonical config repos (`ai-workflows`, `unicore-template`) every
+  change lands via a GitLab MR with `wieteke.pots` as reviewer — no direct
+  pushes to the base branch, no MR without that reviewer.
