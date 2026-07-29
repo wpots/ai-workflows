@@ -98,8 +98,12 @@ Write to `docs/plans/refinement-<YYYY-MM-DD>.md`. Use this structure:
 - **TL;DR — decide first** — the 2–4 blocking decisions that gate the rest
   (status models, rescoped/empty tickets, tightly-coupled groups).
 - **Grouping** — group related tickets (usually by epic / shared surface) in
-  tables: `Ticket | Title | What | SP proposal`. Note the dependency chain
+  tables: `Ticket | Title | What | SP proposal | Slices`. Note the dependency chain
   within a group and external dependencies outside the batch.
+- **Slicing** — per ticket that trips a split trigger in `rules/mr-sizing.md`,
+  the proposed slices in dependency order, one per reviewable MR, with the reason
+  for each cut. Size is part of readiness: a ticket nobody can deliver in one
+  reviewable MR is not ready, however clear its criteria are.
 - **Conflicts (critical — resolve first)** — contradictions between tickets
   (enum mismatches, overlapping scope, fields referenced but not defined).
 - **Questions per ticket** — a short, specific question list per ticket. Prefer

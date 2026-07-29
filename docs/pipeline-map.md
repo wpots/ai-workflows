@@ -78,7 +78,7 @@ output advance. Two principles follow from that:
 | Design readiness | readiness | entry to Plan — design resolved, tokens and states settled, a11y decided | nothing | ❌ absent |
 | Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `skills/refinement` + `rules/backlog.md` + `rules/mr-sizing.md` | ⚠️ partial — encoded, never blocking |
 | Build health | done | exit from Build — compiles, types, lint, unit tests, no committed secrets | `skills/run-checks`, plus `skills/migration-check` when the diff touches migrations | ✅ automated, ⚠️ not derived from the CI job list |
-| QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review` — but nothing maps a result back to a specific criterion | ⚠️ partial — verification without traceability |
+| QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review`, plus the BLI's `How to verify` steps that `skills/work-backlog` fills from what it actually ran | ⚠️ partial — the steps are recorded per item, but nothing maps a machine-checked result back to a specific criterion |
 | Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift check (doc freshness covered via `rules/documentation.md`) |
 | Release readiness | done | safe to ship — dependency and licence scanning, API-contract/breaking-change detection, docs updated | `skills/watch-mrs` (approval, pipeline, conflicts via `detailed_merge_status`), `skills/npm-maintenance` (dependencies, out of band) | ⚠️ partial — merge-readiness only, armed by hand |
 | Deploy health | done | the release is healthy in production — smoke tests, canary, rollback ready | nothing | ❌ absent |
@@ -204,7 +204,7 @@ nothing prevents an unready item from being picked up.
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
-| `skills/work-backlog` | skill | `/work-backlog` · `"work the backlog"`, `"next backlog item"` | Autonomous delivery of one BLI, WIP limit 1 — spans Plan → Review and calls the phases below |
+| `skills/work-backlog` | skill | `/work-backlog` · `"work the backlog"`, `"next backlog item"` | Autonomous delivery of one BLI, WIP limit 1 — spans Plan → Review and calls the phases below. Before the MR it fills the BLI's `How to verify` from what it actually ran, and names the slice when the ticket has several |
 | `skills/test-driven-development` | skill | `/test-driven-development` · `"tdd"`, `"test eerst"` · delegated by `skills/work-backlog` | Strict RED-GREEN-REFACTOR for a feature or bugfix |
 | `skills/scaffold-component` | skill | `/scaffold-component` · `"new component"`, `"scaffold"` | New component with the project's file structure and conventions |
 | `skills/commit-message` | skill | `/commit-message` · `"commit message"`, `"git commit"` | Conventional commit message from the diff |
@@ -269,7 +269,7 @@ can sit unnoticed. See [Gaps](#gaps).
 | `skills/sprint-demo` | skill | `/sprint-demo` · `"demo voorbereiden"`, `"demo script"` | Presenter runsheet plus a Marp deck for sprint review |
 | `commands/close-sprint.md`, `commands/sprint-demo.md` | commands | trigger phrase → command | Fallback runbooks |
 | `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr merge` | Moves the item to *done* the moment it merges |
-| `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup |
+| `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: board to done, **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/`), "How to test this" comment for the PO covering the whole capability (posted after approval, deferred while slices remain), proposed ticket transition, branch/worktree cleanup |
 
 **Gate — Deploy health: partial.** `skills/mr-merged` hands the PO a way to test
 what shipped; nothing verifies a deploy or drafts release notes yet. See
@@ -392,7 +392,7 @@ actually stands against it — the alignment view, not a wish list.
 | Build | scaffold from ticket (files, components, failing test) | ⚠️ | `skills/work-backlog` + `skills/scaffold-component`, no test skeleton from criteria |
 | Build | convention enforcement while writing | ✅ | `rules/` loaded per phase, `skills/code-review` as backstop |
 | Build | codemod / migration assistant | ⚠️ | `skills/npm-maintenance` for dependencies, `skills/migration-check` for DB migrations; no general codemod |
-| QA | requirements traceability: criterion → test → result, per criterion | ❌ | filed: `docs/backlog/feat-requirements-traceability.md` |
+| QA | requirements traceability: criterion → test → result, per criterion | ⚠️ | the BLI's `How to verify` records the run steps and their observed results per item; the per-criterion machine mapping is still filed: `docs/backlog/feat-requirements-traceability.md` |
 | QA | flag untestable criteria back to the readiness gate | ❌ | filed with the above |
 | QA | visual regression against the Figma frame | ❌ | — |
 | QA | a11y verification | ✅ | `skills/wcag-audit`, `rules/accessibility.md` |
