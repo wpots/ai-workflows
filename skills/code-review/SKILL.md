@@ -33,6 +33,7 @@ If none exists, ask the user which base branch to use.
 - Performance issues
 - Accessibility and maintainability gaps
 - Type-safety risks and missing guardrails
+- Documentation and comment freshness
 3. When the diff includes TypeScript or boundary-heavy code, use
    `rules/type-safety.md` as the checklist source.
 4. Always check for:
@@ -64,14 +65,25 @@ If none exists, ask the user which base branch to use.
    If a violation is pre-existing neighbour code the diff didn't introduce,
    note it as a suggested follow-up rather than a blocking finding (see
    "Conform to the rule, not the neighbour" in `rules/clean-architecture.md`).
-6. Provide concrete file references with line numbers.
-7. For each finding, explain:
+6. Check documentation and comment freshness, scoped to the diff (policy:
+   `rules/documentation.md`; repo-wide audits belong to `skills/maintenance`):
+   - comments whose subject appears in the diff but now contradict the changed
+     code (renamed/removed function still named, changed default still
+     documented as the old value, removed branch still explained)
+   - JSDoc on changed signatures (parameters, return type, thrown errors)
+   - repo docs (`README`, `CONVENTIONS.md`, `AI-WORKFLOWS.md`, `docs/*`) that
+     describe the changed behaviour
+   A comment that contradicts the code is a defect: report it with the file
+   reference and the concrete stale sentence, and recommend updating it in
+   this MR — or deleting it when it cannot be made true cheaply.
+7. Provide concrete file references with line numbers.
+8. For each finding, explain:
 - why the code is unsafe
 - the trust boundary or failure mode
 - severity
 - the best guardrail type: code change, lint rule, `tsconfig` rule, CI check, or architecture rule
-8. Include targeted fixes or examples for high-impact findings.
-9. If requested, write report to `./.docs/CODE_REVIEW.md`.
+9. Include targeted fixes or examples for high-impact findings.
+10. If requested, write report to `./.docs/CODE_REVIEW.md`.
 
 ## Output Format
 
@@ -81,12 +93,15 @@ Keep findings first and severity-ordered, then use these fixed sections:
 2. `Type-Safety Risks`
 3. `Boundary Validation Gaps`
 4. `Unsafe Assertions`
-5. `Workflow Guardrails`
-6. `Concrete Fixes`
+5. `Documentation & Comment Freshness`
+6. `Workflow Guardrails`
+7. `Concrete Fixes`
 
 If a section has no issues, say `None found.` If no type-safety issues are
 found, explain briefly why the code appears safe, for example validated
 boundaries, no unsafe assertions, and exhaustive handling of variants.
+Documentation findings quote the concrete stale sentence with its file
+reference — never a generic "check your docs".
 
 ## Remote MR Review (GitLab)
 

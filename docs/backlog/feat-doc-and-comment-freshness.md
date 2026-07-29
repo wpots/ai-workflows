@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+done
 
 Readiness pass 2026-07-29: verified against the repo — nothing delivered yet,
 ACs are concrete and self-contained. Two delivery requirements not in the ACs:
@@ -30,21 +30,21 @@ being true two merge requests ago.
 
 ## Acceptance Criteria
 
-- [ ] New `rules/documentation.md` stating: comments, JSDoc, and repo docs that
+- [x] New `rules/documentation.md` stating: comments, JSDoc, and repo docs that
       describe changed behaviour are updated in the **same** MR; a comment that
       contradicts the code is a defect, not a nitpick; delete a comment rather than
       leave it wrong; the doc language follows the repo, not the chat.
-- [ ] `rules/rules.md` lists the new file with a "when to load" line.
-- [ ] `skills/code-review` gains a "documentation and comment freshness" dimension
+- [x] `rules/rules.md` lists the new file with a "when to load" line.
+- [x] `skills/code-review` gains a "documentation and comment freshness" dimension
       covering: comments contradicting the changed code, JSDoc on changed signatures,
       and repo docs (`README`, `CONVENTIONS.md`, `AI-WORKFLOWS.md`, `docs/*`) that
       describe the changed behaviour.
-- [ ] Findings are severity-ordered like the rest of the review, with a file
+- [x] Findings are severity-ordered like the rest of the review, with a file
       reference and the concrete stale sentence — not a generic "check your docs".
-- [ ] The dimension is scoped to the diff: it does not become a repo-wide doc audit
+- [x] The dimension is scoped to the diff: it does not become a repo-wide doc audit
       (`skills/maintenance` owns the periodic sweep).
-- [ ] `commands/review-code.md` stays aligned as the fallback surface.
-- [ ] The new rule ships to projects through the normal sync path.
+- [x] `commands/review-code.md` stays aligned as the fallback surface.
+- [x] The new rule ships to projects through the normal sync path.
 
 ## Technical Notes
 
@@ -71,3 +71,4 @@ value, a removed branch still explained. Prefer that over asking the model to ju
 - [../../commands/review-code.md](../../commands/review-code.md)
 - [../../rules/rules.md](../../rules/rules.md)
 - [../pipeline-map.md](../pipeline-map.md)
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/44>

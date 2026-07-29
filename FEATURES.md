@@ -128,6 +128,7 @@ Baseline rules in `rules/`. Loaded contextually — not all apply at once.
 | `rules/payload.md` | Payload schemas, generated types, hooks, and integration boundaries |
 | `rules/sustainability.md` | Sustainable IT: caching/rendering, LCP/assets, bundle and client JS, CI cost, dependencies |
 | `rules/sonarqube.md` | Opt-in SonarQube/SonarLint rule parity: avoid flagged patterns, apply preferred fixes |
+| `rules/documentation.md` | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
 | `rules/clean-architecture.md` | Layer boundaries, dependency direction, CA principles |
 
 ### Stack-Specific Rules

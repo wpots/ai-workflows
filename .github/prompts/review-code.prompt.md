@@ -38,6 +38,8 @@ Compare all changes between current branch and the resolved base branch and prov
 - Accessibility gaps
 - Type-safety issues using `rules/type-safety.md` as the checklist when the diff
   touches TypeScript or trust boundaries
+- Documentation and comment freshness, scoped to the diff, using
+  `rules/documentation.md` as the policy source
 - Testing gaps
 - Concrete, actionable fixes with file references and line numbers
 
@@ -53,6 +55,12 @@ Always check for:
 - non-exhaustive unions or switches
 - missing workflow guardrails such as lint rules, `tsconfig` flags, CI checks,
   or architecture boundaries
+- comments, JSDoc, or repo docs (`README`, `CONVENTIONS.md`,
+  `AI-WORKFLOWS.md`, `docs/*`) whose subject appears in the diff but that
+  still describe the old behaviour — a comment contradicting the code is a
+  defect; report the concrete stale sentence with its file reference, and
+  recommend updating it in the same MR or deleting it when it cannot be made
+  true cheaply (repo-wide doc audits stay with `skills/maintenance`)
 
 ## Architecture Conformance Pass
 
@@ -88,6 +96,7 @@ Focus on substantive issues that affect functionality, maintainability, or user 
   - `Type-Safety Risks`
   - `Boundary Validation Gaps`
   - `Unsafe Assertions`
+  - `Documentation & Comment Freshness`
   - `Workflow Guardrails`
   - `Concrete Fixes`
 - For each finding, explain why it is unsafe, identify the trust boundary or

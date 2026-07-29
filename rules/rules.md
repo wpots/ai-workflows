@@ -22,6 +22,7 @@ In practice, treat this directory as a topic-based rule library:
 | `accessibility.md`                      | WCAG requirements, ARIA, keyboard navigation                        |
 | `sustainability.md`                     | Sustainable IT: caching/rendering, LCP/assets, bundle & client JS, CI cost, deps |
 | `sonarqube.md`                          | Opt-in SonarQube/SonarLint rule parity: avoid flagged patterns, apply preferred fixes |
+| `documentation.md`                      | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
 | `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
 | `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
 | `payload.md`                            | Payload schemas, generated types, hooks, admin integrations         |
@@ -46,7 +47,9 @@ In practice, treat this directory as a topic-based rule library:
     CI cost, or dependencies — or when changing public-route rendering.
 12. Load `sonarqube.md` when a SonarQube or SonarLint finding is mentioned, or
     when editing code that could trip one of its opted-in rules.
-13. Load the appropriate stack file based on detected stack (see below).
+13. Load `documentation.md` when changing code that comments, JSDoc, or repo
+    docs describe, and during code review.
+14. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection
 
