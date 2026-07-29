@@ -76,7 +76,7 @@ output advance. Two principles follow from that:
 | Gate | Kind | Guards | Enforced by | Status |
 | --- | --- | --- | --- | --- |
 | Design readiness | readiness | entry to Plan — design resolved, tokens and states settled, a11y decided | nothing | ❌ absent |
-| Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity | `skills/refinement` + `rules/backlog.md` | ⚠️ partial — encoded, never blocking |
+| Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `skills/refinement` + `rules/backlog.md` + `rules/mr-sizing.md` | ⚠️ partial — encoded, never blocking |
 | Build health | done | exit from Build — compiles, types, lint, unit tests, no committed secrets | `skills/run-checks`, plus `skills/migration-check` when the diff touches migrations | ✅ automated, ⚠️ not derived from the CI job list |
 | QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review` — but nothing maps a result back to a specific criterion | ⚠️ partial — verification without traceability |
 | Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift check (doc freshness covered via `rules/documentation.md`) |
@@ -188,10 +188,13 @@ Turning intent into work items with acceptance criteria.
 | `skills/sprint-board` | skill | `/sprint-board` · `"waar ben ik mee bezig"` · **hook** `PostToolUse(Bash)` on MR create/merge · delegated by every status-changing workflow | Opens the item on the per-sprint board and tracks it through every later status |
 | `commands/refinement.md`, `commands/sprint-planning.md`, `commands/backlog.md` | commands | trigger phrase → command; `refinement.md` has **no** mapping | Fallback runbooks for tools that cannot use skills |
 | `rules/backlog.md` | rule | loaded — user story, spec, backlog work | User story, spec, and backlog-item structure |
+| `rules/mr-sizing.md` | rule | loaded — whenever work is sized or sliced, and at MR time | One ticket to many items: size budget, sliceability test, split triggers. Blocking at planning, advisory at the MR |
 | `docs/backlog/` | context | read by `skills/work-backlog` at pickup | Local BLIs — the definition of done that `skills/work-backlog` consumes |
 
 **Gate — Definition of ready: partial.** `skills/refinement` and `rules/backlog.md`
-define readiness; nothing prevents an unready item from being picked up.
+define readiness, and `rules/mr-sizing.md` adds the size half of it — an item too
+big for one reviewable MR is not ready, however clear its criteria are. Still
+nothing prevents an unready item from being picked up.
 
 ### Build — implement
 
@@ -247,6 +250,7 @@ building instead of re-running everything.
 | `skills/watch-mrs` | skill | `/watch-mrs` · `"watch my MR"`, `"notify me on approval"` → then runs as a **loop** (`Monitor` + heartbeat), session-scoped | Background loop over new comments, merge-readiness, and pipeline transitions — names the failing job/stage, offers triage, hands merges to `skills/mr-merged`; opt-in auto-merge |
 | `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr create` | Moves the item to *in review* / *rework* |
 | `rules/documentation.md` | rule | loaded — diffs touching commented/documented code, and during review | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
+| `rules/mr-sizing.md` | rule | loaded — when an MR is opened or reviewed | The advisory end of the budget: report the overrun and where the cut belonged; re-slicing merge-ready work is not the answer |
 
 **Gate — Release readiness: automated but armed by hand.** `skills/watch-mrs` can
 watch a MR the moment it exists, but nothing arms it — which is why a red pipeline

@@ -9,6 +9,27 @@ These backlog files complement your issue tracker (Jira, Linear, etc.) — they
 don't replace it. Use them as a local drafting format for AI-generated stories
 and specs. Link back to the tracker via the **Ticket** field in each file.
 
+## One Ticket, Many Items
+
+A ticket and a backlog item are not the same unit. The item is what **one MR**
+delivers, so a ticket whose MR would be too large to review in one sitting gets
+more than one item:
+
+```
+PROJ-123  ──  PROJ-123-feat-vacancy-search-1-index.md     (slice 1/3)
+          ──  PROJ-123-feat-vacancy-search-2-results.md   (slice 2/3)
+          ──  PROJ-123-feat-vacancy-search-3-filters.md   (slice 3/3)
+```
+
+`rules/mr-sizing.md` owns the size budget, the sliceability test, and the split
+triggers — cut the work here, while it is still prose. An item that trips a
+split trigger may not be marked `ready`.
+
+Every slice repeats the ticket key, states its position in the `Slice` field,
+and depends on the one before it. The ticket is delivered when **every** item
+carrying its key is `done` on the default branch; there is no separate progress
+field to maintain.
+
 ## Output Location
 
 All backlog items MUST be written to the project's `docs/backlog/` folder.
@@ -38,6 +59,10 @@ docs/
 
 - Optionally prepend the project ticket key before the type: `JS-103-feat-user-authentication.md`.
   - Use an uppercase project acronym and numeric ID (e.g. `PROJ-123`), keep hyphen separators, and preserve kebab-case for the descriptive part.
+- When one ticket has several items, suffix each with its slice number and the
+  capability it delivers: `PROJ-123-feat-vacancy-search-2-results.md`. The
+  number orders them; the slug says what the slice is, not which layer it
+  touches.
 
 ## File Template
 
@@ -57,6 +82,10 @@ draft
 <!-- PROJECT-123 or JS-103 -->
 
 PROJ-123
+
+## Slice
+
+<!-- Omit when the ticket has a single item. Otherwise: 2/3 — results list -->
 
 ## Priority
 
@@ -80,6 +109,18 @@ medium
 - [ ] ...
 - [ ] ...
 
+## How to verify
+
+<!-- Filled in by whoever delivers the item, before the MR opens — evidence,
+     not claims. Runnable steps on a fresh checkout: the command to run, the
+     route to open and as which role, the observable result. Cover every
+     acceptance criterion that needs more than "the test passes".
+     This is the developer-facing text. The product-owner instructions are a
+     separate artefact, drafted from the MR by the post-merge closeout. -->
+
+- [ ] `npm run test -- <path>` — <what it proves>
+- [ ] open `<route>` as <role> — <observable result>
+
 ## Technical Notes
 
 <!-- Implementation hints, relevant files, dependencies, edge cases.
@@ -92,7 +133,10 @@ medium
 
 ## Related
 
-<!-- Links to related items, PRs, or docs -->
+<!-- Links to related items, PRs, or docs.
+     A slice that needs an earlier one merged first states it as
+     `Depends on: PROJ-123-feat-vacancy-search-1-index.md` — that line is what
+     autonomous delivery reads to order the work. -->
 ```
 
 ## Writing Style
@@ -103,6 +147,8 @@ medium
 - Spell out edge cases and error scenarios in acceptance criteria.
 - Keep language direct and unambiguous — no "maybe" or "consider".
 - Each acceptance criterion should be independently testable.
+- `How to verify` is written to be **run**, not read: real commands, real
+  routes, real roles. "Check that it works" is not a verification step.
 
 ## Updating Existing Items
 
