@@ -5,10 +5,12 @@
 // Errors (exit 1): broken frontmatter, name/directory mismatch, duplicate
 // names, references to files that don't exist, broken relative links,
 // command-mapping targets that don't exist, canonical-sources rows pointing
-// at missing files.
+// at missing files, pipeline-map paths that don't exist.
 //
 // Warnings (exit 0): skills/commands missing from the canonical-sources
-// inventory, descriptions without a routing cue, unknown frontmatter keys.
+// inventory, skills/commands/rules not placed in the pipeline map, pipeline-map
+// paths that exist but are untracked, descriptions without a routing cue,
+// unknown frontmatter keys.
 
 import { execFileSync } from "node:child_process";
 import { readFileSync, existsSync } from "node:fs";
@@ -223,6 +225,62 @@ if (tracked.has(CANONICAL)) {
   }
 } else {
   warn(CANONICAL, "file not found; canonical-sources check skipped");
+}
+
+// ── Pipeline map places every surface in the process ──────────────────────────
+
+const PIPELINE = "docs/pipeline-map.md";
+
+if (tracked.has(PIPELINE)) {
+  const pipeline = read(PIPELINE);
+
+  // Directories are never in `tracked` (it lists files), so derive the set of
+  // directories that contain tracked files.
+  const trackedDirs = new Set();
+  for (const file of tracked) {
+    const parts = file.split("/");
+    for (let i = 1; i < parts.length; i += 1) {
+      trackedDirs.add(parts.slice(0, i).join("/"));
+    }
+  }
+
+  const mentioned = new Set();
+
+  for (const match of pipeline.matchAll(
+    /`((?:skills|commands|rules|shared|scripts|templates|mcp|packages|docs)\/[^`\s]+)`/g,
+  )) {
+    if (/[<>*]/.test(match[1])) continue; // placeholder, not a concrete path
+    const target = match[1].replace(/\/$/, "");
+    mentioned.add(target);
+    // Existence, not trackedness, is the error: a map that documents an
+    // in-flight surface is fine, a map that points at nothing is a typo.
+    if (!existsSync(path.join(ROOT, target))) {
+      err(PIPELINE, `names \`${match[1]}\`, which does not exist`);
+    } else if (!tracked.has(target) && !trackedDirs.has(target)) {
+      warn(PIPELINE, `names \`${match[1]}\`, which exists but is untracked`);
+    }
+  }
+
+  // Match on whole path segments, so `skills/foo-bar` never counts as coverage
+  // for `skills/foo`.
+  const placed = (rel) =>
+    mentioned.has(rel) || [...mentioned].some((m) => m.startsWith(`${rel}/`));
+
+  for (const dir of skillDirs) {
+    if (tracked.has(`skills/${dir}/SKILL.md`) && !placed(`skills/${dir}`)) {
+      warn(PIPELINE, `skill \`skills/${dir}\` is not placed in any phase`);
+    }
+  }
+  for (const rel of [...tracked].filter(
+    (f) =>
+      (f.startsWith("commands/") || f.startsWith("rules/")) && f.endsWith(".md"),
+  )) {
+    if (!placed(rel)) {
+      warn(PIPELINE, `\`${rel}\` is not placed in any phase`);
+    }
+  }
+} else {
+  warn(PIPELINE, "file not found; pipeline-map check skipped");
 }
 
 // ── Report ───────────────────────────────────────────────────────────────────

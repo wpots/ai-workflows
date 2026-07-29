@@ -135,6 +135,7 @@ Practical guidance:
 - `scripts/generate-adapters.sh`: injects shared fragments and regenerates derived files
 - `scripts/sync.sh`: syncs either global agent folders or a target project
 - `scripts/validate-ai-instructions.sh`: regenerates adapters and checks for drift
+- `docs/pipeline-map.md`: which rule, skill, and command fires in which delivery phase
 
 ## Generated Vs Canonical Files
 
@@ -444,6 +445,15 @@ IDE.
 1. Edit the runbook in `commands/`.
 2. Add or update the trigger mapping in `shared/command-mappings.md`.
 3. Run `./scripts/generate-adapters.sh`.
+
+### Add or update a skill
+
+1. Edit or create `skills/<name>/SKILL.md`.
+2. Record the canonical surface in `docs/workflow-canonical-sources.md`.
+3. Place it in the process in `docs/pipeline-map.md` — which phase it fires in,
+   and which gate it helps close.
+4. Run `./scripts/validate-ai-instructions.sh`; steps 2 and 3 are checked, so a
+   missing entry shows up as a warning rather than staying invisible.
 
 ### Add or update a shared fragment
 
