@@ -71,3 +71,4 @@ value, a removed branch still explained. Prefer that over asking the model to ju
 - [../../commands/review-code.md](../../commands/review-code.md)
 - [../../rules/rules.md](../../rules/rules.md)
 - [../pipeline-map.md](../pipeline-map.md)
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/44>
