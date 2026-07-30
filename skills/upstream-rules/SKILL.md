@@ -135,6 +135,7 @@ MR, never a push to `main`:
 ```bash
 git push -u <gitlab-remote> rules/<short-description>
 gitlab_mr_url=$(glab mr create -R greenberrynl/config/ai-workflows \
+  -H greenberrynl/config/ai-workflows \
   --source-branch rules/<short-description> \
   --target-branch main \
   --reviewer wieteke.pots \
@@ -143,11 +144,29 @@ gitlab_mr_url=$(glab mr create -R greenberrynl/config/ai-workflows \
 printf 'GitLab MR: %s\\n' "$gitlab_mr_url"
 ```
 
+**Name the head repo with `-H`.** `-R` only sets the *target*; the head (source)
+project still defaults to whatever git remote the **current directory** has. Run
+this from a project checkout — which is normal, since the change originates
+there, and an agent forbidden from `cd`-ing cannot leave it — and glab offers
+that project as the source, failing with
+`422 [Source project is not a fork of the target project]`. `-H` pins the source
+to the canonical repo and makes the command cwd-independent, so it works both
+from `~/Web/ai-workflows` and from the originating project.
+
 **The reviewer is mandatory.** `--reviewer wieteke.pots` is part of the MR, not
 an optional extra — an MR without that reviewer is not done. If the flag is
 unsupported or silently dropped, set it afterwards with
-`glab mr update <iid> --reviewer wieteke.pots` and verify with
-`glab mr view <iid>` before reporting.
+`glab mr update <iid> -R greenberrynl/config/ai-workflows --reviewer wieteke.pots`
+and verify with `glab mr view <iid> -R greenberrynl/config/ai-workflows` before
+reporting. Both need `-R` for the same reason as above: without it they resolve
+against the current directory's repo and report on the wrong project — or claim
+the MR does not exist.
+
+Do **not** hand-roll this with `glab api …/merge_requests`. It works, but
+`--field "reviewer_ids[]=<id>"` sends the bracket as a literal JSON key and
+silently creates the MR with **no reviewer**; getting one attached then needs a
+raw JSON body plus an explicit `-H "Content-Type: application/json"`. `-H` on
+`glab mr create` avoids the whole detour.
 
 MR body should include:
 
