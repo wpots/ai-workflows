@@ -117,6 +117,10 @@ First commit: flip the BLI `Status` from `ready` to `in-progress`
 
 ### 5. Implement
 
+Before writing code, scan `docs/solutions/` (when the folder exists) for
+notes matching the item's area — a documented root cause or prevention there
+overrides guesswork and often collapses the approach decision.
+
 - Read the BLI fully, **including every linked doc** (spec sections,
   architecture) before writing code.
 - Follow `CONVENTIONS.md`, the project `rules/`, and existing code style.

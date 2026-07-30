@@ -23,6 +23,9 @@ the same workflow; Copilot follows the runbook directly.
    method available: the tracker's MCP connector if connected, otherwise its
    CLI. If neither connects, stop and help the user connect — never refine on
    local docs alone.
+5. When `docs/solutions/` exists, scan it for notes touching the tickets
+   under refinement — a documented root cause or prevention belongs in the
+   per-ticket notes and the story-point rationale.
 
 ## Constraints
 

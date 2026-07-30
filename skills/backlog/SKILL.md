@@ -45,6 +45,8 @@ propose the new cut.
    backlog rules rather than treating it as a competing source of truth.
 4. Read only the local specs, backlog items, and code paths relevant to the
    requested item.
+5. When `docs/solutions/` exists, check it for prior lessons in the item's
+   area and reference the relevant note under `## Related`.
 
 ## Workflow
 

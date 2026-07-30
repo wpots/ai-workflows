@@ -47,6 +47,22 @@ for (const rel of tracked) {
   }
 }
 
+// ── No committed conflict markers ────────────────────────────────────────────
+// `git rebase --continue` bypasses the pre-commit hook, so a half-resolved
+// conflict can reach a branch unnoticed. Only opener/closer lines are flagged:
+// a bare ======= line can legitimately be a setext underline.
+for (const rel of tracked) {
+  let text;
+  try {
+    text = readFileSync(path.join(ROOT, rel), "utf8");
+  } catch {
+    continue; // unreadable or binary-ish — not this check's concern
+  }
+  if (/^<{7} /m.test(text) || /^>{7} /m.test(text)) {
+    err(rel, "contains git conflict markers — a rebase resolution was committed half-done");
+  }
+}
+
 const read = (rel) => readFileSync(path.join(ROOT, rel), "utf8");
 
 function parseFrontmatter(rel) {
