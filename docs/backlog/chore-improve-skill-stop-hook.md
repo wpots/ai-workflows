@@ -45,7 +45,7 @@ back into the skill instead of being noticed and forgotten.
       workflow friction actually surfaces.
 - [ ] The prose rule stays in place as documentation of intent; the hook is the
       enforcement.
-- [ ] Documented in `README.md` next to the existing `scripts/install-hooks.sh`
+- [ ] Documented in `docs/contributing.md` next to the existing `scripts/install-hooks.sh`
       pre-commit hook, so both hook kinds are discoverable in one place.
 
 ## Technical Notes

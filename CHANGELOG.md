@@ -8,8 +8,8 @@ plus the scripts they run, and the ambient layer those hooks deliver
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are
 plain semver. Bump `version` in `.claude-plugin/plugin.json` and add the entry
 here **in the same MR** whenever a change alters what the plugin ships. See
-"Ship a plugin release" in `README.md` for the bump rule. Repo-internal changes
-(`README.md`, `docs/`, CI) don't bump.
+"Ship a plugin release" in `docs/contributing.md` for the bump rule.
+Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
