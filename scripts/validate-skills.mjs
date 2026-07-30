@@ -13,6 +13,7 @@
 // inventory, skills/commands/rules not placed in the pipeline map, pipeline-map
 // paths that exist but are untracked, skills/commands/rules/MCP servers missing
 // from the FEATURES.md inventories, descriptions without a routing cue,
+// SKILL.md bodies over the 500-line progressive-disclosure budget,
 // unknown frontmatter keys.
 //
 // Why routing gaps are errors and inventory gaps are warnings: the two docs are
@@ -96,10 +97,22 @@ for (const dir of skillDirs) {
     continue;
   }
 
-  const { fm } = parseFrontmatter(rel);
+  const { fm, body } = parseFrontmatter(rel);
   if (!fm) {
     err(rel, "missing YAML frontmatter block (--- ... ---)");
     continue;
+  }
+
+  // Progressive-disclosure budget: the procedure belongs in SKILL.md, deep-dive
+  // reference material in files inside the skill directory behind a
+  // conditional pointer. Oversized bodies load whole into every invocation.
+  const bodyLines = body.split("\n").length;
+  if (bodyLines > 500) {
+    warn(
+      rel,
+      `body is ${bodyLines} lines; keep SKILL.md under 500 — move deep-dive ` +
+        `reference material to files in the skill directory (progressive disclosure)`,
+    );
   }
 
   for (const key of Object.keys(fm)) {
