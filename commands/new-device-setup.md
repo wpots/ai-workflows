@@ -24,6 +24,9 @@ Then authenticate the CLIs (once per machine):
   claude.ai connector settings — the Jira- and Figma-backed skills depend on
   them.
 
+Verify the auth actually works before moving on: `glab auth status` and
+`jira me` must both succeed.
+
 The CLI-vs-MCP doctrine and the full tooling table live in `docs/tooling.md`.
 
 ## Steps

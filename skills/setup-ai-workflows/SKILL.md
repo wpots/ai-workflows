@@ -226,11 +226,15 @@ Detect integration tooling needs and write the project MCP config. Doctrine
 (CLI for scriptable/headless work, MCP for browser control, design context,
 and OAuth SaaS) lives in `docs/tooling.md` in ai-workflows.
 
-| Signal | Server entry |
-| ------ | ------------ |
-| `@playwright/test` in devDependencies | `playwright` |
-| UI/e2e work needing a live, inspectable browser | `chrome-devtools` |
-| Other detected SaaS/tool needs | case by case, env-var-based |
+| Signal | Result |
+| ------ | ------ |
+| `@playwright/test` in devDependencies | `playwright` server in `.mcp.json` |
+| UI/e2e work needing a live, inspectable browser | `chrome-devtools` server in `.mcp.json` |
+| GitLab remote on the repo | no server — `glab` CLI (machine baseline); list it in `## Tooling` |
+| Ticket keys in `docs/backlog/` or MR templates | no server — `jira` CLI; list it in `## Tooling` |
+| Figma links in `docs/` or CONVENTIONS.md | Figma connector (claude.ai, per user); note it in `## Tooling` |
+| Payload/Prepr (or other CMS) in package.json | document the token env vars in `## Tooling` |
+| Other SaaS/tool needs | case by case, env-var-based |
 
 Write two files, then document them:
 
