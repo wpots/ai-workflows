@@ -46,11 +46,26 @@ If a run had zero friction, skip silently — do not touch the skill.
    `description` if the skill's scope grew. If the fallback command runbook
    exists and now materially diverges, give it a compact version of the same
    change.
-5. **Update intent mappings** when new trigger phrases surfaced this session:
+5. **Compound each learning into every artifact it deserves** — a prose edit
+   alone evaporates under pressure; a check fires every time:
+   - **a check** — when the failure is mechanically detectable, add it where
+     machines look: a `scripts/validate-skills.mjs` block, a lint rule, a
+     hook, or a CI step.
+   - **an eval** — when the failure was behavioral (the skill produced the
+     wrong shape), add a case to `skills/<name>/evals/evals.json` capturing
+     the prompt and the assertion that would have caught it.
+   - **a solution note** — when the learning is project-specific (belongs to
+     that codebase, not the shared skill), write
+     `docs/solutions/<slug>.md` in the project: symptom, root cause, fix,
+     prevention — one page. `backlog`, `refinement`, and `work-backlog` read
+     that folder as grounding, so the lesson resurfaces at planning time
+     instead of being relearned.
+6. **Update intent mappings** when new trigger phrases surfaced this session:
    the `## Command Mapping` section in `~/Web/ai-workflows/CLAUDE.md` (source)
    and the synced `~/.claude/CLAUDE.md`.
-6. **Report once**: which files changed and the learnings captured, one line
-   per learning.
+7. **Report once**: which files changed and the learnings captured, one line
+   per learning, including which compound artifacts (check/eval/solution
+   note) each produced.
 
 ## Creating a New Skill
 

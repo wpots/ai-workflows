@@ -13,9 +13,26 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.14.0] - 2026-07-30
+
+### Added
+
+- `skills/improve-skill` — **compound step**: every durable learning is now
+  pressed into each artifact it deserves — a mechanical check
+  (validator/lint/hook/CI) when the failure is detectable, an eval case when
+  it was behavioral, and a `docs/solutions/<slug>.md` note in the project
+  when it is project-specific. `skills/backlog`, `skills/refinement`, and
+  `skills/work-backlog` now read `docs/solutions/` as grounding, so lessons
+  resurface at planning time instead of being relearned.
+- `scripts/validate-skills.mjs` errors on committed git conflict markers —
+  rebase bypasses the pre-commit hook, and that gap shipped a half-resolved
+  CHANGELOG twice on 2026-07-30. This check is itself the compound step
+  applied to that failure.
+
 ## [1.13.0] - 2026-07-30
 
 ### Added
+
 
 - `rules/git-flow.md` — the branch-and-merge policy that was until now implicit
   and inconsistent: fast-forward + squash-always, an explicit
