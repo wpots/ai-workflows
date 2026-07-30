@@ -28,7 +28,7 @@ In practice, treat this directory as a topic-based rule library:
 | `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
 | `payload.md`                            | Payload schemas, generated types, hooks, admin integrations         |
 | `clean-architecture.md`                 | Layer principles, dependency rules, forbidden patterns (all stacks) |
-| `stacks/nextjs-payload.md`              | Folder mapping + conventions for Next.js + Payload                  |
+| `stacks/nextjs-payload.md`              | Next.js conventions (App Router, proxy vs. middleware, read path, DoD); Payload sections optional |
 | `stacks/react-native-expo.md`              | React Native + Expo conventions                              |
 
 ## Loading Priority
@@ -59,8 +59,10 @@ In practice, treat this directory as a topic-based rule library:
 Before loading a stack file, read the project's `package.json` and check
 `dependencies` + `devDependencies`:
 
-- `"next"` present → load `stacks/nextjs-payload.md`
-  (also applies when `@payloadcms/payload` is present alongside Next.js)
+- `"next"` present → load `stacks/nextjs-payload.md` — **every Next.js project,
+  with or without Payload**. The file's Payload sections are additive; its
+  Next-general rules (App Router, proxy vs. middleware, read path, DoD) apply
+  even when `@payloadcms/payload` is absent.
 - `"expo"` or `"react-native"` present → load
   `stacks/react-native-expo.md` when available
   - if the file is not available locally, fall back to

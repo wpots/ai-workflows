@@ -1,7 +1,11 @@
-# Stack Rules: Next.js + React + Payload CMS
+# Stack Rules: Next.js + React (Payload CMS optional)
 
-Applies when `next` is detected in `package.json`. Optionally with
-`@payloadcms/payload`.
+**Applies to every project with `next` in `package.json` — with or without
+Payload.** The Payload CMS sections are additive; skip them when the project has
+no `@payloadcms/payload`. Everything else (App Router files, Server Actions,
+proxy vs. middleware, the read path, the definition of done) is Next-general and
+applies regardless of CMS. The `-payload` in this file's name is legacy — treat
+it as the Next.js stack rule.
 
 Load `rules/clean-architecture.md` first — this file only adds stack-specific
 structure and mapping on top of those universal principles.
