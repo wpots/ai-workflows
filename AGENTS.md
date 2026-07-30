@@ -102,6 +102,7 @@ cross-reference, so it still needs its own line.
 - `backlog item`, `user story`, `feature spec`, `bug item`, `bli` -> `skills/backlog` (canonical), `commands/backlog.md` (fallback); for a tracker ticket use `skills/jira-ticket`
 - `close sprint`, `sluit sprint af`, `sprint afsluiten` -> `skills/close-sprint` (canonical), `commands/close-sprint.md` (fallback)
 - `review code`, `code review`, `review changes` -> `skills/code-review` (canonical), `commands/review-code.md` (fallback)
+- `datocms migration`, `cms migration`, `fork cms environment`, `change the cms schema` -> `skills/datocms-migration` (skill only; the DatoCMS counterpart to `skills/migration-check`, which covers Payload/Postgres)
 - `commit message`, `write commit`, `git commit` -> `skills/commit-message` (canonical), `commands/commit-message.md` (fallback)
 - `component spec`, `spec component`, `write spec`, `document component api` -> `skills/component-spec` (skill only)
 - `create pr`, `open pr`, `submit pr` -> `skills/create-pr` (canonical), `commands/create-pr.md` (fallback)

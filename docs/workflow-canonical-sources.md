@@ -38,6 +38,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `watch-mrs` | skill only | `skills/watch-mrs/SKILL.md` | none | n/a |
 | `wcag-audit` | skill only | `skills/wcag-audit/SKILL.md` | none | n/a |
 | `migration-check` | skill only | `skills/migration-check/SKILL.md` | none | n/a |
+| `datocms-migration` | skill only | `skills/datocms-migration/SKILL.md` | none | n/a |
 | `upstream-to-unicore` | skill only | `skills/upstream-to-unicore/SKILL.md` | none | n/a |
 | `mr-merged` | skill only | `skills/mr-merged/SKILL.md` | none | n/a |
 | `start-project` | skill only | `skills/start-project/SKILL.md` | none | n/a |

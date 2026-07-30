@@ -233,6 +233,7 @@ before another human is asked to look at it.
 | `skills/code-review` | skill | `/code-review` · `"review changes"`, `"code review"` | Severity-ordered self-review of the branch diff with explicit type-safety audit |
 | `skills/architecture-review` | skill | `/architecture-review` · `"check clean arch"`, `"audit layer violations"` | Clean-architecture violations against the project's *actual* folder mapping |
 | `skills/migration-check` | skill | delegated by `skills/create-pr` when the diff touches `migrations/` · `/migration-check` | Static check of a generated Payload/Postgres migration for snapshot drift — read-only, never runs `migrate` |
+| `skills/datocms-migration` | skill | `/datocms-migration` · `"datocms migration"`, `"change the cms schema"` | Sandbox-fork → autogenerate → review loop for a DatoCMS schema change; catches destructive, out-of-scope, and instance-specific-ID operations before they ship |
 | `skills/wcag-audit` | skill | `/wcag-audit` · `"a11y audit"`, `"wcag compliance audit"` | Static WCAG review against `rules/accessibility.md` (the automated production scan sits in Operate) |
 | `skills/sustainable-review` | skill | `/sustainable-review` · `"performance audit"`, `"green refactor"`, `"ci review"` | Runtime, bundle, asset, dependency and CI cost of the change |
 | `commands/run-checks.md`, `commands/review-code.md`, `commands/sustainable-review.md` | commands | trigger phrase → command | Fallback runbooks |
@@ -391,7 +392,7 @@ actually stands against it — the alignment view, not a wish list.
 | Plan | acceptance criteria → test cases | ❌ | filed: `docs/backlog/feat-requirements-traceability.md` |
 | Build | scaffold from ticket (files, components, failing test) | ⚠️ | `skills/work-backlog` + `skills/scaffold-component`, no test skeleton from criteria |
 | Build | convention enforcement while writing | ✅ | `rules/` loaded per phase, `skills/code-review` as backstop |
-| Build | codemod / migration assistant | ⚠️ | `skills/npm-maintenance` for dependencies, `skills/migration-check` for DB migrations; no general codemod |
+| Build | codemod / migration assistant | ⚠️ | `skills/npm-maintenance` for dependencies, `skills/migration-check` for DB migrations, `skills/datocms-migration` for CMS schema migrations; no general codemod |
 | QA | requirements traceability: criterion → test → result, per criterion | ⚠️ | the BLI's `How to verify` records the run steps and their observed results per item; the per-criterion machine mapping is still filed: `docs/backlog/feat-requirements-traceability.md` |
 | QA | flag untestable criteria back to the readiness gate | ❌ | filed with the above |
 | QA | visual regression against the Figma frame | ❌ | — |

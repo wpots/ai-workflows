@@ -13,6 +13,31 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-07-30
+
+### Added
+
+- `skills/datocms-migration` — drives a DatoCMS schema change through a sandbox
+  fork instead of a hand-written migration: fork the primary environment,
+  hand off to the user's UI work, then autogenerate the migration with **both**
+  sides of `--autogenerate` spelled out (omitting the reference side diffs
+  against the profile's configured environment and silently describes the wrong
+  delta). Resumable across sessions via a gitignored `.datocms-active-fork`
+  state file that caches the discovered profile, base environment, and env file.
+  Profiles, migrations directory, env-file convention, base environment, and
+  admin URL are all **discovered** from `datocms.config.json` and the repo — no
+  project-specific names baked in — so it fits a single DatoCMS instance or
+  several sharing one schema.
+
+  The review phase is what the CLI does not do: it flags destructive operations
+  (no undo in DatoCMS, and they drop content on every instance), out-of-scope
+  models leaked in from a drifted fork — the same class of bug
+  `skills/migration-check` catches for Payload — literal record/upload IDs that
+  do not exist on the other instances, and locale assumptions.
+
+  Originated in the VWS innovatieroute project (two DatoCMS instances sharing a
+  schema), generalized on the way up.
+
 ## [1.10.0] - 2026-07-30
 
 ### Changed
