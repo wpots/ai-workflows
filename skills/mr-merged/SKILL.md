@@ -1,13 +1,13 @@
 ---
 name: mr-merged
-description: Post-merge closeout for a merged MR/PR — move the sprint-board item to done, check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, propose the ticket transition, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change.
+description: Post-merge closeout for a merged MR/PR — check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, propose the ticket transition, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change.
 ---
 
 # MR Merged — Post-merge Closeout
 
 Merging is where most workflows stop; everything after it usually depends on
-someone remembering. This skill owns that tail: board, product-owner handoff,
-ticket, and cleanup — one pass, nothing silent.
+someone remembering. This skill owns that tail: product-owner handoff, ticket,
+and cleanup — one pass, nothing silent.
 
 Works standalone (someone else merged it) and as the hand-off target when
 `skills/watch-mrs` reports a merge.
@@ -38,16 +38,9 @@ description, merge commit, source branch) and `glab mr diff <iid>` when the
 description alone is too thin to describe what changed.
 
 Extract the ticket key from the source branch name (`^([A-Z]+-[0-9]+)`) or the
-MR title/description. No key → the tracker steps degrade (see Step 7).
+MR title/description. No key → the tracker steps degrade (see Step 6).
 
-## Step 2 — Sprint board
-
-Follow the `skills/sprint-board` opt-in rule: update the board **only when
-`docs/board/` already exists** in the project — move the item `In Review →
-Done`. Never create the board from this skill; if the project has no board,
-skip and note it in the recap.
-
-## Step 3 — Is the ticket complete?
+## Step 2 — Is the ticket complete?
 
 One ticket can carry several backlog items — one per reviewable MR
 (`rules/mr-sizing.md`). The product owner can only test a **capability**, so the
@@ -60,16 +53,16 @@ exists on a feature branch has not shipped).
 
 | Situation | Do |
 | --- | --- |
-| every item for the ticket is `done` on the default branch | continue to Step 4 — the ticket shipped |
-| some items are still open | **skip the comment.** Report "slice 2/3 merged for PROJ-123; the product-owner handoff waits for `<remaining item>`" and continue with the board and cleanup |
-| no local items carry this key (no backlog folder, or the work was not tracked there) | treat this MR as the whole ticket and continue to Step 4, saying so in the recap |
+| every item for the ticket is `done` on the default branch | continue to Step 3 — the ticket shipped |
+| some items are still open | **skip the comment.** Report "slice 2/3 merged for PROJ-123; the product-owner handoff waits for `<remaining item>`" and continue with the cleanup |
+| no local items carry this key (no backlog folder, or the work was not tracked there) | treat this MR as the whole ticket and continue to Step 3, saying so in the recap |
 
 When the ticket **is** complete and it took several slices, the comment covers
 the whole capability: read the merged items' `How to verify` sections and the
 other slices' MR descriptions, not just this diff. A product owner testing a
 feature does not care which MR delivered which half of it.
 
-## Step 4 — Draft "How to test this"
+## Step 3 — Draft "How to test this"
 
 Aimed at a non-developer, derived from the MR description, the diff, and the
 ticket's items — never invented:
@@ -86,17 +79,17 @@ tickets — not the language of the chat session. If the diff gives no
 user-observable behaviour (pure refactor, CI, tooling), say so in the comment
 draft instead of inventing steps ("no user-facing change; verify by …").
 
-## Step 5 — Post after approval
+## Step 4 — Post after approval
 
 Show the draft. After the go: resolve the `cloudId` via
 `getAccessibleAtlassianResources` (instance ids drift — discover at runtime,
 never hardcode; see the gotchas in `skills/jira-ticket`) and post with
 `addCommentToJiraIssue`. Report the posted comment URL in the recap.
 
-## Step 6 — Propose the transition and clean up
+## Step 5 — Propose the transition and clean up
 
 - Look up the ticket's current status and propose the next transition (e.g.
-  to review/done) — as a suggestion in the recap, not an action. When Step 3
+  to review/done) — as a suggestion in the recap, not an action. When Step 2
   found open items, propose nothing beyond what partial delivery justifies: the
   ticket is not done, and moving it there loses the remaining slices.
 - Ask, then delete the merged source branch (local + remote if it survived
@@ -104,15 +97,15 @@ never hardcode; see the gotchas in `skills/jira-ticket`) and post with
   (`git worktree remove <path>`). Skip silently held-back branches only when
   the user says to keep them.
 
-## Step 7 — Degrade honestly
+## Step 6 — Degrade honestly
 
 No tracker available (no MCP connection, no ticket key, or the lookup fails):
-still do the board update and cleanup, and report the "How to test this"
+still do the cleanup, and report the "How to test this"
 comment as **drafted but undelivered** — include the draft in the recap so it
 can be pasted by hand. Never skip the draft just because posting is
 impossible.
 
-## Step 8 — Retrospective check
+## Step 7 — Retrospective check
 
 End by checking whether this run needed intervention (corrections, re-steering,
 failed steps needing a workaround). If it did, hand off to
@@ -120,8 +113,7 @@ failed steps needing a workaround). If it did, hand off to
 
 ## Recap
 
-Report in one block: MR + merge commit, board transition (or "no board"), the
-ticket's standing (`3/3 items merged — ticket complete` or `2/3 — waiting on
+Report in one block: MR + merge commit, the ticket's standing (`3/3 items merged — ticket complete` or `2/3 — waiting on
 <item>`), comment posted (URL) / drafted-undelivered / deferred to the last
 slice, proposed ticket transition, branch/worktree cleanup, anything skipped and
 why.

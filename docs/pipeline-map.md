@@ -171,7 +171,6 @@ distributed. Five harness hooks ship to every synced project through
 | Migration guard | `PreToolUse(Bash)` | **Denies** `migrate:fresh` and `migrate:create` — the only mechanically blocking gate in the whole pipeline |
 | Graphify-before-grep | `PreToolUse(Bash)` | Requires a graph query before raw grep/find, when `graphify-out/graph.json` exists |
 | Graphify-before-read | `PreToolUse(Read\|Glob)` | Same, for reading source files |
-| Board on MR | `PostToolUse(Bash)` | On `glab mr create` / `gh pr create` / merge, requires the sprint board to move in the same turn |
 | Graph refresh | `PostToolUse(Edit\|Write)` | Rebuilds the knowledge graph in the background after an edit |
 
 One loop: `skills/watch-mrs` runs as a `Monitor` task with a `ScheduleWakeup`
@@ -228,7 +227,6 @@ Turning intent into work items with acceptance criteria.
 | `skills/sprint-planning` | skill | `/sprint-planning` · `"plan sprint"`, `"start sprint"` | Sprint scope, spillover carry-in, dependency mapping, realism against velocity |
 | `skills/backlog` | skill | `/backlog` · `"backlog item"`, `"user story"`, `"bli"` | Draft or update a local backlog item in `docs/backlog/` |
 | `skills/jira-ticket` | skill | `/jira-ticket` · `"maak een jira ticket"`, `"file a story"` | Create a Jira bug/story/task from a type-specific template — the one sanctioned tracker **write** |
-| `skills/sprint-board` | skill | `/sprint-board` · `"waar ben ik mee bezig"` · **hook** `PostToolUse(Bash)` on MR create/merge · delegated by every status-changing workflow | Opens the item on the per-sprint board and tracks it through every later status |
 | `commands/refinement.md`, `commands/sprint-planning.md`, `commands/backlog.md` | commands | trigger phrase → command; `refinement.md` has **no** mapping | Fallback runbooks for tools that cannot use skills |
 | `rules/backlog.md` | rule | loaded — user story, spec, backlog work | User story, spec, and backlog-item structure |
 | `rules/mr-sizing.md` | rule | loaded — whenever work is sized or sliced, and at MR time | One ticket to many items: size budget, sliceability test, split triggers. Blocking at planning, advisory at the MR |
@@ -292,7 +290,6 @@ building instead of re-running everything.
 | `skills/receiving-code-review` | skill | `/receiving-code-review` · `"reviewer comments"`, `"reageer op review"` | Evaluate incoming feedback with rigour — verify, push back where wrong, then apply |
 | `skills/address-review-comments` | skill | `/address-review-comments` · `"pick up review feedback"` · handed off from `skills/receiving-code-review` | Apply approved feedback, run checks, push, rebase, clean up |
 | `skills/watch-mrs` | skill | `/watch-mrs` · `"watch my MR"`, `"notify me on approval"` → then runs as a **loop** (`Monitor` + heartbeat), session-scoped | Background loop over new comments, merge-readiness, and pipeline transitions — names the failing job/stage, offers triage, hands merges to `skills/mr-merged`; opt-in auto-merge |
-| `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr create` | Moves the item to *in review* / *rework* |
 | `rules/documentation.md` | rule | loaded — diffs touching commented/documented code, and during review | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
 | `rules/mr-sizing.md` | rule | loaded — when an MR is opened or reviewed | The advisory end of the budget: report the overrun and where the cut belonged; re-slicing merge-ready work is not the answer |
 | `rules/git-flow.md` | rule | loaded — branching, opening or merging an MR, checking merge settings | Squash + fast-forward baseline, MR title as the commit message, `ai:agent-authored` as the provenance signal a squash cannot drop; `scripts/gitlab-merge-settings.mjs` checks and (after a go) fixes a project |
@@ -309,8 +306,7 @@ can sit unnoticed. See [Gaps](#gaps).
 | `skills/close-sprint` | skill | `/close-sprint` · `"sluit sprint af"`, `"wrap up sprint"` | Sprint changelog, gaps/spillover, delivered BLIs moved into a sprint folder |
 | `skills/sprint-demo` | skill | `/sprint-demo` · `"demo voorbereiden"`, `"demo script"` | Presenter runsheet plus a Marp deck for sprint review |
 | `commands/close-sprint.md`, `commands/sprint-demo.md` | commands | trigger phrase → command | Fallback runbooks |
-| `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr merge` | Moves the item to *done* the moment it merges |
-| `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: board to done, **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/`), "How to test this" comment for the PO covering the whole capability (posted after approval, deferred while slices remain), proposed ticket transition, branch/worktree cleanup |
+| `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/`), "How to test this" comment for the PO covering the whole capability (posted after approval, deferred while slices remain), proposed ticket transition, branch/worktree cleanup |
 
 **Gate — Deploy health: out of scope.** `skills/mr-merged` hands the PO a way to test
 what shipped. Nothing verifies the deploy itself, and the intended ceiling is a
@@ -417,7 +413,6 @@ The repo-owned half, in real paths:
 | `templates/pull_request_template.md` | Last-resort MR body skeleton for `skills/create-pr` |
 | `docs/tooling.md` + per-project `.mcp.json` | Integration tooling: CLI-first doctrine, machine CLI table (glab, jira, dotenvx), project MCP config emitted by `skills/setup-ai-workflows` |
 | `docs/backlog/` | Local backlog items — the contract `skills/work-backlog` delivers against |
-| `docs/board/sprint-<N>-board.md` | Per-sprint work board (untracked, project-local) |
 | `graphify-out/` | Generated knowledge graph over the repo, queried before re-reading files |
 
 Live context — the Jira box in the diagram — is read through MCP at run time. Every

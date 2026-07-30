@@ -55,12 +55,11 @@ in the docs:
 
 - a **git** pre-commit hook, installed by `scripts/install-hooks.sh`, which runs the
   validators in this repo;
-- five **harness** hooks in `templates/project-claude-settings.json`, shipped to every
+- four **harness** hooks in `templates/project-claude-settings.json`, shipped to every
   synced project — a migration guard that denies `migrate:fresh`/`migrate:create`, two
-  graphify-before-read/grep guards, a sprint-board reminder on MR create and merge, and
-  a background graph refresh after edits.
+  graphify-before-read/grep guards, and a background graph refresh after edits.
 
-This item adds a sixth harness hook to that block. The migration guard is the precedent
+This item adds a fifth harness hook to that block. The migration guard is the precedent
 worth studying: it is the only hook that returns a `deny` decision instead of context,
 and this one should deliberately *not* — a retrospective prompt must never block a
 session from ending.
