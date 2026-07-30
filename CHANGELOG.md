@@ -13,6 +13,16 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.11.1] - 2026-07-30
+
+### Changed
+
+- `skills/create-pr` — no behavior change: the worktree-hook caveat and the
+  long-description/cwd mechanics moved to
+  `skills/create-pr/references/push-and-mr-mechanics.md` behind conditional
+  pointers (progressive disclosure; ~3.5 KB less loaded per invocation).
+  The reviewer hard rule stays inline.
+
 ## [1.11.0] - 2026-07-30
 
 ### Added
