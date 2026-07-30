@@ -80,15 +80,6 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 -c \"import json,sys,os,re; d=json.load(sys.stdin); c=(d.get('tool_input') or {}).get('command','') or ''; r=json.dumps(d.get('tool_response') or ''); inv=lambda v: re.search(r'(?:^|[;&|(])\\s*(?:glab|gh)\\s+(?:mr|pr)\\s+'+v, c); m='IN REVIEW (MR/PR created)' if inv('create') and re.search(r'(?:/-/merge_requests/|/pull/)\\d+', r) else ('DONE (MR/PR merged)' if inv('merge') and re.search(r'(?i)merged', r) else ''); print(json.dumps({'hookSpecificOutput':{'hookEventName':'PostToolUse','additionalContext':'Sprint board: this item just moved to '+m+'. Update docs/board/sprint-<N>-board.md in the same turn and re-stamp Laatst bijgewerkt.'}})) if m and os.path.isdir('docs/board') else None\" 2>/dev/null || true"
-          }
-        ]
-      },
-      {
         "matcher": "Edit|Write|NotebookEdit",
         "hooks": [
           {

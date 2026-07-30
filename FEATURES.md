@@ -71,7 +71,6 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `sprint-planning` | Plan the upcoming sprint from tracker tickets, spillover, dependencies, and capacity | Yes |
 | `sprint-demo` | Prepare a stakeholder-ready sprint demo runsheet and Marp slide deck | Yes |
 | `close-sprint` | Close out a sprint with a changelog, gaps/spillover doc, and sprint folder | Yes |
-| `sprint-board` | Maintain a per-sprint work board tracking every item through todo/in progress/in review/rework/done | No (skill only) |
 | `jira-ticket` | Create a Jira bug, story, or task from a type-specific template, grounded in the codebase | No (skill only) |
 | `address-review-comments` | Pick up reviewer comments on a PR/MR, propose an approach per comment, apply, and push | No (skill only) |
 | `receiving-code-review` | Evaluate incoming review feedback with technical rigor before implementing any of it | No (skill only) |

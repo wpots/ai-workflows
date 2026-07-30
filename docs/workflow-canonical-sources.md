@@ -26,7 +26,6 @@ Use it to decide where updates should land first and whether a command is a full
 | `sprint-planning` | skill + command | `skills/sprint-planning/SKILL.md` | `commands/sprint-planning.md` | yes |
 | `work-backlog` | skill + command | `skills/work-backlog/SKILL.md` | `commands/work-backlog.md` | yes |
 | `address-review-comments` | skill only | `skills/address-review-comments/SKILL.md` | none | n/a |
-| `sprint-board` | skill only | `skills/sprint-board/SKILL.md` | none | n/a |
 | `jira-ticket` | skill only | `skills/jira-ticket/SKILL.md` | none | n/a |
 | `npm-maintenance` | skill only | `skills/npm-maintenance/SKILL.md` | none | n/a |
 | `maintenance` | skill only | `skills/maintenance/SKILL.md` | none | n/a |

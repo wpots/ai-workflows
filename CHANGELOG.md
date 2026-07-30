@@ -13,6 +13,28 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-07-30
+
+### Removed
+
+- `skills/sprint-board` — the per-sprint work board. Its cost was permanent and
+  its value optional: the description loaded into every session, it asked to be
+  updated at *every* status change, and a hook nudged on top of that — all to
+  maintain an untracked file that duplicated status already derivable from
+  `docs/backlog/` (each item's `Status`), the branch, and the MR. The tracker
+  and the backlog items stay the single source of truth for what is in flight.
+- The `PostToolUse(Bash)` board nudge in `templates/project-claude-settings.json`
+  (MR/PR create → *in review*, merge → *done*). The four remaining harness hooks
+  are untouched: the migration deny guard, both graphify-before-read/grep
+  guards, and the background graph refresh.
+
+### Changed
+
+- `skills/mr-merged` — the board step is gone and steps are renumbered 1–7. The
+  closeout keeps everything that carried real information: MR resolution, the
+  ticket-completeness gate over `docs/backlog/`, the "How to test this" comment
+  for the product owner, the proposed transition, and branch/worktree cleanup.
+
 ## [1.15.0] - 2026-07-30
 
 ### Added
@@ -58,7 +80,6 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 ## [1.13.0] - 2026-07-30
 
 ### Added
-
 
 - `rules/git-flow.md` — the branch-and-merge policy that was until now implicit
   and inconsistent: fast-forward + squash-always, an explicit
