@@ -358,6 +358,19 @@ but they still break, and differently:
 - `.env.example` is the contract lane C checks against — fix drift there first.
 - ai-workflows sync status: project adapters behind the upstream repo.
 
+### H. Delivery metrics
+
+- Run `node ~/Web/ai-workflows/scripts/delivery-metrics.mjs --repo . --since
+  <first day of the previous sweep's month>` — read-only (git log + glab
+  api). It reports merged MRs, median hours from MR created to merged,
+  agent-authored commit share (`Co-Authored-By: Claude` trailers), and
+  revert count.
+- Paste the table into the report and state the **delta vs the previous
+  sweep** — the trend is the finding, not the absolute number. A rising
+  revert count or collapsing agent share is an `attention` verdict.
+- Intervention rate (how often an agent run needed human correction) is not
+  measurable from git; record `n/a` until session telemetry exists.
+
 ## Report
 
 Write `docs/maintenance/maintenance-<YYYY-MM-DD>.md`:
@@ -371,6 +384,8 @@ Write `docs/maintenance/maintenance-<YYYY-MM-DD>.md`:
   evidence (command output, `file:line`, status code), impact, fix, owner.
 - **Verified current** — what was probed and found healthy, with dates. This
   is what makes the next sweep a delta instead of a rerun.
+- **Delivery metrics** — the lane H table plus the delta against the previous
+  sweep's numbers.
 - **Manual checks for the user** — dashboard-only items (vendor token lists,
   webhooks, DNS/cert expiry).
 - **Parked** — findings below the backlog threshold, listed explicitly.

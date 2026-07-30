@@ -13,6 +13,17 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.12.0] - 2026-07-30
+
+### Added
+
+- `skills/maintenance` lane H — **delivery metrics**: the monthly sweep now
+  runs `scripts/delivery-metrics.mjs` (read-only; git log + glab api) and
+  reports merged MRs, median hours to merge, agent-authored commit share
+  (`Co-Authored-By: Claude` trailers), and revert count, with the delta
+  against the previous sweep as the actual finding. Intervention rate stays
+  `n/a` until session telemetry exists.
+
 ## [1.11.2] - 2026-07-30
 
 ### Fixed
