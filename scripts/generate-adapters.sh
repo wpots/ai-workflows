@@ -60,7 +60,10 @@ inject_shared() {
     return
   fi
 
-  mv "$tmp" "$target"
+  if ! mv "$tmp" "$target"; then
+    rm -f "$tmp"
+    fail "Could not write ${target#"$ROOT_DIR/"} (fragment: $marker_name)"
+  fi
 }
 
 # ── Inject shared fragments into all adapter files ───────────────────────────
@@ -101,6 +104,13 @@ while IFS= read -r line; do
   fi
 done < "$MAPPINGS_FILE"
 
+# Generated content is built in a temp file and then copied into place, because
+# `cp` reports a failed write and a redirection does not: bash 3.2 gives a
+# compound command whose redirection failed an exit status of 0, so
+# `{ … } > "$target"` can fail while the script prints [ok] and exits clean.
+# That is how a stale generated file reaches CI while the local run looks green.
+TASKS_TMP="$(mktemp)"
+
 {
   printf '{\n'
   printf '  "version": "2.0.0",\n'
@@ -136,9 +146,14 @@ done < "$MAPPINGS_FILE"
 
   printf '  ]\n'
   printf '}\n'
-} > "$TASKS_FILE"
+} > "$TASKS_TMP"
 
-echo "  [ok] .vscode/tasks.json"
+if cp "$TASKS_TMP" "$TASKS_FILE"; then
+  echo "  [ok] .vscode/tasks.json"
+else
+  fail "Could not write .vscode/tasks.json"
+fi
+rm -f "$TASKS_TMP"
 
 # ── Generate .github/prompts/*.prompt.md from commands ────────────────────────
 
@@ -152,15 +167,22 @@ for cmd_file in "$COMMANDS_DIR"/*.md; do
   heading="$(head -1 "$cmd_file" | sed 's/^# *//')"
   prompt_file="$PROMPTS_DIR/${cmd_name}.prompt.md"
 
+  prompt_tmp="$(mktemp)"
+
   {
     printf -- '---\n'
     printf 'name: %s\n' "$cmd_name"
     printf 'description: "%s"\n' "$heading"
     printf -- '---\n\n'
     cat "$cmd_file"
-  } > "$prompt_file"
+  } > "$prompt_tmp"
 
-  echo "  [ok] .github/prompts/${cmd_name}.prompt.md"
+  if cp "$prompt_tmp" "$prompt_file"; then
+    echo "  [ok] .github/prompts/${cmd_name}.prompt.md"
+  else
+    fail "Could not write .github/prompts/${cmd_name}.prompt.md"
+  fi
+  rm -f "$prompt_tmp"
 done
 
 # ── Verify referenced command files exist ────────────────────────────────────
