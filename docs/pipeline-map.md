@@ -36,7 +36,7 @@ flowchart LR
   g2(["Definition of ready<br/><small>readiness · partial</small>"])
   g3(["Build health<br/><small>done · automated</small>"])
   g4(["Release readiness<br/><small>done · partial</small>"])
-  g5(["Deploy health<br/><small>done · absent</small>"])
+  g5(["Deploy health<br/><small>done · out of scope</small>"])
   g6(["Feedback triage<br/><small>gate on the loop · absent</small>"])
 
   design -.- g1
@@ -50,8 +50,10 @@ flowchart LR
 
   classDef gate fill:#fff7ed,stroke:#c2751a,color:#7c3f04;
   classDef gap fill:#fef2f2,stroke:#b91c1c,color:#7f1d1d;
+  classDef scope fill:#f8fafc,stroke:#64748b,color:#334155;
   class g2,g3,g4 gate;
-  class g1,g5,g6 gap;
+  class g1,g6 gap;
+  class g5 scope;
   class qa,review gate;
 ```
 
@@ -73,16 +75,31 @@ output advance. Two principles follow from that:
   whole pipeline is refusing to start work on a vague ticket or an unresolved design.
   Catching that at the entrance costs a comment; catching it at Review costs a rebuild.
 
+Four status markers are used throughout this document, and the fourth is the one that
+keeps it honest:
+
+| Marker | Means |
+| --- | --- |
+| ✅ | automated — it runs whether or not anyone remembered |
+| ⚠️ | partial — encoded somewhere, but a human still arms or interprets it |
+| ❌ | absent and wanted — a real gap, filed or recorded below |
+| ⛔ | out of scope — decided against for this stack, with the reason stated |
+
+⛔ is not a softer ❌. An absent gate is debt; an out-of-scope one is a closed
+decision, recorded so it stops being re-proposed at every review. Both are listed —
+[Deliberately out of scope](#deliberately-out-of-scope) holds the closed ones.
+
 | Gate | Kind | Guards | Enforced by | Status |
 | --- | --- | --- | --- | --- |
 | Design readiness | readiness | entry to Plan — design resolved, tokens and states settled, a11y decided | nothing | ❌ absent |
 | Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `skills/refinement` + `rules/backlog.md` + `rules/mr-sizing.md` | ⚠️ partial — encoded, never blocking |
 | Build health | done | exit from Build — compiles, types, lint, unit tests, no committed secrets | `skills/run-checks`, plus `skills/migration-check` when the diff touches migrations | ✅ automated, ⚠️ not derived from the CI job list |
-| QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review`, plus the BLI's `How to verify` steps that `skills/work-backlog` fills from what it actually ran | ⚠️ partial — the steps are recorded per item, but nothing maps a machine-checked result back to a specific criterion |
+| QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review`, plus the BLI's `How to verify` steps that `skills/work-backlog` fills from what it actually ran | ⚠️ partial — the steps are recorded per item, but the pass is a claim in prose: no artefact a reviewer can re-run to confirm it |
 | Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift check (doc freshness covered via `rules/documentation.md`) |
 | Release readiness | done | safe to ship — dependency and licence scanning, API-contract/breaking-change detection, docs updated | `skills/watch-mrs` (approval, pipeline, conflicts via `detailed_merge_status`), `skills/npm-maintenance` (dependencies, out of band) | ⚠️ partial — merge-readiness only, armed by hand |
-| Deploy health | done | the release is healthy in production — smoke tests, canary, rollback ready | nothing | ❌ absent |
-| Feedback triage | gate on the loop | is this comment actionable at all, before anything is reproduced or fixed | nothing | ❌ absent |
+| Deploy health | done | the release is healthy in production — a post-deploy smoke check | nothing | ⛔ out of scope — canary and rollback automation are for traffic these projects do not have; a smoke check in CI is the whole intended ceiling |
+| Feedback triage | gate on the loop | is this comment actionable at all, before anything is reproduced or fixed | nothing | ❌ absent — filed, deliberately not next |
+| Skill-change health | done | exit from Improve — a skill that was edited still does what it did, and its new routing actually triggers | `skills/component-spec/evals/evals.json` — one skill, no runner, not in CI | ❌ absent |
 | Workflow-asset review | done | any change to **this** repo | feature branch → GitLab MR → reviewer `wieteke.pots` (`shared/workflow-assets.md`) | ✅ policy, human-enforced |
 
 ## The improve loop
@@ -99,9 +116,22 @@ flowchart LR
   gate{{"GitLab MR<br/>reviewer wieteke.pots"}}
   ctx["Shared context layer<br/><small>rules · skills · commands · templates</small>"]
 
+  evals(["Skill-change health<br/><small>done · absent</small>"])
+
   friction --> learn --> upstream --> gate --> ctx
   ctx -. "loaded by every tool, in every phase" .-> friction
+  learn -.- evals
+
+  classDef gap fill:#fef2f2,stroke:#b91c1c,color:#7f1d1d;
+  class evals gap;
 ```
+
+The dotted gate is the one this lane does not have. Every other phase closes on a
+check; a skill edit closes on a human reading the diff. `skills/improve-skill` may
+rewrite the instructions that drive every other phase, and nothing proves the rewritten
+skill still triggers on the same intent or still produces what it produced before —
+`skills/component-spec/evals/evals.json` is the only eval file in the repo and no
+runner executes it. See [Gaps](#gaps).
 
 Every change to this repo passes that gate — a developer editing a rule by hand and
 an agent running an upstream skill are treated identically. No direct pushes to
@@ -178,6 +208,15 @@ non-functionals and recorded open decisions — and `skills/user-journeys` narro
 per step: a journey document names the steps whose design is missing, whose keyboard
 route is unclear, or whose state is undecided. Writing that list is still not the
 same as blocking on it. See [Gaps](#gaps).
+
+What is *wanted* here is that blocking check on the journey and spec output. The
+frame-level automations the spec also proposes for this phase — auditing a11y on Figma
+frames, diffing tokens against the Figma source, checking whether a component already
+exists — are ⛔ out of scope: low frequency, and the Figma connector already sits in the
+loop during Build, where the same questions get answered against real code instead of
+against a frame. Recorded in
+[Deliberately out of scope](#deliberately-out-of-scope) so the empty Design column
+reads as a decision rather than as neglect.
 
 ### Plan — tickets
 
@@ -272,9 +311,13 @@ can sit unnoticed. See [Gaps](#gaps).
 | `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr merge` | Moves the item to *done* the moment it merges |
 | `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: board to done, **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/`), "How to test this" comment for the PO covering the whole capability (posted after approval, deferred while slices remain), proposed ticket transition, branch/worktree cleanup |
 
-**Gate — Deploy health: partial.** `skills/mr-merged` hands the PO a way to test
-what shipped; nothing verifies a deploy or drafts release notes yet. See
-[Gaps](#gaps).
+**Gate — Deploy health: out of scope.** `skills/mr-merged` hands the PO a way to test
+what shipped. Nothing verifies the deploy itself, and the intended ceiling is a
+post-deploy smoke check in CI — canary rollout, automated rollback, and per-release
+notes with a semver suggestion are ⛔ out of scope for agency delivery on managed
+hosting, where the sprint-level changelog from `skills/close-sprint` is the level
+stakeholders actually read. See
+[Deliberately out of scope](#deliberately-out-of-scope).
 
 ### Operate — run + observe
 
@@ -294,7 +337,12 @@ That makes the sweep one invocation instead of five, but it does not make it
 automatic: nothing in this phase runs on a schedule. Every row above is invoked by
 hand, which is the honest reason periodic maintenance slips — no cron, no routine,
 and, per `skills/watch-mrs`, no durable cross-session scheduling available for
-GitLab.
+GitLab. That mechanism gap is the one thing this phase actually needs.
+
+The observability half of the phase is a different matter. Incident triage from an
+error spike and log or on-call summarisation are ⛔ out of scope: there is no
+per-project observability stack to reason over, so a skill for it would have nothing to
+read. Revisit if a project ever gets one — not before.
 
 **Feedback triage** is the dotted arrow back into Build, and it is a gate before it is
 an automation: classify whether the comment is actionable at all, reproduce it as a
@@ -313,6 +361,7 @@ which is exactly why an AI-authored change gets neither skipped.
 | --- | --- | --- | --- |
 | `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"` · **policy says** after any run that needed intervention — enforced by nothing | Post-run retrospective: fold friction back into the skill's canonical source, or author a new skill |
 | `skills/skill-opportunity` | skill | `/skill-opportunity` · `"learn from sessions"`, `"spot repeated patterns"` | Decide from working sessions whether a new or updated skill is warranted |
+| `skills/component-spec/evals/evals.json` | evals | **nothing** — prompts and assertions exist, no runner and no CI job | The seed of the missing Skill-change-health gate: the only skill in the repo whose behaviour is written down as checkable cases |
 | `skills/upstream-rules` | skill | `/upstream-rules` · `"propose rule"` · **should** fire whenever a shared asset is edited in a synced project | Propose a rule/skill change back to this repo as a GitLab MR |
 | `skills/upstream-to-unicore` | skill | `/upstream-to-unicore` · `"port to unicore"` | Port a reusable change into `unicore-template` |
 | `skills/setup-ai-workflows` | skill | `/setup-ai-workflows` · `"apply ai-workflows"`, `"generate conventions"` | Generate `CONVENTIONS.md`, thin tool adapters, and sync shared assets into a project |
@@ -382,35 +431,43 @@ actually stands against it — the alignment view, not a wish list.
 
 | Phase | Spec proposes | Here | Surface |
 | --- | --- | --- | --- |
-| Design | a11y audit on Figma frames | ❌ | `skills/wcag-audit` audits code and the live site, not frames |
-| Design | component reuse check (new component, or does it exist?) | ❌ | — |
-| Design | token drift: codebase vs Figma source | ❌ | — |
+| Design | a11y audit on Figma frames | ⛔ | `skills/wcag-audit` audits code and the live site — the same findings, one phase later, against something real |
+| Design | component reuse check (new component, or does it exist?) | ⛔ | graphify answers it on demand during Build |
+| Design | token drift: codebase vs Figma source | ⛔ | one-way generation into the committed token file is the contract; a drift check guards a direction that is not allowed anyway |
 | Design | responsive/interaction spec extraction | ⚠️ | `skills/component-spec`, from requirements rather than from frames |
 | Plan | ticket quality gate (blocking) | ⚠️ | `skills/refinement` advises, never blocks |
 | Plan | epic decomposition with dependencies | ⚠️ | `skills/user-journeys` proposes the slices per journey and `rules/mr-sizing.md` bounds them; `skills/sprint-planning` maps the dependencies. Nothing decomposes a tracker epic on its own |
-| Plan | duplicate/overlap detection, auto-linking to past work | ❌ | — |
+| Plan | duplicate/overlap detection, auto-linking to past work | ⛔ | backlogs at this size are read end to end during refinement |
 | Plan | acceptance criteria → test cases | ❌ | filed: `docs/backlog/feat-requirements-traceability.md` |
 | Build | scaffold from ticket (files, components, failing test) | ⚠️ | `skills/work-backlog` + `skills/scaffold-component`, no test skeleton from criteria |
 | Build | convention enforcement while writing | ✅ | `rules/` loaded per phase, `skills/code-review` as backstop |
 | Build | codemod / migration assistant | ⚠️ | `skills/npm-maintenance` for dependencies, `skills/migration-check` for DB migrations, `skills/datocms-migration` for CMS schema migrations; no general codemod |
-| QA | requirements traceability: criterion → test → result, per criterion | ⚠️ | the BLI's `How to verify` records the run steps and their observed results per item; the per-criterion machine mapping is still filed: `docs/backlog/feat-requirements-traceability.md` |
+| QA | requirements traceability: criterion → test → result, per criterion | ⚠️ | the BLI's `How to verify` records the run steps and their observed results per item; what is filed is now the *evidence* half — a check a reviewer can re-run — not a per-criterion matrix: `docs/backlog/feat-requirements-traceability.md` |
 | QA | flag untestable criteria back to the readiness gate | ❌ | filed with the above |
-| QA | visual regression against the Figma frame | ❌ | — |
+| QA | visual regression against the Figma frame | ⛔ | pixel-diffing against a frame baseline needs a maintained baseline nobody will maintain; screenshot evidence attached to the MR is the accepted lighter form |
 | QA | a11y verification | ✅ | `skills/wcag-audit`, `rules/accessibility.md` |
 | Review | auto-generated MR description from diff + ticket | ✅ | `skills/create-pr` |
-| Review | semantic first-pass review beyond linting | ✅ | `skills/code-review` |
-| Review | breaking-change / API-contract detection | ❌ | — |
+| Review | semantic first-pass review beyond linting | ✅ | `skills/code-review`, eight explicit lenses merged into one severity-ordered list |
+| Review | breaking-change / API-contract detection | ⛔ | these projects publish no versioned API; intra-repo signature breakage is what the type-check and the correctness lens are for |
 | Ship | CI failure triage in plain language | ❌ | filed: `docs/backlog/feat-pipeline-triage.md` |
-| Ship | release notes / changelog + semver suggestion | ⚠️ | `skills/close-sprint` at sprint level, not per release |
-| Operate | incident triage: error spike → likely PRs | ❌ | — |
-| Operate | log/error summarisation, on-call assistant | ❌ | — |
+| Ship | release notes / changelog + semver suggestion | ⛔ | `skills/close-sprint` at sprint level is the intended level; per-release semver applies to this repo's plugin, not to client deliverables |
+| Operate | incident triage: error spike → likely PRs | ⛔ | no per-project observability stack to reason over |
+| Operate | log/error summarisation, on-call assistant | ⛔ | same — and nobody is on call |
 | Operate | docs-in-sync: code changed, which docs/ADRs are stale | ✅ | per-MR: doc-freshness dimension in `skills/code-review` (`rules/documentation.md`); periodic sweep: `skills/maintenance` |
 | Loop | Jira comment → triage → reproduce → fix → draft MR | ❌ | filed: `docs/backlog/feat-jira-feedback-loop.md` |
 | Context | read-only snapshot pinned per branch | ❌ | filed: `docs/backlog/feat-ticket-drift-check.md` |
 
 Read that column honestly: this repo is strong where the spec says the work is easy
 (generation — scaffolding, descriptions, tickets) and thin exactly where the spec says
-quality actually comes from (the gates). Design and Operate are close to empty.
+quality actually comes from (the gates).
+
+Design and Operate stay close to empty, and after the July 2026 stack review that is
+now a decision rather than a backlog. Both columns are ⛔ almost throughout: the
+frame-level Design automations answer questions that Build answers better against real
+code, and the Operate automations need observability data no project produces. What is
+left as ❌ in those two phases is small and specific — a blocking Design-readiness check
+on the journey output, and a scheduling mechanism so the Operate sweep runs without
+being asked.
 
 ## Gaps
 
@@ -427,8 +484,9 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 7 | ~~No policy or review dimension for stale comments and docs~~ | Delivered 2026-07-29: `rules/documentation.md` + the doc-freshness dimension in `skills/code-review` | delivered |
 | 8 | ~~Project kickoff starts at stack detection, not at intent~~ | Delivered 2026-07-29: `skills/start-project` writes brief, release spec and architecture doc before `skills/setup-ai-workflows` detects anything, and both `setup-ai-workflows` and `skills/architecture-review` now defer to the intended layer mapping instead of re-deriving it | delivered |
 | 9 | "Run `improve-skill` after a run that needed intervention" is prose, not a hook | The retrospective happens when someone remembers | `docs/backlog/chore-improve-skill-stop-hook.md` |
-| 10 | QA verifies, but no result maps back to a specific acceptance criterion | "Done" stays an assertion instead of something provable per criterion | `docs/backlog/feat-requirements-traceability.md` |
-| 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | `docs/backlog/feat-jira-feedback-loop.md` |
+| 10 | QA reports what it ran, but the run leaves behind nothing a reviewer can re-run | "Done" stays an assertion: the report says the criteria are met, and checking that claim means redoing the work | `docs/backlog/feat-requirements-traceability.md` |
+| 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | `docs/backlog/feat-jira-feedback-loop.md` — filed, parked |
+| 12 | A changed skill has no regression net: no eval runner, no CI job, one eval file in the repo | `skills/improve-skill` rewrites the instructions that drive every other phase, and nothing proves the rewrite still triggers or still delivers | `docs/backlog/feat-skill-eval-harness.md` |
 
 Everything else the spec proposes is in the coverage table above rather than filed —
 recording it beats twenty draft items nobody picks up.
@@ -439,12 +497,44 @@ session; and no cron or routine exists, so every periodic sweep in Operate waits
 someone to ask. That is a mechanism gap rather than a missing skill, which is why it is
 recorded here instead of filed as a feature.
 
-**Build order.** The spec's own sequencing argues for the context layer and the ticket
-quality gate first, because every downstream automation reasons from ticket quality,
-then the design token and component-reuse checks, then the review automations —
-scaffolding last, since generation is the low-leverage half. Mapped onto this repo,
-that puts items 2 and 10 (snapshot + traceability) ahead of the rest, and Design
-coverage ahead of anything else that merely makes existing work faster.
+**Build order.** Cheapest-first applies to closing gaps too, not only to running gates.
+The items that bite weekly are the ones where a human has to remember a mechanism:
+1, 3, 5 and 9, plus the scheduling gap — each is a hook or a CI job rather than a new
+concept. Item 12 comes with them, because every later change to a skill is unprotected
+until it exists. Item 10 follows in its evidence form.
+
+Items 2 and 11 are deliberately *not* next, which reverses what the spec's own
+sequencing argues. The spec puts the requirements snapshot first because everything
+downstream reasons from ticket quality; that holds when tickets are large and long-lived.
+Here an item is sliced to one reviewable MR and lives for days, so acceptance criteria
+rarely move after the MR opens, and when they do a reviewer sees it. Building the
+snapshot machinery before that has actually cost something is ceremony — so item 2 waits
+for its first real miss, and item 11 waits behind the mechanism items, since its only
+win is latency on a loop a human currently closes correctly.
+
+### Deliberately out of scope
+
+Closed decisions, not debt. Listed so they stop being re-proposed every time the empty
+columns in the coverage table get read as neglect. Each was weighed against agency
+delivery on managed hosting, in a stack where one person owns the pipeline.
+
+| Not doing | Instead | Reopen when |
+| --- | --- | --- |
+| a11y audit on Figma frames | `skills/wcag-audit` on code and the live site | never — the later check is strictly better informed |
+| Token drift Figma ↔ code | one-way generation into the committed token file | the generation direction is ever allowed to reverse |
+| Component-reuse check at design time | graphify query during Build | a project outgrows what a graph query answers |
+| Duplicate / overlap detection in Plan | the backlog is read end to end at refinement | a backlog stops fitting in one reading |
+| Breaking-change / API-contract detection | type-check plus the correctness lens in `skills/code-review` | a project publishes a versioned API or a shared package |
+| Visual regression against a frame baseline | screenshot evidence attached to the MR | a design system ships with a maintained baseline |
+| Canary rollout, automated rollback | a post-deploy smoke check in CI | traffic or uptime commitments make a bad deploy expensive |
+| Per-release notes with a semver suggestion | `skills/close-sprint` at sprint level | a client consumes releases rather than sprints |
+| Incident triage from an error spike | nothing — no data to reason over | a project gets an observability stack |
+| Log / on-call summarisation | nothing — nobody is on call | an on-call rota exists |
+
+Two of these are cheap to revisit if the stack review's visual-verification and
+CI-agent-lane tasks land: screenshot evidence on the MR and a smoke check in CI are the
+lighter forms named in the *Instead* column, so landing them closes the intent behind
+four rows without building any of the four.
 
 ## Keeping this map accurate
 
