@@ -89,7 +89,16 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
   never by assuming its name).
 - Always request review from the maintainer, `wieteke.pots`, on that MR:
   `glab mr create … --reviewer wieteke.pots`. On an MR that already exists:
-  `glab mr update <iid> --reviewer wieteke.pots`.
+  `glab mr update <iid> -R <canonical-repo> --reviewer wieteke.pots`.
+- Pass **both** `-R <canonical-repo>` and `-H <canonical-repo>` to
+  `glab mr create`, and `-R` to every follow-up `glab mr update`/`view`. `-R`
+  sets only the target; the head (source) project and the MR lookup still
+  default to the **current directory's** git remote. Run these from the
+  originating project — normal, and unavoidable for an agent that may not `cd`
+  — and MR creation fails with
+  `422 [Source project is not a fork of the target project]`. Do not fall back
+  to `glab api …/merge_requests`: `--field "reviewer_ids[]=<id>"` sends the
+  bracket as a literal JSON key and silently opens the MR with no reviewer.
 - When the MR changes what the `greenberry` plugin ships or how it behaves —
   `skills/`, `commands/`, `.claude-plugin/`, `hooks/`, a script a hook runs, or
   the ambient layer (`CLAUDE.md`, `rules/communication.md`,

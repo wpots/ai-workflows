@@ -13,6 +13,26 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.11.2] - 2026-07-30
+
+### Fixed
+
+- `skills/upstream-rules`, `skills/upstream-to-unicore` and the ambient
+  `shared/upstream-mr.md` now pass **both** `-R` and `-H <canonical-repo>` to
+  `glab mr create`, plus `-R` on every follow-up `glab mr update`/`mr view`.
+  `-R` sets only the *target* project; the head (source) project and the MR
+  lookup still default to the current directory's git remote. Run from the
+  originating project — which is where an upstream change starts, and the only
+  option for an agent that may not `cd` — and MR creation failed with
+  `422 [Source project is not a fork of the target project]`, with the guidance
+  offering no way out. Found while opening !68.
+
+  Also warns off the `glab api …/merge_requests` workaround: `--field
+  "reviewer_ids[]=<id>"` sends the bracket as a literal JSON key and silently
+  creates the MR with **no reviewer** — a rule violation the CLI reports as
+  success — and attaching one afterwards needs a raw JSON body with an explicit
+  `Content-Type: application/json`.
+
 ## [1.11.1] - 2026-07-30
 
 ### Changed

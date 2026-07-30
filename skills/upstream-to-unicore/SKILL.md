@@ -106,6 +106,7 @@ go-ahead). Then:
 ```bash
 git push -u origin <type>/<short-description>
 glab mr create -R greenberrynl/the-greenhouse/unicore-template \
+  -H greenberrynl/the-greenhouse/unicore-template \
   --source-branch <type>/<short-description> \
   --target-branch <target-branch> \
   --reviewer wieteke.pots \
@@ -113,13 +114,22 @@ glab mr create -R greenberrynl/the-greenhouse/unicore-template \
   --description "<generated body>" --yes
 ```
 
+**Name the head repo with `-H`.** `-R` only sets the *target*; the head (source)
+project still defaults to the git remote of the **current directory**, which
+during this skill is usually the originating project rather than the template
+clone. glab then offers the wrong source project and fails with
+`422 [Source project is not a fork of the target project]`. `-H` pins the source
+to the template and makes the command cwd-independent.
+
 **The reviewer is mandatory.** `--reviewer wieteke.pots` is part of the MR, not
 an optional extra — an MR without that reviewer is not done. If the flag is
 unsupported or silently dropped, set it afterwards with
-`glab mr update <iid> --reviewer wieteke.pots` and verify with
-`glab mr view <iid>` before reporting. When the MR had to be opened through the
-browser fallback below, say explicitly that the reviewer still has to be added
-there.
+`glab mr update <iid> -R greenberrynl/the-greenhouse/unicore-template --reviewer wieteke.pots`
+and verify with
+`glab mr view <iid> -R greenberrynl/the-greenhouse/unicore-template` before
+reporting — both resolve against the current directory's repo without `-R`. When
+the MR had to be opened through the browser fallback below, say explicitly that
+the reviewer still has to be added there.
 
 **glab API fallback**: `glab` API calls can fail in a sandboxed/TLS-restricted
 environment (`tls: failed to verify certificate`). If `glab mr create` fails:
