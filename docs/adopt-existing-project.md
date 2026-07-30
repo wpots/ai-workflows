@@ -18,7 +18,7 @@ Know this before you run anything.
 | File | What adoption does |
 | --- | --- |
 | `CONVENTIONS.md` | Created if missing. **Never overwritten** by sync — it is project-owned. |
-| `CLAUDE.md`, `AGENTS.md` | Regenerated as thin adapters. Existing content is **replaced** — `init-project` asks first. |
+| `CLAUDE.md`, `AGENTS.md` | Regenerated as thin adapters. Existing content is **replaced** — `setup-ai-workflows` asks first. |
 | `.cursor/rules/conventions.mdc` | Created or updated. Your other `.cursor/rules/*` files are left alone. |
 | `.github/copilot-instructions.md` | Replaced by the generated adapter, with conventions inlined. |
 | `.claude/settings.json` | **Preserved** if present — nothing is merged for you. See [below](#merge-claudesettingsjson-by-hand). |
@@ -30,11 +30,11 @@ So the one thing to do first is rescue the content that matters.
 ## Step 0 — Rescue What Your Old Instructions Knew
 
 Read your existing AI files and sort every statement into its new home. Do this
-before `init-project` regenerates the adapters, or you lose the good parts.
+before  regenerates the adapters, or you lose the good parts.
 
 | Something your old file said | New home |
 | --- | --- |
-| "we run `npm run type-check`, not `tsc`", folder layout, stack versions | `CONVENTIONS.md` (or let `init-project` detect it) |
+| "we run `npm run type-check`, not `tsc`", folder layout, stack versions | `CONVENTIONS.md` (or let `setup-ai-workflows` detect it) |
 | "never fetch in a page component", coding patterns | project-local `rules/`, or the shared baseline if it is generally true |
 | "this repo deviates from the standard because …" | `CONVENTIONS.md` → *Deviations* |
 | why the architecture is shaped this way, layer intent, trust boundaries | `docs/architecture.md` (from `start-project`) |
@@ -59,15 +59,29 @@ lines rather than answering twenty questions.
 It detects retrofit mode itself and states the mode back to you in one line
 before continuing. It never overwrites an existing document without asking.
 
+`start-project` runs six lanes, and on a retrofit it says which it skips and why.
+Two of them do work you would otherwise do by hand here:
+
+- **Lane 0 · Repository** checks the repo against the Greenberry template method —
+  namespace, template lineage, protected branches, approval rules, CI/CD variable
+  names, Jira and Slack integrations. On an inherited project this is usually
+  where the surprises are. Nothing is changed without your go.
+- **Lane 1 · Config** is Step 2 below. Let the workflow run it, or run it
+  separately — same result.
+
+Lane 4 writes `docs/journeys/` from the spec and the designs, and it is also
+callable on its own later (`/greenberry:user-journeys`) — an existing project
+usually has journeys nobody ever wrote down.
+
 Worth the time even on an old project: it is the only place where *why* gets
 written down, and the architecture doc is what makes later reviews
 (`architecture-review`) able to distinguish a deliberate exception from drift.
 
 ## Step 2 — Generate The Project Context
 
-Ask for the `init-project` workflow (Claude: `/greenberry:init-project`):
+Ask for the `setup-ai-workflows` workflow (Claude: `/greenberry:setup-ai-workflows`) — or let `start-project` run it as its config lane:
 
-> Initialize this project with the `init-project` workflow. Use
+> Set up this project with the `setup-ai-workflows` workflow. Use
 > `~/Web/ai-workflows` as the canonical source.
 
 On an existing codebase it:

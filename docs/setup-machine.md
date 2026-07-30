@@ -137,7 +137,7 @@ It is gated on a digest of the files it delivers — `CLAUDE.md`, the universal
 rules, and the sync script itself — stamped in `$CLAUDE_PLUGIN_DATA`, which
 survives plugin updates. Deliberately *not* on the plugin version:
 `$CLAUDE_PLUGIN_ROOT` is version-keyed
-(`~/.claude/plugins/cache/ai-workflows/greenberry/1.3.0`, and only SHA-keyed
+(`~/.claude/plugins/cache/ai-workflows/greenberry/1.8.0`, and only SHA-keyed
 while `plugin.json` carries no `version` at all), so two different commits of
 `main` share one directory name whenever an MR skips the bump. A version gate
 reads that as "already applied" and skips the change forever — which is exactly

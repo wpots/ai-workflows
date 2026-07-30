@@ -68,7 +68,7 @@ There is no schedule that needs enforcing, but these are the useful triggers:
 | Trigger | Why |
 | --- | --- |
 | A rule or command you rely on changed here | Cursor/Codex/Copilot read the project copy, not this repo. |
-| The project's stack changed (major upgrade, new CMS, new test runner) | `CONVENTIONS.md` is now wrong — re-run `init-project`, not just sync. |
+| The project's stack changed (major upgrade, new CMS, new test runner) | `CONVENTIONS.md` is now wrong — re-run `setup-ai-workflows`, not just sync. |
 | Onboarding someone new to the project | Cheapest moment to fix drift. |
 | A periodic maintenance sweep | The `maintenance` skill checks doc drift among other things. |
 

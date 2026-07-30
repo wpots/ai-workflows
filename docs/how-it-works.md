@@ -69,6 +69,7 @@ while focused files in `rules/` load when the task calls for them.
 | Tests and test reviews | `rules/testing.md` |
 | Interactive UI and accessibility checks | `rules/accessibility.md` |
 | User stories, specs, backlog work | `rules/backlog.md` |
+| Sizing or slicing work, and MR scope | `rules/mr-sizing.md` |
 | CMS-backed content block architecture and transforms | `rules/content-blocks.md` |
 | Payload CMS schemas, generated types, hooks, integrations | `rules/payload.md` |
 | Stack-specific architecture | the matching file in `rules/stacks/` after checking `package.json` |
@@ -136,6 +137,25 @@ local execution, not as a primary architectural artifact.
 
 In adapter files, the content between `<!-- BEGIN SHARED:<name> -->` markers comes
 from `shared/` — edit the fragment, not the injected copy.
+
+## Project Documents
+
+Adoption writes several documents into a project, and the whole point is that each
+fact has exactly one home. Duplicate a boundary and one copy is wrong within a
+sprint.
+
+| Document | Owns | Written by |
+| --- | --- | --- |
+| `docs/project-brief.md` | why the product exists, for whom, what success is | `start-project` |
+| `docs/project-spec.md` | the product rules of this release | `start-project` |
+| `docs/journeys/<slug>.md` | how a user walks one journey, step by step, plus its slice candidates | `user-journeys` |
+| `docs/architecture.md` | intent and rationale of the structure, decision log, known debt | `start-project` |
+| `CONVENTIONS.md` | detected facts as they are today | `setup-ai-workflows` |
+| `docs/backlog/` | the work, one item per reviewable MR | `backlog` |
+
+A journey references a spec rule instead of restating it; `CONVENTIONS.md` links to
+the architecture doc for the *why*. Work is sized where it is written, not at MR
+time — [`rules/mr-sizing.md`](../rules/mr-sizing.md) holds that budget.
 
 ## Sync Models
 

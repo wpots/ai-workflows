@@ -24,6 +24,12 @@ by URL rather than assuming its name — the GitHub mirror is not a substitute
 (these repos are reviewed on GitLab, and GitHub refuses a review request from the
 PR author).
 
+The MRs here follow the same scope rules as product work
+([`rules/mr-sizing.md`](../rules/mr-sizing.md)): one reviewable change per MR,
+≤ 400 authored lines, and a mechanical rename never travels with new behaviour —
+it gets its own MR. Stacking is fine: target the previous branch and say so in the
+description; GitLab retargets each MR as the one below it merges.
+
 ## Contributor Setup
 
 ```bash
@@ -77,14 +83,17 @@ upstream it here instead of letting that project drift.
 ## Add Or Update A Skill
 
 1. Edit or create `skills/<name>/SKILL.md`.
-2. Record the canonical surface in
+2. Add the trigger mapping in `shared/skill-mappings.md` and run
+   `./scripts/generate-adapters.sh` — a skill missing from that registry cannot
+   be reached by intent at all, which the validator treats as an **error**.
+3. Record the canonical surface in
    [workflow-canonical-sources.md](workflow-canonical-sources.md) and add the
    inventory row in [`FEATURES.md`](../FEATURES.md).
-3. Place it in the process in [pipeline-map.md](pipeline-map.md) — which phase it
+4. Place it in the process in [pipeline-map.md](pipeline-map.md) — which phase it
    fires in, which gate it helps close, and how it is invoked.
-4. Run `./scripts/validate-ai-instructions.sh`; steps 2 and 3 are checked, so a
-   missing entry surfaces as a warning rather than staying invisible.
-5. Republish the pipeline map so the shared copy matches the repo — see
+5. Run `./scripts/validate-ai-instructions.sh`; steps 2–4 are checked, so a
+   missing entry surfaces instead of staying invisible.
+6. Republish the pipeline map so the shared copy matches the repo — see
    [how-it-works.md](how-it-works.md#the-delivery-pipeline).
 
 ## Add Or Update A Shared Fragment

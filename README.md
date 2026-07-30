@@ -36,7 +36,7 @@ install the Claude plugin, and you are done —
 
 | Surface | What it is |
 | --- | --- |
-| `skills/` | 30+ multi-step workflows — kickoff, backlog, sprint, review, audit, maintenance. Canonical surface on skill-aware tools. |
+| `skills/` | multi-step workflows — kickoff, user journeys, backlog, sprint, review, audit, maintenance. Canonical surface on skill-aware tools. |
 | `rules/` | Coding and policy baseline, loaded per task rather than all at once. |
 | `commands/` | The same workflows as runbooks, for tools that cannot use skills (Copilot). |
 | tool adapters | `CLAUDE.md`, `AGENTS.md`, Copilot instructions, Cursor rules — thin, generated, always-on routing. |
