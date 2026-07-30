@@ -13,6 +13,32 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-07-30
+
+### Added
+
+- `scripts/sync-ambient.sh` — two offline **freshness checks** at session start,
+  for the one failure the ambient hook cannot fix by syncing: a frozen plugin,
+  where the source it copies from is itself stale.
+  - the ai-workflows marketplace entry in `~/.claude/settings.json` carries no
+    `autoUpdate` — the exact state that pins an install (and the ambient
+    `CLAUDE.md` and rules with it) to the commit it was added on
+  - the plugin cache has not changed in over 14 days, which is what a silently
+    failing auto-update looks like: an HTTPS-registered marketplace, or expired
+    git auth
+  Both run **before** the content gate, because a pinned install has a stable
+  digest and would otherwise exit before reporting anything. The note is
+  advisory, names the fix, and fires at most **once a day** (stamped in
+  `$CLAUDE_PLUGIN_DATA`); a malformed or absent `settings.json`, or a missing
+  `node`, degrades to silence rather than to a broken session. Covered by five
+  new cases in `scripts/smoke-test-ambient-sync.sh`.
+
+### Changed
+
+- `docs/setup-machine.md` and `docs/troubleshooting.md` — document that the hook
+  now reports both states, and that silence afterwards is not proof the fix
+  worked (`/plugin` is).
+
 ## [1.14.0] - 2026-07-30
 
 ### Added

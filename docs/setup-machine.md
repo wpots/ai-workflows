@@ -121,6 +121,18 @@ so `"url"` plus our `git@…` address fails with `invalid url`. (Inside a
 `marketplace.json`, *plugin* entries use the opposite convention, where `"url"`
 is the git-repo type. Don't copy one into the other.)
 
+**You get told when this is wrong.** The ambient-layer hook checks two things at
+session start, offline, and mentions at most one of them once a day:
+
+- the marketplace entry in `~/.claude/settings.json` has no `autoUpdate` — the
+  exact state that leaves an install frozen while everything looks fine
+- the plugin cache has not changed in over two weeks, which is what a silently
+  failing auto-update looks like (HTTPS-registered marketplace, expired git auth)
+
+Both are advisory. The hook cannot fix a frozen plugin — the source it copies
+from is the stale thing — so it names the fix and leaves it to you. Until it is
+fixed, `./scripts/sync.sh` overrides the ambient layer immediately.
+
 ### 4. Verify
 
 - `/plugin` lists `greenberry` as installed and enabled, tracking `main` rather

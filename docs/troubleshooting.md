@@ -8,6 +8,7 @@
 | `invalid url` on startup or marketplace add | Hand-written `extraKnownMarketplaces` with `"source": "url"`. Change it to `"source": "git"` — see [setup-machine.md](setup-machine.md#3-turn-on-auto-update--plugin-marketplace-add-does-not). |
 | Skills show up twice | Old copies still in `~/.claude/skills` — run `./scripts/sync.sh` again. |
 | A merged skill change is not visible yet | `/plugin marketplace update ai-workflows`, then `/reload-plugins`. |
+| A session started with a note about `autoUpdate` or a stale plugin cache | The ambient-layer hook's freshness check — the install is pinned or auto-update is failing quietly. Fix it per [setup-machine.md](setup-machine.md#3-turn-on-auto-update--plugin-marketplace-add-does-not); the note repeats at most once a day, so silence afterwards is not proof it worked (`/plugin` is). |
 | The installed plugin lags `main` by many commits | Almost always a missing `"autoUpdate": true` on the marketplace entry in `~/.claude/settings.json` — `/plugin marketplace add` does not set it. Otherwise check the marketplace was added over SSH; HTTPS installs never auto-update. Until fixed, the ambient-layer hook is pinned to that stale version; `./scripts/sync.sh` overrides it in the meantime. |
 | `/greenberry:` shows nothing | Plugin not enabled — check `/plugin`, and `enabledPlugins` in the project's `.claude/settings.json`. |
 
