@@ -13,6 +13,42 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-07-30
+
+### Added
+
+- `rules/git-flow.md` — the branch-and-merge policy that was until now implicit
+  and inconsistent: fast-forward + squash-always, an explicit
+  `squash_commit_template`, delete-source-branch, and both merge gates
+  (green pipeline, resolved discussions). Squash stays the default — agent
+  branches are exactly the case where intermediate commits are noise — and the
+  rule names its one price: the **MR title becomes the commit message**, so it
+  must be a conventional-commit subject, mechanically checkable in CI over
+  `CI_MERGE_REQUEST_TITLE`.
+- `scripts/gitlab-merge-settings.mjs` — checks a GitLab project against that
+  baseline and prints a per-setting table; read-only unless `--apply`, which
+  PUTs only the deviating fields. Resolves the project from the repo's
+  gitlab.com remote or `--project`, and `--strict` exits non-zero for CI.
+- `skills/start-project` lane 1 gets check 3b (merge settings, via that script,
+  fixed only after an explicit go) and `skills/maintenance` lane E reports
+  merge-settings drift as a finding.
+
+### Changed
+
+- `skills/create-pr` labels every MR/PR it opens `ai:agent-authored` (also via
+  the push-options fallback) and requires a conventional-commit title, with a
+  new **Provenance label** recap row. Provenance had been riding on
+  `Co-Authored-By: Claude` commit trailers, which a squash merge discards —
+  and `%{co_authored_by}` does not recover them, since it expands to commit
+  *authors*, not to the trailers inside the commits.
+- `scripts/delivery-metrics.mjs` reports the agent-authored share primarily
+  from that label (survives squash, rebase and rewrites), keeps the trailer
+  share as a secondary known-undercounting signal, counts `revert`-labelled
+  MRs alongside revert commits, and calls out the 0%-label/high-trailer case
+  as "label not applied yet" instead of a usage collapse. `skills/maintenance`
+  lane H reads it that way. Intervention rate stays `n/a` — explicitly with no
+  proxy substituted.
+
 ## [1.12.0] - 2026-07-30
 
 ### Added

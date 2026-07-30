@@ -73,7 +73,8 @@ check:
 | --- | --- | --- |
 | 1 | repo exists and sits at `greenberrynl/<client>/<project>` | `git remote -v`, `glab repo view <path>` |
 | 2 | created from the template — shared history with it | `git fetch https://gitlab.com/greenberrynl/the-greenhouse/unicore-template.git` then `git merge-base HEAD FETCH_HEAD`. No common ancestor → fall back to a file fingerprint (CI config, tooling config, `.nvmrc`, folder skeleton) and record that lineage could not be proven — usually because history was squashed on import |
-| 3 | default branch, visibility, and merge settings match the Greenberry defaults | `glab api "projects/<url-encoded-path>"` — squash option, delete source branch, merge only on green pipeline |
+| 3 | default branch and visibility match the Greenberry defaults | `glab api "projects/<url-encoded-path>"` |
+| 3b | merge settings match `rules/git-flow.md` | `node ~/Web/ai-workflows/scripts/gitlab-merge-settings.mjs --project <path>` — read-only; reports `ff` + squash-always, the squash commit template, delete-source-branch, and the pipeline/discussion gates. Paste its table into the lane report |
 | 4 | protected branches and approval rules exist | `glab api "projects/<path>/protected_branches"`, `.../approval_rules` |
 | 5 | the CI/CD variables the pipeline needs are present | `glab api "projects/<path>/variables"` — **names only, never print values** |
 | 6 | tracker and chat integrations wired | `glab api "projects/<path>/integrations/jira"`, `.../integrations/slack` |
@@ -85,7 +86,8 @@ is a real answer; a guess is not.
 ### Fixing deviations
 
 - Nothing here changes silently. A setting a CLI can fix is proposed as the exact
-  command and applied only after an explicit go.
+  command and applied only after an explicit go. For check 3b that command is
+  the same script with `--apply` — it PUTs only the deviating fields.
 - Steps only a person can do (create the client group, run the template flow,
   chase a hosting contract) are handed over as a numbered list with the Notion
   link.
@@ -96,7 +98,7 @@ is a real answer; a guess is not.
 
 A PoC or spike may skip the template method — deliberately, never accidentally:
 
-- skip checks 2–6; keep the minimum (repo exists, default branch, visibility,
+- skip checks 2–6 (3b included); keep the minimum (repo exists, default branch, visibility,
   licence, and a README that says it is a PoC)
 - **record the waiver**, or it quietly becomes a production project:
   `Project type: PoC — template method waived` in `docs/project-brief.md`, plus a

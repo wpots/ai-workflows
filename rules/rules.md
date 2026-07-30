@@ -25,6 +25,7 @@ In practice, treat this directory as a topic-based rule library:
 | `documentation.md`                      | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
 | `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
 | `mr-sizing.md`                          | MR size budget, sliceability test, split triggers, ticket-to-item mapping |
+| `git-flow.md`                           | Branch/MR flow, squash-and-ff merge settings, MR title as history, provenance labels |
 | `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
 | `payload.md`                            | Payload schemas, generated types, hooks, admin integrations         |
 | `clean-architecture.md`                 | Layer principles, dependency rules, forbidden patterns (all stacks) |
@@ -43,16 +44,18 @@ In practice, treat this directory as a topic-based rule library:
 7. Load `backlog.md` when writing user stories, backlog items, or task specs.
 8. Load `mr-sizing.md` alongside `backlog.md` whenever work is sized or sliced
    (backlog, refinement, sprint planning), and when opening or reviewing an MR.
-9. Load `accessibility.md` when building interactive UI components.
-10. Load `content-blocks.md` when building or reviewing CMS-backed content blocks.
-11. Load `payload.md` when working on Payload schemas, hooks, generated types, or admin integrations.
-12. Load `sustainability.md` when reviewing performance, caching, bundle size,
+9. Load `git-flow.md` when branching, opening or merging an MR, or checking a
+   repository's merge settings.
+10. Load `accessibility.md` when building interactive UI components.
+11. Load `content-blocks.md` when building or reviewing CMS-backed content blocks.
+12. Load `payload.md` when working on Payload schemas, hooks, generated types, or admin integrations.
+13. Load `sustainability.md` when reviewing performance, caching, bundle size,
     CI cost, or dependencies — or when changing public-route rendering.
-13. Load `sonarqube.md` when a SonarQube or SonarLint finding is mentioned, or
+14. Load `sonarqube.md` when a SonarQube or SonarLint finding is mentioned, or
     when editing code that could trip one of its opted-in rules.
-14. Load `documentation.md` when changing code that comments, JSDoc, or repo
+15. Load `documentation.md` when changing code that comments, JSDoc, or repo
     docs describe, and during code review.
-15. Load the appropriate stack file based on detected stack (see below).
+16. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection
 

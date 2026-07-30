@@ -340,6 +340,12 @@ but they still break, and differently:
   (`glab ci list`, `glab schedule list`).
 - Working-tree cruft: untracked files that should be ignored, large files in
   history, `.gitignore` gaps, secrets committed by accident.
+- Merge-settings drift against `rules/git-flow.md`:
+  `node ~/Web/ai-workflows/scripts/gitlab-merge-settings.mjs --repo .`
+  (read-only). Any deviation is a finding — a project that lost `ff`,
+  squash-always, or the pipeline gate silently changes what history and review
+  guarantee. Fixing it needs `--apply` plus an explicit go, never inside the
+  sweep.
 
 ### F. Data, migrations, and jobs
 
@@ -363,8 +369,12 @@ but they still break, and differently:
 - Run `node ~/Web/ai-workflows/scripts/delivery-metrics.mjs --repo . --since
   <first day of the previous sweep's month>` — read-only (git log + glab
   api). It reports merged MRs, median hours from MR created to merged,
-  agent-authored commit share (`Co-Authored-By: Claude` trailers), and
-  revert count.
+  agent-authored share, and revert count.
+- Read the **label** share (`ai:agent-authored` on the MR) as the metric; the
+  commit-trailer share is secondary and undercounts every squashed MR
+  (`rules/git-flow.md`). A 0% label share next to a high trailer share means
+  the label is not being applied — report it as `n/a` plus that finding, not as
+  a collapse in agent usage.
 - Paste the table into the report and state the **delta vs the previous
   sweep** — the trend is the finding, not the absolute number. A rising
   revert count or collapsing agent share is an `attention` verdict.

@@ -295,6 +295,7 @@ building instead of re-running everything.
 | `skills/sprint-board` | skill | **hook** `PostToolUse(Bash)` on `glab mr create` | Moves the item to *in review* / *rework* |
 | `rules/documentation.md` | rule | loaded — diffs touching commented/documented code, and during review | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
 | `rules/mr-sizing.md` | rule | loaded — when an MR is opened or reviewed | The advisory end of the budget: report the overrun and where the cut belonged; re-slicing merge-ready work is not the answer |
+| `rules/git-flow.md` | rule | loaded — branching, opening or merging an MR, checking merge settings | Squash + fast-forward baseline, MR title as the commit message, `ai:agent-authored` as the provenance signal a squash cannot drop; `scripts/gitlab-merge-settings.mjs` checks and (after a go) fixes a project |
 
 **Gate — Release readiness: automated but armed by hand.** `skills/watch-mrs` can
 watch a MR the moment it exists, but nothing arms it — which is why a red pipeline
