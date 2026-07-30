@@ -27,13 +27,28 @@ If none exists, ask the user which base branch to use.
 ## Workflow
 
 1. Compare current branch against resolved base branch.
-2. Prioritize findings by severity:
-- Functional bugs/regressions
-- Security risks
-- Performance issues
-- Accessibility and maintainability gaps
-- Type-safety risks and missing guardrails
-- Documentation and comment freshness
+2. Sweep every review lens deliberately — one pass per lens, so no lens is
+   silently skipped on a large diff:
+   - **Correctness** — functional bugs, regressions, broken edge cases
+   - **Security** — injection, authn/authz gaps, secret handling, unsafe
+     redirects/uploads
+   - **Performance & sustainability** — N+1 queries, caching, bundle and
+     client-JS weight (`rules/sustainability.md` when public routes change)
+   - **Accessibility** — semantics, keyboard, focus
+     (`rules/accessibility.md` for interactive UI)
+   - **Architecture** — layer boundaries, dependency direction
+     (`rules/clean-architecture.md` plus the detected stack rule)
+   - **Type safety** — the audit in step 4
+   - **Documentation & comment freshness** — the checks in step 6
+   - **Test coverage** — changed behaviour without a changed or added test
+     (`rules/testing.md`)
+
+   Merge everything into ONE severity-ordered findings list: the lens label
+   stays on each finding (`[security]`, `[a11y]`, …), severity decides the
+   order. For large diffs (roughly >15 files or >800 changed lines), run the
+   lenses as parallel subagents — one lens per agent, each reading only the
+   diff plus its rule file — and merge their outputs; a finding survives the
+   merge only with a concrete `file:line` anchor.
 3. When the diff includes TypeScript or boundary-heavy code, use
    `rules/type-safety.md` as the checklist source.
 4. Always check for:
@@ -87,7 +102,9 @@ If none exists, ask the user which base branch to use.
 
 ## Output Format
 
-Keep findings first and severity-ordered, then use these fixed sections:
+Keep findings first and severity-ordered, each tagged with its lens
+(`[correctness]`, `[security]`, `[perf]`, `[a11y]`, `[architecture]`,
+`[type-safety]`, `[docs]`, `[tests]`), then use these fixed sections:
 
 1. `Findings`
 2. `Type-Safety Risks`

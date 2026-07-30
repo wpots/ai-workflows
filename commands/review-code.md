@@ -86,6 +86,10 @@ Focus on substantive issues that affect functionality, maintainability, or user 
 - Return findings in chat unless the user explicitly asks for a written report.
 - If requested, create `./.docs/CODE_REVIEW.md` (create `./.docs` if missing).
 - Use clear sections and file references with line numbers.
+- Sweep each review lens deliberately before writing up — correctness,
+  security, performance/sustainability, accessibility, architecture,
+  type safety, documentation freshness, test coverage — then merge into one
+  severity-ordered list with the lens tagged per finding.
 - Keep findings severity-ordered and include these fixed sections:
   - `Findings`
   - `Type-Safety Risks`

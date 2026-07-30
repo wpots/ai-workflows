@@ -13,6 +13,17 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-07-30
+
+### Changed
+
+- `skills/code-review` (and the fallback runbook) now sweep eight explicit
+  review lenses — correctness, security, performance/sustainability,
+  accessibility, architecture, type safety, documentation freshness, test
+  coverage — one deliberate pass per lens, merged into a single
+  severity-ordered findings list with the lens tagged per finding. Large
+  diffs (>~15 files / >~800 lines) run the lenses as parallel subagents.
+
 ## [1.9.0] - 2026-07-30
 
 ### Added
