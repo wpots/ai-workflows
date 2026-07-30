@@ -8,8 +8,10 @@
 //   --since  window start (default: 30 days ago)
 //
 // Prints a markdown table: merged MRs, median hours to merge, agent-authored
-// commit share (Co-Authored-By: Claude trailers), revert count. The trend
-// between sweeps is the signal — absolute values mean little on their own.
+// share (primary: the `ai:agent-authored` MR label, which survives squash;
+// secondary: Co-Authored-By: Claude commit trailers, which do not), revert
+// count. The trend between sweeps is the signal — absolute values mean little
+// on their own.
 
 import { execFileSync } from "node:child_process";
 
@@ -78,6 +80,8 @@ const reverts = lines(
 
 let mergedMrs = null;
 let medianHours = null;
+let agentMrs = null;
+let revertMrs = null;
 try {
   const raw = execFileSync(
     "glab",
@@ -89,6 +93,11 @@ try {
   );
   const mrs = JSON.parse(raw).filter((mr) => mr.merged_at >= `${since}`);
   mergedMrs = mrs.length;
+  // Labels are the squash-proof provenance signal (rules/git-flow.md): a
+  // squash discards per-commit trailers, MR metadata survives it.
+  const labelled = (mr, label) => (mr.labels ?? []).includes(label);
+  agentMrs = mrs.filter((mr) => labelled(mr, "ai:agent-authored")).length;
+  revertMrs = mrs.filter((mr) => labelled(mr, "revert")).length;
   const hours = mrs
     .map(
       (mr) =>
@@ -110,6 +119,10 @@ try {
 
 const pct =
   totalCommits > 0 ? Math.round((agentCommits / totalCommits) * 100) : 0;
+const mrPct =
+  mergedMrs === null || mergedMrs === 0
+    ? null
+    : Math.round((agentMrs / mergedMrs) * 100);
 const fmt = (v, unit = "") => (v === null ? "n/a" : `${v}${unit}`);
 
 console.log(`### Delivery metrics — since ${since} (${range})`);
@@ -123,19 +136,43 @@ console.log(
   )} |`,
 );
 console.log(
-  `| Agent-authored commit share | ${pct}% (${agentCommits}/${totalCommits}) |`,
+  `| Agent-authored MR share (label) | ${
+    mrPct === null ? "n/a" : `${mrPct}% (${agentMrs}/${mergedMrs})`
+  } |`,
 );
-console.log(`| Reverts | ${reverts} |`);
+console.log(
+  `| Agent-authored commit share (trailer) | ${pct}% (${agentCommits}/${totalCommits}) |`,
+);
+console.log(
+  `| Reverts | ${reverts} commit(s)${
+    revertMrs === null ? "" : ` · ${revertMrs} labelled MR(s)`
+  } |`,
+);
 console.log("");
 console.log(
-  "Caveats: agent share counts `Co-Authored-By: Claude` trailers, so squash",
+  "The **label** share is the metric: `ai:agent-authored` on the MR survives",
 );
 console.log(
-  "merges that drop trailers undercount it. Intervention rate is not",
+  "squash, rebase and history rewrites (see `rules/git-flow.md`). The trailer",
 );
 console.log(
-  "measurable from git — record it as n/a until session telemetry exists.",
+  "share is secondary and undercounts wherever MRs are squashed, since a squash",
 );
+console.log("discards the per-commit `Co-Authored-By: Claude` lines.");
+if (mergedMrs !== null && agentMrs === 0 && agentCommits > 0) {
+  console.log("");
+  console.log(
+    "No MR carries `ai:agent-authored` while commits do — the label is not being",
+  );
+  console.log(
+    "applied yet (`skills/create-pr` sets it); read the label share as n/a, not 0%.",
+  );
+}
+console.log("");
+console.log(
+  "Intervention rate is not measurable from git or the MR API — record it as n/a",
+);
+console.log("until session telemetry exists; do not substitute a proxy.");
 if (mergedMrs === null) {
   console.log(
     "MR-level metrics unavailable (glab missing or unauthenticated).",

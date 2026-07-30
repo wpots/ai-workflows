@@ -129,7 +129,9 @@ section — do not guess a URL.
 
 Diff the current branch against the resolved base branch and produce:
 
-- **Title** — concise, 50-72 chars.
+- **Title** — a conventional-commit subject (`type(scope): imperative`),
+  50-72 chars. With squash-on-merge it **becomes the commit message** on the
+  base branch, so it carries that weight (`rules/git-flow.md`).
 - **Summary** — 2-3 sentence overview.
 - **Breaking Changes** — migration notes if applicable.
 - **Key Modifications** — categorised (Features, Bug Fixes, Refactoring, Chore) with file/component counts.
@@ -181,7 +183,8 @@ push must use `--force-with-lease`.
 gh pr create \
   --base <resolved-base> \
   --title "<title>" \
-  --body "<generated-body>"
+  --body "<generated-body>" \
+  --label "ai:agent-authored"
 ```
 
 **GitLab:**
@@ -190,8 +193,19 @@ gh pr create \
 glab mr create \
   --target-branch <resolved-base> \
   --title "<title>" \
-  --description "<generated-body>"
+  --description "<generated-body>" \
+  --label "ai:agent-authored"
 ```
+
+> **Provenance label — always, on every MR this skill opens.** A squash merge
+> discards the branch commits and with them the `Co-Authored-By: Claude`
+> trailers, so the commit history cannot answer "how much of this was agent
+> written". The `ai:agent-authored` label can: it lives on the MR, survives
+> squash and rebase, and is what `scripts/delivery-metrics.mjs` counts
+> (`rules/git-flow.md`). GitLab creates a missing label on the fly; GitHub does
+> not — if `gh` rejects it, run `gh label create "ai:agent-authored" --color
+> 6f42c1` once, then retry. If labelling still fails, create the PR/MR without
+> it and say so in the recap rather than dropping the MR.
 
 > **Reviewer — hard rule in the canonical config repos.** When the resolved
 > remote points at `greenberrynl/config/ai-workflows` or
@@ -231,7 +245,8 @@ git push -u <remote> HEAD \
   -o merge_request.target=<resolved-base> \
   -o merge_request.remove_source_branch \
   -o merge_request.title="$TITLE" \
-  -o merge_request.description="$DESCRIPTION"
+  -o merge_request.description="$DESCRIPTION" \
+  -o merge_request.label="ai:agent-authored"
 ```
 
 GitLab prints the MR URL in the push output — surface it. If an MR already
@@ -294,6 +309,7 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | --- | --- | --- |
 | PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
 | Reviewer requested | ✅ | `<username>`, verified — or ➖ when the repo has no reviewer policy |
+| Provenance label | ✅ | `ai:agent-authored` set — or ⚠️ with the reason when labelling failed |
 | Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
 | Checks | ✅ | lint ✓ · type-check ✓ · test ✓ |
 | Migration | ➖ | none needed / added `<name>` |
@@ -322,6 +338,9 @@ migration, no board) stay in the table on ➖.
   pushing, unless the user already said to proceed without asking.
 - Always keep the PR/MR mergeable: rebase onto the latest base before every
   push (create or update), never let the branch drift behind base.
+- The MR title is the squashed commit message and `ai:agent-authored` is the
+  only durable provenance signal — both are `rules/git-flow.md` requirements,
+  not preferences.
 - In the canonical config repos (`ai-workflows`, `unicore-template`) every
   change lands via a GitLab MR with `wieteke.pots` as reviewer — no direct
   pushes to the base branch, no MR without that reviewer.

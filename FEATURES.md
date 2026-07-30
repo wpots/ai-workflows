@@ -110,6 +110,7 @@ Baseline rules in `rules/`. Loaded contextually — not all apply at once.
 | `rules/accessibility.md` | Semantic HTML, ARIA, keyboard nav, color contrast |
 | `rules/backlog.md` | User stories, specs, backlog item structure |
 | `rules/mr-sizing.md` | MR size budget, sliceability test, split triggers, one ticket to many items |
+| `rules/git-flow.md` | Branch and MR flow, the squash + fast-forward merge baseline, MR title as commit message, `ai:agent-authored` provenance label |
 | `rules/content-blocks.md` | CMS-backed block architecture, transforms, registry, stories, and tests |
 | `rules/payload.md` | Payload schemas, generated types, hooks, and integration boundaries |
 | `rules/sustainability.md` | Sustainable IT: caching/rendering, LCP/assets, bundle and client JS, CI cost, dependencies |
