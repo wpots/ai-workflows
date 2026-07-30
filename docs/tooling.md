@@ -28,7 +28,7 @@ Installed and authenticated during `commands/new-device-setup.md`:
 | `dotenvx` | none — runs via `npx dotenvx` | per-project `.env` files | secret reads in commands without pasting values |
 | claude.ai connectors | — | authorize Atlassian and Figma once per user in claude.ai connector settings | jira-ticket, sprint/refinement skills (Jira); component-spec and design work (Figma) |
 
-## Project Level — Emitted by init-project
+## Project Level — Emitted by setup-ai-workflows
 
 - `.mcp.json` at the project root: **checked in**, env-var-based, read by
   Claude Code and other MCP clients.
@@ -36,7 +36,7 @@ Installed and authenticated during `commands/new-device-setup.md`:
 - Every server and the env vars it expects are recorded in the `## Tooling`
   section of that project's `CONVENTIONS.md`.
 
-Detection heuristics used by `skills/init-project/SKILL.md`:
+Detection heuristics used by `skills/setup-ai-workflows/SKILL.md`:
 
 | Signal | Server |
 | ------ | ------ |

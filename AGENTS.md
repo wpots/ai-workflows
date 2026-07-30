@@ -160,7 +160,7 @@ The CLI-vs-MCP doctrine lives in `docs/tooling.md`.
 - Machine-level CLIs (`glab`, `jira`, `dotenvx`) install once per developer
   via `commands/new-device-setup.md`.
 - Project-level MCP servers are per project: a checked-in, env-var-based
-  `.mcp.json` (plus `.cursor/mcp.json`), emitted by `init-project`.
+  `.mcp.json` (plus `.cursor/mcp.json`), emitted by `setup-ai-workflows`.
 - Prefer environment variables for secrets — never literal values in config.
 
 ## Shared Workflow Assets Land via MR

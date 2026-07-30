@@ -161,7 +161,7 @@ autonomous runs.
   authenticated once per developer — `commands/new-device-setup.md` covers
   install + auth.
 - Project-level MCP servers live in `.mcp.json` (checked in, env-var-based)
-  with a `.cursor/mcp.json` mirror; `init-project` emits both and documents
+  with a `.cursor/mcp.json` mirror; `setup-ai-workflows` emits both and documents
   them in the `## Tooling` section of `CONVENTIONS.md`.
 - Doctrine — CLI for scriptable/headless work; MCP for browser control,
   design context, and OAuth SaaS. Full table: `docs/tooling.md` in

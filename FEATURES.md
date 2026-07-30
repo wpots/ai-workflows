@@ -91,7 +91,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 CLI-first for scriptable/headless work; MCP for browser control, design
 context, and OAuth SaaS. The doctrine, the machine-level CLI table (`glab`,
 `jira`, `dotenvx`), and the per-project `.mcp.json` convention live in
-`docs/tooling.md`; the `init-project` skill emits the per-project config and
+`docs/tooling.md`; the `setup-ai-workflows` skill emits the per-project config and
 `commands/new-device-setup.md` installs the machine baseline.
 
 ## Rules

@@ -17,7 +17,7 @@ only in one developer's personal `~/.claude.json` — a second developer got
 nothing. Meanwhile `mcp/servers.json` hardcoded a personal filesystem path
 and duplicated what `gh`/`glab` already cover. Replace the global MCP layer
 with an integration tooling lane: machine CLIs in device setup, per-project
-env-var-based `.mcp.json` emitted by init-project, and one doctrine doc.
+env-var-based `.mcp.json` emitted by setup-ai-workflows, and one doctrine doc.
 
 ## User Story
 
@@ -32,7 +32,7 @@ archaeology through a colleague's local config.
       baseline: `glab` (PAT, scopes api + write_repository), `jira`
       (`jira init` + API token), `dotenvx` via npx, plus the claude.ai
       connector authorization note.
-- [x] `skills/init-project` (and the fallback command) emit a checked-in,
+- [x] `skills/setup-ai-workflows` (and the fallback command) emit a checked-in,
       env-var-based `.mcp.json` + `.cursor/mcp.json` from detection
       heuristics, never overwrite existing files, and record servers + env
       vars in a `## Tooling` section of CONVENTIONS.md.
@@ -43,9 +43,10 @@ archaeology through a colleague's local config.
       FEATURES.md, pipeline-map, and the AI-WORKFLOWS template reflect the
       new model.
 - [x] No new skill: the steps live in existing surfaces (new-device-setup,
-      init-project, docs).
-- [x] Plugin bumped to 1.5.0 with a changelog entry (init-project behavior
-      change ships via the plugin).
+      setup-ai-workflows, docs).
+- [x] Plugin bumped to 1.9.0 with a changelog entry (setup-ai-workflows behavior
+      change ships via the plugin; renumbered from 1.5.0 after rebasing onto
+      the 1.6.0–1.8.0 releases).
 
 ## Technical Notes
 
@@ -57,19 +58,19 @@ archaeology through a colleague's local config.
   being tracked; with the file deleted the check skips itself — no validator
   change needed.
 - `.mcp.json` is safe to commit because secrets stay `${ENV_VAR}`
-  references; the init-project constraints forbid literal values.
+  references; the setup-ai-workflows constraints forbid literal values.
 
 ## Out of Scope
 
 - Auto-installing CLIs (device setup instructs; it does not run brew
   unattended).
 - Migrating existing projects' personal MCP configs (each project adopts on
-  its next init-project/refresh).
+  its next setup-ai-workflows/refresh).
 - A machine-level MCP baseline (deliberately none — see docs/tooling.md).
 
 ## Related
 
 - [../tooling.md](../tooling.md)
 - [../../commands/new-device-setup.md](../../commands/new-device-setup.md)
-- [../../skills/init-project/SKILL.md](../../skills/init-project/SKILL.md)
+- [../../skills/setup-ai-workflows/SKILL.md](../../skills/setup-ai-workflows/SKILL.md)
 - [../../scripts/sync.sh](../../scripts/sync.sh)

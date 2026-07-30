@@ -364,7 +364,7 @@ The repo-owned half, in real paths:
 | `shared/core-rules.md`, `shared/command-mappings.md`, `shared/skill-mappings.md`, `shared/safety.md`, `shared/graphify.md`, `shared/workflow-assets.md` | Fragments injected into generated adapters, so every tool sees the same baseline. `command-mappings` and `skill-mappings` are the routing registries: a workflow absent from them is unreachable by intent, which `scripts/validate-skills.mjs` treats as an error |
 | `templates/project-CLAUDE.md`, `templates/project-AGENTS.md`, `templates/project-copilot-instructions.md`, `templates/project-cursor-conventions.mdc`, `templates/project-cursor-graphify.mdc`, `templates/project-ai-workflows.md`, `templates/project-claude-settings.json` | Thin per-tool adapters generated into a project |
 | `templates/pull_request_template.md` | Last-resort MR body skeleton for `skills/create-pr` |
-| `docs/tooling.md` + per-project `.mcp.json` | Integration tooling: CLI-first doctrine, machine CLI table (glab, jira, dotenvx), project MCP config emitted by `skills/init-project` |
+| `docs/tooling.md` + per-project `.mcp.json` | Integration tooling: CLI-first doctrine, machine CLI table (glab, jira, dotenvx), project MCP config emitted by `skills/setup-ai-workflows` |
 | `docs/backlog/` | Local backlog items — the contract `skills/work-backlog` delivers against |
 | `docs/board/sprint-<N>-board.md` | Per-sprint work board (untracked, project-local) |
 | `graphify-out/` | Generated knowledge graph over the repo, queried before re-reading files |
