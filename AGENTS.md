@@ -175,9 +175,14 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
 - Always: feature branch off the latest remote base → commit → push → open a
   **GitLab MR** on the canonical GitLab remote (resolve that remote by URL,
   never by assuming its name).
-- Always request review from the maintainer, `wieteke.pots`, on that MR:
-  `glab mr create … --reviewer wieteke.pots`. On an MR that already exists:
-  `glab mr update <iid> -R <canonical-repo> --reviewer wieteke.pots`.
+- `ai-workflows` is the **only** repo whose reviewer is named in the rules:
+  request review from the maintainer, `wieteke.pots`, on an `ai-workflows` MR —
+  `glab mr create … --reviewer wieteke.pots`, or on an MR that already exists
+  `glab mr update <iid> -R greenberrynl/config/ai-workflows --reviewer wieteke.pots`.
+  Everywhere else — `unicore-template`, client projects, anything — open the MR
+  with **no `--reviewer` flag** and let the human assign one. Never infer a
+  reviewer from CODEOWNERS, repo members, or git history, and never assign the
+  MR author; only pass `--reviewer` when the user named that person.
 - Pass **both** `-R <canonical-repo>` and `-H <canonical-repo>` to
   `glab mr create`, and `-R` to every follow-up `glab mr update`/`view`. `-R`
   sets only the target; the head (source) project and the MR lookup still
@@ -194,9 +199,10 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
   `.claude-plugin/plugin.json` and add the matching `CHANGELOG.md` entry in
   the same MR. The install path is version-keyed, so an unbumped release is
   invisible in `/plugin` and indistinguishable from the previous one.
-- An MR without that reviewer is not done. Confirm it with
-  `glab mr view <iid>` before reporting, and report the real MR URL — never
-  claim an MR or a reviewer the CLI did not confirm.
+- An `ai-workflows` MR without that reviewer is not done. Confirm it with
+  `glab mr view <iid> -R greenberrynl/config/ai-workflows` before reporting, and
+  report the real MR URL — never claim an MR or a reviewer the CLI did not
+  confirm.
 - The GitHub mirror is not a substitute: these repos are reviewed on GitLab
   (GitHub also refuses a review request from the PR author).
 <!-- END SHARED:upstream-mr -->

@@ -183,9 +183,11 @@ Use the create-pr skill (it handles rebase onto base, MR templates, push, and
 - Draft MR + a **Blocked on** section when Contract #5 or #6 applies.
 - This is an autonomous run: skip create-pr's interactive approval pause —
   the MR itself is the review surface.
-- In the canonical config repos (`ai-workflows`, `unicore-template`) the MR
-  must carry `--reviewer wieteke.pots`; verify it (`glab mr view <iid>`) before
-  reporting. Never push straight to the base branch there.
+- In the canonical config repos (`ai-workflows`, `unicore-template`) never push
+  straight to the base branch. An `ai-workflows` MR must carry
+  `--reviewer wieteke.pots` — verify it (`glab mr view <iid>`) before reporting.
+  Everywhere else, including this project's own MRs, open the MR without a
+  reviewer and let the human assign one.
 
 ### 10. Notify
 

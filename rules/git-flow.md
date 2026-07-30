@@ -26,9 +26,11 @@ Every repo. Check with `node scripts/gitlab-merge-settings.mjs` (read-only;
 | `only_allow_merge_if_all_discussions_are_resolved` | `true` | Makes the review gate real instead of advisory |
 
 Approval by a human reviewer stays mandatory — see the reviewer rule in
-`skills/create-pr`. In the canonical config repos (`ai-workflows`,
-`unicore-template`) that reviewer is `wieteke.pots`, and no change lands without
-an MR — not even a one-line doc fix.
+`skills/create-pr`. *Who* that reviewer is, is a per-repo answer a human gives:
+`ai-workflows` is the only repo that names one up front (`wieteke.pots`).
+Everywhere else the MR is opened without a reviewer and the human assigns one.
+In both canonical config repos (`ai-workflows`, `unicore-template`) no change
+lands without an MR — not even a one-line doc fix.
 
 ## Squash is the default — and it has exactly one price
 

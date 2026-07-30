@@ -1,6 +1,6 @@
 {
   "name": "greenberry",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "displayName": "Greenberry AI Workflows",
   "description": "Greenberry's shared skills and command runbooks: PR and commit flows, sprint workflows, reviews, scaffolding, and backlog delivery. Skills live in skills/, fallback runbooks in commands/.",
   "author": {

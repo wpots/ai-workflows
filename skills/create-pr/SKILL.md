@@ -207,14 +207,22 @@ glab mr create \
 > 6f42c1` once, then retry. If labelling still fails, create the PR/MR without
 > it and say so in the recap rather than dropping the MR.
 
-> **Reviewer — hard rule in the canonical config repos.** When the resolved
-> remote points at `greenberrynl/config/ai-workflows` or
-> `greenberrynl/the-greenhouse/unicore-template`, the MR must be created with
-> `--reviewer wieteke.pots`. An MR in those repos without that reviewer is not
-> done: if the flag was dropped, run
-> `glab mr update <iid> --reviewer wieteke.pots`, and verify with
-> `glab mr view <iid>` before reporting. Never bypass the MR with a direct push
-> to the base branch there — not even for a one-line doc change.
+> **Reviewer — exactly one repo names one.** When the resolved remote points at
+> `greenberrynl/config/ai-workflows`, the MR must be created with
+> `--reviewer wieteke.pots`. An MR there without that reviewer is not done: if
+> the flag was dropped, run `glab mr update <iid> --reviewer wieteke.pots`, and
+> verify with `glab mr view <iid>` before reporting.
+>
+> **Every other repo gets no `--reviewer` flag at all** — `unicore-template`,
+> client projects, everything. Do not infer a reviewer from CODEOWNERS, repo
+> members, or git history, and never assign the MR author; the human picks the
+> reviewer on the MR. Pass `--reviewer <username>` elsewhere only when the user
+> named that person in this session. Say in the recap that the MR still needs a
+> reviewer assigned.
+>
+> In both canonical config repos (`ai-workflows`, `unicore-template`) never
+> bypass the MR with a direct push to the base branch — not even for a one-line
+> doc change.
 >
 > The reviewer only accepts a **username** on `glab mr create`; the `glab api`
 > POST path takes numeric ids (`--field "reviewer_ids[]=<id>"`). So when the
@@ -342,5 +350,6 @@ migration, no board) stay in the table on ➖.
   only durable provenance signal — both are `rules/git-flow.md` requirements,
   not preferences.
 - In the canonical config repos (`ai-workflows`, `unicore-template`) every
-  change lands via a GitLab MR with `wieteke.pots` as reviewer — no direct
-  pushes to the base branch, no MR without that reviewer.
+  change lands via a GitLab MR — no direct pushes to the base branch.
+  `ai-workflows` is the only repo where the MR also requires a named reviewer
+  (`wieteke.pots`); nowhere else does this skill assign one.

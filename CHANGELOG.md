@@ -13,6 +13,25 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-07-30
+
+### Changed
+
+- The named reviewer is now scoped to **one** repo: `ai-workflows`. Every other
+  repo — `unicore-template`, client projects — gets its MR opened with no
+  `--reviewer` flag, and a human assigns the reviewer. The rule shipped through
+  `shared/upstream-mr.md`, which is injected into every synced project's
+  `CLAUDE.md`/`AGENTS.md`/Copilot adapter, so `wieteke.pots` was being requested
+  as reviewer on project MRs she authored herself.
+- `skills/create-pr`, `skills/work-backlog`, `commands/create-pr.md` and
+  `rules/git-flow.md` follow the same split, and explicitly forbid inferring a
+  reviewer from CODEOWNERS, repo members, or git history, or assigning the MR
+  author. `--reviewer` outside `ai-workflows` only when the user named the
+  person.
+- `skills/upstream-to-unicore` no longer passes `--reviewer`; it reports that a
+  reviewer still has to be assigned. `skills/upstream-rules` keeps the mandatory
+  reviewer — it only ever targets `ai-workflows`.
+
 ## [1.16.0] - 2026-07-30
 
 ### Removed

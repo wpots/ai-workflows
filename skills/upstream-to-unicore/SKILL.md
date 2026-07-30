@@ -109,7 +109,6 @@ glab mr create -R greenberrynl/the-greenhouse/unicore-template \
   -H greenberrynl/the-greenhouse/unicore-template \
   --source-branch <type>/<short-description> \
   --target-branch <target-branch> \
-  --reviewer wieteke.pots \
   --title "<type>: <short description>" \
   --description "<generated body>" --yes
 ```
@@ -121,15 +120,13 @@ clone. glab then offers the wrong source project and fails with
 `422 [Source project is not a fork of the target project]`. `-H` pins the source
 to the template and makes the command cwd-independent.
 
-**The reviewer is mandatory.** `--reviewer wieteke.pots` is part of the MR, not
-an optional extra — an MR without that reviewer is not done. If the flag is
-unsupported or silently dropped, set it afterwards with
-`glab mr update <iid> -R greenberrynl/the-greenhouse/unicore-template --reviewer wieteke.pots`
-and verify with
+**No reviewer flag.** Do not pass `--reviewer` — the template's reviewer is a
+human decision, and an agent guessing one (or assigning the author) is worse
+than none. Open the MR without a reviewer, then say in the hand-off that a
+reviewer still has to be assigned. Only pass `--reviewer <username>` when the
+user named that person in this session. Verify the MR with
 `glab mr view <iid> -R greenberrynl/the-greenhouse/unicore-template` before
-reporting — both resolve against the current directory's repo without `-R`. When
-the MR had to be opened through the browser fallback below, say explicitly that
-the reviewer still has to be added there.
+reporting — it resolves against the current directory's repo without `-R`.
 
 **glab API fallback**: `glab` API calls can fail in a sandboxed/TLS-restricted
 environment (`tls: failed to verify certificate`). If `glab mr create` fails:
@@ -156,8 +153,8 @@ its state.
 
 ## Constraints
 
-- Every change lands via an MR with `wieteke.pots` as reviewer — never a direct
-  push to the target branch, and never an MR without that reviewer.
+- Every change lands via an MR — never a direct push to the target branch. The
+  MR is opened without a reviewer; a human assigns one.
 - Keep the template client-agnostic — no RefugeeWork/RFW naming, no Jira refs.
 - Always adapt project-specific wrappers/paths to template conventions; never
   copy them verbatim.
