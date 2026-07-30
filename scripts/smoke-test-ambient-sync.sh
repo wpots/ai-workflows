@@ -120,4 +120,72 @@ echo "Smoke test: missing target dir is a clean no-op"
 "$SYNC_SCRIPT" --source "$V1" --target "$TMP_DIR/does-not-exist" > /dev/null ||
   fail "missing target should exit 0"
 
+# --- Freshness checks -------------------------------------------------------
+#
+# Each case gets its own target, plugin data dir, and source copy, so the
+# content gate is out of the way and only the note under test can speak.
+
+FRESH_TARGET="$TMP_DIR/claude-freshness"
+FRESH_DATA="$TMP_DIR/plugin-data-freshness"
+FRESH_SRC="$TMP_DIR/plugin/freshness"
+mkdir -p "$FRESH_TARGET/rules" "$FRESH_DATA" "$FRESH_SRC/rules"
+cp "$ROOT_DIR/rules/communication.md" "$FRESH_SRC/rules/communication.md"
+cp "$ROOT_DIR/rules/project.md" "$FRESH_SRC/rules/project.md"
+cp "$ROOT_DIR/rules/clean-architecture.md" "$FRESH_SRC/rules/clean-architecture.md"
+echo "freshness ambient layer" > "$FRESH_SRC/CLAUDE.md"
+
+run_fresh_hook() {
+  CLAUDE_PLUGIN_DATA="$FRESH_DATA" CLAUDE_PLUGIN_ROOT="${1:-}" "$SYNC_SCRIPT" \
+    --source "$FRESH_SRC" --target "$FRESH_TARGET" --hook
+}
+
+echo "Smoke test: a marketplace entry without autoUpdate is reported"
+cat > "$FRESH_TARGET/settings.json" <<'JSON'
+{
+  "extraKnownMarketplaces": {
+    "ai-workflows": {
+      "source": { "source": "git", "url": "git@gitlab.com:greenberrynl/config/ai-workflows.git" }
+    }
+  }
+}
+JSON
+OUT="$(run_fresh_hook)"
+grep -Fq "autoUpdate" <<< "$OUT" || fail "missing autoUpdate was not reported: $OUT"
+grep -Fq '"hookEventName":"SessionStart"' <<< "$OUT" ||
+  fail "freshness note did not emit valid hook JSON"
+
+echo "Smoke test: the note fires at most once a day"
+OUT="$(run_fresh_hook)"
+if grep -Fq "autoUpdate" <<< "$OUT"; then
+  fail "freshness note repeated on the same day"
+fi
+
+echo "Smoke test: autoUpdate true and a fresh cache stay quiet"
+rm -f "$FRESH_DATA/freshness-warned"
+cat > "$FRESH_TARGET/settings.json" <<'JSON'
+{
+  "extraKnownMarketplaces": {
+    "ai-workflows": {
+      "source": { "source": "git", "url": "git@gitlab.com:greenberrynl/config/ai-workflows.git" },
+      "autoUpdate": true
+    }
+  }
+}
+JSON
+OUT="$(run_fresh_hook "$FRESH_SRC")"
+[[ -z "$OUT" ]] || fail "a correctly configured install should stay silent, got: $OUT"
+
+echo "Smoke test: a plugin cache nobody has updated is reported"
+rm -f "$FRESH_DATA/freshness-warned"
+STALE_CACHE="$TMP_DIR/plugin/stale-cache"
+mkdir -p "$STALE_CACHE"
+touch -t 202001010000 "$STALE_CACHE"
+OUT="$(run_fresh_hook "$STALE_CACHE")"
+grep -Fq "auto-update" <<< "$OUT" || fail "stale plugin cache was not reported: $OUT"
+
+echo "Smoke test: malformed settings.json is not fatal"
+rm -f "$FRESH_DATA/freshness-warned"
+echo "{ not json" > "$FRESH_TARGET/settings.json"
+run_fresh_hook > /dev/null || fail "malformed settings.json must not fail the hook"
+
 echo "All ambient sync smoke tests passed."

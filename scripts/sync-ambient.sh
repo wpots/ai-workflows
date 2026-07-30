@@ -134,6 +134,98 @@ RETIRED_RULES=(
   stacks/react-native-expo.md
 )
 
+# --- Freshness checks (advisory) ---
+#
+# A frozen plugin is the one failure this script cannot fix by syncing: the
+# source it copies from is itself stale, so it happily re-asserts last month's
+# ambient layer. Both checks are offline, and both run BEFORE the content gate
+# below on purpose -- a pinned install has a stable digest, so the gate would
+# exit long before anything got reported.
+#
+# Notes are written without double quotes or newlines: they go into hook JSON
+# built with printf, not through a JSON encoder.
+
+STALE_AFTER_DAYS=14
+FRESHNESS_NOTE=""
+FRESHNESS_DUE=0
+
+# on | off | absent | unknown. `absent` covers installs registered somewhere
+# other than this settings file (managed or project settings), which is not a
+# misconfiguration -- so it falls through to the age check instead of accusing.
+marketplace_autoupdate_state() {
+  local settings="$TARGET_CLAUDE/settings.json"
+  [[ -f "$settings" ]] || { echo "unknown"; return 0; }
+  command -v node >/dev/null 2>&1 || { echo "unknown"; return 0; }
+  node -e '
+    const fs = require("fs");
+    try {
+      const settings = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+      const entries = Object.entries(settings.extraKnownMarketplaces || {});
+      const hit = entries.find(
+        ([name, config]) =>
+          name.includes("ai-workflows") ||
+          String(config && config.source && config.source.url).includes("ai-workflows"),
+      );
+      if (!hit) {
+        console.log("absent");
+      } else {
+        console.log(hit[1] && hit[1].autoUpdate === true ? "on" : "off");
+      }
+    } catch {
+      console.log("unknown");
+    }
+  ' "$settings" 2>/dev/null || echo "unknown"
+}
+
+# The plugin cache is version-keyed, so an update lands in a directory with a
+# fresh mtime. One that has not moved in weeks means auto-update is not running,
+# whatever the settings say.
+plugin_cache_is_stale() {
+  [[ -n "${CLAUDE_PLUGIN_ROOT:-}" && -d "${CLAUDE_PLUGIN_ROOT:-}" ]] || return 1
+  [[ -n "$(find "$CLAUDE_PLUGIN_ROOT" -maxdepth 0 -mtime "+$((STALE_AFTER_DAYS - 1))" 2>/dev/null)" ]]
+}
+
+case "$(marketplace_autoupdate_state)" in
+  off)
+    FRESHNESS_NOTE="the ai-workflows marketplace entry in $TARGET_CLAUDE/settings.json has no autoUpdate flag, so this install is pinned to the commit it was added on -- including the ambient CLAUDE.md and rules delivered here. Set autoUpdate to true on that entry, then run /plugin marketplace update ai-workflows."
+    ;;
+  *)
+    if plugin_cache_is_stale; then
+      FRESHNESS_NOTE="the greenberry plugin cache has not changed in over $STALE_AFTER_DAYS days, so auto-update is probably not running (an HTTPS-registered marketplace never updates, and expired git auth fails quietly). Run /plugin marketplace update ai-workflows and read its output."
+    fi
+    ;;
+esac
+
+# At most once a day. A warning that fires every session is one people learn to
+# skip, and this one is about something they have to go and fix elsewhere.
+# Called exactly once, because it stamps.
+freshness_note_due() {
+  [[ -n "$FRESHNESS_NOTE" ]] || return 1
+  [[ "$HOOK_MODE" -eq 1 && -n "${CLAUDE_PLUGIN_DATA:-}" ]] || return 0
+  local stamp="$CLAUDE_PLUGIN_DATA/freshness-warned" today
+  today="$(date +%Y-%m-%d)"
+  if [[ -f "$stamp" && "$(cat "$stamp" 2>/dev/null)" == "$today" ]]; then
+    return 1
+  fi
+  mkdir -p "$(dirname "$stamp")" 2>/dev/null || true
+  echo "$today" > "$stamp" 2>/dev/null || true
+  return 0
+}
+
+if freshness_note_due; then
+  FRESHNESS_DUE=1
+fi
+
+emit_freshness_note() {
+  [[ "$FRESHNESS_DUE" -eq 1 ]] || return 0
+  if [[ "$HOOK_MODE" -eq 1 ]]; then
+    printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"ai-workflows plugin freshness: %s"}}\n' \
+      "$FRESHNESS_NOTE"
+  else
+    echo "Note: $FRESHNESS_NOTE"
+  fi
+}
+
 # --- Content gate (hook mode only) ---
 #
 # sync.sh is an explicit "make it so" and always applies. The hook is ambient,
@@ -165,6 +257,7 @@ if [[ "$HOOK_MODE" -eq 1 && -n "${CLAUDE_PLUGIN_DATA:-}" ]]; then
   LEGACY_STAMP_FILE="$CLAUDE_PLUGIN_DATA/ambient-synced-from"
   SOURCE_DIGEST="$(source_digest)"
   if [[ -f "$STAMP_FILE" && "$(cat "$STAMP_FILE" 2>/dev/null)" == "$SOURCE_DIGEST" ]]; then
+    emit_freshness_note
     exit 0
   fi
 fi
@@ -220,18 +313,26 @@ done
 if [[ -z "$CHANGED" ]]; then
   if [[ "$HOOK_MODE" -eq 1 ]]; then
     write_stamp
+    emit_freshness_note
   else
     echo "Claude ambient layer already up to date."
+    emit_freshness_note
   fi
   exit 0
 fi
 
 if [[ "$HOOK_MODE" -eq 1 ]]; then
   write_stamp
-  printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"The ai-workflows ambient layer was just refreshed from the greenberry plugin:%s (a leading - means removed). The global CLAUDE.md and rules now in context are current."}}\n' \
-    "$CHANGED"
+  CONTEXT="The ai-workflows ambient layer was just refreshed from the greenberry plugin:$CHANGED (a leading - means removed). The global CLAUDE.md and rules now in context are current."
+  if [[ "$FRESHNESS_DUE" -eq 1 ]]; then
+    CONTEXT="$CONTEXT Also worth fixing: $FRESHNESS_NOTE"
+  fi
+  printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' \
+    "$CONTEXT"
   exit 0
 fi
+
+emit_freshness_note
 
 prefix=""
 [[ "$DRY_RUN" -eq 1 ]] && prefix="[dry-run] "
