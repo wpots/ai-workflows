@@ -86,16 +86,13 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `mr-merged` | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup | No (skill only) |
 | `user-journeys` | Spec each user journey into `docs/journeys/` — walked path, branches, states, permissions, keyboard route, and the slice candidates the backlog is cut from | No (skill only) |
 
-## MCP Servers
+## Integration Tooling
 
-Defined in `mcp/servers.json`. Secrets use environment variables.
-
-| Server | Package | Purpose |
-|--------|---------|---------|
-| `github` | `@modelcontextprotocol/server-github` | GitHub API access (issues, PRs, repos) |
-| `filesystem` | `@modelcontextprotocol/server-filesystem` | Local filesystem read/write via MCP |
-| `react-aria` | `@react-aria/mcp` | React Aria component APIs and accessibility patterns |
-| `context7` | `@upstash/context7-mcp` | Up-to-date library documentation and code examples |
+CLI-first for scriptable/headless work; MCP for browser control, design
+context, and OAuth SaaS. The doctrine, the machine-level CLI table (`glab`,
+`jira`, `dotenvx`), and the per-project `.mcp.json` convention live in
+`docs/tooling.md`; the `setup-ai-workflows` skill emits the per-project config and
+`commands/new-device-setup.md` installs the machine baseline.
 
 ## Rules
 

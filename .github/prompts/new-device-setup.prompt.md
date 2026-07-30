@@ -14,8 +14,25 @@ Before starting, verify these are installed:
 1. `git` — `git --version`
 2. `node` / `npm` — `node --version && npm --version`
 3. `rsync` — `rsync --version`
+4. `glab` — `glab --version` (`brew install glab`)
+5. `jira` — `jira version` (`brew install jira-cli`)
 
 If any are missing, stop and tell the user what to install.
+
+Then authenticate the CLIs (once per machine):
+
+- `glab auth login` with a **Personal Access Token** (scopes `api` +
+  `write_repository`) — PATs avoid OAuth refresh races.
+- `jira init` with a Jira API token.
+- `dotenvx` needs no install or auth — commands run it via `npx dotenvx`.
+- claude.ai connectors (Atlassian, Figma) are authorized per user in the
+  claude.ai connector settings — the Jira- and Figma-backed skills depend on
+  them.
+
+Verify the auth actually works before moving on: `glab auth status` and
+`jira me` must both succeed.
+
+The CLI-vs-MCP doctrine and the full tooling table live in `docs/tooling.md`.
 
 ## Steps
 

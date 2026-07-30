@@ -155,6 +155,20 @@ autonomous runs.
 - Sync preserves an existing `settings.json`; projects that predate the
   baseline merge the `permissions` block manually.
 
+## Integration Tooling
+
+- Machine-level CLIs (`glab`, `jira`, `dotenvx`) are installed and
+  authenticated once per developer — `commands/new-device-setup.md` covers
+  install + auth.
+- Project-level MCP servers live in `.mcp.json` (checked in, env-var-based)
+  with a `.cursor/mcp.json` mirror; `setup-ai-workflows` emits both and documents
+  them in the `## Tooling` section of `CONVENTIONS.md`.
+- Doctrine — CLI for scriptable/headless work; MCP for browser control,
+  design context, and OAuth SaaS. Full table: `docs/tooling.md` in
+  ai-workflows.
+- claude.ai connectors (Atlassian, Figma) are authorized per user, not per
+  project.
+
 ## Customizing This Setup
 
 - Adjust selected packages when the project should opt into a reusable

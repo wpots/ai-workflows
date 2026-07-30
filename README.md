@@ -9,7 +9,7 @@ This repo is the source of truth for reusable:
 - baseline rules
 - command runbooks
 - adapter fragments
-- MCP definitions
+- integration tooling doctrine (`docs/tooling.md`)
 - sync scripts
 
 ## Start Here
@@ -65,7 +65,6 @@ files are generated: [How it works](docs/how-it-works.md).
 | `rules/` | focused baseline rule files plus stack-specific add-ons in `rules/stacks/` |
 | `shared/` | canonical fragments injected into adapter files |
 | `templates/` | thin project adapter and document templates |
-| `mcp/` | canonical MCP server definitions |
 | `.claude-plugin/` | plugin and marketplace manifests for the `greenberry` plugin |
 | `hooks/hooks.json` | hooks shipped by that plugin (currently the ambient-layer `SessionStart` hook) |
 | `scripts/` | sync, adapter generation, validation, smoke tests |

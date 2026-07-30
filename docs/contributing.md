@@ -149,8 +149,9 @@ templates or sync behavior.
 - Avoid hand-editing synced targets unless you intentionally want local drift.
 - Codex system skills are never touched; sync writes only to
   `~/.codex/skills/custom`.
-- Cursor MCP files are namespaced under `mcp/ai-workflows` so existing local MCP
-  config is not overwritten.
+- Project MCP config lives in each project's `.mcp.json` (emitted by
+  `setup-ai-workflows`); nothing MCP-related is written globally, so local MCP
+  config is never overwritten.
 - Adapter files are partially generated — edit the canonical source, not the
   content between shared markers.
 - After any skill run that needed correcting, run `improve-skill` so the learning

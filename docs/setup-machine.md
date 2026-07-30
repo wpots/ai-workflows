@@ -13,7 +13,7 @@ role. Cloning is a one-time cost; only some roles pay a recurring one.
 | You are… | How often you run `sync.sh` |
 | -------- | --------------------------- |
 | A Claude Code user working in already-synced projects | Never, in the normal case. Skills and commands arrive through the `greenberry` plugin, and the plugin's `SessionStart` hook refreshes the ambient layer on its own — see [The ambient layer updates itself](#the-ambient-layer-updates-itself). |
-| A Cursor or Codex user | After every update you want. Those tools have no plugin path, so `sync.sh` is their only delivery mechanism for skills, commands, and MCP definitions. |
+| A Cursor or Codex user | After every update you want. Those tools have no plugin path, so `sync.sh` is their only delivery mechanism for skills and commands. |
 | Onboarding a project, or refreshing one | Every time. `sync.sh --project <path>` renders adapters from `templates/` and `shared/` inside the checkout, so it cannot run without one. |
 | Editing the shared config itself | Per change — see [contributing.md](contributing.md). |
 
@@ -42,19 +42,34 @@ cd ~/Web/ai-workflows
 
 - `~/.cursor/commands`
 - `~/.cursor/skills-cursor/ai-workflows`
-- `~/.cursor/mcp/ai-workflows`
 - `~/.codex/skills/custom`
 - `~/.claude/CLAUDE.md`
 - `~/.claude/rules` with the universal subset only
 
 All commands, rules, and skills sync by default; there is no separate opt-in
-tier. Codex system skills are never touched (only `~/.codex/skills/custom`), and
-Cursor MCP files are namespaced under `mcp/ai-workflows` so existing local MCP
-config survives.
+tier. Codex system skills are never touched (only `~/.codex/skills/custom`).
+Nothing MCP-related is written globally — project MCP config lives in each
+project's `.mcp.json` (see [tooling.md](tooling.md)).
 
 Claude Code is the exception to file-copy sync: it gets skills and commands from
 the plugin, and sync *removes* copies left behind by earlier syncs (repo-owned
 names only — personal skills stay) so they cannot shadow the plugin.
+
+## Install And Authenticate The CLI Baseline
+
+The workflows hard-depend on a few CLIs; install and authenticate them once:
+
+```bash
+brew install glab jira-cli
+glab auth login   # Personal Access Token, scopes: api + write_repository
+jira init         # Jira API token
+```
+
+Verify the auth actually works: `glab auth status` and `jira me` must both
+succeed. `dotenvx` needs no install or auth — commands run it via
+`npx dotenvx`. claude.ai connectors (Atlassian, Figma) are authorized per user
+in the claude.ai connector settings. The CLI-vs-MCP doctrine and the full
+tooling table live in [tooling.md](tooling.md).
 
 ## Claude Code: Install The Plugin
 
