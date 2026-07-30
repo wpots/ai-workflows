@@ -81,6 +81,51 @@ export default async function ProductPage({ params }) {
 }
 ```
 
+### Proxy vs. middleware (Next 16)
+
+Next 16 (`v16.0.0`) **deprecated `middleware.ts` and renamed the request-
+interception entry to `proxy.ts`** (root or `src/`, exporting `proxy` or a
+default). Before adding any request/response interception, run **two checks**:
+
+1. **Which file does this app actually use?** Inspect the repo for `proxy.ts`
+   vs `middleware.ts`. A standalone `middleware.ts` is **silently ignored when
+   `proxy.ts` exists** — the code never runs. Add logic **into the existing
+   entry's composition** (e.g. the project's `applyMiddlewares([...])` chain),
+   never a second file. Codemod:
+   `npx @next/codemod@canary middleware-to-proxy .`.
+2. **Does the deployment support edge at all?** On a Node-server host (Docker,
+   Clever Cloud, `next start` — no compute edge) the proxy runs at the origin:
+   module-level globals (e.g. a TTL cache) are safe and "edge runtime" reasoning
+   does not apply. Only when the proxy is CDN-deployed do the docs' warnings
+   against relying on module globals hold.
+
+**Proxy always runs on the Node.js runtime since v16**, and the `runtime` config
+option is **not allowed** — `export const runtime = "..."` in a proxy file
+**throws at build**. `node:crypto`, DB reads, etc. are therefore fine; never add
+a runtime export.
+
+Middleware/proxy wiring is **not covered by lint + type-check + unit tests** —
+only `next build` reveals it (it prints `ƒ Proxy (Middleware)` when the entry is
+picked up). Verify proxy changes with a build, not the pre-push gate.
+
+```ts
+// ❌ a standalone middleware.ts next to an existing proxy.ts → never runs
+// middleware.ts
+export function middleware(request) {
+  /* dead code — Next uses proxy.ts as the entry */
+}
+
+// ✅ fold into the project's proxy.ts entry, no runtime export
+// src/proxy.ts
+export async function proxy(request: NextRequest): Promise<NextResponse> {
+  const response = await applyMiddlewares(request, [
+    /* ...existing middlewares... */
+  ]);
+  response.headers.set("Content-Security-Policy", await resolveCsp(request));
+  return response;
+}
+```
+
 ### Server Actions
 
 Server Actions are the **application/infrastructure boundary**. They live in
