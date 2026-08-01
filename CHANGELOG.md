@@ -13,6 +13,16 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.17.1] - 2026-07-30
+
+### Fixed
+
+- `rules/sustainability.md` now uses version-aware `next/image` guidance:
+  Next.js 16+ no longer recommends the deprecated `priority` prop, `preload`
+  is reserved for one unambiguous LCP image, and eager loading or
+  `fetchPriority="high"` remains the default recommendation for most LCP
+  cases.
+
 ## [1.17.0] - 2026-07-30
 
 ### Changed
