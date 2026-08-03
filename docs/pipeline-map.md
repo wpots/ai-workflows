@@ -163,11 +163,12 @@ reads them; on Claude the skill descriptions route in parallel via the plugin.
 ### Hooks and loops
 
 Automation that runs without being asked is thin but real, and it is not evenly
-distributed. Five harness hooks ship to every synced project through
-`templates/project-claude-settings.json`:
+distributed. One plugin-wide hard gate ships through `hooks/hooks.json`; four
+project harness hooks ship through `templates/project-claude-settings.json`:
 
 | Hook | Event | Does |
 | --- | --- | --- |
+| Process-termination approval | `PreToolUse(Bash)` | **Always asks** before `kill`, `pkill`, `killall`, or `taskkill`, even when a local allowlist would otherwise permit the command; the shared safety rule separately forbids terminating VS Code without approval for the exact PID and command |
 | Migration guard | `PreToolUse(Bash)` | **Denies** `migrate:fresh` and `migrate:create` — the only mechanically blocking gate in the whole pipeline |
 | Graphify-before-grep | `PreToolUse(Bash)` | Requires a graph query before raw grep/find, when `graphify-out/graph.json` exists |
 | Graphify-before-read | `PreToolUse(Read\|Glob)` | Same, for reading source files |

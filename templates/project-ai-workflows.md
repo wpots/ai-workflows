@@ -143,15 +143,17 @@ Synced projects ship a Bash allowlist in `.claude/settings.json` that matches
 the Shell Usage doctrine: git, glab (mr/ci/api/auth), jira, npm/npx runners,
 `node scripts/*`, and read-only utilities (`rg`, `jq`, `sed -n`, `head`,
 `tail`, `cat`, `ls`, `echo`, `wc`) run without a prompt, while destructive git
-(`push --force`, `reset --hard`, `clean`) always asks first. This is why
-agents are told to phrase commands so each segment starts with an allowlisted
-tool — a command shaped outside the list costs a human approval and blocks
-autonomous runs.
+(`push --force`, `reset --hard`, `clean`) and process termination (`kill`,
+`pkill`, `killall`, `taskkill`) always ask first. The plugin also carries a
+`PreToolUse(Bash)` gate for termination commands, so a broader local allow rule
+cannot silently bypass the approval prompt. This is why agents are told to
+phrase commands so each segment starts with an allowlisted tool — a command
+shaped outside the list costs a human approval and blocks autonomous runs.
 
 - Extend per project by adding rules to `permissions.allow` (for example a
   project CLI, or `curl` against the local dev URL).
 - Never put secrets tooling or destructive commands in `allow`; destructive
-  git stays in `ask` on purpose.
+  git and process termination stay in `ask` on purpose.
 - Sync preserves an existing `settings.json`; projects that predate the
   baseline merge the `permissions` block manually.
 
