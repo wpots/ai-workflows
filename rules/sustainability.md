@@ -41,8 +41,14 @@ duplicate their content here.
 
 ### Assets
 - The LCP / above-the-fold image rendered with `loading="lazy"` or without
-  `priority`/preload — **never lazy-load the LCP image**; image wrappers must
-  expose that escape hatch.
+  an explicit loading signal — **never lazy-load the LCP image**; image
+  wrappers must expose the relevant loading prop.
+- For `next/image`, inspect the installed Next.js major before selecting that
+  prop. Next.js 16+ deprecates `priority`: prefer `loading="eager"` or
+  `fetchPriority="high"` in most cases, and use `preload` only for one
+  unambiguous LCP/hero image that should start loading from `<head>`. Do not
+  combine `preload` with `loading` or `fetchPriority`. For Next.js 15 and
+  earlier, `priority` is the version-appropriate preload prop.
 - Fonts preloaded that first paint does not need (opt-in features such as an
   accessibility font): set `preload: false` and keep them out of the
   always-loaded font module — co-location alone triggers preload.
@@ -111,7 +117,7 @@ Before proposing or applying a change, confirm:
 | Concern | Prefer | Avoid |
 | --- | --- | --- |
 | Public read | cross-request cache + tags | per-request DB/CMS hit |
-| LCP image | eager + `priority`/preload | `loading="lazy"` on the hero |
+| LCP image | Next.js 16+: eager / `fetchPriority="high"`; `preload` only for one certain LCP | lazy hero; `priority` on Next.js 16+ |
 | Optional fonts/features | load on toggle (`preload: false`) | preload on every page |
 | Interactivity | Server Component + small client island | page-wide `"use client"` |
 | Variant registries (icons, blocks) | static per-variant imports / lazy client variants | `import * as` + name lookup |
