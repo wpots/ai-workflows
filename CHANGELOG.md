@@ -13,6 +13,24 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-08-03
+
+### Added
+
+- A non-waivable VS Code termination rule now requires explicit approval for
+  the exact PID and command before an agent may signal `Code`, `Code Helper`,
+  or another VS Code process. Pattern-based kills must be resolved and
+  inspected first; broad process-cleanup requests do not count as approval.
+- The Claude plugin now forces a user approval prompt for `kill`, `pkill`,
+  `killall`, and `taskkill` through a `PreToolUse(Bash)` hook, even when a
+  local allowlist would otherwise permit the command. Fresh project settings
+  carry matching `permissions.ask` rules as a second enforcement layer.
+
+### Changed
+
+- `safe-kill-port` now inspects every resolved PID and stops for explicit
+  approval before sending any signal to VS Code or an ambiguous target.
+
 ## [1.17.1] - 2026-07-30
 
 ### Fixed

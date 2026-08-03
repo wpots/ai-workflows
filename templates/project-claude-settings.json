@@ -42,6 +42,10 @@
       "Bash(command -v *)"
     ],
     "ask": [
+      "Bash(kill *)",
+      "Bash(pkill *)",
+      "Bash(killall *)",
+      "Bash(taskkill *)",
       "Bash(git push --force*)",
       "Bash(git push * --force*)",
       "Bash(git reset --hard*)",

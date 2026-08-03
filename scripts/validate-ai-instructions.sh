@@ -27,6 +27,14 @@ else
   exit 1
 fi
 
+echo "Running process-termination approval hook tests..."
+if command -v python3 >/dev/null 2>&1; then
+  python3 "$ROOT_DIR/scripts/test_process_termination_approval.py"
+else
+  echo "python3 not found; process-termination approval hook tests require Python 3." >&2
+  exit 1
+fi
+
 # ── Run generation ───────────────────────────────────────────────────────────
 
 echo "Running generate-adapters.sh..."
