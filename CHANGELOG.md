@@ -13,6 +13,25 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.18.1] - 2026-08-04
+
+### Changed
+
+- `create-pr` now states at the `glab mr create` example itself that `glab` has
+  no `--description-file` / `--body-file` / `-F` flag, so a long body cannot be
+  attempted with a guessed flag name that fails on `Unknown flag`. The
+  file-based flow was already documented one reference file away; the fact now
+  sits where the example gets copied from.
+- `create-pr` requires the MR to be created in the same turn it is announced.
+  Ending a turn on "creating the MR now" costs the user a round trip and leaves
+  a pushed branch with no MR.
+- `create-pr` covers pre-push hook failures that come from outside the branch
+  diff: a gitignored local artefact directory missing from the linter's own
+  ignore list fails `lint:check` on the developer's machine and never in CI.
+  Mirror the directory into the linter's ignores as its own commit rather than
+  reaching for `--no-verify`, which also skips the migration and schema checks
+  sharing that hook.
+
 ## [1.18.0] - 2026-08-03
 
 ### Added
