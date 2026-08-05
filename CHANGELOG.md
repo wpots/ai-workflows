@@ -13,6 +13,37 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+## [1.19.0] - 2026-08-04
+
+### Added
+
+- A worktree cost rule in the ambient layer: one root (`~/.worktrees/<repo>-<slug>`,
+  never inside the repo and never in a registered additional working directory),
+  a symlinked `node_modules` by default, a copy-on-write clone only when a
+  bundler that rejects symlinks has to run, and removal right after the push.
+  Measured on a real repo, a bare checkout is ~90 MB against 1.4-3 GB once
+  dependencies and a build output are in it.
+- The same rule now scales with the package manager: the symlink/clone default
+  exists because npm has no shared store (five worktrees in one repo held
+  ~7.3 GB of duplicated dependencies), while a content-addressed store (pnpm)
+  makes a plain install in the worktree hardlink from that store — seconds,
+  almost no disk, lockfile-accurate. Agents must use whatever `packageManager`
+  pins rather than forcing a manager the project refuses.
+
+### Changed
+
+- The worktree section of `create-pr`'s push-and-MR reference now lists the
+  gitignored artifacts a fresh worktree lacks (env files, Next route types,
+  generated import maps) next to the error each one actually produces, warns
+  that ignore patterns match the absolute path so `~/.worktrees` is skipped by
+  test runners too, and adds how to pin both sides of a before/after build plus
+  how to audit stale worktrees in a squash-merging repo.
+- That reference also warns against running the test suite from the main
+  checkout with `--rootDir <worktree>` (config-resolved path aliases keep
+  pointing at the original tree, so tests load modules from both checkouts),
+  and notes that deleting a copied env file stages a deletion when the project
+  commits its env files encrypted.
+
 ## [1.18.1] - 2026-08-04
 
 ### Changed

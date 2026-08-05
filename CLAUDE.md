@@ -243,3 +243,42 @@ that doesn't match costs a human approval and blocks autonomous runs.
   allowlist) so it goes through without a prompt.
 - Pass these rules on to subagents in their prompt too; they inherit the
   permission system but don't always read this file.
+
+### Worktrees: cheap by default, heavy only on purpose
+
+A checkout costs ~90 MB; the same worktree with `node_modules` and a build
+output costs 1.4-3 GB. Left behind, a handful of them silently eats double-digit
+gigabytes. So scale the setup to what the task actually needs, and tear it down
+when the branch is pushed.
+
+- One root: `~/.worktrees/<repo>-<slug>`. NEVER inside the repo (test runners
+  ignore `.worktrees/`, so suites report 0 tests) and never in a directory
+  registered as an additional working directory (the IDE crashes on it).
+- Default to a **symlinked** `node_modules` — `ln -s <main-checkout>/node_modules
+  <worktree>/node_modules`. Jest, `tsc`, ESLint and typegen all work through it,
+  at zero disk cost.
+- Only when a bundler that rejects symlinks is needed (Turbopack: `next
+  build`/`next dev`), replace the symlink with a copy-on-write clone —
+  `cp -Rc <main>/node_modules <worktree>/node_modules`. Prefer that over
+  `npm ci`/`npm install`, which re-downloads the tree and can get OOM-killed
+  halfway, leaving truncated packages.
+- Those two rules are **npm-shaped**: npm has no shared store, so every real
+  install duplicates the whole tree (one repo, five worktrees, ~1.5 GB each ≈
+  7.3 GB of copies). When the project uses a content-addressed store (pnpm),
+  just install in the worktree — it hardlinks from that store, so it takes
+  seconds, adds almost no disk, and gives a lockfile-accurate tree per branch
+  with no symlink or clone to undo. Check `packageManager` in `package.json`
+  first and use what it pins; forcing another manager only earns
+  `This project is configured to use npm`, which is corepack doing its job.
+- Gitignored artifacts the main checkout has and a fresh worktree does not are
+  what make setup fail in confusing ways — copy them rather than debugging the
+  symptom (see the worktree section in
+  `skills/create-pr/references/push-and-mr-mechanics.md` for the list and the
+  error each missing one produces).
+- Delete the worktree immediately after pushing (`git worktree remove --force`);
+  that reclaims `node_modules` and the build output in one step. Any env file
+  copied in goes with it — never leave a copied secret behind.
+- Before concluding anything from a build or a running server in a worktree,
+  check `git log --oneline -1` there. A baseline build overwrites the build
+  output, so a "verify the fix" run right after it can silently serve the
+  baseline instead.
