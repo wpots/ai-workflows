@@ -489,6 +489,20 @@ if (tracked.has(PIPELINE)) {
 const PLUGIN = ".claude-plugin/plugin.json";
 const CHANGELOG = "CHANGELOG.md";
 
+/** Numeric semver compare; both inputs are already `\d+\.\d+\.\d+`. */
+function compareSemver(a, b) {
+  const left = a.split(".").map(Number);
+  const right = b.split(".").map(Number);
+
+  for (let index = 0; index < 3; index += 1) {
+    if (left[index] !== right[index]) {
+      return left[index] - right[index];
+    }
+  }
+
+  return 0;
+}
+
 if (tracked.has(PLUGIN)) {
   let manifest = null;
   try {
@@ -510,12 +524,51 @@ if (tracked.has(PLUGIN)) {
       );
     } else if (!tracked.has(CHANGELOG)) {
       err(CHANGELOG, "is missing — every plugin version needs a changelog entry");
-    } else if (!read(CHANGELOG).includes(`## [${manifest.version}]`)) {
-      err(
-        CHANGELOG,
-        `has no entry for plugin version ${manifest.version} — add ` +
-          `'## [${manifest.version}] - YYYY-MM-DD' in the same MR as the bump`,
-      );
+    } else {
+      const changelog = read(CHANGELOG);
+
+      // Match headings at line start only. A plain substring test is satisfied
+      // by prose mentioning `## [1.2.3]` or `## [Unreleased]` in backticks —
+      // which this very changelog does, so the check would never fire.
+      const hasHeading = (label) =>
+        new RegExp(`^## \\[${label.replace(/[.[\]]/g, "\\$&")}\\]`, "m").test(
+          changelog,
+        );
+
+      if (!hasHeading(manifest.version)) {
+        err(
+          CHANGELOG,
+          `has no entry for plugin version ${manifest.version} — run ` +
+            `'node scripts/assign-plugin-version.mjs --write' to cut the release`,
+        );
+      }
+
+      // The landing zone content MRs add their entries to. Without it they
+      // would have to invent a version heading, which is what made two MRs
+      // collide on the same number and the same changelog lines.
+      if (!hasHeading("Unreleased")) {
+        err(
+          CHANGELOG,
+          "has no '## [Unreleased]' section — content MRs need it to add " +
+            "entries to; the version is assigned after merge",
+        );
+      }
+
+      // A heading above the manifest version means a release was written by
+      // hand and the manifest never followed, so `/plugin` still serves the
+      // older, version-keyed install path.
+      const ahead = [...changelog.matchAll(/^## \[(\d+\.\d+\.\d+)\]/gm)]
+        .map((match) => match[1])
+        .filter((version) => compareSemver(version, manifest.version) > 0);
+
+      if (ahead.length > 0) {
+        err(
+          CHANGELOG,
+          `documents ${ahead.join(", ")} but plugin.json is still on ` +
+            `${manifest.version} — the install path is version-keyed, so that ` +
+            `release is invisible in /plugin`,
+        );
+      }
     }
   }
 } else {
