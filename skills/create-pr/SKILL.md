@@ -161,6 +161,16 @@ push must use `--force-with-lease`.
 > and avoid re-running checks that already passed on unchanged files (see the
 > `run-checks` skill's "Sustainable verification").
 
+> **A hook failure outside your diff is still yours to resolve, not to bypass.**
+> A repo-wide `lint`/`type-check` in the pre-push hook can fail on files the
+> branch never touched — most often a gitignored local artefact directory
+> (browser-automation output, caches, scratch scripts) that the linter's own
+> ignore list is missing, so it only fails on machines where that directory
+> exists and never in CI. Mirror the directory into the linter's ignore list and
+> commit that as its own commit with its own reason. Do not reach for
+> `--no-verify`: the same hook usually also runs migration and schema checks,
+> and skipping those is not what you were trying to skip.
+
 > **Worktree caveat.** If the branch is checked out in a git worktree
 > (`git worktree list` shows it under e.g. `.worktrees/<name>`), hooks and
 > test runners usually do **not** work there unmodified. Before step 2, read
@@ -175,7 +185,11 @@ push must use `--force-with-lease`.
    caveat above):
    - First push (no upstream yet): `git push -u <remote> HEAD`.
    - After any rebase: `git push --force-with-lease`.
-3. Create the PR/MR:
+3. Create the PR/MR **in the same turn you announce it.** Never end a turn on
+   "creating the MR now" — the create call, the returned URL, and the
+   verification all belong to that turn. A turn that announces the action
+   without making the call costs the user a "retry" and leaves a pushed branch
+   with no MR.
 
 **GitHub:**
 
@@ -190,6 +204,9 @@ gh pr create \
 **GitLab:**
 
 ```bash
+# -d/--description takes a STRING. glab has no --description-file, --body-file
+# or -F on `mr create` — inventing one fails with `Unknown flag`. A body longer
+# than a paragraph goes through the file-based flow below, not a guessed flag.
 glab mr create \
   --target-branch <resolved-base> \
   --title "<title>" \
