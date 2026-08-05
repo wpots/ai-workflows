@@ -13,6 +13,30 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ## [Unreleased]
 
+### Added
+
+- `scripts/assign-plugin-version.mjs` assigns the plugin version after merge
+  from whatever accumulated under `## [Unreleased]`, inferring MAJOR/MINOR/PATCH
+  from the section headings (`--bump` / `--as` override, dry run by default).
+  Skill validation now also fails when `## [Unreleased]` is missing or when the
+  changelog documents a version above the manifest.
+
+### Changed
+
+- Content MRs no longer bump `.claude-plugin/plugin.json`; they describe the
+  change under `## [Unreleased]` and the number is assigned in a separate
+  release MR. Bumping inside a content MR made every concurrent MR edit the same
+  manifest line at the same changelog position: on 2026-08-05 three open MRs
+  claimed 1.19.0 at once, so whichever merged second conflicted and carried a
+  version already on `main`.
+
+### Fixed
+
+- The changelog-entry check matched a version anywhere in the file, so prose
+  mentioning `## [1.2.3]` in backticks satisfied it and a missing release
+  heading passed. Both it and the new `## [Unreleased]` check now match headings
+  at line start only.
+
 ## [1.19.0] - 2026-08-04
 
 ### Added

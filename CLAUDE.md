@@ -145,10 +145,15 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
 - When the MR changes what the `greenberry` plugin ships or how it behaves —
   `skills/`, `commands/`, `.claude-plugin/`, `hooks/`, a script a hook runs, or
   the ambient layer (`CLAUDE.md`, `rules/communication.md`,
-  `rules/project.md`, `rules/clean-architecture.md`) — bump the `version` in
-  `.claude-plugin/plugin.json` and add the matching `CHANGELOG.md` entry in
-  the same MR. The install path is version-keyed, so an unbumped release is
-  invisible in `/plugin` and indistinguishable from the previous one.
+  `rules/project.md`, `rules/clean-architecture.md`) — describe it under
+  `## [Unreleased]` in `CHANGELOG.md` and **do not touch the `version` in
+  `.claude-plugin/plugin.json`**. The number is assigned after merge, by
+  `node scripts/assign-plugin-version.mjs --write` in its own small release MR.
+  Claiming a version inside a content MR is what makes concurrent MRs collide:
+  every one of them edits the same manifest line and inserts at the same
+  changelog position, so whoever merges second conflicts and carries a number
+  that is already on `main` — and a version that goes backwards is invisible in
+  `/plugin`, since the install path is version-keyed.
 - An `ai-workflows` MR without that reviewer is not done. Confirm it with
   `glab mr view <iid> -R greenberrynl/config/ai-workflows` before reporting, and
   report the real MR URL — never claim an MR or a reviewer the CLI did not

@@ -114,16 +114,39 @@ upstream it here instead of letting that project drift.
 ## Ship A Plugin Release
 
 The `greenberry` plugin serves `skills/` and `commands/` straight from `main`, so
-every merged MR touching them is a release. Make releases visible:
+every merged MR touching them is already a release. The `version` does not
+*cause* the release — it makes it visible in `/plugin`, where the install path is
+version-keyed. That is why the number is assigned **after** merge, not in the MR
+that changes something.
 
-1. Bump `version` in `.claude-plugin/plugin.json` **in the same MR** — MAJOR for
-   breaking changes (removed/renamed skill or command, changed workflow
-   contract), MINOR for new skills/commands or notable behavior changes, PATCH
-   for fixes and wording.
-2. Add the matching `## [x.y.z] - YYYY-MM-DD` entry to
-   [`CHANGELOG.md`](../CHANGELOG.md).
-3. `./scripts/validate-ai-instructions.sh` errors when the manifest version has
-   no changelog entry, so pre-commit and CI both catch a missed step.
+In a content MR:
+
+1. Add your entry under `## [Unreleased]` in [`CHANGELOG.md`](../CHANGELOG.md),
+   using the normal `### Added` / `### Changed` / `### Fixed` headings.
+2. Leave `.claude-plugin/plugin.json` alone.
+
+To cut the release, in its own small MR:
+
+1. `node scripts/assign-plugin-version.mjs` — prints the plan and writes
+   nothing. It infers the bump from what accumulated under `## [Unreleased]`:
+   `### Removed` or a `BREAKING` marker is MAJOR (removed/renamed skill or
+   command, changed workflow contract), `### Added` is MINOR (new skills or
+   commands, notable behaviour changes), anything else is PATCH (fixes and
+   wording). Override with `--bump minor` or `--as 2.0.0` when judgment differs.
+2. `node scripts/assign-plugin-version.mjs --write` — renames the section to
+   `## [x.y.z] - YYYY-MM-DD`, leaves a fresh empty `## [Unreleased]` on top, and
+   bumps the manifest. Commit both files.
+
+Why not bump in the content MR: every MR would edit the same manifest line and
+insert at the same changelog position. Four concurrent MRs did exactly that on
+2026-08-05 — three claimed the same number, and whichever merged second both
+conflicted and shipped a version already on `main`.
+
+`./scripts/validate-ai-instructions.sh` guards the flow from both sides: it
+errors when the manifest version has no changelog entry, when `## [Unreleased]`
+is missing (content MRs would have nowhere to land), and when the changelog
+documents a version *above* the manifest — a release written by hand that
+`/plugin` will never serve.
 
 The bump covers everything the plugin delivers, not just `skills/` and
 `commands/`: `hooks/`, a script a hook runs, and the ambient layer (`CLAUDE.md`
