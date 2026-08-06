@@ -63,8 +63,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `start-project` | Single kickoff entry, six lanes: repository (GitLab template method, PoC waiver), config, resources, intent (brief/spec/architecture), journeys, first sliced plan | No (skill only) |
 | `setup-ai-workflows` | Set up or refresh a project's AI-workflow config: CONVENTIONS.md, thin adapters, type-safety deviation detection | Yes |
 | `upstream-rules` | Propose rule changes back to the ai-workflows repo | No (skill only) |
-| `improve-skill` | Fold durable session learnings back into workflow sources | No (skill only) |
-| `skill-opportunity` | Decide from working sessions whether a new skill or a skill update would be useful | No (skill only) |
+| `improve-skill` | Fold durable session learnings back into workflow sources; decide whether a recurring pattern deserves a new skill, an update, or a lighter surface | No (skill only) |
 | `backlog` | Draft or update a backlog item in `docs/backlog/` following the backlog rules and codebase context | Yes |
 | `work-backlog` | Deliver the next eligible backlog item with a WIP limit of one | Yes |
 | `refinement` | Prepare and record a backlog refinement grounded in tracker tickets and the codebase | Yes |

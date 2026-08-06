@@ -1,4 +1,0 @@
-interface:
-  display_name: "Skill Opportunity"
-  short_description: "Spot workflows worth turning into skills."
-  default_prompt: "Use $skill-opportunity to review session patterns and decide whether a new or updated skill is useful."

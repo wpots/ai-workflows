@@ -575,6 +575,32 @@ if (tracked.has(PLUGIN)) {
   warn(PLUGIN, "file not found; plugin version check skipped");
 }
 
+// ── "Enforced by nothing" ratchet ────────────────────────────────────────────
+// docs/pipeline-map.md honestly marks policies that no hook, validator, or CI
+// job backs. That honesty only works while the pile stays bounded: a new
+// unenforced policy either ships its enforcement or raises this budget in the
+// same MR, carrying a tracked follow-up for the enforcement it still owes.
+
+const PIPELINE_MAP = "docs/pipeline-map.md";
+const ENFORCED_BY_NOTHING_BUDGET = 1;
+if (tracked.has(PIPELINE_MAP)) {
+  // Match the row marker "— enforced by nothing" only, so prose *about* the
+  // budget (like the paragraph introducing it) does not count against it.
+  const unenforced = [...read(PIPELINE_MAP).matchAll(/— enforced by nothing/gi)]
+    .length;
+  if (unenforced > ENFORCED_BY_NOTHING_BUDGET) {
+    err(
+      PIPELINE_MAP,
+      `${unenforced} policies are marked "enforced by nothing" (budget: ${ENFORCED_BY_NOTHING_BUDGET}) — ship the enforcement (hook, validator check, CI job) or raise ENFORCED_BY_NOTHING_BUDGET in the same MR with a tracked follow-up`,
+    );
+  } else if (unenforced < ENFORCED_BY_NOTHING_BUDGET) {
+    warn(
+      PIPELINE_MAP,
+      `only ${unenforced} "enforced by nothing" policies remain — lower ENFORCED_BY_NOTHING_BUDGET to ${unenforced} to lock in the progress`,
+    );
+  }
+}
+
 // ── Report ───────────────────────────────────────────────────────────────────
 
 if (warnings.length > 0) {

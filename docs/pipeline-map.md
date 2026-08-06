@@ -111,7 +111,7 @@ exists. That is the eighth lane:
 ```mermaid
 flowchart LR
   friction["Friction in any phase<br/><small>correction, retry, workaround</small>"]
-  learn["skills/improve-skill<br/>skills/skill-opportunity"]
+  learn["skills/improve-skill"]
   upstream["skills/upstream-rules<br/>skills/upstream-to-unicore"]
   gate{{"GitLab MR<br/>reviewer wieteke.pots"}}
   ctx["Shared context layer<br/><small>rules · skills · commands · templates</small>"]
@@ -355,10 +355,16 @@ which is exactly why an AI-authored change gets neither skipped.
 
 ### Improve — maintaining the pipeline
 
+Rows whose *Invoked by* cell carries the marker `enforced by nothing` (after
+an em-dash) are budgeted: `scripts/validate-skills.mjs` counts that marker and
+fails when the count exceeds its `ENFORCED_BY_NOTHING_BUDGET`. A new
+unenforced policy either ships its enforcement or raises the budget in the
+same MR with a tracked follow-up — the label stays honest because the pile
+cannot silently grow.
+
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
-| `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"` · **policy says** after any run that needed intervention — enforced by nothing | Post-run retrospective: fold friction back into the skill's canonical source, or author a new skill |
-| `skills/skill-opportunity` | skill | `/skill-opportunity` · `"learn from sessions"`, `"spot repeated patterns"` | Decide from working sessions whether a new or updated skill is warranted |
+| `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"`, `"learn from sessions"` · **policy says** after any run that needed intervention — enforced by nothing | Post-run retrospective: fold friction back into the skill's canonical source, decide whether a recurring pattern deserves a new skill or a lighter surface, and author the new skill when warranted |
 | `skills/component-spec/evals/evals.json` | evals | **nothing** — prompts and assertions exist, no runner and no CI job | The seed of the missing Skill-change-health gate: the only skill in the repo whose behaviour is written down as checkable cases |
 | `skills/upstream-rules` | skill | `/upstream-rules` · `"propose rule"` · **should** fire whenever a shared asset is edited in a synced project | Propose a rule/skill change back to this repo as a GitLab MR |
 | `skills/upstream-to-unicore` | skill | `/upstream-to-unicore` · `"port to unicore"` | Port a reusable change into `unicore-template` |
