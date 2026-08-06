@@ -106,6 +106,13 @@ If a template is found, use its structure as the body skeleton and fill in each
 section from the diff analysis. Keep any headings or checkboxes the template
 defines.
 
+The resolved template's headings stay the skeleton even when another skill
+layers description requirements on top (work-backlog's BLI link,
+acceptance-criteria checklist, `How to verify` steps, slice status): map that
+content into the template's sections, never into invented top-level headings
+beside them. Sections the content genuinely doesn't need are removed, not left
+empty — but a required section is never replaced by a free-form one.
+
 The bundled fallback template (`templates/pull_request_template.md`) ships with
 this repo and is always available as a last resort.
 
@@ -254,7 +261,20 @@ glab mr create \
 > `--body-file` flow in `references/push-and-mr-mechanics.md` (this skill's
 > directory) instead of inline flags.
 
-4. Output the PR/MR URL on success.
+4. **Read the PR/MR back before reporting.** Run `glab mr view <iid>`
+   (GitLab) or `gh pr view` (GitHub) and confirm what the platform actually
+   stored — the create call having been issued is not evidence (MRs have
+   shipped with the label dropped and the template's headings replaced by
+   free-form ones despite both being mandated):
+   - the `ai:agent-authored` label is on it — repair with
+     `glab mr update <iid> --label "ai:agent-authored"` /
+     `gh pr edit <num> --add-label "ai:agent-authored"` when it is not;
+   - the description carries the resolved template's headings — repair via the
+     file-based description update in `references/push-and-mr-mechanics.md`
+     when it does not;
+   - the reviewer, when the repo's policy names one (see above).
+   Report only what the read-back confirmed.
+5. Output the PR/MR URL on success.
 
 ### 8. Fallbacks When the CLI Is Unavailable
 
@@ -334,7 +354,8 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | --- | --- | --- |
 | PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
 | Reviewer requested | ✅ | `<username>`, verified — or ➖ when the repo has no reviewer policy |
-| Provenance label | ✅ | `ai:agent-authored` set — or ⚠️ with the reason when labelling failed |
+| Provenance label | ✅ | `ai:agent-authored`, confirmed on read-back — or ⚠️ with the reason when labelling failed |
+| Template followed | ✅ | `<resolved template path>`, headings confirmed on read-back |
 | Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
 | Checks | ✅ | lint ✓ · type-check ✓ · test ✓ |
 | Migration | ➖ | none needed / added `<name>` |

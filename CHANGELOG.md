@@ -91,6 +91,23 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   author-side fixes before the MR opens: strip reviewer-facing comments (the
   justification goes in the MR description) and move single-consumer
   `utils/`/`lib/`/`constants/` files into the feature module.
+- The bundled PR/MR template (`templates/pull_request_template.md`) gained the
+  sections `skills/work-backlog` requires but had no home for — `## How to
+  verify` (absorbing `## Testing`), `## Backlog`, and `## Scope` — and both
+  skills now pin that contract: work-backlog step 9 fills the resolved
+  template's sections instead of stating free-form content requirements, and
+  create-pr step 5 keeps the template's headings as the skeleton even when
+  another skill layers description requirements on top. Root cause of agent
+  MRs shipping with invented headings (observed on postergenerator-starter
+  !15): the two contracts could not both be satisfied, so agents free-formed.
+- `skills/create-pr` step 7 now reads the created PR/MR back (`glab mr view` /
+  `gh pr view`) before reporting and repairs what the platform didn't store:
+  the `ai:agent-authored` provenance label, the template's headings, the
+  policy reviewer. The same !15 shipped with zero labels despite the label
+  being mandated — a create-time instruction is not evidence; a read-back is.
+  The recap gains a "Template followed" row. The `commands/create-pr.md` and
+  `commands/work-backlog.md` fallbacks mirror all of the above, including the
+  provenance label their create calls never carried.
 
 ### Fixed
 

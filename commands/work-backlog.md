@@ -38,9 +38,11 @@ implement → verify → merge request. Stop after one MR; humans review and mer
 8. **Close out** — flip the BLI to `done`; after the MR exists, append its URL
    to the BLI's `## Related` and push.
 9. **MR** — follow `commands/create-pr.md` (rebase onto base, MR template);
-   title conventional; description links the BLI and maps the diff to its
-   acceptance criteria; draft + "Blocked on" section when rule 5/6 applies.
-   Autonomous run: skip the interactive approval pause.
+   title conventional; description fills the resolved template's sections
+   (`## Backlog`: BLI link + checked acceptance criteria; `## How to verify`:
+   the BLI's steps; `## Scope`: slice status) — no invented headings; draft +
+   "Blocked on" section when rule 5/6 applies. Autonomous run: skip the
+   interactive approval pause.
 10. **Notify** — rely on the repo's GitLab→Slack integration if configured;
     else post the MR link to the merge-request channel if a Slack tool is
     available; else note it in the report.

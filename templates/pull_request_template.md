@@ -2,6 +2,12 @@
 
 <!-- 2-3 sentence overview of what this PR does and why -->
 
+## Scope
+
+<!-- Only when this PR delivers one slice of a larger ticket: which slice,
+which ticket, and what the remaining slices still cover — a reviewer who does
+not know that reads the diff as an incomplete feature. Remove if not a slice. -->
+
 ## Changes
 
 ### Features
@@ -20,13 +26,19 @@
 
 <!-- Migration steps if applicable. Remove section if none. -->
 
-## Testing
+## How to verify
 
-- [ ] Tested locally
+<!-- Concrete, reproducible steps: the commands run and what they reported,
+the route to open (as which role) and the observable result. Check a box only
+for a step that was actually run. -->
+
 - [ ] Existing tests pass
 - [ ] New tests added (if applicable)
 
-<!-- Describe what was tested and any areas that need extra attention -->
+## Backlog
+
+<!-- Link the backlog item (BLI) this PR delivers and list its acceptance
+criteria as a checked list. Remove section if none. -->
 
 ## Notes
 
