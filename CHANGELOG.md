@@ -6,15 +6,36 @@ plus the scripts they run, and the ambient layer those hooks deliver
 (`CLAUDE.md` and the universal `rules/` subset).
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are
-plain semver. Bump `version` in `.claude-plugin/plugin.json` and add the entry
-here **in the same MR** whenever a change alters what the plugin ships. See
-"Ship a plugin release" in `docs/contributing.md` for the bump rule.
-Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
+plain semver. Describe the change under `## [Unreleased]` **in the same MR**
+whenever it alters what the plugin ships; do not touch the `version` in
+`.claude-plugin/plugin.json` — the number is assigned after merge by
+`scripts/assign-plugin-version.mjs` in its own release MR. See "Ship a plugin
+release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
+`docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+### Removed
+
+- `skills/skill-opportunity` — absorbed into `skills/improve-skill` as its
+  "Deciding Whether a Skill Is Warranted" section (the 3-of-7 rubric, the
+  smallest-durable-surface ladder, the skill brief). Two meta-skills answering
+  "what did this session teach us" split the same lesson across two homes that
+  drift, and both descriptions competed for the same trigger phrases. Same
+  reasoning that removed `sprint-board` in 1.16.0: a skill description's cost
+  is permanent — loaded into every session of every synced project — so
+  overlapping meta-skills tax routing accuracy everywhere. All former triggers
+  (`skill opportunity`, `learn from sessions`, `spot workflow patterns`,
+  `should this be a skill`) now route to `skills/improve-skill`.
+
 ### Added
 
+- `scripts/validate-skills.mjs` now budgets the pipeline-map's "enforced by
+  nothing" policies (`ENFORCED_BY_NOTHING_BUDGET`): a new unenforced policy
+  either ships its enforcement (hook, validator check, CI job) or raises the
+  budget in the same MR with a tracked follow-up, and the validator warns when
+  the budget can ratchet down. Honest labelling of unenforced policy only
+  works while the pile cannot silently grow.
 - `scripts/assign-plugin-version.mjs` assigns the plugin version after merge
   from whatever accumulated under `## [Unreleased]`, inferring MAJOR/MINOR/PATCH
   from the section headings (`--bump` / `--as` override, dry run by default).
@@ -64,6 +85,9 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
 
 ### Fixed
 
+- The changelog's own header still instructed bumping `version` in the same
+  MR, contradicting the post-merge assignment flow adopted above; it now
+  describes the `[Unreleased]` flow.
 - The changelog-entry check matched a version anywhere in the file, so prose
   mentioning `## [1.2.3]` in backticks satisfied it and a missing release
   heading passed. Both it and the new `## [Unreleased]` check now match headings

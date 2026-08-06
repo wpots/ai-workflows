@@ -1,6 +1,6 @@
 ---
 name: improve-skill
-description: Post-run retrospective for any skill or command. Collects friction from the session (user interventions, corrections, failed commands, retries) and folds durable learnings back into the skill's canonical source so the next run needs less hand-holding, and authors a new skill when the session surfaced a reusable technique none covers. Runs automatically after any skill run that required user intervention. Use when a skill or command run needed correction, its canonical source should absorb the learnings, or a new skill should be created.
+description: Post-run retrospective for any skill or command. Collects friction from the session (user interventions, corrections, failed commands, retries) and folds durable learnings back into the skill's canonical source so the next run needs less hand-holding, decides whether a recurring pattern deserves a new skill, an update, or a lighter surface, and authors the new skill when one is warranted. Runs automatically after any skill run that required user intervention. Use when a skill or command run needed correction, its canonical source should absorb the learnings, a new skill should be created, or the user asks to learn from sessions, spot workflow patterns, evaluate a skill opportunity, or decide whether something should be a skill.
 ---
 
 # Improve Workflow Skills
@@ -66,6 +66,35 @@ If a run had zero friction, skip silently — do not touch the skill.
 7. **Report once**: which files changed and the learnings captured, one line
    per learning, including which compound artifacts (check/eval/solution
    note) each produced.
+
+## Deciding Whether a Skill Is Warranted
+
+Turn session evidence into one of four recommendations: no new asset, update an
+existing skill, create a new skill, or use a lighter surface. Ground the
+decision in repeated friction, not in a single interesting task; when the only
+evidence is the current session, say the confidence is low.
+
+Create or update a skill when at least three of these hold:
+
+- the workflow appeared in multiple sessions, or will clearly recur
+- success depends on procedural steps that are easy to forget or reorder
+- the task needs repo, domain, or tool knowledge general reasoning lacks
+- the agent repeatedly asks the same questions or misses the same constraint
+- the workflow benefits from bundled references, scripts, or templates
+- outcome quality depends on validation steps or stopping points
+- the workflow must be shared across tools (Claude, Copilot, Cursor, Codex)
+
+Pick the smallest durable surface, in this order: existing-skill update → new
+skill → command/runbook → rule → project documentation → nothing. Do not
+create for one-offs, for patterns still too vague for a concrete example, or
+for anything a lint/validation rule can enforce instead — and never duplicate
+an existing skill under a slightly different name: every skill description
+loads into every session and competes with all others for routing, so each
+addition taxes routing accuracy everywhere.
+
+When recommending without implementing, output a short brief: decision,
+confidence, candidate name, trigger description, 4-8 workflow steps,
+resources, adapters, validation, risks.
 
 ## Creating a New Skill
 

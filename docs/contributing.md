@@ -74,6 +74,22 @@ Useful variants:
 If a synced project changed a shared workflow file in a generally reusable way,
 upstream it here instead of letting that project drift.
 
+## Process Documentation
+
+Three rules keep process docs trustworthy:
+
+- **Document what is, not what should be.** A doc describes behaviour that is
+  true today; aspirations go to `docs/backlog/` until they ship. A rule that
+  is not true yet teaches readers to discount the rules that are.
+- **Every process doc names its trigger surface** — who reads it and when (a
+  skill step, a validator, an onboarding path). A doc with no honest answer
+  merges into one that has one, or is deleted.
+- **Empirical hard rules carry their evidence**: date observed, tool version,
+  and the exact error string — so a later contradicting observation is a
+  diagnosis, not a coin toss between two hard-won rules. Once the rule is
+  mechanically checkable, add the check and shrink the prose to a pointer at
+  it.
+
 ## Add Or Update A Command
 
 1. Edit the runbook in `commands/`.

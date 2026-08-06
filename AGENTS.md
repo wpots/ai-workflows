@@ -106,7 +106,7 @@ cross-reference, so it still needs its own line.
 - `commit message`, `write commit`, `git commit` -> `skills/commit-message` (canonical), `commands/commit-message.md` (fallback)
 - `component spec`, `spec component`, `write spec`, `document component api` -> `skills/component-spec` (skill only)
 - `create pr`, `open pr`, `submit pr` -> `skills/create-pr` (canonical), `commands/create-pr.md` (fallback)
-- `improve skill`, `take learnings`, `verbeter je skill` -> `skills/improve-skill` (skill only)
+- `improve skill`, `take learnings`, `verbeter je skill`, `skill opportunity`, `learn from sessions`, `spot workflow patterns`, `should this be a skill` -> `skills/improve-skill` (skill only; also decides whether a recurring pattern deserves a new skill, an update, or a lighter surface)
 - `jira ticket`, `maak een jira ticket`, `file a bug`, `meld een bug`, `create a story`, `create a task` -> `skills/jira-ticket` (skill only; writes to the tracker, so it confirms before creating)
 - `maintenance`, `project maintenance`, `onderhoud`, `maintenance sweep`, `monthly check`, `health check`, `api key check` -> `skills/maintenance` (skill only; delegates the dependency lane to `skills/npm-maintenance`)
 - `migration check`, `check migration`, `verify migration`, `migration already exists` -> `skills/migration-check` (skill only)
@@ -117,7 +117,6 @@ cross-reference, so it still needs its own line.
 - `run checks`, `run-checks`, `quality checks` -> `skills/run-checks` (canonical), `commands/run-checks.md` (fallback)
 - `new component`, `scaffold`, `create component` -> `skills/scaffold-component` (canonical), `commands/scaffold-component.md` (fallback)
 - `apply ai-workflows`, `setup ai-workflows`, `generate conventions`, `refresh project config` -> `skills/setup-ai-workflows` (canonical), `commands/setup-ai-workflows.md` (fallback); the config lane only — a whole new project starts with `skills/start-project`
-- `skill opportunity`, `learn from sessions`, `spot workflow patterns`, `should this be a skill` -> `skills/skill-opportunity` (skill only)
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `skills/sprint-demo` (canonical), `commands/sprint-demo.md` (fallback)
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `skills/sprint-planning` (canonical), `commands/sprint-planning.md` (fallback)
 - `start project`, `new project`, `init project`, `setup project`, `initialize project`, `project kickoff`, `project brief`, `project spec`, `nieuw project`, `project opzetten` -> `skills/start-project` (skill only; the single kickoff entry — it runs `skills/setup-ai-workflows`, writes brief/spec/architecture, and hands the journeys to `skills/user-journeys`)
