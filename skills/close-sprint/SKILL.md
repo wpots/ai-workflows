@@ -46,10 +46,15 @@ share the same workflow; Copilot follows the runbook directly.
 
 ## Output
 
-A changelog at `docs/sprint-<N>-changelog.md`, a gaps document at
-`docs/sprint-<N>-gaps.md` (including the Phase 8 stale-branch and worktree
-overview), delivered BLIs relocated to `docs/sprint-<N>/` with updated status
-and authors, and a list of spillover items prepared for the Phase 7 walkthrough.
+A changelog at `docs/sprint-<N>-changelog.md` following the "Changelog
+template" section of the runbook, a gaps document at `docs/sprint-<N>-gaps.md`
+(including the Phase 8 stale-branch and worktree overview), delivered BLIs
+relocated to `docs/sprint-<N>/` with updated status and authors, and a list of
+spillover items prepared for the Phase 7 walkthrough.
+
+Sprint folders older than the previous sprint are compacted by
+`skills/compact-sprint` — a separate, explicitly invoked lane; never compact
+as part of the close.
 
 ## Cleanup safety
 

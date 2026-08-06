@@ -30,6 +30,16 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Added
 
+- `skills/compact-sprint` + `commands/compact-sprint.md` — compact old sprint
+  documentation. Delivered BLIs mix ephemeral content (status, commits,
+  how-to-test) with durable decisions; once a sprint is older than the
+  previous one (retention guard — never the current or previous sprint), the
+  lane flags durable content as `docs/todo/` follow-ups, rewrites the sprint
+  changelog to the shared compact template, and removes the sprint folder
+  behind a `sprint-<N>-bli-archive` git tag with a documented `git show`
+  retrieval path. Born in RefugeeWork: five sprint folders ≈ 130 delivered
+  BLIs polluting every search with stale acceptance criteria and outdated
+  technical notes.
 - `scripts/validate-skills.mjs` now budgets the pipeline-map's "enforced by
   nothing" policies (`ENFORCED_BY_NOTHING_BUDGET`): a new unenforced policy
   either ships its enforcement (hook, validator check, CI job) or raises the
@@ -56,6 +66,14 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/close-sprint` / `commands/close-sprint.md` — Phase 3 now writes the
+  sprint changelog from an explicit compact template (new "Changelog template"
+  section in the runbook, shared with `compact-sprint`) instead of "mirror the
+  structure of sprint-1's changelog": one functional sentence per delivered
+  row, deviations and accountability as bullets outside the tables, ticketless
+  rows self-contained, target size under 15 KB. RefugeeWork's sprint-5
+  changelog had grown to 60 KB because BLI and tracker content leaked into
+  table cells.
 - `skills/code-review` now reviews workflow-asset MRs (skills, commands,
   rules, hooks) through an explicit **Value & Maturity** lens, reported as an
   eighth output section: frequency × cost of the failure addressed, platform

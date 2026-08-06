@@ -103,14 +103,11 @@ For each ticket:
 
 ## Phase 3 — Draft the sprint changelog
 
-Create `docs/sprint-<N>-changelog.md` mirroring the structure of
-`docs/sprint-1-changelog.md`:
-
-- Short intro paragraph.
-- `## Delivered in Sprint <N>` — markdown table with columns `Ticket`,
-  `Backlogitem`, `Opgeleverd`. Include **only** `delivered` items.
-- `## Review Evidence` — bullet list of grouped code paths that reviewers can
-  open to verify delivery.
+Create `docs/sprint-<N>-changelog.md` from the template in
+[Changelog template](#changelog-template) at the end of this runbook, following
+its filling rules. Include **only** `delivered` items in the tables — spillover
+and gaps belong in the Phase 4 document. When existing changelogs in the
+project predate the template, follow the template, not the neighbour.
 
 ## Phase 4 — Draft the gaps and spillover document
 
@@ -306,3 +303,69 @@ End with a concise list of:
 - New docs created during Phase 7
 - Stale branch / worktree count from Phase 8
 - Items still open that need user follow-up
+- Sprints now older than the previous one, as candidates for
+  `commands/compact-sprint.md` (never run it as part of the close)
+
+## Changelog template
+
+Shared by this runbook (Phase 3, writing new changelogs) and
+`commands/compact-sprint.md` (Phase 3, rewriting old ones). The section
+structure and filling rules are normative; the labels follow the project's
+changelog language — the example is Dutch, matching existing sprint
+changelogs.
+
+````markdown
+# Sprint <N> Changelog
+
+- **Venster:** <start> t/m <eind>
+- **Geverifieerd:** <datum>, `development` @ `<sha>` (tracker read-only)
+- **Tracker-set:** <X> tickets op <assignee>; <Y> geleverd, <Z> spillover (zie gaps)
+
+## Opgeleverd
+
+| Ticket  | Wat                                              | Bewijs            | Status        |
+| ------- | ------------------------------------------------ | ----------------- | ------------- |
+| RFW-134 | Onboarding-stap "Opleiding" incl. datumvalidatie | `51445485`        | In Acceptance |
+| RFW-222 | robots.ts sluit privé-routes uit                 | `5a2fdca6` / !329 | Done          |
+
+## Ticketloos opgeleverd
+
+| Wat                                                      | Bewijs            |
+| -------------------------------------------------------- | ----------------- |
+| Vacature-overzicht toont alleen publiek-actieve vacatures | `a54603c8` / !348 |
+
+## Afwijkingen & vervolg
+
+- RFW-M: partieel — `priority`-prop bestaat, geen call-site gebruikt hem.
+
+## Verantwoording
+
+- RFW-30, RFW-59, … (16 st.): al gerapporteerd in sprint <N-1>, niet herhaald.
+- RFW-197/198: Done zonder commit — bevestigd niet-code (dashboard-config).
+
+## Review evidence
+
+- Onboarding: `src/modules/Wizard/`
+
+## Archief
+
+- BLI's van deze sprint: `git show sprint-<N>-bli-archive:docs/sprint-<N>/<file>`
+````
+
+Filling rules:
+
+- **"Wat" is one sentence, ~100 characters max**, phrased functionally (what
+  can the user or PO see or do now). Implementation detail belongs in the
+  tracker or the BLI, not here.
+- **Ticketless rows must be self-contained** — after compaction that row is
+  the only spec besides the git tag.
+- **No ⚠️ prose inside table cells**: deviations, partials, and follow-up work
+  go to "Afwijkingen & vervolg", one bullet per item.
+- **"Verantwoording" is a bullet list, not a narrative intro**: one bullet per
+  case (already reported in an earlier sprint, done-without-commit,
+  cross-assignee delivery).
+- **Target size: under 15 KB per changelog.** Larger means BLI or tracker
+  content is leaking into it.
+- The `## Archief` section is added by compact-sprint, not at close time;
+  while the sprint folder exists, BLIs live at `docs/sprint-<N>/` and need no
+  per-row path column.
