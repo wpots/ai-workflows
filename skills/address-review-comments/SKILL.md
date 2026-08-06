@@ -123,6 +123,13 @@ sanity check; let the hooks/command run the full suite on commit/push.
 > manually, never generate or apply them — make the code change only, and if a
 > check legitimately reports pending migrations, **stop and tell the user**.
 
+**Evidence rule — "done" is a shown check, not a claim.** The closing report
+lists, per comment: what changed (`file:line`) and the check that proves it —
+the command run and the tail of its real output, on the exact commit pushed
+(`git rev-parse --short HEAD`). A comment addressed without a runnable check
+(pure wording, docs) says so explicitly instead of borrowing the suite's
+green.
+
 ### 7. Commit & push
 
 Conventional commit referencing the MR/PR. Co-author trailer as per global

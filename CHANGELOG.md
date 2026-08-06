@@ -29,6 +29,18 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
   manifest line at the same changelog position: on 2026-08-05 three open MRs
   claimed 1.19.0 at once, so whichever merged second conflicted and carried a
   version already on `main`.
+- Verification is evidence, not claims — the Anthropic verification-loop
+  discipline applied to the two remaining report seams:
+  - `skills/run-checks` — the closing table names the exact commit verified
+    and quotes the tail of each check's real output; a sweep that ran before
+    later edits verified nothing.
+  - `skills/address-review-comments` — the closing report shows, per
+    comment, the change (`file:line`) plus the command and output tail that
+    prove it on the pushed commit; wording-only fixes say so instead of
+    borrowing the suite's green.
+  (`skills/work-backlog` already got this in 1.8.0 via its evidence-based
+  `How to verify`; `skills/create-pr` in 1.11.1 via the exact-commit hook
+  rule.)
 
 ### Fixed
 

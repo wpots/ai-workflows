@@ -19,7 +19,12 @@ tools. The matching command runbook is a compatibility and fallback surface.
 - Show error output and failing command.
 - Stop and ask whether to `fix`, `skip`, or `abort`.
 5. Continue automatically after successful checks.
-6. End with a summary table of pass/fail/skip.
+6. End with a summary table of pass/fail/skip, **anchored to evidence**:
+   - name the exact commit verified (`git rev-parse --short HEAD`) — a sweep
+     that ran before later edits verified nothing;
+   - per check, quote the tail of the real output (the line with counts:
+     tests passed, files linted, build result) — never a bare "passed";
+   - a check that was skipped or scoped says so in the table, explicitly.
 
 ## Constraints
 
