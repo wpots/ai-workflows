@@ -20,6 +20,18 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
   from the section headings (`--bump` / `--as` override, dry run by default).
   Skill validation now also fails when `## [Unreleased]` is missing or when the
   changelog documents a version above the manifest.
+- Redundant-comment policy ("What A New Comment May Say" in
+  `rules/documentation.md`): a comment added by a change must state something
+  the code cannot show. Restating the adjacent code, arguing the change's
+  correctness to the reviewer, file-header essays, and density that breaks the
+  sibling register are findings, not style nitpicks — the justification moves
+  to the MR description. Density of *existing* comments stays out of scope.
+- Shared-layer placement rule ("Shared Layers Are Earned, Not Claimed" in
+  `rules/project.md`, plus a Next.js DoD checkbox and review flag): files under
+  `utils/`/`lib/`/`constants/` need at least two unrelated consumers —
+  single-consumer helpers co-locate in the feature's module, promotion happens
+  in the MR that adds the second consumer, and `utils/<feature>/` is named as
+  the tell.
 
 ### Changed
 
@@ -41,6 +53,14 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't bump.
   (`skills/work-backlog` already got this in 1.8.0 via its evidence-based
   `How to verify`; `skills/create-pr` in 1.11.1 via the exact-commit hook
   rule.)
+- `skills/code-review` executes the two new rules: step 6 flags reviewer-facing
+  added comments, step 5 checks new shared-layer files for a second consumer,
+  and the constraints section names both as substantive rather than style. The
+  `commands/review-code.md` fallback mirrors both checks.
+- `skills/work-backlog` step 7 (self-review) now names both classes as
+  author-side fixes before the MR opens: strip reviewer-facing comments (the
+  justification goes in the MR description) and move single-consumer
+  `utils/`/`lib/`/`constants/` files into the feature module.
 
 ### Fixed
 

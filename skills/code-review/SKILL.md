@@ -77,6 +77,11 @@ If none exists, ask the user which base branch to use.
      locale-prefixed URL strings)
    - component prop interfaces in `types.ts`, never inline in the `.tsx`
    - one transform per module; hooks hold client state only
+   - new files under `utils/`, `lib/`, or `constants/` have a second consumer
+     outside the owning feature — a single-consumer helper (and its test)
+     belongs in the feature's module folder, and a feature-named subfolder
+     under a shared layer (`utils/<feature>/`) is the tell ("Shared Layers
+     Are Earned, Not Claimed" in `rules/project.md`)
    If a violation is pre-existing neighbour code the diff didn't introduce,
    note it as a suggested follow-up rather than a blocking finding (see
    "Conform to the rule, not the neighbour" in `rules/clean-architecture.md`).
@@ -88,6 +93,12 @@ If none exists, ask the user which base branch to use.
    - JSDoc on changed signatures (parameters, return type, thrown errors)
    - repo docs (`README`, `CONVENTIONS.md`, `AI-WORKFLOWS.md`, `docs/*`) that
      describe the changed behaviour
+   - comments the diff **adds** that restate the adjacent code, argue why the
+     change is correct ("shared on purpose", "deliberately", "is the point"),
+     essay-length file headers duplicating the MR description, or comments
+     that out-density their siblings on the same kind of construct — per
+     "What A New Comment May Say" in `rules/documentation.md`; recommend
+     deletion and moving any justification into the MR description
    A comment that contradicts the code is a defect: report it with the file
    reference and the concrete stale sentence, and recommend updating it in
    this MR — or deleting it when it cannot be made true cheaply.
@@ -176,7 +187,9 @@ Mechanics (hard-won; do not deviate):
 
 ## Constraints
 
-- Focus on substantive issues; skip style-only nitpicks.
+- Focus on substantive issues; skip style-only nitpicks. Redundant **added**
+  comments and single-consumer files in shared layers are substantive, not
+  style — they cost a review round-trip every time (steps 5–6).
 - Do not edit code unless explicitly requested.
 - Never post to the MR before the user asks; after they ask, never stop
   halfway to ask again.

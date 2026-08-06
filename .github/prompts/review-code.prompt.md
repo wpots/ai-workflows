@@ -61,6 +61,10 @@ Always check for:
   defect; report the concrete stale sentence with its file reference, and
   recommend updating it in the same MR or deleting it when it cannot be made
   true cheaply (repo-wide doc audits stay with `skills/maintenance`)
+- comments the diff **adds** that restate the adjacent code, argue why the
+  change is correct, or out-density their siblings — per "What A New Comment
+  May Say" in `rules/documentation.md`, recommend deletion and moving the
+  justification into the MR description
 
 ## Architecture Conformance Pass
 
@@ -79,6 +83,10 @@ and report violations as findings:
   locale-prefixed URL strings)
 - component prop interfaces in `types.ts`, never inline in the `.tsx`
 - one transform per module; hooks hold client state only
+- new files under `utils/`, `lib/`, or `constants/` have a second consumer
+  outside the owning feature; single-consumer helpers (and their tests) belong
+  in the feature's module folder ("Shared Layers Are Earned, Not Claimed" in
+  `rules/project.md`)
 
 If a violation is pre-existing neighbour code the diff didn't introduce, note
 it as a suggested follow-up rather than a blocking finding (see "Conform to
