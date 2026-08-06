@@ -98,6 +98,11 @@ Look for a body template in this order:
 
 If found, use its structure and fill in sections from the diff. If not, use the default structure below.
 
+The template's headings stay the skeleton even when another runbook layers
+description content on top (e.g. `commands/work-backlog.md`'s BLI link and
+`How to verify` steps): map that content into the template's sections, never
+into invented top-level headings beside them.
+
 ## Fallback PR Description (default)
 
 Ticket link: extract `^([A-Z]+-[0-9]+)` from the branch name; if a tracker
@@ -146,8 +151,12 @@ Applies on every run, including updates to an existing PR/MR.
    - First push: `git push -u <remote> HEAD`
    - After a rebase rewrote history: `git push --force-with-lease <remote> HEAD`
 3. Create the PR/MR:
-   - GitHub: `gh pr create --base <base> --title "<title>" --body "<body>"`
-   - GitLab: `glab mr create --target-branch <base> --title "<title>" --description "<body>"`
+   - GitHub: `gh pr create --base <base> --title "<title>" --body "<body>" --label "ai:agent-authored"`
+   - GitLab: `glab mr create --target-branch <base> --title "<title>" --description "<body>" --label "ai:agent-authored"`
+   - The `ai:agent-authored` label is the only provenance signal that survives
+     a squash merge. GitLab creates a missing label on the fly; GitHub needs
+     `gh label create "ai:agent-authored" --color 6f42c1` once if `gh` rejects
+     it. If labelling still fails, create the PR/MR without it and say so.
    - Long bodies: don't pass them inline (quoting breaks, oversized arguments
      can crash agent permission flows). GitHub: use `--body-file <file>`.
      GitLab: create the MR in one API call with the body read from a file:
@@ -165,7 +174,12 @@ Applies on every run, including updates to an existing PR/MR.
      `greenberrynl/the-greenhouse/unicore-template` — gets no `--reviewer` flag:
      the human assigns the reviewer. Never push straight to the base branch in
      either canonical config repo.
-4. Output the PR/MR URL on success.
+4. Read the PR/MR back before reporting (`glab mr view <iid>` / `gh pr view`):
+   confirm the `ai:agent-authored` label, the template's headings in the
+   description, and the reviewer where policy names one. Repair what is
+   missing (`glab mr update` / `gh pr edit`) — report only what the read-back
+   confirmed.
+5. Output the PR/MR URL on success.
 
 ### No-CLI fallbacks
 

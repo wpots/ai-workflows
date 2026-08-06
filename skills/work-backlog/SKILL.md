@@ -187,13 +187,19 @@ Use the create-pr skill (it handles rebase onto base, MR templates, push, and
 `glab mr create` / fallbacks). Additionally:
 
 - Title: conventional (`feat(session): create & join a session room`).
-- Description must link the BLI file and map the diff to its acceptance
-  criteria (checked list), and repeat the `How to verify` steps so a reviewer can
-  reproduce them without opening the BLI. Note the preview URL if the platform
-  provides one.
-- When the BLI is one slice of several, say so: which slice, which ticket, what
-  the remaining slices still cover. A reviewer who does not know that will read
-  the diff as an incomplete feature.
+- Description: fill the sections of the template create-pr resolves — never
+  invent your own top-level headings; free-forming the structure is how agent
+  MRs drift off the template. With the bundled fallback template:
+  - `## Backlog` — link the BLI file and map the diff to its acceptance
+    criteria as a checked list.
+  - `## How to verify` — repeat the BLI's `How to verify` steps so a reviewer
+    can reproduce them without opening the BLI. Note the preview URL if the
+    platform provides one.
+  - `## Scope` — when the BLI is one slice of several: which slice, which
+    ticket, what the remaining slices still cover. A reviewer who does not
+    know that will read the diff as an incomplete feature.
+  When the project ships its own MR template, map the same content into its
+  closest headings instead.
 - Draft MR + a **Blocked on** section when Contract #5 or #6 applies.
 - This is an autonomous run: skip create-pr's interactive approval pause —
   the MR itself is the review surface.
