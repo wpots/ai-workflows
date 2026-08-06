@@ -120,6 +120,50 @@ boundaries, no unsafe assertions, and exhaustive handling of variants.
 Documentation findings quote the concrete stale sentence with its file
 reference — never a generic "check your docs".
 
+When the diff adds or grows a workflow asset (see the next section), append an
+eighth section: `Value & Maturity`.
+
+## Reviewing Workflow-Asset MRs (skills, commands, rules)
+
+When the diff adds or grows a skill, command, rule, or hook — in this repo, in
+`unicore-template`, or in a project's `.claude/` — correctness review alone is
+not enough: prose that instructs agents is product code, and every skill
+description loads into every session of every synced project. Add a
+**Value & Maturity** section to the review output, answering each question
+explicitly:
+
+1. **Frequency × cost** — how often does the failure it addresses occur, and
+   what does one occurrence cost? Rare-but-catastrophic earns its place; a
+   one-off inconvenience does not.
+2. **Platform overlap** — does the harness already solve this (auto-compact,
+   session resume, worktree isolation, hooks)? Codifying a workaround for a
+   platform feature is a maturity smell. Verify against current tool
+   behaviour, not memory.
+3. **Prevention or recovery** — prefer the change that stops the failure over
+   the one that cleans up after it. A recovery-only addition says why
+   prevention is not possible.
+4. **Ambient-context cost** — does the benefit clear the cost of one more
+   always-loaded description, or does this belong as a section or reference
+   file of an existing skill? Flag overlap with existing skills' trigger
+   phrases: overlapping descriptions cause mis-routing and under-triggering.
+5. **Measurability** — how will the team know it paid off? An eval case, a
+   validator check, or a named metric beats "we'll notice". "Enforced by
+   nothing" is acceptable only with a tracked follow-up.
+6. **Personal vs team surface** — personal tooling stays in personal skills; a
+   shared skill keeps at most a gated one-line hook to it.
+7. **Reproducibility** — is a new hard rule a reproduced finding or a single
+   observation? Single observations carry their evidence (date, tool version,
+   exact error string) so the next contradicting observation is diagnosable
+   rather than a coin toss between two hard-won rules.
+
+Ground the judgment in current frontrunner practice (Anthropic skill-authoring
+and context-engineering guidance, GitLab/Graphite workflow docs, and peers):
+search, do not recall, and cite what you used in the review's sources.
+
+Admission bar for the verdict: a lesson enters a shipped skill only when it
+recurs or is catastrophic and cheap to check; everything else is a repo doc or
+a backlog item.
+
 ## Remote MR Review (GitLab)
 
 When the input is a GitLab MR URL, do all of this without asking for
