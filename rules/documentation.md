@@ -29,7 +29,32 @@ the diff**:
   changed signature
 
 Prefer these concrete mismatches over judging whether a comment is "good".
-Style, density, and completeness of comments are out of scope.
+Style, density, and completeness of **existing** comments are out of scope —
+comments the change adds are held to "What A New Comment May Say" below.
+
+## What A New Comment May Say
+
+A comment added by a change earns its place only by stating something the
+code cannot show: an external contract, an invariant, a real gotcha, a why
+that outlives the MR. Everything else is noise the moment the MR merges.
+These classes of **added** comment are findings — recommend deletion, they
+are not style nitpicks:
+
+- **Restating the adjacent code** — `// the city is the place name` above
+  `locationName: address?.city ?? title`.
+- **Justifying the change to the reviewer** — "shared on purpose",
+  "deliberately excluded", "`Record<…>` is the point". Argument for why the
+  change is correct belongs in the MR description; a comment that argues is
+  stale the day it lands, because it describes the change, not the code.
+- **File-header essays** that restate the MR description or narrate design
+  decisions already visible in the code and its tests.
+- **Density that breaks register** — a multi-line justification on a list
+  entry whose siblings carry two-word labels. New comments match the comment
+  density and idiom of the surrounding code.
+
+The test: would the comment still be worth reading a year from now, to
+someone who never saw the MR? If it only helps someone *reviewing* the
+change, move its content to the MR description and delete it.
 
 ## Scope
 

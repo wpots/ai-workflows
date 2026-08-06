@@ -90,6 +90,20 @@ src/
 - Server Actions: `camelCaseAction.ts` (createUserAction.ts)
 - Co-locate Server Actions with their feature when used only once; only promote to `actions/` when reused across features
 
+### Shared Layers Are Earned, Not Claimed
+
+`utils/`, `lib/`, `constants/`, `hooks/`, and `actions/` are **shared** layers:
+a file lives there only when it has at least two unrelated consumers.
+
+- A helper, transform, constants file, or hook consumed by one feature lives in
+  that feature's `modules/` folder, next to its test — not in a shared layer
+  "for later".
+- Promote to the shared layer in the MR that adds the **second** consumer, and
+  refactor the first consumer to import from the new location in that same MR.
+  A second consumer that is only planned does not count.
+- A feature-named subfolder under a shared layer (`utils/impact/`,
+  `lib/checkout/`) is the tell that the file belongs in the feature's module.
+
 ## Naming & Formatting
 
 Defer to the project's ESLint and Prettier config for all formatting. When no config is available, use these defaults:

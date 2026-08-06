@@ -266,6 +266,10 @@ in `rules/clean-architecture.md`).
 - [ ] Component prop interfaces live in `types.ts` (or `index.ts`), never inline
       in the `.tsx`.
 - [ ] One transform per module; no stray helper files left lying around.
+- [ ] New files under `utils/`, `lib/`, or `constants/` have at least two
+      unrelated consumers on this branch; a single-consumer helper (and its
+      test) is co-located in the consuming module instead ("Shared Layers Are
+      Earned, Not Claimed" in `rules/project.md`).
 - [ ] Hooks hold client state only. Pure or server-side derivation belongs in a
       transform/loader, not in a hook.
 - [ ] No infrastructure query imports a presentation type (`templates/*`,
@@ -288,3 +292,5 @@ in the ESLint config once the codebase is clean enough to flip it from `warn` to
 - `"use server"` functions defined inside component files instead of `actions/`
 - Infrastructure types (raw Payload docs) used directly in components without
   transformation
+- A feature-named folder under `utils/` or `lib/` (`utils/<feature>/…`) —
+  feature-specific code parked in a shared layer with a single consumer

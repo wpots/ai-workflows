@@ -144,6 +144,20 @@ Review the full branch diff against `origin/main` (use the code-review skill
 if available) and fix findings before opening the MR: correctness first, then
 convention violations. Re-run checks if the fixes were non-trivial.
 
+Two finding classes are always yours to fix here — they read fine to their
+author and cost a human review round-trip every time they slip through:
+
+- **Reviewer-facing comments** — comments that restate the code, argue why
+  the change is correct ("deliberately", "on purpose", "is the point"), or
+  narrate design decisions in a file header. Move the justification into the
+  MR description and delete the comment ("What A New Comment May Say" in
+  `rules/documentation.md`).
+- **Single-consumer files in shared layers** — anything this branch added
+  under `utils/`, `lib/`, or `constants/` that only the feature you built
+  consumes. Move it (and its test) into the feature's module folder; shared
+  placement is earned by the second consumer, in that consumer's MR ("Shared
+  Layers Are Earned, Not Claimed" in `rules/project.md`).
+
 ### 8. Write `How to verify`, then close out the BLI
 
 Fill the BLI's `## How to verify` section **from what you actually ran**, not
