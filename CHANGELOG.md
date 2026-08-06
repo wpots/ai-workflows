@@ -56,6 +56,15 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/code-review` now reviews workflow-asset MRs (skills, commands,
+  rules, hooks) through an explicit **Value & Maturity** lens, reported as an
+  eighth output section: frequency × cost of the failure addressed, platform
+  overlap, prevention vs recovery, ambient-context cost and trigger overlap,
+  measurability, personal vs team surface, and reproducibility of the
+  observation behind a new hard rule — grounded in current frontrunner
+  practice (searched, not recalled). Prose that instructs agents is product
+  code; the lens catches skill sprawl and platform-workaround patterns at
+  review time instead of after they accrete.
 - Content MRs no longer bump `.claude-plugin/plugin.json`; they describe the
   change under `## [Unreleased]` and the number is assigned in a separate
   release MR. Bumping inside a content MR made every concurrent MR edit the same
