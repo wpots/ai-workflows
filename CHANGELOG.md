@@ -66,6 +66,19 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/create-pr` — the push-and-MR reference now says to read a hook's own
+  output before believing its verdict. A hook step that wraps a project binary
+  turns any non-zero exit into its own domain-level conclusion, so a missing
+  tool and a real finding print the same headline: a pre-push migration check
+  ran `payload migrate:status` through a dotenvx loader, the loader exited
+  `dotenvx: not found` because the worktree had no `node_modules`, and the
+  script rendered that as `Pending migrations detected` with instructions to
+  generate a migration — on a commit that was one file rename with zero content
+  lines changed. Acting on that headline means either generating a phantom
+  migration or concluding the branch is broken. The gitignored-artifacts table
+  gains the matching row, and the bypass guidance now asks for evidence in the
+  hand-off (`git show --numstat` showing a rename, not the assertion "it is
+  only docs").
 - `skills/close-sprint` / `commands/close-sprint.md` — Phase 3 now writes the
   sprint changelog from an explicit compact template (new "Changelog template"
   section in the runbook, shared with `compact-sprint`) instead of "mirror the
