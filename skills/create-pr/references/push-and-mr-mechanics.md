@@ -51,6 +51,7 @@ usually do **not** work there unmodified, so verify manually before pushing:
   | `.env.local` (+ `.env.keys` when the loader must decrypt) | env validation aborts the test runner before a single test — e.g. `Invalid environment variables: PAYLOAD_DB_URL` |
   | `next-env.d.ts`, `.next/types/**`, `.next/dev/types/**` | dozens of phantom `Cannot find name 'PageProps' / 'LayoutProps'` errors from `tsc` |
   | generated import maps / codegen output (e.g. Payload's `importMap.js`) | `Cannot find module … or its corresponding type declarations` |
+  | `node_modules` itself, so the binaries a hook shells out to are absent | a hook step reports a **domain** failure instead of a missing tool — e.g. `❌ Pending migrations detected` when the truth is `dotenvx: not found` |
 
   Delete any copied env file when you are done — a copied secret must not
   outlive the worktree — and run `git status` afterwards: some env files are
@@ -79,6 +80,22 @@ fails. Do this immediately before pushing, on the exact commit being pushed
 (a later commit added after "looks green" is unverified). If any command
 fails, stop and fix it — `--no-verify` skips only the hook process that
 cannot execute in a worktree, never the checks it would have run.
+
+**Read the hook's own output before believing its verdict.** A hook step that
+wraps a project binary usually turns any non-zero exit into its own
+domain-level conclusion, so a missing tool and a real finding print the same
+headline. Seen in practice: a pre-push migration check ran
+`payload migrate:status` through a dotenvx loader, the loader exited
+`dotenvx: not found` because the worktree had no `node_modules`, and the script
+rendered that as `❌ Pending migrations detected. Before pushing, run: npm run
+migrate:create`. There were no pending migrations — the commit was a single
+file rename with zero content lines changed. Scroll up to the actual command
+output; the summary line is the script's interpretation, not evidence.
+
+When you do bypass a hook, put the justification in the message you send the
+user: which commands you ran by hand, and why this diff cannot affect the ones
+you could not run. "It is only docs" is an assertion; `git show --numstat`
+showing a rename with `0 0` is evidence.
 
 ## Long descriptions go via a file, not inline
 
