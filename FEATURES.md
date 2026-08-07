@@ -38,6 +38,7 @@ rely on skills directly.
 | Sprint Planning | `commands/sprint-planning.md` | Plan the upcoming sprint from tracker tickets, spillover, dependencies, and capacity | `sprint planning`, `plan sprint`, `start sprint` |
 | Sprint Demo | `commands/sprint-demo.md` | Prepare a stakeholder-ready sprint demo runsheet and slide deck | `sprint demo`, `demo voorbereiden`, `prepare demo` |
 | Close Sprint | `commands/close-sprint.md` | Close out a sprint with a changelog, gaps/spillover doc, and sprint folder | `close sprint`, `sluit sprint af` |
+| Compact Sprint | `commands/compact-sprint.md` | Compact an old sprint: flag durable BLI decisions, rewrite the changelog to the compact template, remove the sprint folder behind a git tag | `compact sprint`, `sprint compacten` |
 | Sustainable Review | `commands/sustainable-review.md` | Audit a change or area for Sustainable IT and produce backlog-ready findings | `sustainable review`, `performance audit`, `green refactor` |
 | Safe Kill Port | `commands/safe-kill-port.md` | Stop a process on a port safely (default: 3000) | `kill port`, `port 3000`, `eaddrinuse` |
 | New Device Setup | `commands/new-device-setup.md` | Bootstrap AI workflows on a new machine | `new device`, `setup device`, `onboarding` |
@@ -70,6 +71,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `sprint-planning` | Plan the upcoming sprint from tracker tickets, spillover, dependencies, and capacity | Yes |
 | `sprint-demo` | Prepare a stakeholder-ready sprint demo runsheet and Marp slide deck | Yes |
 | `close-sprint` | Close out a sprint with a changelog, gaps/spillover doc, and sprint folder | Yes |
+| `compact-sprint` | Compact an old sprint: flag durable decisions as todo follow-ups, rewrite the changelog to the compact template, remove the sprint folder behind a git-tag archive | Yes |
 | `jira-ticket` | Create a Jira bug, story, or task from a type-specific template, grounded in the codebase | No (skill only) |
 | `address-review-comments` | Pick up reviewer comments on a PR/MR, propose an approach per comment, apply, and push | No (skill only) |
 | `receiving-code-review` | Evaluate incoming review feedback with technical rigor before implementing any of it | No (skill only) |

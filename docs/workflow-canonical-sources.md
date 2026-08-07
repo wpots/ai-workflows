@@ -21,6 +21,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `safe-kill-port` | command only | `commands/safe-kill-port.md` | none | n/a |
 | `backlog` | skill + command | `skills/backlog/SKILL.md` | `commands/backlog.md` | yes |
 | `close-sprint` | skill + command | `skills/close-sprint/SKILL.md` | `commands/close-sprint.md` | yes |
+| `compact-sprint` | skill + command | `skills/compact-sprint/SKILL.md` | `commands/compact-sprint.md` | yes |
 | `refinement` | skill + command | `skills/refinement/SKILL.md` | `commands/refinement.md` | yes |
 | `sprint-demo` | skill + command | `skills/sprint-demo/SKILL.md` | `commands/sprint-demo.md` | yes |
 | `sprint-planning` | skill + command | `skills/sprint-planning/SKILL.md` | `commands/sprint-planning.md` | yes |

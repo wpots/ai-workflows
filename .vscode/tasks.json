@@ -42,6 +42,16 @@
       "problemMatcher": []
     },
     {
+      "label": "compact-sprint",
+      "type": "shell",
+      "command": "cat commands/compact-sprint.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "refinement",
       "type": "shell",
       "command": "cat commands/refinement.md",
