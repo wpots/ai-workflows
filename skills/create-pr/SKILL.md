@@ -64,6 +64,11 @@ If the platform cannot be inferred, ask the user.
    the files that belong to this PR, leave unrelated WIP untouched where it
    is, and ask the user when ownership of a change is unclear. Only proceed
    when every commit and staged file on the branch belongs to the PR.
+   When the user wants the work split across **several** MRs, follow
+   "Splitting one working tree into several MRs" in
+   `references/push-and-mr-mechanics.md` — it covers what to settle with the
+   user first (stacked vs independent, pre-existing commits, ticket keys) and
+   how to prove afterwards that nothing was lost.
 4. **Migration check.** If the branch diff adds or edits files under the Payload
    `migrations/` directory, run the `migration-check` skill first (read-only; it
    never runs `migrate`). If it reports a phantom/duplicate statement or a
@@ -248,11 +253,17 @@ glab mr create \
 > bypass the MR with a direct push to the base branch — not even for a one-line
 > doc change.
 >
-> The reviewer only accepts a **username** on `glab mr create`; the `glab api`
-> POST path takes numeric ids (`--field "reviewer_ids[]=<id>"`). So when the
-> body also has to come from a file, create the MR with `glab mr create
-> --reviewer <username>` plus a one-line placeholder description, then PUT the
-> real body from the file (see below) — that gets both without looking up an id.
+> `--reviewer` and `--assignee` only accept a **username** on
+> `glab mr create`; the `glab api` POST path takes numeric ids
+> (`--field "reviewer_ids[]=<id>"`, `assignee_ids[]`) and silently drops the
+> bracketed field. So when the body also has to come from a file, create the MR
+> with `glab mr create` plus those flags and a one-line placeholder
+> description, then PUT the real body from the file (see below) — that gets
+> both without looking up an id.
+
+> **Assignee.** This skill sets one only when the user names a person
+> (`--assignee <username>`); it never assigns anyone on its own. Unlike the
+> reviewer rule above, no repo mandates an assignee.
 
 > **Long descriptions and cwd pitfalls.** A multi-paragraph body passed
 > inline is fragile, and `glab mr create` misresolves its repo context when

@@ -105,8 +105,11 @@ permission flows mid-command. Write the generated body to a temp file first,
 then:
 
 - **GitHub**: `gh pr create … --body-file <file>`.
-- **GitLab**: `glab mr create` has no body-file flag — create the MR in one
-  API call with the body read from the file:
+- **GitLab**: `glab mr create` has **no** body-file flag — no
+  `--description-file`, no `--body-file`, no `-F`; only `-d/--description`,
+  which takes a string. Do not reason by analogy from GitHub's `--body-file`:
+  guessing the flag fails with `Unknown flag: --description-file` and costs a
+  round trip. Create the MR in one API call with the body read from the file:
 
   ```bash
   glab api "projects/<url-encoded-project-path>/merge_requests" \
@@ -118,6 +121,28 @@ then:
   (`--field key=@file` reads the value from the file.) Verify the response
   echoes a non-trivial description before reporting the URL.
 
+### When the MR also needs an assignee or a reviewer
+
+`--assignee` and `--reviewer` take a **username** on `glab mr create`; the API
+POST above takes numeric ids, and `--field "assignee_ids[]=<id>"` sends the
+bracket as a literal JSON key so the field is silently dropped. Split it in
+two instead — no id lookup needed:
+
+```bash
+# 1. create with the username-only fields and a throwaway description
+glab mr create --target-branch <base> --title "<title>" \
+  --description "placeholder" --assignee <username> \
+  --label "ai:agent-authored" --remove-source-branch --no-editor
+
+# 2. PUT the real body from the file
+glab api "projects/<url-encoded-project-path>/merge_requests/<iid>" \
+  --method PUT --field "description=@<file>"
+```
+
+Pass `--no-editor`: without it `glab mr create` may open an interactive editor
+and hang a non-interactive session. Then confirm with `glab mr view <iid>` that
+both the description **and** the assignee/reviewer stuck.
+
 ## Driving the repo from another directory
 
 When running e.g. from a worktree via `git -C`: `glab mr create` resolves its
@@ -127,3 +152,47 @@ above has no cwd dependency — prefer it. Related pitfall: when git uses glab
 as its HTTPS credential helper, an expired glab OAuth token breaks
 `git push`/`fetch` too (`could not read Username`) — `glab auth login` fixes
 both.
+
+## Splitting one working tree into several MRs
+
+When a session produced more change than belongs in one MR, the user may ask
+for it split. Two things make this go wrong: losing work while shuffling
+branches, and files whose hunks belong to different MRs.
+
+**Ask first, because it changes every branch you create:**
+
+- **Stacked** (each branch targets the previous) or **independent** (each
+  targets the base)? Independent is nicer to review but conflicts on merge
+  whenever two MRs touch the same file — say so, with the file names.
+- What happens to commits already on the branch that aren't part of this work?
+  Fold into a related MR, give them their own, or leave them.
+- Which ticket key(s) the branches should carry, if the project uses them.
+
+**Then:**
+
+1. **Snapshot before touching anything.** `git checkout -b wip-snapshot` and
+   commit the whole tree. Nothing can be lost, and it becomes the ref every
+   branch pulls from. Keep it until the MRs land; never push it.
+2. Per MR: `git checkout -b <name> <remote>/<base>`, then
+   `git checkout wip-snapshot -- <paths>` for the files that belong to it.
+3. **A file whose hunks span two MRs**: take the whole file from the snapshot,
+   then hand-revert the hunks belonging elsewhere. Prove the separation with a
+   grep for the other MR's markers, e.g.
+   `git diff <remote>/<base> -- <file> | grep -c "<other MR's symbol>"` → `0`.
+4. **Verify per branch, not once at the end.** A branch may not build alone
+   because it depends on a fix that lives in another MR. Cherry-pick that
+   commit onto a throwaway `measure-*` branch, take the measurement there,
+   delete the branch — and state in the MR which combination produced the
+   number. Never quote a figure measured on a different combination; if a
+   commit message already claims one, amend it.
+5. **Integrity check before reporting.** Branch off the base, merge every new
+   branch into it, and diff against the snapshot:
+
+   ```bash
+   git checkout -b verify-union <remote>/<base>
+   for b in <branches>; do git merge --no-edit -q "$b"; done
+   git diff verify-union wip-snapshot --stat   # empty == nothing lost
+   ```
+
+   Cosmetic-only residue (a moved declaration) is fine; report it rather than
+   silently accepting a non-empty diff. Delete `verify-union` afterwards.

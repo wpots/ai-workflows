@@ -44,6 +44,24 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   the hook never writes into the project working tree, and stays fully
   offline. (`docs/backlog/feat-project-sync-freshness-stamp.md`, slice 1/2 —
   the CI-side drift check is slice 2/2.)
+- `create-pr` — a recipe for splitting one working tree across several MRs:
+  what to settle with the user first (stacked vs independent, pre-existing
+  commits on the branch, ticket keys), the snapshot-branch technique so nothing
+  is lost while shuffling branches, hand-reverting hunks for a file that spans
+  two MRs, measuring each branch on its own, and a merge-the-union diff that
+  proves nothing was dropped. Lives in
+  `skills/create-pr/references/push-and-mr-mechanics.md`, anchored from the
+  skill's pre-flight and summarised in the runbook. Born in the InnovatieRoute
+  caching work: one session's changes became five MRs, two of them sharing
+  files, with no guidance on how to separate them safely.
+- `create-pr` — the two-step flow for an MR that needs both a file-based body
+  **and** an assignee or reviewer: `glab mr create` with the username flags plus
+  a placeholder description, then PUT the body from the file. Those flags take a
+  username while the API POST takes numeric ids and silently drops
+  `--field "assignee_ids[]=<id>"`. Also documents `--no-editor`, without which
+  `glab mr create` can open an editor and hang a non-interactive session. The
+  reviewer half of this existed; it now covers assignees and is stated as the
+  general pattern rather than an `ai-workflows`-only workaround.
 - `skills/compact-sprint` + `commands/compact-sprint.md` — compact old sprint
   documentation. Delivered BLIs mix ephemeral content (status, commits,
   how-to-test) with durable decisions; once a sprint is older than the
@@ -106,6 +124,13 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   !34", "see the MR for the evidence"), which the existing
   justifying-the-change bullet covers in principle and demonstrably did not in
   practice.
+- `commands/create-pr.md` — its GitLab body guidance now matches the skill. The
+  runbook offered GitHub's `--body-file` without noting that `glab mr create`
+  has no equivalent, which invites reasoning by analogy to `--description-file`
+  and failing with `Unknown flag`. Both surfaces now name the absent flags
+  (`--description-file`, `--body-file`, `-F`) explicitly. The skill already
+  carried this warning — the runbook is the surface that gets served on
+  prompt-first tools, so a divergence there costs a real round trip.
 - `skills/create-pr` — the push-and-MR reference now says to read a hook's own
   output before believing its verdict. A hook step that wraps a project binary
   turns any non-zero exit into its own domain-level conclusion, so a missing
