@@ -99,3 +99,4 @@ without knowing it.
 - Depends on: nothing
 - Followed by: `docs/backlog/feat-project-sync-drift-check-ci.md`
 - Precedent: `scripts/sync-ambient.sh` (digest gate + advisory note)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/93
