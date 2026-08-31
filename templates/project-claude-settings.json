@@ -53,6 +53,16 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -n \"${CLAUDE_PLUGIN_ROOT:-}\" ] && [ -f \"$CLAUDE_PLUGIN_ROOT/scripts/project-sync-freshness.sh\" ] && bash \"$CLAUDE_PLUGIN_ROOT/scripts/project-sync-freshness.sh\" --hook || true"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",

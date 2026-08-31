@@ -30,6 +30,20 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Added
 
+- Project-sync freshness stamp (`scripts/project-sync-freshness.sh`):
+  `scripts/sync.sh --project` now writes `.claude/ai-workflows-stamp` into the
+  project — a `cksum` digest of the exact source set project sync delivers
+  (`rules/`, `commands/`, the shared fragments, the adapter templates, and the
+  sync scripts themselves), tracked in git so drift is visible in review. A
+  `SessionStart` hook shipped via `templates/project-claude-settings.json`
+  compares that stamp against the plugin cache and, once per distinct
+  mismatch (gated in `$CLAUDE_PLUGIN_DATA`, per project), names the exact fix:
+  `bash "$CLAUDE_PLUGIN_ROOT"/scripts/sync.sh --project .`. A digest rather
+  than a version for the same reason as the ambient sync: unbumped releases
+  must still change the stamp. Missing stamp reports as unknown, not stale;
+  the hook never writes into the project working tree, and stays fully
+  offline. (`docs/backlog/feat-project-sync-freshness-stamp.md`, slice 1/2 —
+  the CI-side drift check is slice 2/2.)
 - `skills/compact-sprint` + `commands/compact-sprint.md` — compact old sprint
   documentation. Delivered BLIs mix ephemeral content (status, commits,
   how-to-test) with durable decisions; once a sprint is older than the
