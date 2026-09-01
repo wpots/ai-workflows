@@ -80,6 +80,31 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/upstream-rules` step 5 and `shared/upstream-mr.md` — the prescribed
+  `glab mr create … --description "<generated body>"` cannot carry a real MR
+  body, and the fragment's blanket "do not fall back to `glab api
+  …/merge_requests`" sent the run to it anyway. There is no
+  `--description-file` flag (`Unknown flag`), `-d` takes a string, and `-d -`
+  opens an editor no agent can use — so any body with backticks or a table
+  means mangling it or reaching for the command substitution and heredocs the
+  autonomy rules forbid. Both surfaces now prescribe the path that works: body
+  to a file, payload built by a script, `POST …/merge_requests` with `--input`
+  and an explicit `Content-Type`, then `glab mr update --reviewer` as a second
+  call. The `glab api` warning is narrowed to what actually breaks —
+  `--field "reviewer_ids[]=<id>"` flattening the bracket into a literal JSON
+  key — which two calls sidestep, since `--reviewer` takes a username and needs
+  no id lookup. Creation returns `"reviewers": []`, so the skill now requires
+  reading the reviewer back before reporting. Also records that GitLab
+  *accepts* a review request from the MR author: on `ai-workflows` the mandated
+  reviewer is usually the author, which reads as a contradiction against the
+  never-assign-the-author line until someone says out loud that it is not.
+- `skills/upstream-rules` step 4 gains this repo's commit mechanics: the
+  pre-commit hook runs `scripts/generate-adapters.sh`, which calls `mktemp` in
+  the real `TMPDIR`, so a sandboxed commit dies on `Operation not permitted`
+  with **nothing committed** — check `git log -1` rather than trusting it. The
+  same hook regenerates `.github/prompts/*.prompt.md` from `commands/`, and the
+  adapters from `shared/`, so a first commit touching either fails on
+  `Drift detected`: stage the regenerated files and commit again.
 - `rules/documentation.md` gains **One Home Per Fact** and **JSDoc Attaches To
   A Declaration**, with matching review triggers in `skills/code-review`
   (step 6) and `commands/review-code.md`. The existing staleness triggers are

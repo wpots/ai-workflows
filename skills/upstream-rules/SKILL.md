@@ -127,46 +127,102 @@ If the change modifies shared rules or workflow adapters, fetch related files
 from the repo and verify it does not contradict existing guidance. If it does,
 flag the conflict to the developer and ask how to resolve it.
 
+Two things about committing here, both of which cost a wasted cycle otherwise:
+
+- **Run the commit with the sandbox disabled.** The pre-commit hook runs
+  `scripts/generate-adapters.sh`, which calls `mktemp` in the real `TMPDIR`. A
+  sandboxed Bash call is denied there, so the hook dies on
+  `mktemp: mkstemp failed … Operation not permitted` and **nothing is
+  committed** — verify with `git log -1` rather than assuming the commit landed.
+- **Expect one drift retry when the change touches `commands/`.** The same hook
+  regenerates `.github/prompts/<name>.prompt.md` from `commands/<name>.md`, then
+  fails the commit with `Drift detected`. Stage the regenerated prompt and
+  commit again. Editing a `shared/*.md` fragment does the same to `CLAUDE.md`,
+  `AGENTS.md`, `.github/copilot-instructions.md` and the `templates/` adapters —
+  stage all of them; they are generated, never hand-edited.
+
+A change to a `shared/*.md` fragment or anything else the plugin ships also needs
+a `## [Unreleased]` entry in `CHANGELOG.md`, and must **not** touch the `version`
+in `.claude-plugin/plugin.json` — see the shared workflow-assets rule.
+
 ### 5. Create the GitLab MR and capture its approval link
 
 GitLab is the default upstream. `main` is protected, so the change lands via an
 MR, never a push to `main`:
 
+Push, then create the MR through the API with the body in a **file**, and set
+the reviewer in a second call:
+
 ```bash
 git push -u <gitlab-remote> rules/<short-description>
-gitlab_mr_url=$(glab mr create -R greenberrynl/config/ai-workflows \
-  -H greenberrynl/config/ai-workflows \
-  --source-branch rules/<short-description> \
-  --target-branch main \
-  --reviewer wieteke.pots \
-  --title "rules: <short description>" \
-  --description "<generated body>" --yes)
-printf 'GitLab MR: %s\\n' "$gitlab_mr_url"
 ```
 
-**Name the head repo with `-H`.** `-R` only sets the *target*; the head (source)
-project still defaults to whatever git remote the **current directory** has. Run
-this from a project checkout — which is normal, since the change originates
-there, and an agent forbidden from `cd`-ing cannot leave it — and glab offers
-that project as the source, failing with
-`422 [Source project is not a fork of the target project]`. `-H` pins the source
-to the canonical repo and makes the command cwd-independent, so it works both
-from `~/Web/ai-workflows` and from the originating project.
+Write the body to `$TMPDIR/mr-body.md`, then build the payload with a script —
+never assemble this JSON in the shell:
 
-**The reviewer is mandatory.** `--reviewer wieteke.pots` is part of the MR, not
-an optional extra — an MR without that reviewer is not done. If the flag is
-unsupported or silently dropped, set it afterwards with
-`glab mr update <iid> -R greenberrynl/config/ai-workflows --reviewer wieteke.pots`
-and verify with `glab mr view <iid> -R greenberrynl/config/ai-workflows` before
-reporting. Both need `-R` for the same reason as above: without it they resolve
-against the current directory's repo and report on the wrong project — or claim
-the MR does not exist.
+```js
+// $TMPDIR/build-mr-payload.mjs
+import { readFileSync, writeFileSync } from "node:fs";
+const dir = process.env.TMPDIR;
+writeFileSync(`${dir}/mr-payload.json`, JSON.stringify({
+  source_branch: "rules/<short-description>",
+  target_branch: "main",
+  title: "rules: <short description>",
+  description: readFileSync(`${dir}/mr-body.md`, "utf8"),
+  remove_source_branch: true,
+  squash: true,
+}));
+```
 
-Do **not** hand-roll this with `glab api …/merge_requests`. It works, but
-`--field "reviewer_ids[]=<id>"` sends the bracket as a literal JSON key and
-silently creates the MR with **no reviewer**; getting one attached then needs a
-raw JSON body plus an explicit `-H "Content-Type: application/json"`. `-H` on
-`glab mr create` avoids the whole detour.
+```bash
+node "$TMPDIR"/build-mr-payload.mjs
+glab api "projects/greenberrynl%2Fconfig%2Fai-workflows/merge_requests" \
+  -X POST -H "Content-Type: application/json" --input "$TMPDIR"/mr-payload.json
+glab mr update <iid> -R greenberrynl/config/ai-workflows --reviewer wieteke.pots
+```
+
+**`glab mr create` cannot carry a real MR body.** There is no
+`--description-file` flag (it errors `Unknown flag`), `-d` takes a *string*, and
+`-d -` opens an editor an agent cannot use. Any body worth writing has backticks,
+tables, and `${...}`-shaped text, so passing it as a shell argument means either
+mangling it or reaching for the command substitution and heredocs the autonomy
+rules forbid. A file plus `--input` has neither problem. `glab mr create` is
+still fine for a throwaway one-line description.
+
+**Two calls, not one.** The `glab api` hazard is narrow and specific: passing the
+reviewer as `--field "reviewer_ids[]=<id>"` sends the bracket as a literal JSON
+key and silently opens the MR with **no reviewer**. Creating with `--input` and
+then setting the reviewer with `glab mr update` avoids it entirely — `--reviewer`
+takes a username, so no user-id lookup is needed either.
+
+**Every `glab` call names the repo.** The API path above is explicit, but every
+`glab mr` subcommand — `update`, `view` — defaults to the **current directory's**
+git remote, so `-R greenberrynl/config/ai-workflows` is required on each one.
+Without it they resolve against the originating project and report on the wrong
+MR, or claim it does not exist.
+
+If you do fall back to `glab mr create` for a one-line description, pass `-H
+greenberrynl/config/ai-workflows` as well: `-R` sets only the *target*, and the
+head (source) project still comes from the current directory's remote, so from a
+project checkout it fails with
+`422 [Source project is not a fork of the target project]`.
+
+**The reviewer is mandatory, and verified.** An `ai-workflows` MR without
+`wieteke.pots` as reviewer is not done. Read it back before reporting — the
+create call returns `"reviewers": []`, so the only proof is the follow-up:
+
+```bash
+glab api "projects/greenberrynl%2Fconfig%2Fai-workflows/merge_requests/<iid>" \
+  | jq '{iid, web_url, state, reviewers: [.reviewers[]?.username]}'
+```
+
+**GitLab accepts a review request from the MR author.** This looks like a
+contradiction the first time — the shared rule says never to assign the MR
+author, and on `ai-workflows` the maintainer usually *is* the author — so state
+it plainly rather than stalling on it: `--reviewer wieteke.pots` succeeds and the
+reviewer sticks. The never-assign-the-author line governs *other* repos, where
+picking a reviewer would be a guess. GitHub does refuse it, which is one more
+reason these MRs live on GitLab.
 
 MR body should include:
 
