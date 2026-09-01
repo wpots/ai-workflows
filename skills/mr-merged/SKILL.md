@@ -92,10 +92,21 @@ never hardcode; see the gotchas in `skills/jira-ticket`) and post with
   to review/done) — as a suggestion in the recap, not an action. When Step 2
   found open items, propose nothing beyond what partial delivery justifies: the
   ticket is not done, and moving it there loses the remaining slices.
-- Ask, then delete the merged source branch (local + remote if it survived
-  the merge) and prune any worktree used for it
-  (`git worktree remove <path>`). Skip silently held-back branches only when
-  the user says to keep them.
+- Ask once for cleanup approval, then treat the worktree and source branch as
+  one batch. A cleanup is incomplete when the worktree is gone but the stale
+  local branch remains:
+  1. Inspect a linked worktree with `git -C <path> status --short`. Never
+     remove, reset, or stash a dirty worktree; report the local work instead.
+  2. Remove a clean linked worktree first with
+     `git worktree remove <path>`.
+  3. Delete the local source branch. Use `git branch -d` when Git proves it is
+     an ancestor of the default branch. For a squash merge, first verify that
+     the current local branch head still equals the merged MR/PR source-head
+     SHA, then use `git branch -D`.
+  4. Delete the remote source branch if it survived the merge and the cleanup
+     approval included it.
+  5. Verify that both the worktree entry and local branch are absent.
+     Skip either only when the user explicitly says to keep it.
 
 ## Step 6 — Degrade honestly
 

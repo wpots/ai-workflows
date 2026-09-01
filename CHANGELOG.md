@@ -107,6 +107,11 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/mr-merged` now treats post-merge cleanup as one atomic worktree and
+  branch batch: dirty worktrees are preserved, clean worktrees are removed
+  before their local branch, squash-merged branch heads must still match the
+  merged MR/PR source SHA, and completion verifies that neither stale object
+  remains.
 - `skills/upstream-rules` step 5 and `shared/upstream-mr.md` — the prescribed
   `glab mr create … --description "<generated body>"` cannot carry a real MR
   body, and the fragment's blanket "do not fall back to `glab api
