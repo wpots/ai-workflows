@@ -44,6 +44,21 @@ If ambiguous, ask the user.
 2. Verify the CLI is authenticated (`gh auth status` / `glab auth status`).
    If not, use the no-CLI fallbacks under Fallback Execution instead of aborting.
 3. Check `git status` for uncommitted changes — warn and ask before continuing.
+   If the user wants the work split across **several** MRs, settle three things
+   with them first, because each changes every branch you create: stacked (each
+   branch targets the previous) or independent (each targets the base — nicer to
+   review, but conflicts on merge wherever two MRs touch the same file, so name
+   those files); what happens to commits already on the branch that aren't part
+   of this work; and which ticket key(s) the branches carry. Then snapshot the
+   whole tree on a throwaway local branch first and build each MR branch off the
+   base with `git checkout <snapshot> -- <paths>`, so nothing can be lost. For a
+   file whose hunks span two MRs, take the whole file and hand-revert the hunks
+   belonging elsewhere. Measure each branch on its own — a branch may not build
+   without a fix that lives in another MR, so cherry-pick that commit onto a
+   throwaway branch for the measurement and state which combination produced the
+   number. Before reporting, merge every new branch into a scratch branch off
+   the base and diff it against the snapshot: an empty diff proves nothing was
+   lost.
 4. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
@@ -159,11 +174,23 @@ Applies on every run, including updates to an existing PR/MR.
      it. If labelling still fails, create the PR/MR without it and say so.
    - Long bodies: don't pass them inline (quoting breaks, oversized arguments
      can crash agent permission flows). GitHub: use `--body-file <file>`.
-     GitLab: create the MR in one API call with the body read from a file:
+     GitLab has **no** equivalent on `mr create` — no `--description-file`, no
+     `--body-file`, no `-F`, only `-d/--description` taking a string. Do not
+     reason by analogy from GitHub's `--body-file`: guessing it fails with
+     `Unknown flag: --description-file`. Create the MR in one API call with the
+     body read from a file instead:
      `glab api "projects/<encoded-path>/merge_requests" --method POST --field "source_branch=<branch>" --field "target_branch=<base>" --field "title=<title>" --field "description=@<file>"`.
      This also sidesteps `glab mr create`'s cwd dependency: it resolves repo
      context from the current directory's git remotes and can fail despite
      `--repo` (use the API call when driving the repo from another directory).
+   - **File-based body *plus* an assignee or reviewer**: those flags take a
+     username on `glab mr create`, while the API POST takes numeric ids and
+     silently drops `--field "assignee_ids[]=<id>"`. Create the MR with
+     `glab mr create … --assignee <username> --no-editor` and a placeholder
+     description, then set the real body:
+     `glab api "projects/<encoded-path>/merge_requests/<iid>" --method PUT --field "description=@<file>"`.
+     `--no-editor` stops `glab` opening an editor and hanging. Set an assignee
+     only when the user named one.
    - **Reviewer**: only `greenberrynl/config/ai-workflows` names one — that MR
      must carry `--reviewer wieteke.pots`. The API path takes numeric ids only
      (`--field "reviewer_ids[]=<id>"`), so prefer `glab mr create --reviewer
