@@ -11,6 +11,7 @@ SRC_TEMPLATES="$ROOT_DIR/templates"
 SRC_AI_WORKFLOWS_TEMPLATE="$ROOT_DIR/templates/project-ai-workflows.md"
 SRC_CURSOR_GRAPHIFY="$ROOT_DIR/templates/project-cursor-graphify.mdc"
 SRC_CLAUDE_SETTINGS="$ROOT_DIR/templates/project-claude-settings.json"
+SRC_FRESHNESS="$ROOT_DIR/scripts/project-sync-freshness.sh"
 
 TARGET_CURSOR="$HOME/.cursor"
 TARGET_CODEX="$HOME/.codex"
@@ -366,7 +367,7 @@ if [[ -n "$PROJECT_DIR" ]]; then
   # yet (never clobber project-owned Claude settings; merge manually otherwise)
   if [[ -f "$SRC_CLAUDE_SETTINGS" ]]; then
     if [[ -f "$PROJECT_DIR/.claude/settings.json" ]]; then
-      echo "  [ok] .claude/settings.json exists (preserved — merge graphify hooks manually if needed)"
+      echo "  [ok] .claude/settings.json exists (preserved — merge graphify + sync-freshness hooks manually if needed)"
       # Older templates wrote the marketplace source as "url", which Claude Code
       # only accepts for a direct marketplace.json address — a git@ URL under it
       # fails with 'invalid url'. We never clobber project settings, so warn.
@@ -379,6 +380,19 @@ if [[ -n "$PROJECT_DIR" ]]; then
       ensure_dir "$PROJECT_DIR/.claude"
       cp "$SRC_CLAUDE_SETTINGS" "$PROJECT_DIR/.claude/settings.json"
       echo "  [ok] .claude/settings.json (graphify hooks)"
+    fi
+  fi
+
+  # Freshness stamp: a digest of the exact source set this run delivered, so
+  # the SessionStart hook (and CI, slice 2/2) can tell current from stale.
+  # Tracked in git on purpose -- drift belongs in review, not in a temp dir.
+  if [[ -x "$SRC_FRESHNESS" ]]; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] write .claude/ai-workflows-stamp"
+    else
+      ensure_dir "$PROJECT_DIR/.claude"
+      "$SRC_FRESHNESS" --digest --source "$ROOT_DIR" > "$PROJECT_DIR/.claude/ai-workflows-stamp"
+      echo "  [ok] .claude/ai-workflows-stamp (sync freshness digest — keep it tracked)"
     fi
   fi
 

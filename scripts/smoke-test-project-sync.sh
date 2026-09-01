@@ -3,6 +3,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SYNC_SCRIPT="$ROOT_DIR/scripts/sync.sh"
+FRESHNESS_SCRIPT="$ROOT_DIR/scripts/project-sync-freshness.sh"
 
 TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ai-workflows-project-sync.XXXXXX")"
 trap 'rm -rf "$TMP_DIR"' EXIT
@@ -102,5 +103,81 @@ assert_exists "$WITH_CONVENTIONS/.github/prompts/scaffold-component.prompt.md"
 assert_contains "$WITH_CONVENTIONS/.github/copilot-instructions.md" "Smoke test project"
 assert_contains "$WITH_CONVENTIONS/AI-WORKFLOWS.md" "Shared Workflow Assets"
 assert_prompt_alignment "$WITH_CONVENTIONS"
+
+# --- Freshness stamp + SessionStart hook ---
+
+# The hook writes its once-per-mismatch bookkeeping into $CLAUDE_PLUGIN_DATA;
+# each scenario that must fire gets a fresh data dir so an earlier note does
+# not gate a later one.
+run_hook() {
+  local project_dir="$1"
+  local data_dir="$2"
+  CLAUDE_PROJECT_DIR="$project_dir" \
+    CLAUDE_PLUGIN_ROOT="$ROOT_DIR" \
+    CLAUDE_PLUGIN_DATA="$data_dir" \
+    bash "$FRESHNESS_SCRIPT" --hook
+}
+
+STAMP_FILE="$WITH_CONVENTIONS/.claude/ai-workflows-stamp"
+
+echo "Smoke test: sync writes the freshness stamp"
+assert_exists "$STAMP_FILE"
+EXPECTED_DIGEST="$(bash "$FRESHNESS_SCRIPT" --digest --source "$ROOT_DIR")"
+if [[ "$(cat "$STAMP_FILE")" != "$EXPECTED_DIGEST" ]]; then
+  echo "Stamp does not match the source digest" >&2
+  exit 1
+fi
+
+echo "Smoke test: re-sync with identical content leaves the stamp unchanged"
+"$SYNC_SCRIPT" --project "$WITH_CONVENTIONS" >/dev/null
+if [[ "$(cat "$STAMP_FILE")" != "$EXPECTED_DIGEST" ]]; then
+  echo "Stamp changed on a re-sync with identical content" >&2
+  exit 1
+fi
+
+echo "Smoke test: a matching stamp keeps the hook silent"
+HOOK_OUT="$(run_hook "$WITH_CONVENTIONS" "$TMP_DIR/data-match")"
+if [[ -n "$HOOK_OUT" ]]; then
+  echo "Hook emitted output for a matching stamp: $HOOK_OUT" >&2
+  exit 1
+fi
+
+echo "Smoke test: a mismatched stamp is detected and the note names the fix"
+echo "0 0" > "$STAMP_FILE"
+HOOK_OUT="$(run_hook "$WITH_CONVENTIONS" "$TMP_DIR/data-mismatch")"
+echo "$HOOK_OUT" | grep -Fq "additionalContext" || { echo "No hook JSON on mismatch" >&2; exit 1; }
+echo "$HOOK_OUT" | grep -Fq "stale" || { echo "Mismatch not reported as stale" >&2; exit 1; }
+echo "$HOOK_OUT" | grep -Fq "sync.sh' --project ." || { echo "Note does not name the fix command" >&2; exit 1; }
+echo "$HOOK_OUT" | python3 -c "import json,sys; json.load(sys.stdin)" || { echo "Hook output is not valid JSON" >&2; exit 1; }
+
+echo "Smoke test: the note fires once per distinct mismatch"
+HOOK_OUT="$(run_hook "$WITH_CONVENTIONS" "$TMP_DIR/data-mismatch")"
+if [[ -n "$HOOK_OUT" ]]; then
+  echo "Hook repeated the note for the same mismatch: $HOOK_OUT" >&2
+  exit 1
+fi
+
+echo "Smoke test: a missing stamp is reported as unknown, not stale"
+rm -f "$STAMP_FILE"
+HOOK_OUT="$(run_hook "$WITH_CONVENTIONS" "$TMP_DIR/data-missing")"
+echo "$HOOK_OUT" | grep -Fq "unknown" || { echo "Missing stamp not reported as unknown" >&2; exit 1; }
+if echo "$HOOK_OUT" | grep -Fq "stale"; then
+  echo "Missing stamp wrongly reported as stale" >&2
+  exit 1
+fi
+
+echo "Smoke test: a malformed stamp is tolerated"
+printf 'garbage "with quotes"\nand a second line\n' > "$STAMP_FILE"
+HOOK_OUT="$(run_hook "$WITH_CONVENTIONS" "$TMP_DIR/data-malformed")"
+echo "$HOOK_OUT" | grep -Fq "additionalContext" || { echo "No hook JSON on malformed stamp" >&2; exit 1; }
+echo "$HOOK_OUT" | python3 -c "import json,sys; json.load(sys.stdin)" || { echo "Hook output is not valid JSON" >&2; exit 1; }
+
+echo "Smoke test: the hook never writes into the project tree"
+NEWER_FILES="$(find "$WITH_CONVENTIONS" -newer "$STAMP_FILE" -type f 2>/dev/null)"
+if [[ -n "$NEWER_FILES" ]]; then
+  echo "Hook wrote into the project working tree:" >&2
+  echo "$NEWER_FILES" >&2
+  exit 1
+fi
 
 echo "Project sync smoke test passed."
