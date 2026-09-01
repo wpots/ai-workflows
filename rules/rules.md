@@ -53,8 +53,10 @@ In practice, treat this directory as a topic-based rule library:
     CI cost, or dependencies — or when changing public-route rendering.
 14. Load `sonarqube.md` when a SonarQube or SonarLint finding is mentioned, or
     when editing code that could trip one of its opted-in rules.
-15. Load `documentation.md` when changing code that comments, JSDoc, or repo
-    docs describe, and during code review.
+15. Load `documentation.md` when adding comments or JSDoc, when changing code
+    that existing comments, JSDoc, or repo docs describe, and during code
+    review. Adding comments to new code is the trigger that is easiest to
+    miss — load the rule before writing them, not when review flags them.
 16. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection

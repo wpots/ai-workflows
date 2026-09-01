@@ -48,6 +48,9 @@ Do NOT test in Storybook: props merging logic, ref forwarding mechanics, edge ca
 - Test user behavior, not implementation details
 - Mock sparingly — prefer real implementations
 - Aim for 100% coverage on critical paths and business logic
+- New comments in test files follow `documentation.md` — neighbouring suites
+  set the density register, and a comment carrying the claim an assertion
+  cannot make is a test-design smell, not documentation
 
 ## Coverage Requirements
 

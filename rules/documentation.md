@@ -55,7 +55,9 @@ are not style nitpicks:
   in review of !34"), "see the MR for the evidence", a ticket that only
   records the discussion, a chat thread. The one reader who can follow the
   reference is the reviewer, who does not need it. State the behaviour the
-  code has; drop the provenance.
+  code has; drop the provenance. External references that **are** the durable
+  fact — the upstream issue a workaround exists for, a CVE, an RFC — are the
+  opposite case: they outlive the MR and stay.
 
 The test: would the comment still be worth reading a year from now, to
 someone who never saw the MR? If it only helps someone *reviewing* the
@@ -65,8 +67,10 @@ change, move its content to the MR description and delete it.
 
 A durable fact — a measurement, a spike finding, an external contract, a
 version-specific dependency behaviour — lives in **exactly one** place: the
-unit's `README.md`, or `docs/*`. Code sites carry the one-line consequence and
-a pointer to that home, never the fact itself.
+docblock of the owning declaration, the unit's `README.md`, or `docs/*`. For a
+fact scoped to one symbol, that symbol's docblock is the natural home — it is
+what hover shows. Every other code site carries the one-line consequence and a
+pointer to the home, never the fact itself.
 
 A change that duplicates the fact is a finding even when every copy is
 currently correct. Nothing keeps N copies in sync but a human remembering, so
