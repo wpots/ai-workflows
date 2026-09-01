@@ -66,6 +66,32 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `rules/documentation.md` gains **One Home Per Fact** and **JSDoc Attaches To
+  A Declaration**, with matching review triggers in `skills/code-review`
+  (step 6) and `commands/review-code.md`. The existing staleness triggers are
+  all *diff-subject* based — a renamed thing still named, a changed default
+  still documented — so they structurally cannot see a fact that was wrong on
+  arrival in one copy of five. Three review passes over the same map component
+  (`app-me-als-je-thuis-bent` !34/!35) produced the evidence: an SDK probe
+  measurement sat verbatim in three files and its reasoning in five, and one
+  copy claimed a story asserted a non-empty accessible name when that story
+  deliberately leaves it to the a11y addon. Nothing keeps N copies in sync but
+  a human remembering, and the wrong copy reads as authoritative because it
+  sits next to the code. The paired finding is cheaper still: of seven stated
+  contrast ratios in one module, the six asserted in a test were exact and the
+  one only written in prose was out by 15%, so a measured number now either
+  goes in a test or names its method. Placement is the other new trigger — a
+  docblock above a props interface, or a file overview below the imports, reads
+  correctly in a diff and documents nothing on hover, so it is only found by
+  looking for it. Both surfaces also now say explicitly that comment **volume**
+  and comment-to-code ratios are not findings: measured across eighteen files
+  the ratio never once predicted whether a comment was worth keeping, and a
+  threshold would only manufacture false positives against the existing
+  "match your siblings' density" bullet. Adds one bullet to "What A New Comment
+  May Say" for references that will not survive the MR ("raised in review of
+  !34", "see the MR for the evidence"), which the existing
+  justifying-the-change bullet covers in principle and demonstrably did not in
+  practice.
 - `skills/create-pr` — the push-and-MR reference now says to read a hook's own
   output before believing its verdict. A hook step that wraps a project binary
   turns any non-zero exit into its own domain-level conclusion, so a missing

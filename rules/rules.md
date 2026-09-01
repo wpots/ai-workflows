@@ -22,7 +22,7 @@ In practice, treat this directory as a topic-based rule library:
 | `accessibility.md`                      | WCAG requirements, ARIA, keyboard navigation                        |
 | `sustainability.md`                     | Sustainable IT: caching/rendering, LCP/assets, bundle & client JS, CI cost, deps |
 | `sonarqube.md`                          | Opt-in SonarQube/SonarLint rule parity: avoid flagged patterns, apply preferred fixes |
-| `documentation.md`                      | Comments, JSDoc, and docs describing changed behaviour update in the same MR |
+| `documentation.md`                      | Comments, JSDoc, and docs describing changed behaviour update in the same MR; one home per durable fact; docblocks attach to a declaration |
 | `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
 | `mr-sizing.md`                          | MR size budget, sliceability test, split triggers, ticket-to-item mapping |
 | `git-flow.md`                           | Branch/MR flow, squash-and-ff merge settings, MR title as history, provenance labels |

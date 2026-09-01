@@ -95,13 +95,25 @@ If none exists, ask the user which base branch to use.
      describe the changed behaviour
    - comments the diff **adds** that restate the adjacent code, argue why the
      change is correct ("shared on purpose", "deliberately", "is the point"),
-     essay-length file headers duplicating the MR description, or comments
-     that out-density their siblings on the same kind of construct — per
-     "What A New Comment May Say" in `rules/documentation.md`; recommend
+     essay-length file headers duplicating the MR description, comments that
+     out-density their siblings on the same kind of construct, or references
+     to something that will not exist (an MR or PR number, "see the MR") —
+     per "What A New Comment May Say" in `rules/documentation.md`; recommend
      deletion and moving any justification into the MR description
+   - the **same fact in more than one file** — a measurement, a spike
+     finding, a dependency's version-specific behaviour. Grep a distinctive
+     phrase from each new explanatory block across the diff: two or more hits
+     is one finding, naming the single home the fact belongs in (per "One
+     Home Per Fact"). A stated number that no test asserts belongs in the
+     same finding.
+   - **docblock placement** — a docblock above a props/options interface that
+     describes the component, and a file overview placed below the imports.
+     Both read correctly in the diff and document nothing on hover, so they
+     are only found by looking (per "JSDoc Attaches To A Declaration").
    A comment that contradicts the code is a defect: report it with the file
    reference and the concrete stale sentence, and recommend updating it in
-   this MR — or deleting it when it cannot be made true cheaply.
+   this MR — or deleting it when it cannot be made true cheaply. Do not report
+   comment volume or a comment-to-code ratio as a finding.
 7. Provide concrete file references with line numbers.
 8. For each finding, explain:
 - why the code is unsafe
