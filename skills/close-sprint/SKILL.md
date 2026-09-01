@@ -1,6 +1,6 @@
 ---
 name: close-sprint
-description: Close out a sprint by reading issue-tracker tickets on the user's name, verifying code delivery, and producing a sprint changelog, a gaps/spillover document, and moving delivered backlog items into a dedicated sprint folder. The tracker is read-only. Use when the user asks to close, finalize, or wrap up a sprint.
+description: Close out a sprint by reading issue-tracker tickets on the user's name, verifying code delivery, and producing a sprint changelog, a gaps/spillover document, and moving delivered backlog items into a dedicated sprint folder. On projects without sprints the same close runs in support mode over a calendar month, archiving delivered backlog items into docs/support-<yyyy>-<mm>/. The tracker is read-only. Use when the user asks to close, finalize, or wrap up a sprint or a support month ("close support month", "support maand afsluiten").
 ---
 
 # Close Sprint Skill
@@ -14,9 +14,12 @@ share the same workflow; Copilot follows the runbook directly.
 ## Workflow
 
 1. Read `commands/close-sprint.md` (project root, or the synced `commands/` dir).
-2. Follow every phase in order. Start with Phase 0 (switch to an up-to-date
+2. On projects without sprints, run the runbook in **support mode** (see its
+   "Support mode" section): the close window is a calendar month and every
+   `sprint-<N>` artifact maps to `support-<yyyy>-<mm>` (e.g. `support-2026-08`).
+3. Follow every phase in order. Start with Phase 0 (switch to an up-to-date
    integration branch) and do not skip Phase 6 (review pause).
-3. A live tracker connection is mandatory. Use the most efficient method
+4. A live tracker connection is mandatory. Use the most efficient method
    available: the tracker's MCP connector if connected, otherwise its CLI (e.g.
    `ankitpokhrel/jira-cli`). If neither connects, stop and help the user connect
    — never close a sprint on local docs alone.
@@ -40,7 +43,8 @@ share the same workflow; Copilot follows the runbook directly.
 
 ## Inputs to confirm before starting
 
-- Sprint name or id (e.g. `Sprint 2`)
+- Sprint name or id (e.g. `Sprint 2`) — or, in support mode, the month to
+  close (e.g. `2026-08`; default: the previous calendar month)
 - Assignee email (default: configured tracker user, verify with `jira me`)
 - Issue-tracker project key (infer from filenames, e.g. `RFW`)
 
@@ -50,7 +54,8 @@ A changelog at `docs/sprint-<N>-changelog.md` following the "Changelog
 template" section of the runbook, a gaps document at `docs/sprint-<N>-gaps.md`
 (including the Phase 8 stale-branch and worktree overview), delivered BLIs
 relocated to `docs/sprint-<N>/` with updated status and authors, and a list of
-spillover items prepared for the Phase 7 walkthrough.
+spillover items prepared for the Phase 7 walkthrough. In support mode the same
+outputs land at the `docs/support-<yyyy>-<mm>` equivalents.
 
 Sprint folders older than the previous sprint are compacted by
 `skills/compact-sprint` — a separate, explicitly invoked lane; never compact

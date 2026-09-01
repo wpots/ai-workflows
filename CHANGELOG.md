@@ -30,6 +30,15 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Added
 
+- Support mode for `skills/close-sprint` and `skills/compact-sprint` (and
+  their runbooks): projects without sprints close a **calendar month**
+  instead — delivered backlog items archive to `docs/support-<yyyy>-<mm>/`
+  (e.g. `support-2026-08`; year plus zero-padded month, so folders sort
+  chronologically and never collide across years), with matching changelog,
+  gaps, status-line, and archive-tag conventions, a month-window tracker query
+  in place of the sprint JQL, and a month-based retention guard for
+  compaction. `CLAUDE.md` trigger lines route "close support month" /
+  "support maand afsluiten" and "compact support months" to the same skills.
 - Project-sync freshness stamp (`scripts/project-sync-freshness.sh`):
   `scripts/sync.sh --project` now writes `.claude/ai-workflows-stamp` into the
   project — a `cksum` digest of the exact source set project sync delivers

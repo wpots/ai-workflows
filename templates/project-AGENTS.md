@@ -35,7 +35,7 @@ skill-aware tools. Treat them as the canonical workflow source when available.
 | `backlog`        | backlog item, user story, feature spec, bug item, bli |
 | `commit-message` | commit message, write commit, git commit |
 | `create-pr`      | create pr, open pr, submit pr            |
-| `close-sprint`   | close sprint, sluit sprint af, sprint afsluiten |
+| `close-sprint`   | close sprint, sluit sprint af, sprint afsluiten, close support month |
 | `sprint-demo`    | sprint demo, demo voorbereiden, demo script, prepare demo |
 | `sprint-planning` | sprint planning, plan sprint, sprint start, start sprint, plan komende sprint |
 
