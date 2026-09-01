@@ -190,9 +190,18 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
   default to the **current directory's** git remote. Run these from the
   originating project — normal, and unavoidable for an agent that may not `cd`
   — and MR creation fails with
-  `422 [Source project is not a fork of the target project]`. Do not fall back
-  to `glab api …/merge_requests`: `--field "reviewer_ids[]=<id>"` sends the
-  bracket as a literal JSON key and silently opens the MR with no reviewer.
+  `422 [Source project is not a fork of the target project]`.
+- `glab mr create` cannot carry a real MR body: there is no
+  `--description-file`, `-d` takes a string, and `-d -` opens an editor. For any
+  body with backticks or tables, POST to `…/merge_requests` with
+  `--input <file>` and `-H "Content-Type: application/json"`, then attach the
+  reviewer in a second call with `glab mr update`. Never pass the reviewer as
+  `--field "reviewer_ids[]=<id>"` — the bracket goes over as a literal JSON key
+  and the MR opens with no reviewer.
+- GitLab **accepts** a review request from the MR author, so `wieteke.pots`
+  reviewing their own `ai-workflows` MR is expected, not a conflict with the
+  never-assign-the-author line above — that line governs repos where a reviewer
+  would be a guess.
 - When the MR changes what the `greenberry` plugin ships or how it behaves —
   `skills/`, `commands/`, `.claude-plugin/`, `hooks/`, a script a hook runs, or
   the ambient layer (`CLAUDE.md`, `rules/communication.md`,
