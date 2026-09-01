@@ -45,13 +45,17 @@ function fail(message) {
 
 /** Body of the `## [Unreleased]` section, up to the next `## [` heading. */
 function readUnreleased(changelog) {
-  const start = changelog.indexOf(UNRELEASED);
+  // Anchor to a heading line: the intro prose mentions `## [Unreleased]`
+  // literally, and a plain indexOf lands on that mention instead of the
+  // section — misreading header prose as the release body.
+  const heading = /^## \[Unreleased\]$/m.exec(changelog);
 
-  if (start === -1) {
+  if (!heading) {
     fail(`CHANGELOG.md has no '${UNRELEASED}' heading to release from`);
   }
 
-  const after = start + UNRELEASED.length;
+  const start = heading.index;
+  const after = start + heading[0].length;
   const next = changelog.indexOf("\n## [", after);
 
   return {
