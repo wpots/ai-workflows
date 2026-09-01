@@ -15,6 +15,18 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Changed
+
+- `skills/close-sprint` — new "Background runs (Claude Code)" section: when
+  the background edit-guard blocks the shared checkout, don't attempt the
+  `bgIsolation` opt-out from inside the session (the guard blocks that
+  settings edit and the permission classifier blocks the shell fallback);
+  instead run all phases in an EnterWorktree worktree, make one docs-only
+  hand-off commit there, and let the user apply it with
+  `git cherry-pick -n <sha>` so they still commit themselves. The
+  never-`git commit` constraint now names this hand-off commit as its sole
+  exception.
+
 ## [2.0.0] - 2026-09-01
 
 ### Removed

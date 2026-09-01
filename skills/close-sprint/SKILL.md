@@ -31,7 +31,8 @@ share the same workflow; Copilot follows the runbook directly.
   of the integration branch and misclassifies delivered vs spillover work.
 - The issue tracker is **read-only**. No comments, transitions, edits, or
   assignments.
-- Never run `git commit` — the user commits themselves.
+- Never run `git commit` — the user commits themselves (sole exception: the
+  worktree hand-off commit under "Background runs" below).
 - Use `git mv` when relocating BLIs so history is preserved.
 - Stop and ask whenever classification is ambiguous.
 - Populate `## Authors` on every moved BLI using the tracker assignee plus git
@@ -40,6 +41,29 @@ share the same workflow; Copilot follows the runbook directly.
   `docs/sprint-<N>-gaps.md`, apply the decision, propagate it to the BLI and the
   changelog, and remove the resolved entry — so the final gaps document holds
   **only** genuine spillover and open actions for the sprint being closed.
+
+## Background runs (Claude Code)
+
+Background sessions may refuse Edit/Write in the shared checkout until the
+session isolates itself ("call EnterWorktree first" guard). When that guard is
+active, pick the route **before Phase 1** — not at the first write, after the
+analysis is already done:
+
+- Do not try to lift the guard from inside the session. The opt-out flag
+  (`"worktree": { "bgIsolation": "none" }` in `.claude/settings.json`) is
+  unreachable: the guard blocks that settings edit itself and the permission
+  classifier blocks the shell fallback. Only the user can set it — don't spend
+  a user round-trip discovering this.
+- Working fallback that keeps "the user commits themselves" intact: call
+  EnterWorktree, run every phase inside the worktree (doc edits and `git mv` —
+  the renames survive the hand-off), and make **one docs-only commit** on the
+  worktree branch. That hand-off commit is the sole exception to the
+  never-`git commit` constraint; the user's own checkout still receives no
+  commit.
+- Hand the user `git cherry-pick -n <sha>`: it applies the full change,
+  including the BLI moves, staged but uncommitted in their checkout, so they
+  review and commit themselves. Do not push the hand-off branch — the branch
+  ref outlives the worktree, so nothing is lost when the worktree is removed.
 
 ## Inputs to confirm before starting
 
