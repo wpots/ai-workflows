@@ -19,9 +19,44 @@ throughout — never edit issues, transitions, or comments.
 
 Ask the user at start:
 
-1. Sprint name or id (e.g. `Sprint 2`).
+1. Sprint name or id (e.g. `Sprint 2`) — or, in support mode, the month to
+   close (e.g. `2026-08`; default: the previous calendar month).
 2. Assignee email (default: the configured Jira user, verify with `jira me`).
 3. Jira project key (infer from existing backlog filenames, e.g. `RFW`).
+
+## Support mode (projects without sprints)
+
+A project in support/maintenance no longer runs sprints, but delivered backlog
+items still need the same close: verification, changelog, gaps, archive. The
+close then operates on a **calendar month**, and every `sprint-<N>` artifact in
+this runbook maps to its `support-<yyyy>-<mm>` equivalent — always year plus
+zero-padded month (`support-2026-08`), so archive folders sort chronologically
+and month names cannot collide across years:
+
+| Sprint mode                              | Support mode                                      |
+| ---------------------------------------- | ------------------------------------------------- |
+| `Sprint <N>`                             | the month `<yyyy>-<mm>`                           |
+| `docs/sprint-<N>/`                       | `docs/support-<yyyy>-<mm>/`                       |
+| `docs/sprint-<N>-changelog.md`           | `docs/support-<yyyy>-<mm>-changelog.md`           |
+| `docs/sprint-<N>-gaps.md`                | `docs/support-<yyyy>-<mm>-gaps.md`                |
+| `# Sprint <N> Changelog` (title)         | `# Support <yyyy>-<mm> Changelog`                 |
+| `## Status` → `Delivered in Sprint <N>.` | `## Status` → `Delivered in support-<yyyy>-<mm>.` |
+| tag `sprint-<N>-bli-archive`             | tag `support-<yyyy>-<mm>-bli-archive`             |
+| sprint JQL (`sprint = "Sprint 2"`)       | month-window JQL (see below)                      |
+
+Decide the mode at start: ask, or infer — existing `docs/support-*` folders, or
+a tracker without active or future sprints, mean support mode. Two
+support-specific notes; everything else in this runbook applies unchanged:
+
+- **Phase 1 window query.** There is no sprint to query. When the project uses
+  a tracker, fetch the month's set with a resolution window instead:
+  `assignee = <user> AND project = <KEY> AND resolved >= "<yyyy>-<mm>-01" AND
+  resolved < "<first day of next month>"`. Ticketless local BLIs are normal in
+  support mode: they are classified on Phase 2 git evidence alone and land in
+  the "Ticketloos opgeleverd" table.
+- **The delivery boundary is the merge date** on the integration branch, not
+  the MR or branch creation date: work merged on 2 September belongs to
+  `support-2026-09`, even when its branch started in August.
 
 ## Phase 0 — Switch to the integration branch
 

@@ -58,8 +58,8 @@ corresponding runbook:
 - `create pr`, `open pr`, `submit pr` -> `commands/create-pr.md`
 - `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
 - `backlog item`, `user story`, `feature spec`, `bug item`, `bli` -> `commands/backlog.md`
-- `close sprint`, `sluit sprint af`, `sprint afsluiten` -> `commands/close-sprint.md`
-- `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen` -> `commands/compact-sprint.md`
+- `close sprint`, `sluit sprint af`, `sprint afsluiten`, `close support month`, `support maand afsluiten` -> `commands/close-sprint.md`
+- `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen`, `compact support months` -> `commands/compact-sprint.md`
 - `refinement`, `prepare refinement`, `refine tickets`, `refinement vastleggen` -> `commands/refinement.md`
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `commands/sprint-demo.md`
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `commands/sprint-planning.md`

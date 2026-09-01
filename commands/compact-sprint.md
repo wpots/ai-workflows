@@ -39,6 +39,17 @@ Ask the user at start:
    `docs/sprint-*` folder/changelog plus the tracker, and confirm; the
    retention guard depends on it.
 
+## Support mode (projects without sprints)
+
+Support archives compact the same way (see the "Support mode" section of
+`commands/close-sprint.md`). Read the sprint artifacts as their support
+equivalents: `docs/support-<yyyy>-<mm>/` for `docs/sprint-<M>/`,
+`docs/support-<yyyy>-<mm>-changelog.md` for the changelog, tag
+`support-<yyyy>-<mm>-bli-archive` as the archive anchor, and
+`docs/todo/harvest-support-<yyyy>-<mm>-<topic>.md` for harvest flags. The
+retention guard counts calendar months: in month M, only months ≤ M−2 are
+eligible — the close of month M still cross-references month M−1.
+
 ## Phase 0 — Preconditions
 
 1. Run from an up-to-date integration branch (`development` by default):

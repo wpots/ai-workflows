@@ -43,8 +43,8 @@ When user intent matches one of these prompts, skills, or command requests, read
 - `create pr`, `open pr`, `submit pr` -> `commands/create-pr.md`
 - `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
 - `backlog item`, `user story`, `feature spec`, `bug item`, `bli` -> `commands/backlog.md`
-- `close sprint`, `sluit sprint af`, `sprint afsluiten` -> `commands/close-sprint.md`
-- `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen` -> `commands/compact-sprint.md`
+- `close sprint`, `sluit sprint af`, `sprint afsluiten`, `close support month`, `support maand afsluiten` -> `commands/close-sprint.md`
+- `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen`, `compact support months` -> `commands/compact-sprint.md`
 - `refinement`, `prepare refinement`, `refine tickets`, `refinement vastleggen` -> `commands/refinement.md`
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `commands/sprint-demo.md`
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `commands/sprint-planning.md`
@@ -76,9 +76,9 @@ cross-reference, so it still needs its own line.
 - `address review comments`, `pick up review comments`, `apply review feedback`, `pak review comments op` -> `skills/address-review-comments` (skill only; evaluate the feedback with `skills/receiving-code-review` first)
 - `review architecture`, `check clean arch`, `architecture audit`, `layer violation` -> `skills/architecture-review` (skill only)
 - `backlog item`, `user story`, `feature spec`, `bug item`, `bli` -> `skills/backlog` (canonical), `commands/backlog.md` (fallback); for a tracker ticket use `skills/jira-ticket`
-- `close sprint`, `sluit sprint af`, `sprint afsluiten` -> `skills/close-sprint` (canonical), `commands/close-sprint.md` (fallback)
+- `close sprint`, `sluit sprint af`, `sprint afsluiten`, `close support month`, `support maand afsluiten` -> `skills/close-sprint` (canonical), `commands/close-sprint.md` (fallback); projects without sprints close a calendar month (support mode, `docs/support-<yyyy>-<mm>/`)
 - `review code`, `code review`, `review changes` -> `skills/code-review` (canonical), `commands/review-code.md` (fallback)
-- `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen`, `prune sprint docs` -> `skills/compact-sprint` (canonical), `commands/compact-sprint.md` (fallback); runs after `skills/close-sprint`, never on the current or previous sprint
+- `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen`, `prune sprint docs`, `compact support months` -> `skills/compact-sprint` (canonical), `commands/compact-sprint.md` (fallback); runs after `skills/close-sprint`, never on the current or previous sprint (or, in support mode, month)
 - `datocms migration`, `cms migration`, `fork cms environment`, `change the cms schema` -> `skills/datocms-migration` (skill only; the DatoCMS counterpart to `skills/migration-check`, which covers Payload/Postgres)
 - `commit message`, `write commit`, `git commit` -> `skills/commit-message` (canonical), `commands/commit-message.md` (fallback)
 - `component spec`, `spec component`, `write spec`, `document component api` -> `skills/component-spec` (skill only)
