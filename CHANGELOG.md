@@ -15,17 +15,7 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
-### Changed
-
-- Comment-convention routing and edges: `rules/documentation.md` now loads at
-  **authoring** time — `templates/project-CLAUDE.md` lists it among the focused
-  rules and `rules/rules.md` trigger 15 fires on *adding* comments/JSDoc, not
-  only on changing described code or reviewing. "Pointing at something that
-  will not exist" explicitly exempts external references that are the durable
-  fact (upstream issue, CVE, RFC); "One Home Per Fact" accepts the owning
-  declaration's docblock as a valid home; `rules/testing.md` states that test
-  files follow the same new-comment rules (neighbouring suites set the density
-  register).
+## [2.0.0] - 2026-09-01
 
 ### Removed
 
@@ -119,6 +109,15 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- Comment-convention routing and edges: `rules/documentation.md` now loads at
+  **authoring** time — `templates/project-CLAUDE.md` lists it among the focused
+  rules and `rules/rules.md` trigger 15 fires on *adding* comments/JSDoc, not
+  only on changing described code or reviewing. "Pointing at something that
+  will not exist" explicitly exempts external references that are the durable
+  fact (upstream issue, CVE, RFC); "One Home Per Fact" accepts the owning
+  declaration's docblock as a valid home; `rules/testing.md` states that test
+  files follow the same new-comment rules (neighbouring suites set the density
+  register).
 - `skills/mr-merged` now treats post-merge cleanup as one atomic worktree and
   branch batch: dirty worktrees are preserved, clean worktrees are removed
   before their local branch, squash-merged branch heads must still match the
