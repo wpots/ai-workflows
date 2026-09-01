@@ -51,10 +51,58 @@ are not style nitpicks:
 - **Density that breaks register** — a multi-line justification on a list
   entry whose siblings carry two-word labels. New comments match the comment
   density and idiom of the surrounding code.
+- **Pointing at something that will not exist** — an MR or PR number ("raised
+  in review of !34"), "see the MR for the evidence", a ticket that only
+  records the discussion, a chat thread. The one reader who can follow the
+  reference is the reviewer, who does not need it. State the behaviour the
+  code has; drop the provenance.
 
 The test: would the comment still be worth reading a year from now, to
 someone who never saw the MR? If it only helps someone *reviewing* the
 change, move its content to the MR description and delete it.
+
+## One Home Per Fact
+
+A durable fact — a measurement, a spike finding, an external contract, a
+version-specific dependency behaviour — lives in **exactly one** place: the
+unit's `README.md`, or `docs/*`. Code sites carry the one-line consequence and
+a pointer to that home, never the fact itself.
+
+A change that duplicates the fact is a finding even when every copy is
+currently correct. Nothing keeps N copies in sync but a human remembering, so
+the second copy is where the next false claim appears — and it reads as
+authoritative, because it sits next to the code.
+
+- The same measurement in three files is **one** finding, not three:
+  recommend a single home and pointers from the rest.
+- A comment stating the local consequence and linking to the fact is not a
+  duplicate. That is the shape being asked for.
+- Two docblocks in a row saying the same thing is a copy-paste orphan — an
+  edit added the new one and did not delete the old. Report the stale one.
+- **A measured number nothing asserts.** A comment stating a contrast ratio,
+  a bundle size, a timing, a byte count is a claim that has to reproduce. If
+  it matters, assert it in a test; if it cannot be asserted, name the method
+  so the next reader can re-derive it. An unasserted number drifts silently
+  and is believed anyway.
+
+Comment **volume** is not a metric, and no ratio of comment lines to code
+lines is a finding on its own. A mostly-comment module documenting a third
+party's misbehaviour can be exactly right, and a sparse one can be all noise.
+Count duplicated facts, not lines.
+
+## JSDoc Attaches To A Declaration
+
+A docblock documents whatever declaration follows it. Placed wrong it
+documents nothing — and the failure is invisible in a diff, because the prose
+reads correctly in review and is simply absent on hover.
+
+- A component's or function's docblock sits on the component, not on its
+  props or options interface. Explaining `role="alert"` above
+  `interface FooProps` means hovering `Foo` shows nothing.
+- A file overview goes **above** the imports. Below them it attaches to the
+  first declaration that follows, or to nothing.
+- `@param` or `@returns` naming something the signature does not have is a
+  defect, not a leftover.
 
 ## Scope
 

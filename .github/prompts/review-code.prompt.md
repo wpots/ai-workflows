@@ -62,9 +62,22 @@ Always check for:
   recommend updating it in the same MR or deleting it when it cannot be made
   true cheaply (repo-wide doc audits stay with `skills/maintenance`)
 - comments the diff **adds** that restate the adjacent code, argue why the
-  change is correct, or out-density their siblings — per "What A New Comment
+  change is correct, out-density their siblings, or point at something that
+  will not exist (an MR or PR number, "see the MR") — per "What A New Comment
   May Say" in `rules/documentation.md`, recommend deletion and moving the
   justification into the MR description
+- the same fact repeated across files — a measurement, a spike finding, a
+  dependency's version-specific behaviour. Grep a distinctive phrase from each
+  new explanatory block across the diff; two or more hits is one finding
+  naming the single home it belongs in, per "One Home Per Fact" in
+  `rules/documentation.md`. A stated number that no test asserts joins it
+- docblocks attached to the wrong declaration — one above a props interface
+  that describes the component, or a file overview below the imports. Per
+  "JSDoc Attaches To A Declaration"; both read correctly in the diff and
+  document nothing on hover
+
+Comment volume and comment-to-code ratios are **not** findings. Count
+duplicated facts, not lines.
 
 ## Architecture Conformance Pass
 
