@@ -67,6 +67,8 @@ someone opened.
 
 ## Related
 
-- Depends on: `docs/backlog/feat-project-sync-freshness-stamp.md`
+- Depends on: the freshness stamp (slice 1/2) — delivered in 2.0.0 and merged
+  via https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/93,
+  so this slice is unblocked
 - Precedent: `scripts/install-hooks.sh` and the repo's own
   `validate-ai-instructions.sh` running in both pre-commit and CI
