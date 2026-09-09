@@ -50,6 +50,8 @@ Use the structure from `rules/backlog.md`:
 - `## Ticket`
 - `## Priority`
 - `## User Story` when applicable
+- `## Reproduction` for bug items — the shortest path that shows the defect;
+  after a fair attempt without a reliable path, record what was tried instead
 - `## Acceptance Criteria`
 - `## Technical Notes`
 - `## How To Test/Verify` when the item is beyond refine state

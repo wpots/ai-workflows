@@ -101,6 +101,19 @@ medium
 
 <!-- As a [role], I want [goal], so that [benefit]. -->
 
+## Reproduction
+
+<!-- Bug items only — omit for other types. The shortest path that shows the
+     defect today: the input, command or route, as which role, and the wrong
+     result. The fix is checked against it and the first test is written from
+     it. A deterministic path (a function call on a fixture) beats a manual
+     one. Spend a fair effort, not an afternoon: if no reliable path turns up,
+     say so here — what was tried, and under which conditions the defect has
+     been seen — instead of leaving the section out. -->
+
+1. ...
+2. ...
+
 ## Acceptance Criteria
 
 <!-- Checklist a junior developer can verify against -->
@@ -149,6 +162,9 @@ medium
 - Each acceptance criterion should be independently testable.
 - `How to verify` is written to be **run**, not read: real commands, real
   routes, real roles. "Check that it works" is not a verification step.
+- `Reproduction` (bug items) is the shortest path that **shows** the defect,
+  not a description of it. "Hard to reproduce" is an acceptable entry only
+  together with what was tried; a bug item without either is not ready.
 
 ## Updating Existing Items
 

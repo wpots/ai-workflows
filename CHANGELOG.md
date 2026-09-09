@@ -24,6 +24,13 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   the project tree, and the smoke test asserts the offer wording. Because the
   script is part of the sync digest, every synced project shows one stale nudge
   after this ships — that nudge is the new offer.
+- `skills/backlog`, `commands/backlog.md` — bug items get a `## Reproduction`
+  section (template in `rules/backlog.md`): the shortest path that shows the
+  defect, deterministic when a fixture allows it, placed before the acceptance
+  criteria so the fix is checked against it and the first test is written from
+  it. A fair attempt that finds no reliable path is recorded in the section,
+  not dropped. Brings the local bug item in line with `skills/jira-ticket`,
+  which already requires a repro path for a tracker bug.
 - `skills/upstream-rules` — the committing gotchas in step 4 now cover adding a
   new `rules/<file>.md`: the validator also requires it in the `FEATURES.md`
   rules table and a `docs/pipeline-map.md` phase table, and pipeline-map's
