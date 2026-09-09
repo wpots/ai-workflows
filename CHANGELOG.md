@@ -17,6 +17,11 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/upstream-rules` — the committing gotchas in step 4 now cover adding a
+  new `rules/<file>.md`: the validator also requires it in the `FEATURES.md`
+  rules table and a `docs/pipeline-map.md` phase table, and pipeline-map's
+  `docs/…` paths are link-checked against this repo, so project-relative paths
+  (e.g. `docs/adr/`) fail the commit — describe project paths in words there.
 - `skills/close-sprint` — new "Background runs (Claude Code)" section: when
   the background edit-guard blocks the shared checkout, don't attempt the
   `bgIsolation` opt-out from inside the session (the guard blocks that

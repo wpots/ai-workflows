@@ -127,7 +127,7 @@ If the change modifies shared rules or workflow adapters, fetch related files
 from the repo and verify it does not contradict existing guidance. If it does,
 flag the conflict to the developer and ask how to resolve it.
 
-Two things about committing here, both of which cost a wasted cycle otherwise:
+Three things about committing here, each of which costs a wasted cycle otherwise:
 
 - **Run the commit with the sandbox disabled.** The pre-commit hook runs
   `scripts/generate-adapters.sh`, which calls `mktemp` in the real `TMPDIR`. A
@@ -140,6 +140,14 @@ Two things about committing here, both of which cost a wasted cycle otherwise:
   commit again. Editing a `shared/*.md` fragment does the same to `CLAUDE.md`,
   `AGENTS.md`, `.github/copilot-instructions.md` and the `templates/` adapters —
   stage all of them; they are generated, never hand-edited.
+- **A new `rules/<file>.md` must land in every rule index in the same commit.**
+  The validator warns on a rule missing from the `FEATURES.md` rules table and
+  from a phase table in `docs/pipeline-map.md`, on top of the `rules/rules.md`
+  index and the focused-rules lists in `templates/project-CLAUDE.md` and
+  `templates/project-AGENTS.md`. And `docs/pipeline-map.md` is link-checked
+  against **this repo**: naming a project-relative path like `docs/adr/` there
+  fails the commit with `names \`docs/…\`, which does not exist` — describe
+  project paths in words ("the project's ADR folder") instead of path literals.
 
 A change to a `shared/*.md` fragment or anything else the plugin ships also needs
 a `## [Unreleased]` entry in `CHANGELOG.md`, and must **not** touch the `version`
