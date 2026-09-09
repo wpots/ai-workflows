@@ -177,10 +177,16 @@ note_due || exit 0
 # printf, not through a JSON encoder. The fix command names the plugin cache
 # path expanded, because $CLAUDE_PLUGIN_ROOT is not set in the shell the
 # reader will run it from.
+#
+# The note addresses the agent, not just the human: most developers never run
+# the sync by hand, so the note tells the agent to offer running it — one yes
+# instead of a command to know. Consent stays with the user, and this script
+# itself still never writes into the project tree.
+FIX_STEPS="After a yes, run: bash '$SOURCE_DIR/scripts/sync.sh' --project . -- review the diff, and commit only the synced files (including .claude/ai-workflows-stamp) as their own chore commit on the project's usual flow; never fold them into unrelated work in progress."
 if [[ "$STATE_LABEL" == "stale" ]]; then
-  NOTE="ai-workflows project sync is stale: the synced assets in this project (rules/, commands/, generated adapters) no longer match what the greenberry plugin ships. Refresh them with: bash '$SOURCE_DIR/scripts/sync.sh' --project . -- then commit the changed files, including .claude/ai-workflows-stamp."
+  NOTE="ai-workflows project sync is stale: the synced assets in this project (rules/, commands/, generated adapters) no longer match what the greenberry plugin ships. Claude: offer to refresh them now, instead of only relaying this note. $FIX_STEPS"
 else
-  NOTE="ai-workflows project sync state is unknown: this project has no .claude/ai-workflows-stamp (last synced before stamps existed, or never synced). Establish it with: bash '$SOURCE_DIR/scripts/sync.sh' --project . -- then commit the changed files, including .claude/ai-workflows-stamp."
+  NOTE="ai-workflows project sync state is unknown: this project has no .claude/ai-workflows-stamp (last synced before stamps existed, or never synced). Claude: offer to establish it now, instead of only relaying this note. $FIX_STEPS"
 fi
 
 printf '{"hookSpecificOutput":{"hookEventName":"SessionStart","additionalContext":"%s"}}\n' \
