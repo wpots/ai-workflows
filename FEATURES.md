@@ -116,6 +116,7 @@ Baseline rules in `rules/`. Loaded contextually — not all apply at once.
 | `rules/sustainability.md` | Sustainable IT: caching/rendering, LCP/assets, bundle and client JS, CI cost, dependencies |
 | `rules/sonarqube.md` | Opt-in SonarQube/SonarLint rule parity: avoid flagged patterns, apply preferred fixes |
 | `rules/documentation.md` | Comments, JSDoc, and docs describing changed behaviour update in the same MR; one home per durable fact; docblocks attach to a declaration |
+| `rules/adr.md` | Architecture Decision Records: when to write one, `docs/adr/` layout, statuses, MADR-lite template |
 | `rules/clean-architecture.md` | Layer boundaries, dependency direction, CA principles |
 
 ### Stack-Specific Rules
