@@ -61,17 +61,22 @@ propose the new cut.
    technical notes are specific.
 5. Write or update the backlog item in `docs/backlog/` using the structure from
    `rules/backlog.md`.
-6. When the item is a correction/sub-ticket, use the minimal fix format from
+6. For a **bug** item, fill `## Reproduction` with the shortest path that shows
+   the defect — a function call on a fixture when there is one, otherwise the
+   route, role and input. Make a fair attempt, then stop: when no reliable path
+   turns up, record what was tried in that section instead of omitting it.
+   `skills/jira-ticket` applies the same rule to the tracker ticket.
+7. When the item is a correction/sub-ticket, use the minimal fix format from
    the backlog rules.
-7. Keep acceptance criteria PO-friendly and move implementation detail into
+8. Keep acceptance criteria PO-friendly and move implementation detail into
    `Technical Notes`.
-8. **Check the size before finishing.** Run the item past the split triggers in
+9. **Check the size before finishing.** Run the item past the split triggers in
    `rules/mr-sizing.md`. Too big → write it as several slices instead: number
    them in the filename, fill the `Slice` field, chain them with `Depends on:`,
    and say in the recap why the cut sits there. Leave `How to verify` empty —
    whoever delivers the item fills it before the MR opens.
-9. If the request changes the reusable template, update `docs/backlog/_template.md`
-   so it stays consistent with the current backlog rules.
+10. If the request changes the reusable template, update `docs/backlog/_template.md`
+    so it stays consistent with the current backlog rules.
 
 ## Constraints
 
