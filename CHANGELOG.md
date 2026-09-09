@@ -15,6 +15,8 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-09-09
+
 ### Changed
 
 - `scripts/project-sync-freshness.sh` — the stale/unknown SessionStart note now
