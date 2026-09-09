@@ -10,6 +10,7 @@ Load only the relevant focused rule files for the task:
 - `rules/accessibility.md` for interactive UI and accessibility checks
 - `rules/type-safety.md` for TypeScript-heavy work, trust boundaries, and runtime validation checks
 - `rules/documentation.md` when adding comments or JSDoc, or changing code that existing comments, JSDoc, or repo docs describe
+- `rules/adr.md` when recording an architecture decision, creating `docs/adr/` or `docs/architecture.md`, or changing something a recorded decision covers
 - `rules/backlog.md` for user stories, specs, and backlog work
 - `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
 - `rules/payload.md` for Payload schema, generated-type, and integration work

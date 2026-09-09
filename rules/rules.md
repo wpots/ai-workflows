@@ -23,6 +23,7 @@ In practice, treat this directory as a topic-based rule library:
 | `sustainability.md`                     | Sustainable IT: caching/rendering, LCP/assets, bundle & client JS, CI cost, deps |
 | `sonarqube.md`                          | Opt-in SonarQube/SonarLint rule parity: avoid flagged patterns, apply preferred fixes |
 | `documentation.md`                      | Comments, JSDoc, and docs describing changed behaviour update in the same MR; one home per durable fact; docblocks attach to a declaration |
+| `adr.md`                                | Architecture Decision Records: when to write one, `docs/adr/` layout, statuses, MADR-lite template |
 | `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
 | `mr-sizing.md`                          | MR size budget, sliceability test, split triggers, ticket-to-item mapping |
 | `git-flow.md`                           | Branch/MR flow, squash-and-ff merge settings, MR title as history, provenance labels |
@@ -57,7 +58,10 @@ In practice, treat this directory as a topic-based rule library:
     that existing comments, JSDoc, or repo docs describe, and during code
     review. Adding comments to new code is the trigger that is easiest to
     miss — load the rule before writing them, not when review flags them.
-16. Load the appropriate stack file based on detected stack (see below).
+16. Load `adr.md` when recording or revisiting an architecture decision,
+    creating `docs/adr/` or `docs/architecture.md`, or when a change
+    contradicts a recorded decision.
+17. Load the appropriate stack file based on detected stack (see below).
 
 ## Stack Detection
 

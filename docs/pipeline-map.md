@@ -230,6 +230,7 @@ Turning intent into work items with acceptance criteria.
 | `skills/jira-ticket` | skill | `/jira-ticket` · `"maak een jira ticket"`, `"file a story"` | Create a Jira bug/story/task from a type-specific template — the one sanctioned tracker **write** |
 | `commands/refinement.md`, `commands/sprint-planning.md`, `commands/backlog.md` | commands | trigger phrase → command; `refinement.md` has **no** mapping | Fallback runbooks for tools that cannot use skills |
 | `rules/backlog.md` | rule | loaded — user story, spec, backlog work | User story, spec, and backlog-item structure |
+| `rules/adr.md` | rule | loaded — recording an architecture decision, creating a project's ADR folder or architecture doc, or changing something a recorded decision covers | Architecture Decision Records: when to write one, the `adr/` layout under the project's docs folder, statuses, MADR-lite template; append-only, supersede instead of edit |
 | `rules/mr-sizing.md` | rule | loaded — whenever work is sized or sliced, and at MR time | One ticket to many items: size budget, sliceability test, split triggers. Blocking at planning, advisory at the MR |
 | `docs/backlog/` | context | read by `skills/work-backlog` at pickup | Local BLIs — the definition of done that `skills/work-backlog` consumes |
 
