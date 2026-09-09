@@ -148,6 +148,7 @@ HOOK_OUT="$(run_hook "$WITH_CONVENTIONS" "$TMP_DIR/data-mismatch")"
 echo "$HOOK_OUT" | grep -Fq "additionalContext" || { echo "No hook JSON on mismatch" >&2; exit 1; }
 echo "$HOOK_OUT" | grep -Fq "stale" || { echo "Mismatch not reported as stale" >&2; exit 1; }
 echo "$HOOK_OUT" | grep -Fq "sync.sh' --project ." || { echo "Note does not name the fix command" >&2; exit 1; }
+echo "$HOOK_OUT" | grep -Fq "offer to refresh" || { echo "Note does not tell the agent to offer the sync" >&2; exit 1; }
 echo "$HOOK_OUT" | python3 -c "import json,sys; json.load(sys.stdin)" || { echo "Hook output is not valid JSON" >&2; exit 1; }
 
 echo "Smoke test: the note fires once per distinct mismatch"
@@ -161,6 +162,7 @@ echo "Smoke test: a missing stamp is reported as unknown, not stale"
 rm -f "$STAMP_FILE"
 HOOK_OUT="$(run_hook "$WITH_CONVENTIONS" "$TMP_DIR/data-missing")"
 echo "$HOOK_OUT" | grep -Fq "unknown" || { echo "Missing stamp not reported as unknown" >&2; exit 1; }
+echo "$HOOK_OUT" | grep -Fq "offer to establish" || { echo "Note does not tell the agent to offer the sync" >&2; exit 1; }
 if echo "$HOOK_OUT" | grep -Fq "stale"; then
   echo "Missing stamp wrongly reported as stale" >&2
   exit 1

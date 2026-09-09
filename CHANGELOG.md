@@ -17,6 +17,13 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `scripts/project-sync-freshness.sh` — the stale/unknown SessionStart note now
+  addresses the agent: offer to run the project sync (and commit the synced
+  files as their own chore commit) instead of only naming the command, so a
+  developer's whole job is saying yes. The hook itself still never writes into
+  the project tree, and the smoke test asserts the offer wording. Because the
+  script is part of the sync digest, every synced project shows one stale nudge
+  after this ships — that nudge is the new offer.
 - `skills/upstream-rules` — the committing gotchas in step 4 now cover adding a
   new `rules/<file>.md`: the validator also requires it in the `FEATURES.md`
   rules table and a `docs/pipeline-map.md` phase table, and pipeline-map's
