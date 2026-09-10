@@ -15,6 +15,14 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Fixed
+
+- `skills/work-backlog`, `commands/work-backlog.md` — the WIP check no longer
+  tells the agent to run `glab mr list --state opened`: `glab mr list` has no
+  `--state` flag (glab 1.91.0 exits 1 with `Unknown flag: --state`), and open
+  MRs are already its default. Every autonomous run tripped on this and had to
+  retry without the flag.
+
 ## [2.0.1] - 2026-09-09
 
 ### Changed
