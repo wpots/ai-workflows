@@ -1,0 +1,49 @@
+{
+  "skill_name": "payload-jobs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit our Payload jobs setup. payload.config.ts has `jobs: { tasks: [indexDocumentTask], autoRun: [{ cron: '*/5 * * * * *', queue: 'default' }] }` and nothing else under `jobs`. We deploy to Clever Cloud with autoscaling 2-6 instances. Tell me what is wrong before we go live.",
+      "expected_output": "A ranked findings list that names the two blocking problems — every instance runs autoRun without a shouldAutoRun election, so jobs execute more than once because Payload's claim is not atomic; and jobs.access.run is unset, so GET <api>/payload-jobs/run and /handle-schedules are callable by anyone — followed by idempotency, orphaned-run recovery and heartbeat coverage. Recommends the autoRun + shouldAutoRun election model because the task is event-driven, points at the references, and does not propose probing the deployed endpoint.",
+      "assertions": [
+        "Identifies that autoRun runs on every instance and that the job claim is not atomic, so jobs can execute twice",
+        "Recommends shouldAutoRun keyed on INSTANCE_NUMBER (0 or undefined) rather than a lock",
+        "Flags jobs.access.run as unset and explains the default is allow-all despite the JSDoc",
+        "States that the Local API and CLI ignore access.run, so closing it does not break the project's own runner",
+        "Mentions idempotency because a zero-downtime deploy runs old and new instance 0 together",
+        "Does not suggest calling the run endpoint on a deployed environment to test it",
+        "Ranks the public endpoint and missing election above the other findings"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We have four nightly Payload tasks with a `schedule` (03:00-04:00 UTC) on a Clever Cloud app with 2-6 instances and vertical autoscaling. Set up the job runner for us.",
+      "expected_output": "Chooses the platform-cron model, not autoRun election, and explains why: handleSchedules runs before the shouldAutoRun check, so scheduled tasks race at boot across instances. Proposes a cron entry inside a narrow nightly window, a wrapper that exits 0 on every INSTANCE_NUMBER except 0 and warns-but-runs when it is absent, a runner script that releases stalled runs, then handles schedules, then runs the queue in one Payload process, retries with backoff on every task, jobs.access.run set, an alignment test between the cron file and the constants, and one heartbeat per task per environment. Asks for the user's go before writing code and reminds that a new task slug needs a migration the user runs.",
+      "assertions": [
+        "Selects the platform cron + single-instance runner model and rejects autoRun election for scheduled tasks",
+        "Explains the handleSchedules-before-shouldAutoRun ordering as the reason",
+        "Places the stalled-run recovery in the runner before handleSchedules, not inside a task",
+        "Includes the fail-open warning when INSTANCE_NUMBER is absent and a skip on every other instance",
+        "Narrows the poll to a window around the schedules and links the cadence to the autoscaler",
+        "Includes jobs.access.run and retries with backoff",
+        "Includes an alignment test between the cron file and the constants",
+        "Does not write code before the user confirms, and does not run any migrate command"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Our nightly stats export on production hasn't written a file since three weeks ago. There are no errors in the logs, the cron shows CMD/CMDEND every 15 minutes, and the other nightly jobs are fine. Acceptance is fine too. What happened?",
+      "expected_output": "A diagnosis that starts from the acceptance-vs-production difference (state, not code), sends the user to the admin jobs collection filtered on the export's task slug, and names the fingerprint: a row at processing true with totalTried 0, no completedAt and no error, and no newer row for that slug. Explains that Payload never retries such a row and that the scheduler counts it as active, so no new run is queued for that slug while sibling slugs continue. Notes that CMD/CMDEND and a 'completed successfully' wrapper line prove nothing, points at the platform activity log for an instance replacement as the likely kill, gives the immediate recovery (uncheck processing, run the runner once on instance 0), says the missed nights are not backfilled, and recommends the structural fix: recovery in the runner plus retries.",
+      "assertions": [
+        "Identifies the processing true / totalTried 0 / no completedAt / no error fingerprint",
+        "Explains that the row blocks both its own retry and all future scheduling for that task slug",
+        "Explains why only that slug is affected while other jobs keep running",
+        "States that cron CMD/CMDEND lines and a successful wrapper exit prove nothing about Payload having run a job",
+        "Warns that an empty completedAt alone is the normal waiting state and not the symptom",
+        "Suggests looking at the platform activity or metrics for an instance replacement around the job time",
+        "Gives the immediate manual recovery and notes that missed data is not backfilled by re-running",
+        "Recommends moving recovery into the runner and adding retries rather than a one-off fix"
+      ]
+    }
+  ]
+}

@@ -254,7 +254,7 @@ nothing prevents an unready item from being picked up.
 | `rules/project.md` | rule | loaded — ambient for code work | Structure, naming, component architecture, function style |
 | `rules/type-safety.md` | rule | loaded — TS-heavy code, API/JSON/env/DB boundaries | Trust boundaries, strict TS posture, lint guardrails |
 | `rules/clean-architecture.md` | rule | loaded — ambient for code work | Layer boundaries and dependency direction |
-| `rules/content-blocks.md`, `rules/payload.md` | rules | loaded — CMS blocks; Payload schemas and hooks | CMS-backed block architecture; Payload schemas, generated types, hooks |
+| `rules/content-blocks.md`, `rules/payload.md` | rules | loaded — CMS blocks; Payload schemas, hooks, jobs | CMS-backed block architecture; Payload schemas, generated types, hooks, jobs queue |
 | `rules/testing.md` | rule | loaded — tests and test reviews | Testing strategy and query priority while writing code |
 | `rules/sustainability.md` | rule | loaded — perf, bundle, asset work | Runtime, bundle, and asset cost as a build-time concern |
 | `rules/stacks/nextjs-payload.md`, `rules/stacks/react-native-expo.md` | rules | loaded — after checking `package.json` | Stack-specific conventions layered on the baseline |
@@ -325,6 +325,7 @@ stakeholders actually read. See
 | --- | --- | --- | --- |
 | `skills/maintenance` | skill | `/maintenance` · `"onderhoud"`, `"monthly health check"`, `"api key check"` | Periodic sweep across every lane that rots silently: deps, runtime EOL, credential and API-key currency, quality baseline, CI, data, doc drift |
 | `skills/npm-maintenance` | skill | `/npm-maintenance` · `"audit dependencies"`, `"patch a CVE"` | Dependency updates, `npm audit` remediation, researched major migrations |
+| `skills/payload-jobs` | skill | `/payload-jobs` · `"nightly job"`, `"autoRun"`, `"jobs draaien dubbel"` · delegated by lane F of `skills/maintenance` | Payload's jobs queue on multi-instance hosting: one elected runner, closed run endpoint, orphaned-run recovery, idempotent tasks, poll cadence vs the autoscaler |
 | `skills/wcag-audit` | skill | `/wcag-audit` · `"a11y audit of production"` | axe-core/Playwright scan of the live site, combined with the static findings |
 | `skills/sustainable-review` | skill | `/sustainable-review` · `"sustainability review"` | Production runtime, caching, asset and CI-cost audit |
 | `skills/jira-ticket`, `skills/backlog` | skills | `/jira-ticket`, `/backlog` — by hand, after a human reads a report | The landing point of feedback triage: an observation becomes a ticket or a BLI |

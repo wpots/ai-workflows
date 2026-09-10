@@ -78,6 +78,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `watch-mrs` | Watch open GitLab MRs for reviewer comments and merge-readiness, optionally auto-merging | No (skill only) |
 | `test-driven-development` | Drive a feature or bugfix test-first through a strict RED-GREEN-REFACTOR cycle | No (skill only) |
 | `migration-check` | Statically verify a freshly generated Payload/Postgres migration for snapshot-drift bugs | No (skill only) |
+| `payload-jobs` | Audit or set up Payload's jobs queue for multi-instance hosting — one elected runner, closed run endpoint, orphaned-run recovery, idempotent tasks, heartbeat coverage | No (skill only) |
 | `datocms-migration` | Drive a DatoCMS schema change via a sandbox fork, autogenerate the migration, and review it before it ships | No (skill only) |
 | `sustainable-review` | Audit a change or area for Sustainable IT and produce backlog-ready findings | Yes |
 | `wcag-audit` | WCAG 2 compliance audit combining static code review with an axe-core/Playwright scan of the live site | No (skill only) |
