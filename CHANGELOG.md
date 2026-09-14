@@ -15,6 +15,38 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Changed
+
+- `skills/npm-maintenance` — §1 requires reading the project's own history for
+  every package before proposing a bump (`git log -S` on the `package.json`
+  line, `git log --grep=Revert`): a reverted bump of the same package is a hard
+  stop until its reason is known. New section "Framework minors are behavioural
+  changes": exact-version release-notes diff, flipped defaults between tags,
+  the host's cost-sensitive metrics, request-volume measurement on a local
+  production build against production, and a positive control on the known-bad
+  version — a clean result without a reproduced failure proves nothing. Runtime
+  step: run the package manager through the pinned Node binary
+  (`…/npm-cli.js`), `--cache <scratch>` for a root-owned `~/.npm`. Validation:
+  capture exit codes, not excerpts.
+- `skills/backlog`, `commands/backlog.md` — the existing-item search also
+  covers untracked files and a parallel session's branch or worktree; such an
+  item is updated additively and left uncommitted.
+- `CLAUDE.md` (Worktrees) — inside an EnterWorktree session git refuses
+  `git -C <other checkout>`, so repo-level operations happen after
+  `ExitWorktree`; shared-checkout hygiene (`git status`, `git worktree list`,
+  `git fetch` before push, rebase-not-force after a force-push under you).
+- `skills/improve-skill` — step 4 names the adapter regeneration the
+  pre-commit hook performs when `commands/<name>.md` changes, so the blocked
+  first commit is expected: stage the regenerated `.github/prompts/` file and
+  commit again.
+
+### Added
+
+- `skills/npm-maintenance/evals/evals.json` — the prior-revert check and the
+  behavioural-regression procedure with positive control.
+- `skills/backlog/evals/evals.json` — an untracked item from a parallel session
+  is updated, not duplicated.
+
 ## [2.0.1] - 2026-09-09
 
 ### Changed
