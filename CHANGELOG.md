@@ -35,6 +35,10 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   `git -C <other checkout>`, so repo-level operations happen after
   `ExitWorktree`; shared-checkout hygiene (`git status`, `git worktree list`,
   `git fetch` before push, rebase-not-force after a force-push under you).
+- `skills/improve-skill` — step 4 names the adapter regeneration the
+  pre-commit hook performs when `commands/<name>.md` changes, so the blocked
+  first commit is expected: stage the regenerated `.github/prompts/` file and
+  commit again.
 
 ### Added
 
