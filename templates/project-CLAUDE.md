@@ -9,7 +9,6 @@ Load only the relevant focused rule files for the task:
 - `rules/testing.md` for tests and test reviews
 - `rules/accessibility.md` for interactive UI and accessibility checks
 - `rules/type-safety.md` for TypeScript-heavy work, trust boundaries, and runtime validation checks
-- `rules/documentation.md` when adding comments or JSDoc, or changing code that existing comments, JSDoc, or repo docs describe
 - `rules/adr.md` when recording an architecture decision, creating `docs/adr/` or `docs/architecture.md`, or changing something a recorded decision covers
 - `rules/backlog.md` for user stories, specs, and backlog work
 - `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
@@ -28,6 +27,12 @@ only when it "feels architectural". The path is the trigger:
   its Definition of Done.
 - Adding or changing a component or module → load `rules/project.md` (prop-types
   in `types.ts`, named handlers, no `React.FC`, component design).
+- Writing or editing **any** source file → load `rules/documentation.md`, which
+  governs both the comments the change adds and the ones it makes stale. It is
+  mandatory rather than task-scoped because "when adding a comment" only becomes
+  true while the comment is being written — after the moment it had to be
+  loaded. Nearly every change adds or invalidates one, so a rule that waits for
+  that signal is a rule that never loads.
 
 ## Precedence
 

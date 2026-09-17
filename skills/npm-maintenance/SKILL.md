@@ -19,7 +19,9 @@ Keep package updates deliberate, reproducible, and verified. Treat major-version
    - Prefer the repository's documented command or dev-container wrapper.
    - Respect `.nvmrc`, `.node-version`, Volta configuration, or the package manager's `packageManager` field.
    - Use DDEV when the project documentation or configuration makes it the supported environment.
+   - Run the package manager through the pinned Node binary — `<node>/bin/node <node>/lib/node_modules/npm/bin/npm-cli.js …` — not `<node>/bin/npm`: npm's shebang resolves `node` from `PATH`, so the wrong runtime still wins (`EBADENGINE`). A root-owned `~/.npm` (`EPERM`; npm suggests `chown`) is worked around with `--cache <scratch dir>`, never with `sudo`.
 4. Inventory outdated packages and vulnerabilities with the selected package manager. Separate direct from transitive dependencies and minor or patch from major updates.
+5. **Read the project's own history for every package you intend to move**: `git log --oneline -S'"<pkg>": "' -- package.json` and `git log --oneline --grep=Revert`. A reverted bump of the same package — above all one re-applied afterwards at a lower version — is a hard stop: name the revert commit and its reason before proposing anything, and when the reason is in neither the commit, the MR nor the tracker, ask. Never assume it is stale.
 
 Report the proposed scope before making a change when the update set is broad or ambiguous.
 
@@ -72,6 +74,32 @@ Before changing a direct dependency across a major version:
 4. Obtain explicit approval for the target version and plan before modifying dependencies or application code.
 5. Apply the approved migration, then run validation. If checks fail, diagnose and report the failure; do not silently weaken tests, pins, or configuration to make the update pass.
 
+## Framework minors are behavioural changes
+
+A minor of the framework (Next, Nuxt, Remix, Expo) can flip defaults and change
+request patterns while lint, tests and the build stay green. When the bump is a
+framework minor, or the history check in §1 found a revert, do this before
+calling it safe:
+
+1. Diff the release notes between the **exact** deployed version and the target
+   — every patch in between, from the releases API, not the minor's blog post.
+2. Diff the framework's default configuration between the two tags (for Next:
+   `packages/next/src/server/config-shared.ts`). A flipped default is a
+   behavioural change the app never opted into.
+3. Name the host's cost-sensitive metrics (Vercel: Function Invocations, Edge
+   Requests, Firewall Rate Limit Requests) and what the app's baseline is.
+4. Measure request volume on a production build served locally (`next start`)
+   against the current production deployment as baseline: the homepage and one
+   list page, DevTools filtered on the framework's data-request marker
+   (`_rsc` for Next), counted after load, after 60 s idle, and after forced
+   re-renders.
+5. **Positive control**: reinstall the known-bad version with
+   `<pm> install <pkg>@<bad> --no-save`, rebuild, repeat the measurement. A clean
+   result on the target without a reproduced failure on the bad version proves
+   nothing. Restore `node_modules` from the lockfile afterwards.
+6. Put all three numbers in the MR, name the metric to watch in the first hour
+   after deploy, and name the rollback.
+
 ## 4. Address vulnerabilities
 
 For an audit or CVE request:
@@ -92,6 +120,8 @@ Run only scripts present in `package.json`, preferring the project's documented 
 4. Storybook build or tests when Storybook is configured and the update can affect UI tooling.
 
 For Next.js projects, include the production build. State any skipped check and why. Never claim validation passed when a required command was not run.
+
+Capture exit codes, not excerpts: run each validation command on its own and read its status. `npm run build | tail` returns `tail`'s status, so a failed build prints as a green line.
 
 ## Safety constraints
 

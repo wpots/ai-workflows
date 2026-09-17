@@ -298,3 +298,12 @@ when the branch is pushed.
   check `git log --oneline -1` there. A baseline build overwrites the build
   output, so a "verify the fix" run right after it can silently serve the
   baseline instead.
+- Inside an EnterWorktree session git refuses `git -C <other checkout>` — the
+  main checkout included — and any compound command it cannot prove is not
+  git. Repo-level operations (`worktree add`/`remove`, work on another branch)
+  happen after `ExitWorktree`; a branch's commits already live in the shared
+  repo, so exit-then-push needs no worktree.
+- Assume the checkout is shared with other sessions: `git status` (untracked
+  files) and `git worktree list` before creating a file or branch, `git fetch`
+  before every push, and when a branch was force-pushed under you, rebase your
+  own commits onto the new tip and push fast-forward — never force back.

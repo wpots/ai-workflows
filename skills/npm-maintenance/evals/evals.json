@@ -1,0 +1,31 @@
+{
+  "skill_name": "npm-maintenance",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "npm ci just told me we have 4 critical vulnerabilities, all via next@16.2.12; the fix is in 16.3.3. Fix this in a separate MR. (Repo context the agent can discover: `git log -- package.json` shows a maintenance commit that bumped next to 16.3.1, a `Revert \"…\"` of it the next morning, and a re-applied maintenance sweep that deliberately keeps next on 16.2.x. Neither commit message states the reason.)",
+      "expected_output": "Before proposing any version, the run reads the package's own history (`git log -S` on the package.json line and `git log --grep=Revert`), names the revert commit and the re-applied sweep, states that a reverted bump of the same package is a hard stop until its reason is known, and asks the user for the reason instead of guessing. The MR, if opened, is a Draft with the cost risk stated; the bump is not presented as safe on the strength of lint, tests and build.",
+      "assertions": [
+        "The output mentions checking the project's git history for the package before proposing the bump (git log -S on package.json, or git log --grep=Revert, or equivalent)",
+        "The output names the revert commit or the reverted version (16.3.1)",
+        "The output treats the prior revert as a blocker and asks for or investigates its reason rather than assuming it is stale",
+        "The output does not claim the 16.3.x bump is safe because lint, tests and build pass",
+        "If an MR is opened it is marked Draft or otherwise explicitly not ready to merge"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "We need next 16.2.12 -> 16.3.4 for two critical RCE advisories. Lint, unit tests and the production build all pass on the branch. A 16.3.1 deploy was reverted last month after Vercel spend went from ~$7/day to ~$52/day. Is the upgrade safe to merge? We deploy to Vercel and CI has no per-MR preview.",
+      "expected_output": "The run does not answer from lint/test/build. It diffs the release notes between the exact deployed version and the target (every patch in between, from the GitHub releases API rather than the minor's blog post), checks for framework defaults that flipped between the two tags, names the host's cost-sensitive metrics (Function Invocations, Edge Requests, firewall rate-limit requests), and measures request volume on a production build served locally against current production as baseline — including a positive control that reinstalls the known-bad version with `--no-save` and reproduces the failure. It reports the numbers for all three versions, names the metric to watch in the first hour after deploy and the rollback, and restores node_modules from the lockfile afterwards.",
+      "assertions": [
+        "The output states that passing lint, tests and build does not establish that a framework minor is safe",
+        "The output compares release notes between the exact deployed version and the target, not only the minor release announcement",
+        "The output checks for configuration defaults that changed between the two versions",
+        "The output measures request volume (or another cost-sensitive metric) on a production build against the current production as baseline",
+        "The output includes a positive control: the known-bad version is rebuilt and the failure is reproduced before a clean result on the target is accepted",
+        "The output names the metric to watch after deploy and the rollback action",
+        "The output does not leave the known-bad version installed (node_modules restored from the lockfile)"
+      ]
+    }
+  ]
+}

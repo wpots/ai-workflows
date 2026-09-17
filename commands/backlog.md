@@ -32,8 +32,12 @@ Confirm only what you cannot infer safely:
 
 ## Phase 2 — Resolve the target file
 
-1. Search `docs/backlog/` for an existing matching ticket or scope.
-2. If a matching file exists, update it.
+1. Search `docs/backlog/` for an existing matching ticket or scope — including
+   untracked files (`git status --porcelain docs/backlog/`) and a parallel
+   session's branch or worktree on the slug (`git worktree list`).
+2. If a matching file exists, update it. An item another session is still
+   writing is updated additively and left uncommitted; never commit, rename or
+   move it on that session's behalf.
 3. Otherwise create a new file using the naming rules from `rules/backlog.md`
    plus any stricter project-local convention from `CONVENTIONS.md`.
 
