@@ -355,7 +355,13 @@ but they still break, and differently:
 - Backup freshness: which backup scripts exist, when one last ran, and whether
   a restore has ever been tested. An untested backup is a finding.
 - Scheduled and queued jobs (`job:*` scripts, nightly queues): last successful
-  run and error rate.
+  run per task slug and error rate, plus the three failures that leave no
+  error anywhere — a row stuck at `processing: true` with `totalTried: 0`
+  (killed mid-run; it blocks its own task slug's schedule until released), a
+  heartbeat monitor that is paused or missing for a task or environment, and
+  `jobs.access.run` left unset (the run endpoint is then public). On a host
+  with more than one instance, also confirm exactly one instance runs the
+  jobs. Hand the deep audit and any fix to `skills/payload-jobs/SKILL.md`.
 
 ### G. Docs and workflow drift
 

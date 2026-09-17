@@ -22,6 +22,7 @@ cross-reference, so it still needs its own line.
 - `migration check`, `check migration`, `verify migration`, `migration already exists` -> `skills/migration-check` (skill only)
 - `mr merged`, `post-merge`, `afgerond na merge`, `close out merged MR` -> `skills/mr-merged` (skill only; also the hand-off target when `skills/watch-mrs` reports a merge)
 - `npm maintenance`, `update dependencies`, `npm audit`, `fix vulnerabilities`, `npm outdated` -> `skills/npm-maintenance` (skill only)
+- `payload jobs`, `jobs queue`, `scheduled jobs`, `nightly job`, `cronjob`, `autoRun`, `job runner`, `jobs draaien dubbel`, `job draait niet`, `INSTANCE_NUMBER` -> `skills/payload-jobs` (skill only; the deep audit behind lane F of `skills/maintenance`; policy lives in `rules/payload.md` § Jobs Queue)
 - `review feedback`, `respond to review`, `reviewer comments`, `beoordeel review`, `reageer op review` -> `skills/receiving-code-review` (skill only; hand off to `skills/address-review-comments` to apply)
 - `refinement`, `prepare refinement`, `refine tickets`, `refinement vastleggen` -> `skills/refinement` (canonical), `commands/refinement.md` (fallback)
 - `run checks`, `run-checks`, `quality checks` -> `skills/run-checks` (canonical), `commands/run-checks.md` (fallback)

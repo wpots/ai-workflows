@@ -1,7 +1,7 @@
 # Payload Rules
 
 Apply these rules when adding, refactoring, or reviewing Payload CMS schemas,
-queries, hooks, admin components, or Payload-backed content blocks.
+queries, hooks, admin components, jobs, or Payload-backed content blocks.
 
 Load `rules/content-blocks.md` as well when the task involves frontend block
 modules.
@@ -48,6 +48,35 @@ the frontend transform layer and expose it to the rendered block component.
   props before rendering
 - keep schema definitions, hooks, and admin concerns within Payload areas rather
   than spreading them through unrelated frontend folders
+
+## Jobs Queue
+
+Applies to every project that registers Payload `tasks` or `workflows`. The
+audit procedure, the verified Payload internals, and both reference runners
+live in `skills/payload-jobs/SKILL.md`.
+
+- elect exactly one runner when the app runs on more than one instance: a
+  platform cron guarded on `INSTANCE_NUMBER=0`, or `autoRun` with a
+  `shouldAutoRun` that returns `false` on every other instance. Never enable
+  `autoRun` on a multi-instance deployment without that guard — Payload claims
+  a job with a plain select followed by an update per id, so two runners take
+  the same job
+- election only removes the routine duplicate; every task must stay
+  idempotent, because a zero-downtime deploy runs the old and the new elected
+  instance side by side
+- set `jobs.access.run` explicitly. Left unset, Payload lets anyone who can
+  reach the app call `GET <api>/payload-jobs/run` and `/handle-schedules`;
+  deny it unless a platform cron needs the endpoint, and then gate it on a
+  secret
+- put orphaned-run recovery in the runner, before schedules are handled, never
+  inside a task on the queue it repairs. A run killed mid-flight leaves
+  `processing: true` with `totalTried: 0`, is never retried, and blocks all
+  future scheduling of its task slug until something releases it
+- a new task slug changes the `payload_jobs` enum on Postgres, so it needs a
+  migration; hang small housekeeping on an existing task instead
+- weigh the poll cadence against the hosting autoscaler — every external poll
+  boots a full Payload runtime, and the load spike can trigger the very
+  instance replacement that kills the jobs
 
 ## Migrations
 

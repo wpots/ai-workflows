@@ -44,9 +44,23 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   pre-commit hook performs when `commands/<name>.md` changes, so the blocked
   first commit is expected: stage the regenerated `.github/prompts/` file and
   commit again.
+- `skills/maintenance` — lane F names the three jobs failures that leave no
+  error anywhere (a row stuck at `processing: true` with `totalTried: 0`, a
+  paused or missing heartbeat, `jobs.access.run` unset), asks for a
+  single-runner check on multi-instance hosts, and hands the deep audit to
+  `skills/payload-jobs`.
 
 ### Added
 
+- `skills/payload-jobs` — audit or set up Payload's jobs queue on hosting with
+  more than one instance: elect one runner (a platform cron guarded on
+  `INSTANCE_NUMBER=0` for scheduled tasks, `autoRun` + `shouldAutoRun` for
+  event-driven queues), close `jobs.access.run` (Payload defaults it to
+  allow-all despite its JSDoc), recover runs killed mid-flight from the runner
+  rather than from a task on the same queue, keep tasks idempotent, and weigh
+  the poll cadence against the autoscaler. Ships the verified Payload 3.85
+  internals and both reference runners. Pairs with the new "Jobs Queue" section
+  in `rules/payload.md`.
 - `skills/npm-maintenance/evals/evals.json` — the prior-revert check and the
   behavioural-regression procedure with positive control.
 - `skills/backlog/evals/evals.json` — an untracked item from a parallel session

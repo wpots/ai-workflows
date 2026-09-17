@@ -28,7 +28,7 @@ In practice, treat this directory as a topic-based rule library:
 | `mr-sizing.md`                          | MR size budget, sliceability test, split triggers, ticket-to-item mapping |
 | `git-flow.md`                           | Branch/MR flow, squash-and-ff merge settings, MR title as history, provenance labels |
 | `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
-| `payload.md`                            | Payload schemas, generated types, hooks, admin integrations         |
+| `payload.md`                            | Payload schemas, generated types, hooks, admin integrations, jobs queue |
 | `clean-architecture.md`                 | Layer principles, dependency rules, forbidden patterns (all stacks) |
 | `stacks/nextjs-payload.md`              | Next.js conventions (App Router, proxy vs. middleware, read path, DoD); Payload sections optional |
 | `stacks/react-native-expo.md`              | React Native + Expo conventions                              |
@@ -49,7 +49,7 @@ In practice, treat this directory as a topic-based rule library:
    repository's merge settings.
 10. Load `accessibility.md` when building interactive UI components.
 11. Load `content-blocks.md` when building or reviewing CMS-backed content blocks.
-12. Load `payload.md` when working on Payload schemas, hooks, generated types, or admin integrations.
+12. Load `payload.md` when working on Payload schemas, hooks, generated types, jobs, or admin integrations.
 13. Load `sustainability.md` when reviewing performance, caching, bundle size,
     CI cost, or dependencies — or when changing public-route rendering.
 14. Load `sonarqube.md` when a SonarQube or SonarLint finding is mentioned, or
