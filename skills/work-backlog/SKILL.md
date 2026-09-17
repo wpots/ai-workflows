@@ -58,9 +58,10 @@ Refuse to continue if the working tree is dirty.
 
 ### 2. WIP check — and rework the in-flight MR if it has feedback
 
-List open MRs (`glab mr list --state opened` / `gh pr list`). If any open MR's
-source branch corresponds to a backlog item (branch naming, step 4), that MR is
-the WIP — do **not** pick a new item. Decide its state and act:
+List open MRs (`glab mr list` / `gh pr list` — open is the default for both;
+`glab mr list` has no `--state` flag and rejects it). If any open MR's source
+branch corresponds to a backlog item (branch naming, step 4), that MR is the
+WIP — do **not** pick a new item. Decide its state and act:
 
 1. **Fetch its reviewer feedback.** Read the MR's comments and review threads
    (`glab mr view <iid> --comments` / `gh pr view <n> --comments`; use the API

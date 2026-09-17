@@ -20,8 +20,9 @@ implement → verify → merge request. Stop after one MR; humans review and mer
 
 1. **Sync** — `git fetch origin && git checkout main && git pull --ff-only`.
    Refuse on a dirty tree.
-2. **WIP check** — `glab mr list --state opened` (or `gh pr list`); stop if an
-   open MR maps to a backlog item. Flag orphaned work-backlog branches.
+2. **WIP check** — `glab mr list` (or `gh pr list`; open is the default, and
+   `glab mr list` has no `--state` flag); stop if an open MR maps to a backlog
+   item. Flag orphaned work-backlog branches.
 3. **Pick** — first `docs/backlog/*.md` with `Status: ready` whose
    `Depends on:` BLIs are `done` on `origin/main`; order by roadmap number,
    then priority, then filename. None eligible → report why per item, stop.
