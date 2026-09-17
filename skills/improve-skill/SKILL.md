@@ -45,7 +45,10 @@ If a run had zero friction, skip silently — do not touch the skill.
    before adding new ones, keep the skill terse, and update the frontmatter
    `description` if the skill's scope grew. If the fallback command runbook
    exists and now materially diverges, give it a compact version of the same
-   change.
+   change. Editing `commands/<name>.md` changes its generated Copilot adapter
+   `.github/prompts/<name>.prompt.md`: the pre-commit hook regenerates it and
+   blocks the commit until the regenerated file is staged — `git add -A` and
+   commit again; never hand-edit the adapter.
 5. **Compound each learning into every artifact it deserves** — a prose edit
    alone evaporates under pressure; a check fires every time:
    - **a check** — when the failure is mechanically detectable, add it where

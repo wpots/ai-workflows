@@ -56,7 +56,11 @@ propose the new cut.
    docs, or linked tracker context. Do not invent ticket keys when the project
    expects a real one.
 3. Search `docs/backlog/` for an existing file for the same ticket or scope
-   before creating a new file.
+   before creating a new file — including **untracked** files
+   (`git status --porcelain docs/backlog/`) and a parallel session's branch or
+   worktree on the slug (`git worktree list`, `git branch --list '*<slug>*'`).
+   An item another session is still writing is updated additively and left
+   uncommitted; never commit, rename or move it on that session's behalf.
 4. Ground the item in the codebase and local docs so the acceptance criteria and
    technical notes are specific.
 5. Write or update the backlog item in `docs/backlog/` using the structure from
