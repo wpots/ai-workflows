@@ -155,6 +155,35 @@ If behind > 0:
 If the merge is **not** clean, stop and report the conflicting files — do not
 force a resolution.
 
+#### After a stacked base MR is squash-merged
+
+GitLab may retarget the dependent MR automatically and delete the merged MR's
+source branch. Re-read both MRs before fetching; keep the merged base MR's
+source SHA and `squash_commit_sha` from its API response instead of assuming
+the source ref still exists.
+
+For a squash merge, compare the resulting trees before using an ancestry-based
+conflict preview:
+
+```bash
+git fetch <remote> <new_target>
+git diff --quiet <base_mr_source_sha> <squash_commit_sha>
+```
+
+Proceed only when `git diff --quiet` exits `0`. With identical trees,
+`git merge-tree <new_target> HEAD` can report a false conflict because the
+equivalent base changes have different ancestry. Replay only the dependent
+MR's commits instead:
+
+```bash
+git rebase --onto <remote>/<new_target> <base_mr_source_sha>
+git rev-list --left-right --count <remote>/<new_target>...HEAD
+```
+
+The expected count is `0 <dependent_commit_count>`. Re-run checks and push with
+`--force-with-lease`. If the trees differ, stop and inspect the difference;
+the old base cannot safely be substituted by the squash commit.
+
 ### 9. Clean up
 
 Only when a worktree was used:
