@@ -17,6 +17,11 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/address-review-comments` — stacked MRs now handle a squash-merged
+  base without fetching its possibly deleted source branch or trusting the
+  false conflicts from an ancestry-based merge preview: compare the old base
+  and squash trees, then replay only the dependent commits with
+  `git rebase --onto`.
 - `skills/npm-maintenance` — §1 requires reading the project's own history for
   every package before proposing a bump (`git log -S` on the `package.json`
   line, `git log --grep=Revert`): a reverted bump of the same package is a hard
