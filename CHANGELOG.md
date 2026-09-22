@@ -50,6 +50,12 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   single-runner check on multi-instance hosts, and hands the deep audit to
   `skills/payload-jobs`.
 
+- `rules/project.md` (Naming & Formatting) — new "GraphQL Field Aliases":
+  alias any GraphQL field whose name does not fit the codebase's conventions,
+  most often an underscore-prefixed system field (`publishedAt: _publishedAt`,
+  `typename: __typename`), so the foreign name stops at the query boundary
+  instead of reaching transformers, typedefs, validators and fixtures.
+
 ### Added
 
 - `skills/payload-jobs` — audit or set up Payload's jobs queue on hosting with
