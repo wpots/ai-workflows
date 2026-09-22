@@ -121,6 +121,28 @@ Defer to the project's ESLint and Prettier config for all formatting. When no co
 - `UPPERCASE` for environment variables, constants, and global config
 - Full words preferred; allowed short forms: `err`, `req`, `res`, `props`, `ref`
 
+### GraphQL Field Aliases
+
+Alias any GraphQL field whose name does not fit the codebase's conventions, so
+the foreign name stops at the query boundary. Most often that is an
+underscore-prefixed system field:
+
+```graphql
+publishedAt: _publishedAt
+updatedAt: _updatedAt
+typename: __typename
+```
+
+A leading underscore reads as "private" everywhere else in JS/TS, and the raw
+name does not stay in the query: it reaches transformers, typedefs, validators,
+test fixtures and sometimes component props, carrying a transport detail into
+layers that should not know the API's naming scheme. The alias is one word in
+one place; renaming afterwards is a refactor across every consumer.
+
+Alias consistently — pick the name once and use it in every query that selects
+that field, so the same value is not `publishedAt` in one module and
+`_publishedAt` in the next.
+
 ## Function Style
 
 - Named function declarations for exported functions and components
