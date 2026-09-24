@@ -62,7 +62,22 @@ propose the new cut.
    An item another session is still writing is updated additively and left
    uncommitted; never commit, rename or move it on that session's behalf.
 4. Ground the item in the codebase and local docs so the acceptance criteria and
-   technical notes are specific.
+   technical notes are specific. Three sources come first, before anything is
+   measured or designed:
+   - **A reference implementation**, when the ticket, an ADR or the client names
+     one (a proof of concept, a sandbox, an existing app): drive it and capture
+     what it requests and what it shows. It points at the fields and parameters
+     worth measuring. It is not a spec — check its choices against the API,
+     because a reference can send parameters the API silently ignores.
+   - **Conventions that fire on touching a file** (convert on touch, co-located
+     tests, a migration per schema change): run every file the item will touch
+     past them in `CONVENTIONS.md`. They change scope and size, and a
+     refinement that skips them gets redone. Measure the cost when that is
+     cheap — rename the file, run the type checker, revert — instead of
+     estimating it.
+   - **The current tree, for a later slice**: an item written before the
+     preceding slice merged describes the old tree. Re-check its file names,
+     inventories and counts against the default branch and correct the item.
 5. Write or update the backlog item in `docs/backlog/` using the structure from
    `rules/backlog.md`.
 6. For a **bug** item, fill `## Reproduction` with the shortest path that shows

@@ -54,7 +54,7 @@ exists on a feature branch has not shipped).
 | Situation | Do |
 | --- | --- |
 | every item for the ticket is `done` on the default branch | continue to Step 3 — the ticket shipped |
-| some items are still open | **skip the comment.** Report "slice 2/3 merged for PROJ-123; the product-owner handoff waits for `<remaining item>`" and continue with the cleanup |
+| some items are still open | first check whether a merged diff already carries them — an MR can deliver an item it was never branched for, and then the item needs its close-out, not more work. Otherwise **skip the comment.** Report "slice 2/3 merged for PROJ-123; the product-owner handoff waits for `<remaining item>`" and continue with the cleanup |
 | no local items carry this key (no backlog folder, or the work was not tracked there) | treat this MR as the whole ticket and continue to Step 3, saying so in the recap |
 
 When the ticket **is** complete and it took several slices, the comment covers

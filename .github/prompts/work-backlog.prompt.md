@@ -19,7 +19,8 @@ implement → verify → merge request. Stop after one MR; humans review and mer
 4. The BLI's acceptance criteria are the definition of done; no scope invention.
 5. Checks green before the MR opens; otherwise a **draft** MR listing blockers.
 6. Blocked steps (missing secrets, human-only actions) are reported, not
-   silently skipped.
+   silently skipped. Never add code whose only job is producing evidence for a
+   criterion; let the evidence ride on the capability that needs it.
 
 ## Steps
 
@@ -29,20 +30,24 @@ implement → verify → merge request. Stop after one MR; humans review and mer
    `glab mr list` has no `--state` flag); stop if an open MR maps to a backlog
    item. Flag orphaned work-backlog branches.
 3. **Pick** — first `docs/backlog/*.md` with `Status: ready` whose
-   `Depends on:` BLIs are `done` on `origin/main`; order by roadmap number,
-   then priority, then filename. None eligible → report why per item, stop.
+   `Depends on:` BLIs are `done` on `origin/main` (or `in-progress` with their
+   MR merged and only a post-merge check left); order by roadmap number, then
+   priority, then filename. None eligible → report why per item, stop.
 4. **Branch** — project convention (Greenberry: `epic-lowercase/short-slug`,
    e.g. `session/create-join-room`). First commit flips the BLI to
    `in-progress`.
-5. **Implement** — read the BLI and every doc it links first; follow
-   `CONVENTIONS.md` + `rules/`; write the tests the BLI names; keep the diff
-   scoped to this item.
+5. **Implement** — read the BLI and every doc it links first, and re-check its
+   premises (file names, paths, counts) against the tree you branched from;
+   follow `CONVENTIONS.md` + `rules/`; write the tests the BLI names; keep the
+   diff scoped to this item.
 6. **Verify** — full check suite (lint, typecheck, tests, build, a11y/E2E
    where configured). Never weaken checks to get green.
 7. **Self-review** — review the branch diff, fix findings, re-run checks if
    needed.
-8. **Close out** — flip the BLI to `done`; after the MR exists, append its URL
-   to the BLI's `## Related` and push.
+8. **Close out** — flip the BLI to `done`, or keep it `in-progress` when a
+   criterion can only be checked after merge (name that check first in
+   `How to verify`); after the MR exists, append its URL to the BLI's
+   `## Related` and push.
 9. **MR** — follow `commands/create-pr.md` (rebase onto base, MR template);
    title conventional; description fills the resolved template's sections
    (`## Backlog`: BLI link + checked acceptance criteria; `## How to verify`:
