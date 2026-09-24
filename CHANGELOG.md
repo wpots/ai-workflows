@@ -15,6 +15,8 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-09-24
+
 ### Changed
 
 - `skills/backlog`, `skills/refinement` — grounding reads a named reference
