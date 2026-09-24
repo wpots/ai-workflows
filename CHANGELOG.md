@@ -15,6 +15,8 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-09-24
+
 ### Added
 
 - `hooks/` + `scripts/check_added_comments.py` — a `PostToolUse` hook on
@@ -32,6 +34,19 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   whose shape is unknown by definition.
 - `skills/code-review` — speculative hardening added as a review lens, citing
   that rule.
+- `skills/payload-jobs` — audit or set up Payload's jobs queue on hosting with
+  more than one instance: elect one runner (a platform cron guarded on
+  `INSTANCE_NUMBER=0` for scheduled tasks, `autoRun` + `shouldAutoRun` for
+  event-driven queues), close `jobs.access.run` (Payload defaults it to
+  allow-all despite its JSDoc), recover runs killed mid-flight from the runner
+  rather than from a task on the same queue, keep tasks idempotent, and weigh
+  the poll cadence against the autoscaler. Ships the verified Payload 3.85
+  internals and both reference runners. Pairs with the new "Jobs Queue" section
+  in `rules/payload.md`.
+- `skills/npm-maintenance/evals/evals.json` — the prior-revert check and the
+  behavioural-regression procedure with positive control.
+- `skills/backlog/evals/evals.json` — an untracked item from a parallel session
+  is updated, not duplicated.
 
 ### Changed
 
@@ -77,22 +92,6 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   most often an underscore-prefixed system field (`publishedAt: _publishedAt`,
   `typename: __typename`), so the foreign name stops at the query boundary
   instead of reaching transformers, typedefs, validators and fixtures.
-
-### Added
-
-- `skills/payload-jobs` — audit or set up Payload's jobs queue on hosting with
-  more than one instance: elect one runner (a platform cron guarded on
-  `INSTANCE_NUMBER=0` for scheduled tasks, `autoRun` + `shouldAutoRun` for
-  event-driven queues), close `jobs.access.run` (Payload defaults it to
-  allow-all despite its JSDoc), recover runs killed mid-flight from the runner
-  rather than from a task on the same queue, keep tasks idempotent, and weigh
-  the poll cadence against the autoscaler. Ships the verified Payload 3.85
-  internals and both reference runners. Pairs with the new "Jobs Queue" section
-  in `rules/payload.md`.
-- `skills/npm-maintenance/evals/evals.json` — the prior-revert check and the
-  behavioural-regression procedure with positive control.
-- `skills/backlog/evals/evals.json` — an untracked item from a parallel session
-  is updated, not duplicated.
 
 ### Fixed
 
