@@ -15,6 +15,8 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-09-24
+
 ### Changed
 
 - `skills/close-sprint` — a new Phase 5b clears out the sprint's working
