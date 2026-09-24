@@ -163,6 +163,24 @@ that field, so the same value is not `publishedAt` in one module and
 - Only use `const { } = props` when you need access to the full props object
 - Use default values in parameters: `{ title = "Default" }`
 
+## Harden What You Can Demonstrate
+
+Defensive code earns its place from a failure you can point at: a reproduction,
+a log line, a captured payload, a test that fails without it. Added on a hunch
+it is untested behaviour that reads as tested, and the next person cannot tell
+which of the two they are looking at.
+
+- Add the fallback, the retry, the extra header, the second lookup path **after**
+  the gap is shown to exist — not because it might. "The value might arrive in
+  this other header instead" is a hypothesis; a captured request is evidence.
+- If no test can fail without the change, that is the signal, not a detail to
+  work around.
+- A hypothesis worth keeping goes where hypotheses live — the backlog item,
+  `docs/todo/`, the MR description — not into code nobody can falsify.
+- This is not an argument against validating untrusted input. Boundary
+  validation covers data whose shape is unknown by definition; speculative
+  hardening invents a failure mode for data whose shape was never checked.
+
 ## Error Handling & Validation
 
 - Use Zod for schema validation and clear error messages

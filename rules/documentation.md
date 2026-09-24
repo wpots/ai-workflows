@@ -63,6 +63,18 @@ The test: would the comment still be worth reading a year from now, to
 someone who never saw the MR? If it only helps someone *reviewing* the
 change, move its content to the MR description and delete it.
 
+## When You Write One
+
+The classes above are review findings, but they are also the ones a change
+keeps producing, so the moment to apply them is while the comment is being
+written. Apply the test before adding it, not after a reviewer reads it:
+a comment that argues for the change, or points at the MR that carried it,
+goes in the MR description instead.
+
+This is where the policy is most often missed, because a writer has the
+argument fresh in mind and the code in front of them — exactly the two things
+the next reader will not have.
+
 ## One Home Per Fact
 
 A durable fact — a measurement, a spike finding, an external contract, a
@@ -118,5 +130,10 @@ concern (`skills/maintenance`), not a per-MR gate.
 
 - `skills/code-review` executes this policy as its documentation-and-comment
   freshness dimension; findings cite this rule.
+- A `PostToolUse` hook (`scripts/check_added_comments.py`) prints a reminder
+  when an edit adds a comment that argues for the change or points at an MR,
+  PR or ticket. It reads the added text only, never blocks, and deliberately
+  does not measure comment volume — see the paragraph closing "One Home Per
+  Fact".
 - This file states policy only — review mechanics live in the skill and its
   fallback runbook.

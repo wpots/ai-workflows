@@ -42,6 +42,10 @@ If none exists, ask the user which base branch to use.
    - **Documentation & comment freshness** — the checks in step 6
    - **Test coverage** — changed behaviour without a changed or added test
      (`rules/testing.md`)
+   - **Speculative hardening** — a fallback, retry or extra code path for a
+     failure the change never demonstrates, and no test fails without it
+     (`rules/project.md`). Ask what evidence exists; a plausible-sounding
+     "might" is the finding.
 
    Merge everything into ONE severity-ordered findings list: the lens label
    stays on each finding (`[security]`, `[a11y]`, …), severity decides the
