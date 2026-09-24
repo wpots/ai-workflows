@@ -15,6 +15,22 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Changed
+
+- `skills/close-sprint` — a new Phase 5b clears out the sprint's working
+  documents at close: the planning and refinement documents
+  `skills/sprint-planning` and `skills/refinement` write, plus a project's own
+  tracker, journal or spike notes under any spelling of the sprint folder.
+  Until now nothing removed them — the close only added files and compaction
+  only knew `docs/sprint-<N>/` — so they piled up for good. Each file is
+  `consumed` (code, tests or config reference it: never removed, a permanent
+  home is proposed in the gaps document), `durable` (holds a fact no BLI, ADR,
+  spec or todo has: removed once it reaches that home) or `ephemeral` (removed,
+  and listed with a retrieval recipe in the changelog's `## Archief`).
+- `skills/compact-sprint` — also removes the sprint's gaps document, and
+  sweeps working documents that a close from before Phase 5b left behind, with
+  the same classification.
+
 ## [2.1.0] - 2026-09-24
 
 ### Added

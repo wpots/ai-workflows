@@ -4,15 +4,18 @@ Canonical runbook for closing out a sprint. The `close-sprint` skill on
 skill-aware tools wraps this runbook; Codex, Copilot, and other prompt-first
 tools should follow these steps directly.
 
-Goal: produce a sprint changelog, a gaps/spillover document, and move the
-delivered backlog items into a dedicated sprint folder. Jira is read-only
-throughout — never edit issues, transitions, or comments.
+Goal: produce a sprint changelog, a gaps/spillover document, move the
+delivered backlog items into a dedicated sprint folder, and clear out the
+sprint's working documents. Jira is read-only throughout — never edit issues,
+transitions, or comments.
 
 ## Safety
 
 - **Never** mutate Jira (no comments, transitions, edits, assignments).
 - **Never** run `git commit` — the user commits themselves.
 - Use `git mv` to relocate files so history is preserved.
+- `git rm` is for the Phase 5b working documents only — never a file that
+  code, tests or config reference.
 - Stop and ask when classification is ambiguous; do not guess.
 
 ## Inputs
@@ -207,6 +210,58 @@ For each ticket classified `delivered`:
 Spillover and partial BLIs stay in `docs/backlog/` or `docs/refine/` — do not
 move them.
 
+## Phase 5b — Clear out the sprint's working documents
+
+A sprint leaves more than BLIs behind: the planning and refinement documents
+this toolkit writes, plus whatever the project kept next to them — a tracker or
+plan, a journal, spike notes, captured payloads. Once the sprint closes nothing
+reads them to decide anything, and left in place they are most of the markdown
+an AI-assisted project accumulates. Clear them at close, not at compaction: the
+retention guard in `commands/compact-sprint.md` protects BLIs that a later
+close still cross-references, and working documents have no such reader.
+
+1. **Inventory.** The sprint's working documents are:
+   - `docs/sprint-<N>-planning.md` and `docs/sprint-<N>-refinement.md`
+     (written by `commands/sprint-planning.md`);
+   - `docs/plans/refinement-<date>.md` dated inside the sprint window
+     (written by `commands/refinement.md`);
+   - a project-local sprint folder under any spelling — `docs/sprint<N>/`,
+     `docs/sprint_<N>/`, or `docs/sprint-<N>/` itself — and every file in it
+     that is not a delivered BLI;
+   - a prompt or loop file that only exists to drive the sprint's tracker.
+
+   Ask when it is unclear which sprint a file belongs to. Out of scope:
+   `docs/sprint-<N>-changelog.md` and `docs/sprint-<N>-gaps.md` — the next
+   sprint's planning reads both, and `commands/compact-sprint.md` handles them.
+2. **Classify** each file:
+   - `consumed` — code, tests, config, scripts or a runtime message reference
+     it: `rg -l --hidden "<file-or-folder>" --glob '!docs/**' --glob '!.git/**'`.
+     A reference from another working document of the same sprint does not
+     count. Typical cases: fixtures a test loads, a runbook an error message
+     names, a decision a code comment links to. Never remove it here —
+     relocating it changes code, so it is its own MR. Record it under
+     `## Working documents` in the gaps document with a proposed permanent
+     home (fixtures next to their tests, a runbook with the project's other
+     runbooks, a decision as an ADR).
+   - `durable` — it states a decision or fact that no BLI, ADR, spec or
+     `docs/todo/` entry holds yet; search those homes before claiming it.
+     Record it under `## Working documents` with the suggested home; the move
+     is settled in the Phase 7 walkthrough. Lessons about how the work was run
+     belong in the skill that ran it — hand those to `skills/improve-skill`
+     instead of keeping them as prose.
+   - `ephemeral` — everything else: tracker ticks, status lines, journal
+     entries, load math, refinement proposals the tracker now holds. A journal
+     that nothing reads to decide anything is ephemeral by construction, however
+     long it is.
+3. **Remove** the ephemeral files with `git rm`. A durable file goes once its
+   content has reached its home; a consumed file stays until its own MR moves
+   it.
+4. **Sweep links.** `rg -l "<removed path>" docs/ README.md CONVENTIONS.md`:
+   in active documents, drop the link or point it at the new home.
+5. **Record** the removed paths in the changelog's `## Archief` section (see
+   the [Changelog template](#changelog-template)). Git history keeps the files,
+   so the list plus the retrieval recipe is the whole archive.
+
 ## Phase 6 — Review pause (stop here)
 
 Print a summary:
@@ -214,6 +269,7 @@ Print a summary:
 - Path to the changelog
 - Path to the gaps document
 - List of moved BLIs
+- Working documents removed, and those held back as `consumed` or `durable`
 - Count of spillover / gap items awaiting review
 
 Then stop and ask the user to review the changelog and gaps document before
@@ -249,7 +305,8 @@ each comment as an instruction to update the document in place and re-converge:
    and open actions for the sprint being closed.
 
 End state of the gaps document: a short, action-oriented file — Spillover,
-Actions, any still-open BLI/doc mismatches, and the Phase 8 cleanup overview.
+Actions, any still-open BLI/doc mismatches, the Phase 5b working documents
+still held back, and the Phase 8 cleanup overview.
 Nothing that has already been resolved should remain.
 
 ## Phase 8 — Stale branches and worktrees overview
@@ -330,6 +387,8 @@ End with a concise list of:
 
 - Files written
 - Files moved (via `git mv`)
+- Working documents removed (Phase 5b), and those held back with their
+  proposed home
 - New docs created during Phase 7
 - Stale branch / worktree count from Phase 8
 - Items still open that need user follow-up
@@ -379,6 +438,9 @@ changelogs.
 
 ## Archief
 
+- Werkdocumenten, verwijderd bij de close: `docs/sprint-<N>-planning.md`,
+  `docs/sprint<N>/log.md` — `git show <sha>^:<path>`, met `<sha>` uit
+  `git log --diff-filter=D --format=%h -1 -- <path>`
 - BLI's van deze sprint: `git show sprint-<N>-bli-archive:docs/sprint-<N>/<file>`
 ````
 
@@ -396,6 +458,7 @@ Filling rules:
   cross-assignee delivery).
 - **Target size: under 15 KB per changelog.** Larger means BLI or tracker
   content is leaking into it.
-- The `## Archief` section is added by compact-sprint, not at close time;
-  while the sprint folder exists, BLIs live at `docs/sprint-<N>/` and need no
-  per-row path column.
+- At close, `## Archief` holds only the working-documents line from Phase 5b
+  (omit the section when nothing was removed); compact-sprint adds the BLI
+  line. While the sprint folder exists, BLIs live at `docs/sprint-<N>/` and
+  need no per-row path column.

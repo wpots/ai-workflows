@@ -90,7 +90,7 @@ into its home is follow-up work with its own review, never part of this run.
 Find every reference to the folder before removing it:
 
 ```bash
-rg "docs/sprint-<M>/" docs/ rules/ commands/ README.md
+rg "docs/sprint-<M>/|docs/sprint-<M>-gaps.md" docs/ rules/ commands/ README.md
 ```
 
 - References in **active** documents (backlog items, specs, todos): rewrite to
@@ -115,7 +115,15 @@ same tag.
 
 ```bash
 git rm -r docs/sprint-<M>/
+git rm docs/sprint-<M>-gaps.md
 ```
+
+The gaps document was read by sprint M+1's planning and has had no reader
+since; the archive tag keeps it. A sprint closed before close-sprint cleared
+working documents at close (its Phase 5b) may have left some behind — the
+planning and refinement documents, a sprint folder under another spelling.
+Sweep them with that phase's classification: a file that code, tests or config
+reference is never removed here.
 
 ## Phase 5 — Review pause and handover
 
@@ -140,6 +148,6 @@ End with a concise list of:
 
 - Todo items created (paths)
 - Changelogs rewritten (size before → after)
-- Folders removed
+- Folders and gaps documents removed, plus any leftover working documents
 - References rewritten (count per file)
 - The tag + push commands handed to the user

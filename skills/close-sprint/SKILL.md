@@ -34,6 +34,11 @@ share the same workflow; Copilot follows the runbook directly.
 - Never run `git commit` — the user commits themselves (sole exception: the
   worktree hand-off commit under "Background runs" below).
 - Use `git mv` when relocating BLIs so history is preserved.
+- Clear out the sprint's working documents at close (runbook Phase 5b): the
+  planning and refinement documents, plus a project's own tracker, journal or
+  spike notes under any spelling of the sprint folder. Ephemeral ones go; a
+  file that code, tests or config reference is never removed — it is recorded
+  in the gaps document with a proposed permanent home.
 - Stop and ask whenever classification is ambiguous.
 - Populate `## Authors` on every moved BLI using the tracker assignee plus git
   commit authors. Deduplicate; never remove existing entries.
@@ -77,8 +82,10 @@ analysis is already done:
 A changelog at `docs/sprint-<N>-changelog.md` following the "Changelog
 template" section of the runbook, a gaps document at `docs/sprint-<N>-gaps.md`
 (including the Phase 8 stale-branch and worktree overview), delivered BLIs
-relocated to `docs/sprint-<N>/` with updated status and authors, and a list of
-spillover items prepared for the Phase 7 walkthrough. In support mode the same
+relocated to `docs/sprint-<N>/` with updated status and authors, the sprint's
+ephemeral working documents removed and listed under the changelog's
+`## Archief`, and a list of spillover items prepared for the Phase 7
+walkthrough. In support mode the same
 outputs land at the `docs/support-<yyyy>-<mm>` equivalents.
 
 Sprint folders older than the previous sprint are compacted by

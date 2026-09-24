@@ -41,5 +41,6 @@ share the same workflow; Copilot follows the runbook directly.
 
 Per compacted sprint: `docs/todo/harvest-sprint-<M>-*.md` flags, a rewritten
 compact `docs/sprint-<M>-changelog.md` (including an `## Archief` retrieval
-section), the removed `docs/sprint-<M>/` folder — all in one reviewable diff —
-plus the tag and push commands for the user.
+section), the removed `docs/sprint-<M>/` folder and `docs/sprint-<M>-gaps.md`,
+plus any working documents an older close left behind — all in one reviewable
+diff — plus the tag and push commands for the user.
