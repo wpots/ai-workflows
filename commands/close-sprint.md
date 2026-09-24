@@ -126,7 +126,13 @@ For each ticket:
    git log --all --grep="<TICKET>" --format="%h %s %an <%ae>"
    ```
 3. Note PR / branch existence if discoverable.
-4. Classify the ticket:
+4. Read each BLI's `## Status` on the integration branch, and match code to
+   BLIs, not to MRs. A merge is not the delivery: an item that merged with
+   `in-progress` still has a post-merge check open (`partial`, with that check
+   as the gaps action). And one MR can carry a second item it was never
+   branched for, so an item still marked open may already sit in another
+   item's merged diff — check the diffs before calling it spillover.
+5. Classify the ticket:
    - `delivered` — code is on the integration branch and matches the BLI.
    - `partial` — some code merged, scope not fully covered.
    - `spillover` — ticket exists, no merged code, work continues next sprint.

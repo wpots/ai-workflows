@@ -15,6 +15,25 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Changed
+
+- `skills/backlog`, `skills/refinement` — grounding reads a named reference
+  implementation (proof of concept, sandbox) before any API is probed, and
+  treats it as evidence to verify rather than a spec; it checks the touched
+  files against the conventions that fire on touch (convert on touch,
+  co-located tests) and measures that cost instead of estimating it; and a
+  later slice is re-checked against the merged tree. Two backlog evals cover
+  the first two.
+- `skills/work-backlog` — an item with a criterion that can only be checked
+  after merge keeps `in-progress` rather than going to `done` in the MR, and
+  such an item still satisfies a dependency once its MR merged. Premises are
+  re-checked against the tree before coding, and no code is written whose only
+  job is producing evidence for a gate.
+- `skills/mr-merged`, `skills/close-sprint` — a merge is not the delivery:
+  read the item's `## Status`, match code to items rather than MRs, and check
+  whether an item still marked open already sits in another item's merged
+  diff.
+
 ## [2.2.0] - 2026-09-24
 
 ### Changed

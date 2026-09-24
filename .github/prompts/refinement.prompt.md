@@ -93,6 +93,13 @@ questions are specific and you don't ask about things already built:
    refined item states migration expectation).
 4. Flag whether a **data-layer access-rule** change is implied (e.g. a Payload
    access rule).
+5. When the ticket, an ADR or the client names a **reference implementation**
+   (a proof of concept, a sandbox, an existing app), read it before probing
+   any API: what it requests and shows points at what to measure. Verify its
+   choices — a reference can send parameters the API ignores.
+6. Run the files the ticket will touch past the `CONVENTIONS.md` rules that
+   fire on touching a file (convert on touch, co-located tests). Their extra
+   scope belongs in the story-point rationale.
 
 ## Phase 3 — Write the refinement document
 

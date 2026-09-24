@@ -33,6 +33,10 @@ tools. The matching command runbook is a compatibility and fallback surface.
 6. **A blocked step is a reportable outcome, not an error.** Missing
    credentials, human-only steps (e.g. OAuth consents, GitLab settings) →
    deliver what is deliverable, flag the rest in the MR and final report.
+   Evidence a criterion needs from a deployed environment is a blocked step
+   too: never add a route, endpoint or code path whose only job is to produce
+   it — a reviewer reads that as product code without product behaviour. Let
+   the evidence ride on the capability that needs it.
 
 ## Prerequisites
 
@@ -93,9 +97,11 @@ Parse every `docs/backlog/*.md`:
 
 - **Status** — only `ready` items are candidates.
 - **Dependencies** — from the `Depends on:` links in `## Related`. A
-  dependency is satisfied when that BLI's `Status` is `done` **on
-  `origin/main`** (i.e. its MR merged). Unlinked prose like "rolling" means:
-  eligible only when no other item is.
+  dependency is satisfied when that BLI's `Status` **on `origin/main`** is
+  `done`, or `in-progress` with its MR (linked under `## Related`) merged and
+  only a post-merge check left — the code a dependent builds on is there
+  either way. Unlinked prose like "rolling" means: eligible only when no other
+  item is.
 - **Order** — roadmap order if the Ticket field carries one (`roadmap item
   N`) or `docs/ROADMAP.md` defines a sequence; otherwise priority
   (`critical > high > medium > low`), then filename.
@@ -124,6 +130,10 @@ overrides guesswork and often collapses the approach decision.
 
 - Read the BLI fully, **including every linked doc** (spec sections,
   architecture) before writing code.
+- Re-check the BLI's premises against the tree you branched from: file names,
+  paths, inventories, counts. An item refined before an earlier slice merged
+  describes the old tree. Correct the item on the branch, say so in the MR, and
+  code to the tree rather than to the stale text.
 - Follow `CONVENTIONS.md`, the project `rules/`, and existing code style.
 - Work through the acceptance criteria in order; keep the diff scoped to
   this item. If you discover missing prerequisite work, stop and report
@@ -175,12 +185,19 @@ No invented steps, no "verify that it works". A step you did not run does not go
 in. If a criterion could not be verified locally (needs a preview deploy, a real
 credential), say that instead of implying you checked it.
 
-Then on the branch: flip `Status` to `done` and commit. After step 9 produces the
-MR URL, append it to the BLI's `## Related` section, commit
-(`docs: link MR for <bli-name>`), and push — the MR picks up the new commit
-automatically. A merged MR thus lands the BLI as `done` with its MR link and its
-verification steps, and step 3's dependency check needs nothing but
-`origin/main`.
+Then on the branch, set the final `Status` and commit:
+
+- every criterion verified before merge → `done`;
+- a criterion that can only be checked after merge (a deploy, a human browser
+  check, a credential rotation) → keep `in-progress`, and put that check first
+  in `How to verify`. The item goes to `done` when the check is ticked, not
+  when the MR merges.
+
+After step 9 produces the MR URL, append it to the BLI's `## Related` section,
+commit (`docs: link MR for <bli-name>`), and push — the MR picks up the new
+commit automatically. A merged MR thus lands the BLI with its final status, its
+MR link and its verification steps, and step 3's dependency check needs nothing
+but `origin/main`.
 
 ### 9. Open the MR
 

@@ -40,7 +40,9 @@ the same workflow; Copilot follows the runbook directly.
   only raising the story points.
 - Never run `git commit` — the user commits themselves.
 - Ground every question in the code first (Phase 2); never ask about something
-  the codebase already answers.
+  the codebase already answers. A named reference implementation is read before
+  any API is probed, and the touched files are checked against the
+  conventions that fire on touch.
 - Note per ticket whether a DB migration and/or data-layer access-rule change is
   expected.
 - Stop and ask when a ticket is empty or ambiguous; do not invent scope.
