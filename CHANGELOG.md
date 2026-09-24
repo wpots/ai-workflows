@@ -15,7 +15,29 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Added
+
+- `hooks/` + `scripts/check_added_comments.py` — a `PostToolUse` hook on
+  `Edit|Write` that prints a reminder when an edit adds a code comment
+  carrying an MR/PR/ticket reference or wording that argues the change is
+  correct. Both are classes `rules/documentation.md` already calls findings;
+  what was missing was a trigger while the comment is being written, since the
+  rule fires at review time and only `skills/code-review` and
+  `skills/work-backlog` load it. It reads the added text only, never blocks,
+  and does not measure comment volume — that same rule states no ratio of
+  comment lines to code lines is a finding on its own.
+- `rules/project.md` — "Harden What You Can Demonstrate": defensive code needs
+  a failure you can point at, and if no test fails without the change that is
+  the signal. Distinguishes this from boundary validation, which covers data
+  whose shape is unknown by definition.
+- `skills/code-review` — speculative hardening added as a review lens, citing
+  that rule.
+
 ### Changed
+
+- `rules/documentation.md` — new "When You Write One" section stating that the
+  comment classes apply while writing, not only at review, plus the hook above
+  under "Relation To Other Surfaces".
 
 - `skills/address-review-comments` — stacked MRs now handle a squash-merged
   base without fetching its possibly deleted source branch or trusting the
