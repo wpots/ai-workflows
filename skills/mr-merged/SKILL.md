@@ -102,7 +102,17 @@ never hardcode; see the gotchas in `skills/jira-ticket`) and post with
   3. Delete the local source branch. Use `git branch -d` when Git proves it is
      an ancestor of the default branch. For a squash merge, first verify that
      the current local branch head still equals the merged MR/PR source-head
-     SHA, then use `git branch -D`.
+     SHA, then use `git branch -D`. When the two differ, the forge may have
+     rewritten the branch just before merging (GitLab's **Rebase** button, or
+     a rebase-before-merge setting), so the SHAs can never match. Compare the
+     content instead: `git range-diff <local>^..<local> <squash>^..<squash>`.
+     A difference in the commit message and in context lines only is the same
+     change, and `git branch -D` is safe. Any changed `+`/`-` line — or a
+     local branch of more than one commit, which range-diff cannot pair with
+     one squash — is local work the merge may not carry: report it and keep
+     the branch. Do not decide with `git patch-id`: context lines count
+     toward it, so an identical change rebased onto a moved base gets a new
+     id.
   4. Delete the remote source branch if it survived the merge and the cleanup
      approval included it.
   5. Verify that both the worktree entry and local branch are absent.
