@@ -15,6 +15,14 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Changed
+
+- `skills/mr-merged` — the squash-merge cleanup no longer stalls when the forge
+  rebased the source branch right before merging, which makes the local head
+  and the MR's source head differ for good. `git range-diff` against the squash
+  commit decides whether the local branch holds anything the merge does not;
+  `git patch-id` is ruled out, since shifted context lines change it.
+
 ## [2.3.0] - 2026-09-24
 
 ### Changed
