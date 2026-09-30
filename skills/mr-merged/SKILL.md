@@ -1,6 +1,6 @@
 ---
 name: mr-merged
-description: Post-merge closeout for a merged MR/PR — check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, propose the ticket transition, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change.
+description: Post-merge closeout for a merged MR/PR — check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, confirm the post-merge deploy actually went out (a green deploy job can carry a refused hook), propose the ticket transition, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change.
 ---
 
 # MR Merged — Post-merge Closeout
@@ -88,6 +88,17 @@ never hardcode; see the gotchas in `skills/jira-ticket`) and post with
 
 ## Step 5 — Propose the transition and clean up
 
+- **Read the deploy back.** Find the target branch's pipeline for the merge or
+  squash commit (`glab api "projects/<path>/pipelines?sha=<sha>"`), wait for
+  its deploy job, and read the job's log, not only its status. A deploy job
+  that only POSTs to a hook passes whatever the hook answers: a Vercel hook
+  that refused (`{"error":{"code":"incorrect_git_source_info",…}}` instead of
+  `{"job":{…}}`) leaves a green job and the environment on the previous
+  build. Where the platform's CLI is at hand, confirm a deployment exists for
+  the commit (`vercel ls <project> --scope <team> --meta
+  gitlabCommitSha=<sha>`). A refused or missing deploy is a ⚠️ in the recap
+  with the response quoted; retrying the job is the user's call, since this
+  skill never deploys.
 - Look up the ticket's current status and propose the next transition (e.g.
   to review/done) — as a suggestion in the recap, not an action. When Step 2
   found open items, propose nothing beyond what partial delivery justifies: the
@@ -136,7 +147,8 @@ failed steps needing a workaround). If it did, hand off to
 
 Report in one block: MR + merge commit, the ticket's standing (`3/3 items merged — ticket complete` or `2/3 — waiting on
 <item>`), comment posted (URL) / drafted-undelivered / deferred to the last
-slice, proposed ticket transition, branch/worktree cleanup, anything skipped and
+slice, the deploy read-back (queued / refused, with the response / no deploy
+job), proposed ticket transition, branch/worktree cleanup, anything skipped and
 why.
 
 ## Constraints
@@ -149,5 +161,7 @@ why.
   (`skills/close-sprint` owns the sprint level).
 - Never transition tickets or post comments without the approval described
   above.
-- Keep the structure open for a future "verify on staging/production" step
-  (Deploy-health gate) — do not build it now.
+- The deploy read-back in Step 5 reads what the deploy job and the platform
+  report; it does not test the deployed site. Keep the structure open for a
+  future "verify on staging/production" step (Deploy-health gate) — do not
+  build it now.
