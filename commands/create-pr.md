@@ -200,7 +200,11 @@ Applies on every run, including updates to an existing PR/MR.
    confirm the `ai:agent-authored` label, the template's headings in the
    description, and the reviewer where policy names one. Repair what is
    missing (`glab mr update` / `gh pr edit`) — report only what the read-back
-   confirmed.
+   confirmed. Then read the MR pipeline once its setup stage has finished and
+   report a failed job with its name and log tail: it can fail in `install` on
+   something the diff never touched, such as a registry token that
+   feature-branch pipelines do not receive once a lockfile change empties the
+   cache.
 5. Output the PR/MR URL on success.
 
 ### No-CLI fallbacks
@@ -226,7 +230,7 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | --- | --- | --- |
 | PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
 | Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
-| Checks | ✅ | lint ✓ · type-check ✓ · test ✓ |
+| Checks | ✅ | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
 | Migration | ➖ | none needed / added `<name>` |
 | Board updated | ✅ | section it moved to (if the project keeps a board) |
 | Worktree cleaned up | ➖ | removed + pruned, or ➖ if none was used |

@@ -22,6 +22,17 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   and the MR's source head differ for good. `git range-diff` against the squash
   commit decides whether the local branch holds anything the merge does not;
   `git patch-id` is ruled out, since shifted context lines change it.
+- `skills/create-pr`, `commands/create-pr.md` — the read-back after opening the
+  MR now includes the MR pipeline once its setup stage has finished, and a
+  failed job is reported with its log tail instead of "pipeline running". The
+  recap's Checks row carries the pipeline's state. Local checks cannot catch an
+  `install` failure on a registry token that feature-branch pipelines do not
+  receive, which only shows once a lockfile change empties the cache.
+- `skills/mr-merged` — Step 5 reads the post-merge deploy back: the deploy
+  job's log, not only its status, and where a CLI is at hand the deployment
+  for the merge commit. A hook-only deploy job passes even when the hook
+  refused, so a refused or missing deploy becomes a recap warning, and the
+  retry stays the user's call.
 
 ## [2.3.0] - 2026-09-24
 

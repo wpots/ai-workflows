@@ -283,7 +283,15 @@ glab mr create \
    - the description carries the resolved template's headings — repair via the
      file-based description update in `references/push-and-mr-mechanics.md`
      when it does not;
-   - the reviewer, when the repo's policy names one (see above).
+   - the reviewer, when the repo's policy names one (see above);
+   - the MR pipeline, once its setup stage has finished (GitLab:
+     `head_pipeline.status` from `glab api projects/<path>/merge_requests/<iid>`,
+     jobs from `…/pipelines/<id>/jobs`, a log from `…/jobs/<id>/trace`). A
+     failed job is reported with its name and the last lines of its log, not as
+     "pipeline running". Local checks do not cover it: an MR pipeline can fail
+     in `install` on something the diff never touched — a registry token that
+     feature-branch pipelines do not receive surfaces only when the lockfile
+     changes and the cache starts cold.
    Report only what the read-back confirmed.
 5. Output the PR/MR URL on success.
 
@@ -368,7 +376,7 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | Provenance label | ✅ | `ai:agent-authored`, confirmed on read-back — or ⚠️ with the reason when labelling failed |
 | Template followed | ✅ | `<resolved template path>`, headings confirmed on read-back |
 | Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
-| Checks | ✅ | lint ✓ · type-check ✓ · test ✓ |
+| Checks | ✅ | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
 | Migration | ➖ | none needed / added `<name>` |
 | Board updated | ✅ | section it moved to (if the project keeps a board) |
 | Worktree cleaned up | ➖ | removed + pruned, or ➖ if none was used |
