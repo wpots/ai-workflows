@@ -1,6 +1,6 @@
 ---
 name: mr-merged
-description: Post-merge closeout for a merged MR/PR — check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, confirm the post-merge deploy actually went out (a green deploy job can carry a refused hook), propose the ticket transition, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change.
+description: Post-merge closeout for a merged MR/PR — check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, confirm the post-merge deploy went out, propose the ticket transition, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change or whether it is live yet ("staat het live").
 ---
 
 # MR Merged — Post-merge Closeout
@@ -90,7 +90,10 @@ never hardcode; see the gotchas in `skills/jira-ticket`) and post with
 
 - **Read the deploy back.** Find the target branch's pipeline for the merge or
   squash commit (`glab api "projects/<path>/pipelines?sha=<sha>"`), wait for
-  its deploy job, and read the job's log, not only its status. A deploy job
+  its deploy job, and read the job's log, not only its status. Wait in one
+  bounded poll: every 30–60 s, for at most about 10 minutes (in Claude Code a
+  Monitor until-loop, since a foreground `sleep` is blocked). A deploy job
+  that has not run by then is ⏳ in the recap, with the pipeline link. A deploy job
   that only POSTs to a hook passes whatever the hook answers: a Vercel hook
   that refused (`{"error":{"code":"incorrect_git_source_info",…}}` instead of
   `{"job":{…}}`) leaves a green job and the environment on the previous

@@ -1,0 +1,27 @@
+{
+  "skill_name": "mr-merged",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "The MR just merged, close it out. (Context the agent can discover: the target branch's pipeline for the squash commit has a deploy job that POSTs to a Vercel deploy hook; the job passed, but its log shows the hook answered `{\"error\":{\"code\":\"incorrect_git_source_info\",\"message\":\"…\"}}`; `vercel ls <project> --meta gitlabCommitSha=<sha>` lists no deployment for the commit.)",
+      "expected_output": "In Step 5, the run finds the pipeline for the squash commit and reads the deploy job's log, not only its green status. With the CLI it confirms no deployment exists for the commit. The recap carries a ⚠️ for the refused deploy, quoting the hook's response. It does not retry the job or deploy itself; the retry is offered as the user's call.",
+      "assertions": [
+        "The output reads the deploy job's log rather than relying on its passed status",
+        "The output checks the platform for a deployment of the merge commit",
+        "The recap flags the refused deploy with a warning and quotes the hook's response",
+        "The output does not retry the deploy job or trigger a deploy itself"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "The MR just merged, close it out. (Context the agent can discover: the target branch's pipeline for the merge commit is still running its test stage after fifteen minutes; the deploy job has not started.)",
+      "expected_output": "The run waits for the deploy job for about ten minutes and then stops. The recap shows the deploy as pending (⏳) with the pipeline link, and the rest of the closeout — ticket standing, proposed transition, cleanup — still completes. It does not wait indefinitely and does not call the deploy done.",
+      "assertions": [
+        "The output stops waiting for the deploy job after a bounded time of about ten minutes",
+        "The recap shows the deploy as pending with the pipeline link",
+        "The output completes the rest of the closeout instead of blocking on the deploy",
+        "The output does not report the deploy as done"
+      ]
+    }
+  ]
+}
