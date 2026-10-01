@@ -1,6 +1,6 @@
 ---
 name: sprint-demo
-description: Prepare a stakeholder-ready sprint demo by reading the issue tracker for stories on the user's name in the sprint, validating their BLIs are planned for that sprint, and producing a presenter runsheet plus a polished Marp slide deck (and supporting one-pagers where a story needs context). The tracker is read-only. Use when the user asks to prepare a sprint demo, build a demo script, or get ready for sprint review.
+description: Prepare a stakeholder-ready sprint demo from the issue tracker — a presenter runsheet, a Marp deck with read-aloud notes, and, when the client gets a copy, a notes-free pptx in the client's own demo format. Covers the full sprint, the user's own stories, or one shared deck per person; the tracker is read-only. Use when the user asks to prepare a sprint demo, build a demo script, get ready for sprint review, make a shareable demo deck or pptx, or says "demo voorbereiden", "sprint review", "demo delen met de klant".
 ---
 
 # Sprint Demo Skill
@@ -15,8 +15,13 @@ same workflow; Copilot follows the runbook directly.
 ## Workflow
 
 1. Read `commands/sprint-demo.md` (project root, or the synced `commands/` dir).
-2. Follow the phases in order. Do not skip the Phase 8 review pause.
-3. A live tracker connection is mandatory (Phase 0). Use the most efficient
+2. Run the intake from its Inputs section before fetching anything: scope
+   (full sprint, own stories, per person), the client's previous demo format,
+   a shareable version, status and outlook, and the architecture before/after
+   when the sprint changed how systems connect.
+3. Follow the phases in order. Do not skip the Phase 8 consistency pass and
+   review pause.
+4. A live tracker connection is mandatory (Phase 0). Use the most efficient
    method available: the tracker's MCP connector if connected, otherwise its
    CLI. If neither connects, stop and help the user connect — never prep a demo
    on local docs alone.
@@ -26,10 +31,16 @@ same workflow; Copilot follows the runbook directly.
 - The issue tracker is **read-only**. No comments, transitions, edits,
   assignments, or story points.
 - Never run `git commit` — the user commits themselves.
-- Only demo stories **on the user's name** (assignee) in the target sprint.
-- Validation is tracker-only: confirm each story's BLI is **planned for
-  Sprint N**; do not verify code delivery in this flow. Flag mismatches, never
-  fix them.
+- The scope is the user's intake choice — full sprint, own stories, or per
+  person — never assumed.
+- Story validation is tracker-only: confirm each story's BLI is **planned for
+  Sprint N**; do not verify code delivery per story. A story created after the
+  sprint start is "extra opgeleverd", not a mismatch. Flag mismatches, never
+  fix them. The one git check is Phase 8's check of forward-looking claims.
+- Never hand out Marp's `--pptx` export: it carries every note. The shareable
+  pptx is built on the client's previous deck, without notes.
+- Once the user edits `deck.md`, it is the single source: sync the pptx from it
+  when they ask, and never regenerate or write to it while they edit.
 - Audience is **stakeholders** — keep every slide plain-language and value-first;
   technical detail lives only in presenter notes.
 - Where a story's value is not self-evident, weave context into the deck or
@@ -44,11 +55,20 @@ Written to `docs/demo/sprint-<N>/`:
 - `demo-script.md` — presenter runsheet (per story: value, environment,
   preconditions, klikpad, timing, fallback, private notes; plus a setup
   checklist and the talk-only items).
-- `deck.md` — stakeholder Marp slide deck (value-first slides, klikpad in
-  presenter notes). Styling: the Greenberry house-style Marp theme from the
-  runbook (paars `#5801FF`, koraal `#FF554E`), with the project logo embedded
-  as a base64 data URI on every slide. Render with
-  `npx @marp-team/marp-cli docs/demo/sprint-<N>/deck.md --pdf` (or `--pptx`).
+- `deck.md` — stakeholder Marp slide deck (value-first slides with
+  screenshots and live links, klikpad in presenter notes). Styling: the
+  client's previous demo format when there is one, otherwise the Greenberry
+  house-style Marp theme from the runbook (paars `#5801FF`, koraal `#FF554E`),
+  with the project logo embedded as a base64 data URI on every slide. Render
+  to `deck.html` for the presenter view.
+- `<client format>.pptx` — when agreed: the shareable version, same slides,
+  no notes.
+- `screenshots/` — taken on the demo environment; on the slides and the
+  runsheet's fallback.
 - `support/` — optional plain-language one-pagers for stories needing context.
-- A list of validation flags (not planned for Sprint N, missing BLI,
-  not-yet-done) awaiting a user decision.
+- A list of validation and consistency flags (not planned for Sprint N,
+  missing BLI, not-yet-done, claims that do not hold) awaiting a user decision.
+
+The folder is tracked, not ignored: remove a `docs/demo/` ignore rule when
+`git check-ignore` finds one. End by suggesting `close-sprint` after the demo;
+it flattens the folder into `docs/sprint-<N>/demo.md`.

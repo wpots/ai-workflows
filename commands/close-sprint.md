@@ -233,7 +233,7 @@ close still cross-references, and working documents have no such reader.
      (written by `commands/refinement.md`);
    - a project-local sprint folder under any spelling — `docs/sprint<N>/`,
      `docs/sprint_<N>/`, or `docs/sprint-<N>/` itself — and every file in it
-     that is not a delivered BLI;
+     that is not a delivered BLI or the Phase 5c demo record;
    - a prompt or loop file that only exists to drive the sprint's tracker.
 
    Ask when it is unclear which sprint a file belongs to. Out of scope:
@@ -268,6 +268,33 @@ close still cross-references, and working documents have no such reader.
    the [Changelog template](#changelog-template)). Git history keeps the files,
    so the list plus the retrieval recipe is the whole archive.
 
+## Phase 5c — Flatten the sprint demo into the sprint folder
+
+When `docs/demo/sprint-<N>/` exists (written by `commands/sprint-demo.md`),
+fold it into one text record, `docs/sprint-<N>/demo.md`:
+
+1. **Write the record**, in the changelog's language:
+   - A header with the demo date, the audience, the demo environment, and
+     where the shared version lives when the client received one.
+   - Per slide, in deck order: the title, what was shown (its lines, the
+     tickets), and the demo URLs. Add the dated facts the notes quote, such as
+     "op 29-09: 250 resultaten".
+   - The questions the runsheet expected, with their answers.
+
+   Leave out the mechanics that only served the day: the klikpad, the
+   checklists, the presenter-view instructions, the screenshots and the
+   rendered files.
+2. **Route what is not a record.** A `(Niet voorlezen: …)` caveat that states
+   a durable fact goes to its home (BLI, ADR, `docs/todo/`), as in the Phase 5b
+   `durable` rule. An open flag from the demo prep goes to the gaps document.
+   A support one-pager moves next to the record with `git mv`.
+3. **Remove the folder** with `git rm -r docs/demo/sprint-<N>/`. When git does
+   not track it, because an older run ignored the folder, removing it cannot be
+   undone: ask first, and name the files that are only on disk (the shared
+   pptx, above all).
+4. **Record** the record's path and the retrieval recipe for the full deck in
+   the changelog's `## Archief`.
+
 ## Phase 6 — Review pause (stop here)
 
 Print a summary:
@@ -276,6 +303,7 @@ Print a summary:
 - Path to the gaps document
 - List of moved BLIs
 - Working documents removed, and those held back as `consumed` or `durable`
+- The demo record written in Phase 5c, or "no demo folder"
 - Count of spillover / gap items awaiting review
 
 Then stop and ask the user to review the changelog and gaps document before
@@ -395,6 +423,7 @@ End with a concise list of:
 - Files moved (via `git mv`)
 - Working documents removed (Phase 5b), and those held back with their
   proposed home
+- The demo record (Phase 5c) and the demo folder it replaced
 - New docs created during Phase 7
 - Stale branch / worktree count from Phase 8
 - Items still open that need user follow-up
@@ -447,6 +476,8 @@ changelogs.
 - Werkdocumenten, verwijderd bij de close: `docs/sprint-<N>-planning.md`,
   `docs/sprint<N>/log.md` — `git show <sha>^:<path>`, met `<sha>` uit
   `git log --diff-filter=D --format=%h -1 -- <path>`
+- Demo: `docs/sprint-<N>/demo.md`; de volledige deck via
+  `git show <sha>^:docs/demo/sprint-<N>/deck.md`
 - BLI's van deze sprint: `git show sprint-<N>-bli-archive:docs/sprint-<N>/<file>`
 ````
 
@@ -465,6 +496,6 @@ Filling rules:
 - **Target size: under 15 KB per changelog.** Larger means BLI or tracker
   content is leaking into it.
 - At close, `## Archief` holds only the working-documents line from Phase 5b
-  (omit the section when nothing was removed); compact-sprint adds the BLI
-  line. While the sprint folder exists, BLIs live at `docs/sprint-<N>/` and
+  and the demo line from Phase 5c (omit the section when neither applies);
+  compact-sprint adds the BLI line. While the sprint folder exists, BLIs live at `docs/sprint-<N>/` and
   need no per-row path column.

@@ -1,0 +1,63 @@
+{
+  "skill_name": "sprint-demo",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Prepare the sprint 15 demo; the sprint folder has the relevant information. (Context the agent can discover: `docs/sprint15/` holds the plan and an `architecture-sprint-15.drawio` with a before and an after page; the sprint swapped the catalogue vendor; the Downloads folder holds the client's previous demo deck, `Demo Sprint 13.pptx`; four developers have stories in the sprint.)",
+      "expected_output": "Before fetching stories, the run asks the intake questions: whose work goes in (full sprint, only the user's stories, or one shared deck with a section per person), whether the client gets a shareable copy, whether to include status and a look ahead, and — because the sprint docs hold a diagram and the sprint changed how systems connect — whether to show the architecture before and after. It finds or asks about the client's previous demo deck and uses its slide sequence and look instead of defaulting to the house theme.",
+      "assertions": [
+        "The output asks for the scope with the three options full sprint, own stories and per person before querying the tracker",
+        "The output asks whether a shareable version is needed",
+        "The output asks whether to include status and an outlook on the next sprint",
+        "The output asks about an architecture before/after because a diagram exists in the sprint docs",
+        "The output uses or asks about the client's previous demo deck rather than applying the house theme by default"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Build the scope slide for the sprint demo. (Context the agent can discover: the sprint started 9 September; nine stories were created before that date and carry the planned-for-sprint label; nine more were created between 24 and 28 September and are in the sprint without the label; twelve issues created during the sprint are open on the backlog, not in any sprint.)",
+      "expected_output": "The run splits the scope into a planned table and an 'extra opgeleverd' table using the created date against the sprint start, instead of flagging the nine later stories as planning mismatches to drop. The notes explain that the extras were picked up during delivery. The twelve open issues created during the sprint become a backlog-findings slide. On the per-topic slide, every extra is marked and every mark matches a row in the extra table.",
+      "assertions": [
+        "The output separates planned stories from stories created after the sprint start",
+        "The output does not flag the later stories as planning mismatches to drop",
+        "The output lists the issues created during the sprint that are not in it on a backlog-findings slide",
+        "The output's markers for extra work match the rows of the extra table one to one"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I made my changes in deck.md, sync please. (Context the agent can discover: the user commented out the status slide, the status section and the outlook section in `deck.md` with HTML comments; the shareable pptx was generated from an earlier version; the agent's own earlier draft of the deck still exists in the scratchpad.)",
+      "expected_output": "The run treats deck.md as the source: it does not regenerate deck.md from its own draft, and removes the commented-out slides from the pptx. It renders deck.html, lists the slides, finds the empty slide the commented-out block left behind, and tells the user, together with the fact that the commented text now shows in a neighbouring slide's notes. It compares the pptx and deck.md both ways and reports differences beyond formatting. It renders the changed pptx slides and looks at them before reporting.",
+      "assertions": [
+        "The output does not overwrite deck.md with an earlier generated version",
+        "The output removes the commented-out slides from the pptx",
+        "The output detects the empty slide left by the commented-out block and reports it",
+        "The output compares pptx and deck.md in both directions",
+        "The output renders and inspects the changed pptx slides before reporting"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "The demo deck is done; wrap up. (Context the agent can discover: the closing slide says 'the sprint 15 release has set up the CMS production environment'; the release branch `main` is 226 commits behind `development` and its last tag predates the sprint; the ticket for the production setup is 'In Test'; the title slide shows 29 September while the sprint slide says the demo is on 1 October.)",
+      "expected_output": "Before the summary, the run checks the forward-looking claim against the release branch and the tracker, finds that the sprint's work is not on main and the ticket is still in test, and flags the claim instead of leaving it in. It also flags the title date that does not match the demo date. It does not change the slides itself.",
+      "assertions": [
+        "The output checks whether the sprint's work is on the release branch before accepting the claim",
+        "The output reports the tracker status of the ticket the claim rests on",
+        "The output flags the mismatch between the title date and the demo date",
+        "The output leaves the decision to the user rather than rewriting the slide"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Write the demo files for sprint 16. (Context the agent can discover: `.gitignore` has a `docs/demo/` line from an earlier demo run; `.git/info/exclude` is empty; `docs/sprint-15-changelog.md` exists, `docs/sprint-16-changelog.md` does not.)",
+      "expected_output": "The run checks whether the demo folder is ignored, finds the `.gitignore` rule, removes that line, and says which file held it. It does not add an ignore rule and does not commit the folder. It ends by suggesting to run close-sprint for sprint 16 after the demo, which flattens the folder into `docs/sprint-16/demo.md`.",
+      "assertions": [
+        "The output checks whether docs/demo/ is ignored, for example with git check-ignore",
+        "The output removes the docs/demo/ rule from .gitignore and reports it",
+        "The output does not add docs/demo/ to any ignore file",
+        "The output does not commit the demo folder",
+        "The output suggests running close-sprint after the demo"
+      ]
+    }
+  ]
+}

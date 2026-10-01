@@ -39,6 +39,9 @@ share the same workflow; Copilot follows the runbook directly.
   spike notes under any spelling of the sprint folder. Ephemeral ones go; a
   file that code, tests or config reference is never removed — it is recorded
   in the gaps document with a proposed permanent home.
+- Flatten a sprint demo folder (`docs/demo/sprint-<N>/`) into
+  `docs/sprint-<N>/demo.md` and remove the folder (runbook Phase 5c); ask
+  before removing one git does not track.
 - Stop and ask whenever classification is ambiguous.
 - Populate `## Authors` on every moved BLI using the tracker assignee plus git
   commit authors. Deduplicate; never remove existing entries.
@@ -84,7 +87,8 @@ template" section of the runbook, a gaps document at `docs/sprint-<N>-gaps.md`
 (including the Phase 8 stale-branch and worktree overview), delivered BLIs
 relocated to `docs/sprint-<N>/` with updated status and authors, the sprint's
 ephemeral working documents removed and listed under the changelog's
-`## Archief`, and a list of spillover items prepared for the Phase 7
+`## Archief`, the sprint demo flattened into `docs/sprint-<N>/demo.md` when a
+demo folder exists, and a list of spillover items prepared for the Phase 7
 walkthrough. In support mode the same
 outputs land at the `docs/support-<yyyy>-<mm>` equivalents.
 
