@@ -367,11 +367,14 @@ Marp pitfalls:
   layouts, set `place-content: start` on `section` and keep centring only on
   the section slides.
 - Every HTML comment becomes a presenter note, and Marp has no way to hide a
-  slide. A slide that is commented out leaves an **empty slide** behind, and
-  its text shows up in the notes of a neighbouring slide. After every render,
-  list the slides and check for empty ones. To park a slide, move it out of
-  `deck.md`, or remove the separator it leaves and tell the user which notes
-  now carry its text.
+  slide. A commented-out slide either leaves an **empty slide** behind or,
+  when the comment swallows its `---`, no empty slide at all, while its text
+  ("fill in before the demo", `[..]` placeholders) lands in the notes of the
+  slide before it, which the presenter reads live. Park a slide by moving it
+  to `parked-slides.md` next to the deck, never by commenting it out, and name
+  the parked slides in the runsheet header. After every render, list the
+  slides, check for empty ones, and search `deck.html` for each parked
+  slide's heading: none may appear.
 
 ### Shareable version (when agreed)
 
@@ -381,6 +384,15 @@ The client gets a `.pptx` without notes, in their own format:
   that file, duplicate its slides per section, and reuse its paragraph
   formatting (python-pptx: deep-copy a template paragraph as the prototype for
   each text kind). Leave out every notes slide and validate the package.
+- Save the build script in the demo folder (`build-pptx.py`), never only in a
+  session scratchpad, and put the command that runs it in the runsheet header,
+  including where python-pptx comes from: the system `python3` often lacks
+  it. A scratchpad is gone by the next session, and a sync without the script
+  means patching slide XML by hand. That is a last resort for a text-only
+  change: replace the exact `<a:t>` run in `ppt/slides/slide<N>.xml` with the
+  stdlib `zipfile`, copy every other entry unchanged (`writestr(info, data)`
+  keeps each entry's compression), and tell the user it was patched, not
+  regenerated.
 - `deck.md` is the single source. The user edits only `deck.md` and says when to
   sync; the pptx is regenerated from it on each sync, and nobody edits the pptx
   by hand until the final step. Once the user edits `deck.md`, never regenerate
@@ -392,7 +404,10 @@ The client gets a `.pptx` without notes, in their own format:
 - Render every slide to an image and look at it before the hand-off, checking
   for tables that overflow, text over pictures and titles that wrap. Without
   LibreOffice on macOS, `qlmanage -p -o <dir> <file>.pptx` writes an HTML
-  preview whose `div.slide` elements can be screenshotted one by one.
+  preview whose `div.slide` elements can be screenshotted one by one. It
+  writes into `<dir>/<file>.pptx.qlpreview/`, `<dir>` must already exist, and
+  qlmanage does not start inside a command sandbox ("sandbox initialization
+  failed").
 - Both versions have the same slides in the same order, and the runsheet states
   the count.
 
@@ -424,6 +439,9 @@ First, run a consistency pass and add every hit to the flags:
   tracker status of the ticket the claim rests on.
 - Each slide against its own notes and the runsheet, since a note can
   contradict its slide after an edit.
+- The rendered notes against the parked slides: no heading or placeholder of
+  a parked slide appears in `deck.html`. A slide count without empty slides
+  does not prove this.
 - Dates and counts: the title date against the demo date, and the `*` markers
   against the extra table.
 

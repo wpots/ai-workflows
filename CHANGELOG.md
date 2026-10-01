@@ -15,6 +15,18 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Changed
+
+- `skills/sprint-demo`, `commands/sprint-demo.md` — a slide left out of the
+  deck moves to `parked-slides.md` instead of being commented out: a comment
+  that swallows its `---` leaves no empty slide, but its text lands in the
+  presenter notes of the slide before it. The Phase 8 consistency pass now
+  searches the rendered notes for parked text, since a clean slide count does
+  not prove it is gone. The pptx build script is kept in the demo folder as
+  `build-pptx.py`, with its run command in the runsheet, so a later sync can
+  regenerate instead of patching slide XML by hand. The `qlmanage` preview
+  step names its preconditions.
+
 ## [2.4.0] - 2026-10-01
 
 ### Added

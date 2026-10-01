@@ -59,6 +59,27 @@
         "The output does not commit the demo folder",
         "The output suggests running close-sprint after the demo"
       ]
+    },
+    {
+      "id": 6,
+      "prompt": "Run the consistency check before I present. (Context the agent can discover: `deck.md` leaves out the status section, the status slide and the outlook section with HTML comments that also span their `---` separators; the rendered `deck.html` has 21 slides and none is empty; the status slide holds `[..]` placeholders and the note 'fill in the hours before the demo'.)",
+      "expected_output": "The run does not accept the clean slide count as proof. It searches the rendered deck.html for the headings of the commented-out slides, finds their text in the presenter notes of the slide before them, and names those slides. It proposes moving the left-out slides to parked-slides.md and re-rendering, and waits for the user's go before writing to deck.md.",
+      "assertions": [
+        "The output searches the rendered deck.html for the left-out slides' text instead of relying on the slide count",
+        "The output names the slide whose presenter notes carry the left-out text",
+        "The output proposes moving the left-out slides to parked-slides.md instead of keeping them commented out",
+        "The output waits for the user's go before writing to deck.md"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "Build the shareable pptx from deck.md. (Context the agent can discover: the client's previous deck is in Downloads; the system python3 has no python-pptx; the session has a scratchpad directory for temporary files.)",
+      "expected_output": "The run writes the pptx build script to the demo folder as build-pptx.py rather than only to the scratchpad, and puts the command that runs it in the runsheet header, including where python-pptx comes from. The pptx itself stays ignored by git.",
+      "assertions": [
+        "The output saves the pptx build script in the demo folder, not only in the scratchpad",
+        "The output records in the runsheet the command that runs the build script",
+        "The output states how python-pptx is made available to that command"
+      ]
     }
   ]
 }
