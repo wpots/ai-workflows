@@ -291,7 +291,12 @@ glab mr create \
      "pipeline running". Local checks do not cover it: an MR pipeline can fail
      in `install` on something the diff never touched — a registry token that
      feature-branch pipelines do not receive surfaces only when the lockfile
-     changes and the cache starts cold.
+     changes and the cache starts cold. Wait for the setup stage in one
+     bounded poll: every 30–60 s, for at most about 10 minutes (in Claude Code
+     a Monitor until-loop, since a foreground `sleep` is blocked). When it has
+     not finished by then, report the stage it reached and offer
+     `skills/watch-mrs`, which follows the rest of the pipeline and names a
+     failing job.
    Report only what the read-back confirmed.
 5. Output the PR/MR URL on success.
 

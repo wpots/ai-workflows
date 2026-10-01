@@ -45,12 +45,15 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   failed job is reported with its log tail instead of "pipeline running". The
   recap's Checks row carries the pipeline's state. Local checks cannot catch an
   `install` failure on a registry token that feature-branch pipelines do not
-  receive, which only shows once a lockfile change empties the cache.
+  receive, which only shows once a lockfile change empties the cache. The wait
+  is one bounded poll of about 10 minutes; a slower pipeline is reported at
+  the stage it reached and handed to `watch-mrs`.
 - `skills/mr-merged` — Step 5 reads the post-merge deploy back: the deploy
   job's log, not only its status, and where a CLI is at hand the deployment
   for the merge commit. A hook-only deploy job passes even when the hook
   refused, so a refused or missing deploy becomes a recap warning, and the
-  retry stays the user's call.
+  retry stays the user's call. The wait is one bounded poll of about 10
+  minutes; a deploy job that has not run by then is reported as pending.
 
 ## [2.3.0] - 2026-09-24
 

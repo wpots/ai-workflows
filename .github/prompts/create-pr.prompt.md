@@ -209,7 +209,9 @@ Applies on every run, including updates to an existing PR/MR.
    report a failed job with its name and log tail: it can fail in `install` on
    something the diff never touched, such as a registry token that
    feature-branch pipelines do not receive once a lockfile change empties the
-   cache.
+   cache. Wait for it in one bounded poll (every 30–60 s, at most about
+   10 minutes); when the setup stage has not finished by then, report the
+   stage it reached and offer `watch-mrs` for the rest.
 5. Output the PR/MR URL on success.
 
 ### No-CLI fallbacks
