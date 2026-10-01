@@ -27,14 +27,17 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   environment. The shareable pptx is built on the client's own deck without
   notes, since Marp's `--pptx` carries them, and is synced from `deck.md` with a
   two-way comparison. Phase 8 checks release claims against the release branch
-  before the summary. `docs/demo/` is now tracked instead of ignored: the run
-  removes an ignore rule it finds and ends by suggesting `close-sprint`.
+  before the summary. `docs/demo/` is now tracked; only the rendered
+  `deck.html` and the shareable pptx are ignored, and the pptx goes to the
+  client via the shared drive. The run replaces a folder-wide ignore rule with
+  those two and ends by suggesting `close-sprint`.
 - `skills/close-sprint`, `commands/close-sprint.md` — a new Phase 5c flattens
   `docs/demo/sprint-<N>/` into `docs/sprint-<N>/demo.md`: what each slide
   showed, the tickets, the demo URLs and the expected questions, without the
   klikpad, checklists or screenshots. The folder is then removed with `git rm`
-  and listed under `## Archief`. When git does not track the folder, the run
-  asks before deleting it.
+  and listed under `## Archief`. The ignored rendered files left on disk are
+  deleted once the user confirms the pptx is on the drive. When git does not
+  track the folder at all, the run asks before deleting it.
 - `skills/mr-merged` — the squash-merge cleanup no longer stalls when the forge
   rebased the source branch right before merging, which makes the local head
   and the MR's source head differ for good. `git range-diff` against the squash
