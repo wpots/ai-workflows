@@ -288,10 +288,12 @@ fold it into one text record, `docs/sprint-<N>/demo.md`:
    a durable fact goes to its home (BLI, ADR, `docs/todo/`), as in the Phase 5b
    `durable` rule. An open flag from the demo prep goes to the gaps document.
    A support one-pager moves next to the record with `git mv`.
-3. **Remove the folder** with `git rm -r docs/demo/sprint-<N>/`. When git does
-   not track it, because an older run ignored the folder, removing it cannot be
-   undone: ask first, and name the files that are only on disk (the shared
-   pptx, above all).
+3. **Remove the folder** with `git rm -r docs/demo/sprint-<N>/`. That leaves
+   the ignored rendered files (`deck.html`, the shareable `.pptx`) on disk:
+   ask the user to confirm the pptx is on the drive the runsheet names, then
+   delete them. When git does not track the folder at all, because an older
+   run ignored it, removing it cannot be undone: ask first, and name the files
+   that are only on disk (the shared pptx, above all).
 4. **Record** the record's path and the retrieval recipe for the full deck in
    the changelog's `## Archief`.
 

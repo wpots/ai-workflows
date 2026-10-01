@@ -50,11 +50,12 @@
     {
       "id": 5,
       "prompt": "Write the demo files for sprint 16. (Context the agent can discover: `.gitignore` has a `docs/demo/` line from an earlier demo run; `.git/info/exclude` is empty; `docs/sprint-15-changelog.md` exists, `docs/sprint-16-changelog.md` does not.)",
-      "expected_output": "The run checks whether the demo folder is ignored, finds the `.gitignore` rule, removes that line, and says which file held it. It does not add an ignore rule and does not commit the folder. It ends by suggesting to run close-sprint for sprint 16 after the demo, which flattens the folder into `docs/sprint-16/demo.md`.",
+      "expected_output": "The run checks whether the demo folder is ignored, finds the folder-wide `.gitignore` rule, and replaces it with rules for the rendered files only (`docs/demo/**/deck.html` and `docs/demo/**/*.pptx`), saying which file held the old rule. deck.md, the runsheet, the support one-pagers and the screenshots stay tracked. The runsheet notes where the shared pptx lives on the drive. The run does not commit the folder, and it ends by suggesting to run close-sprint for sprint 16 after the demo, which flattens the folder into `docs/sprint-16/demo.md`.",
       "assertions": [
         "The output checks whether docs/demo/ is ignored, for example with git check-ignore",
-        "The output removes the docs/demo/ rule from .gitignore and reports it",
-        "The output does not add docs/demo/ to any ignore file",
+        "The output removes the folder-wide docs/demo/ rule from .gitignore and reports it",
+        "The output ignores only the rendered deck.html and the pptx, so deck.md and the runsheet stay tracked",
+        "The output notes where the shared pptx lives",
         "The output does not commit the demo folder",
         "The output suggests running close-sprint after the demo"
       ]

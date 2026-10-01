@@ -403,13 +403,21 @@ The client gets a `.pptx` without notes, in their own format:
 
 ### The demo folder is tracked
 
-`docs/demo/sprint-<N>/` is tracked in git like any other doc. After the demo,
-`close-sprint` flattens it into `docs/sprint-<N>/demo.md` and removes the
-folder, and git history keeps the full deck. Check
-`git check-ignore -v docs/demo/sprint-<N>/deck.md`. When it prints a rule — a
-`docs/demo/` line in `.gitignore`, often added by an earlier version of this
-runbook, or one in `.git/info/exclude` — remove that rule and tell the user
-which file held it. The user commits the folder; never commit it yourself.
+`docs/demo/sprint-<N>/` is tracked in git like any other doc, except for two
+rendered files. `deck.html` is re-rendered from `deck.md` with one command. The
+shareable `.pptx` reaches the client through the project's shared drive; with
+its screenshots it runs to megabytes per sprint, too much for git history.
+After the demo, `close-sprint` flattens the folder into
+`docs/sprint-<N>/demo.md` and removes it, and git history keeps the source.
+
+- Check `git check-ignore -v docs/demo/sprint-<N>/deck.md`. When it prints a
+  rule — a folder-wide `docs/demo/` line in `.gitignore` (often added by an
+  earlier version of this runbook) or in `.git/info/exclude` — remove it and
+  tell the user which file held it.
+- Make `.gitignore` ignore the rendered files only: add
+  `docs/demo/**/deck.html` and `docs/demo/**/*.pptx` when missing.
+- Note in the runsheet header where the shared pptx lives on the drive.
+- The user commits the folder; never commit it yourself.
 
 ## Phase 8 — Review pause (stop here)
 

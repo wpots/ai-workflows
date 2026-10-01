@@ -62,13 +62,14 @@ Written to `docs/demo/sprint-<N>/`:
   with the project logo embedded as a base64 data URI on every slide. Render
   to `deck.html` for the presenter view.
 - `<client format>.pptx` — when agreed: the shareable version, same slides,
-  no notes.
+  no notes. Ignored by git; it goes to the client via the shared drive.
 - `screenshots/` — taken on the demo environment; on the slides and the
   runsheet's fallback.
 - `support/` — optional plain-language one-pagers for stories needing context.
 - A list of validation and consistency flags (not planned for Sprint N,
   missing BLI, not-yet-done, claims that do not hold) awaiting a user decision.
 
-The folder is tracked, not ignored: remove a `docs/demo/` ignore rule when
-`git check-ignore` finds one. End by suggesting `close-sprint` after the demo;
-it flattens the folder into `docs/sprint-<N>/demo.md`.
+The folder is tracked; only the rendered `deck.html` and `*.pptx` are ignored.
+When `git check-ignore` finds a folder-wide `docs/demo/` rule, replace it with
+those two. End by suggesting `close-sprint` after the demo; it flattens the
+folder into `docs/sprint-<N>/demo.md`.
