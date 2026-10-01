@@ -72,4 +72,5 @@ Written to `docs/demo/sprint-<N>/`:
 The folder is tracked; only the rendered `deck.html` and `*.pptx` are ignored.
 When `git check-ignore` finds a folder-wide `docs/demo/` rule, replace it with
 those two. End by suggesting `close-sprint` after the demo; it flattens the
-folder into `docs/sprint-<N>/demo.md`.
+folder into `docs/sprint-<N>/demo.md`. Offer `skills/release-notes` as well:
+the runsheet's plain-language lines are one of its sources.

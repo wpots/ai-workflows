@@ -72,6 +72,16 @@
       "problemMatcher": []
     },
     {
+      "label": "release-notes",
+      "type": "shell",
+      "command": "cat commands/release-notes.md",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "sprint-planning",
       "type": "shell",
       "command": "cat commands/sprint-planning.md",
