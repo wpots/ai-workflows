@@ -15,6 +15,8 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-10-01
+
 ### Added
 
 - `skills/release-notes` + `commands/release-notes.md` — release notes a
