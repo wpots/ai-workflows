@@ -41,6 +41,9 @@ same workflow; Copilot follows the runbook directly.
   pptx is built on the client's previous deck, without notes.
 - Once the user edits `deck.md`, it is the single source: sync the pptx from it
   when they ask, and never regenerate or write to it while they edit.
+- Park a slide by moving it to `parked-slides.md`, never by commenting it out:
+  its text lands in the presenter notes of the slide before it, even when no
+  empty slide shows.
 - Audience is **stakeholders** — keep every slide plain-language and value-first;
   technical detail lives only in presenter notes.
 - Where a story's value is not self-evident, weave context into the deck or
@@ -63,6 +66,8 @@ Written to `docs/demo/sprint-<N>/`:
   to `deck.html` for the presenter view.
 - `<client format>.pptx` — when agreed: the shareable version, same slides,
   no notes. Ignored by git; it goes to the client via the shared drive.
+  `build-pptx.py`, which every sync reruns, is tracked next to it.
+- `parked-slides.md` — slides left out of the deck, when there are any.
 - `screenshots/` — taken on the demo environment; on the slides and the
   runsheet's fallback.
 - `support/` — optional plain-language one-pagers for stories needing context.
