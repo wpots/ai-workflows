@@ -341,8 +341,12 @@ but they still break, and differently:
 - Working-tree cruft: untracked files that should be ignored, large files in
   history, `.gitignore` gaps, secrets committed by accident.
 - Merge-settings drift against `rules/git-flow.md`:
-  `node ~/Web/ai-workflows/scripts/gitlab-merge-settings.mjs --repo .`
-  (read-only). Any deviation is a finding — a project that lost `ff`,
+  `node <ai-workflows>/scripts/gitlab-merge-settings.mjs --repo .`
+  (read-only). Resolve `<ai-workflows>` to `<skill base directory>/../../`
+  first — the installed plugin version the harness printed when this skill
+  loaded; never a glob over the cache, where old versions linger — and to a
+  `~/Web/ai-workflows/` checkout second. Neither exists → `unknown`, naming both
+  paths. Any deviation is a finding — a project that lost `ff`,
   squash-always, or the pipeline gate silently changes what history and review
   guarantee. Fixing it needs `--apply` plus an explicit go, never inside the
   sweep.
@@ -372,9 +376,9 @@ but they still break, and differently:
 
 ### H. Delivery metrics
 
-- Run `node ~/Web/ai-workflows/scripts/delivery-metrics.mjs --repo . --since
+- Run `node <ai-workflows>/scripts/delivery-metrics.mjs --repo . --since
   <first day of the previous sweep's month>` — read-only (git log + glab
-  api). It reports merged MRs, median hours from MR created to merged,
+  api), `<ai-workflows>` resolved as in lane E. It reports merged MRs, median hours from MR created to merged,
   agent-authored share, and revert count.
 - Read the **label** share (`ai:agent-authored` on the MR) as the metric; the
   commit-trailer share is secondary and undercounts every squashed MR

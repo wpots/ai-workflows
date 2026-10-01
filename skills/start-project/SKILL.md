@@ -74,7 +74,7 @@ check:
 | 1 | repo exists and sits at `greenberrynl/<client>/<project>` | `git remote -v`, `glab repo view <path>` |
 | 2 | created from the template — shared history with it | `git fetch https://gitlab.com/greenberrynl/the-greenhouse/unicore-template.git` then `git merge-base HEAD FETCH_HEAD`. No common ancestor → fall back to a file fingerprint (CI config, tooling config, `.nvmrc`, folder skeleton) and record that lineage could not be proven — usually because history was squashed on import |
 | 3 | default branch and visibility match the Greenberry defaults | `glab api "projects/<url-encoded-path>"` |
-| 3b | merge settings match `rules/git-flow.md` | `node ~/Web/ai-workflows/scripts/gitlab-merge-settings.mjs --project <path>` — read-only; reports `ff` + squash-always, the squash commit template, delete-source-branch, and the pipeline/discussion gates. Paste its table into the lane report |
+| 3b | merge settings match `rules/git-flow.md` | `node <ai-workflows>/scripts/gitlab-merge-settings.mjs --project <path>` — read-only; reports `ff` + squash-always, the squash commit template, delete-source-branch, and the pipeline/discussion gates. Paste its table into the lane report. Resolving `<ai-workflows>`: see below |
 | 4 | protected branches and approval rules exist | `glab api "projects/<path>/protected_branches"`, `.../approval_rules` |
 | 5 | the CI/CD variables the pipeline needs are present | `glab api "projects/<path>/variables"` — **names only, never print values** |
 | 6 | tracker and chat integrations wired | `glab api "projects/<path>/integrations/jira"`, `.../integrations/slack` |
@@ -82,6 +82,20 @@ check:
 
 Report one table — check · **ok / deviation / unknown** · what fixes it. Unknown
 is a real answer; a guess is not.
+
+**Resolving `<ai-workflows>`.** The scripts ship with the plugin; a
+`~/Web/ai-workflows/` checkout exists only for developers who cloned the repo.
+Use the first that exists:
+
+1. `<skill base directory>/../../scripts/` — the harness prints the base
+   directory when the skill loads (`…/plugins/cache/ai-workflows/greenberry/<version>/skills/start-project`),
+   so this is the installed version exactly. Do not glob the cache: old
+   versions linger there, and a glob returns all of them.
+2. `~/Web/ai-workflows/scripts/` — a local checkout, and the only option on
+   tools that do not load skills from the plugin.
+
+Neither exists → report the check as **unknown** and name both paths tried. Never
+edit a script under the plugin cache: it is replaced on update.
 
 ### Fixing deviations
 
@@ -146,6 +160,13 @@ Rules for this lane:
   with a name attached.
 - A design link is worth asking for twice. Journeys and component specs written
   without the frames get rewritten when the frames arrive.
+- **Enumerate prior implementations; never accept the stated count.** When the
+  product replaces, generalises, or is cloned from existing builds, those builds
+  are a requirements source, so find all of them:
+  `glab api "groups/<group>/projects?search=<term>&include_subgroups=true&per_page=50"`.
+  A count given from memory is routinely short, and the build nobody mentioned
+  is often the oldest — the one the others grew from. Read each as code, not
+  only as a live site.
 - Answers land in the document that owns them (brief, spec, architecture,
   journey), not in a separate resource file nobody updates.
 
@@ -155,14 +176,43 @@ Rules for this lane:
 
 ### 3a. Harvest what the repo already knows
 
-Skip on a bare clone. On a retrofit, read before asking — every fact found here
-is one question the team does not have to answer:
+**First, check whether this kickoff already ran** — also on what looks like a
+bare clone, because the evidence lives outside the working tree:
+
+```
+git worktree list   # a prior session may have worked in another worktree
+git stash list      # a prior session may have stashed the scope document
+```
+
+Harness-created worktrees land in `.claude/worktrees/<name>`, hand-made ones in
+`~/.worktrees/<repo>-<slug>` (`CLAUDE.md` § Worktrees); `git worktree list`
+shows both. Read what they hold before interviewing:
+
+- per worktree: `git -C <path> status --porcelain`, then `ls <path>/docs`
+- per stash: `git stash show --name-only "stash@{n}"` **and**
+  `git show --stat "stash@{n}^3"` — the `^3` parent holds the files stashed
+  with `-u`, which is where an untracked document hides
+
+None of this shows up in `git status`, `ls`, or a `docs/` glob. Missing it is the
+most expensive failure in this skill: a second kickoff that rebuilt the documents
+from less evidence chose a different library than the first run had (with a
+reason), filed duplicate `docs/todo/` entries under new names, and never saw the
+requirements document, which existed only in a stash. When a prior run exists,
+stop and reconcile with the user before writing — see "Never overwrite silently".
+
+Then, on a retrofit, read before asking — every fact found here is one question
+the team does not have to answer:
 
 - `README.md` — product summary, audiences, sometimes the client's own wording
 - `CONVENTIONS.md` — stack, structure, deviations, existing decisions
 - `rules/` (project-local) — patterns already agreed
 - `package.json` — stack, scripts, integrations visible as dependencies
 - `docs/backlog/`, `docs/specs/`, `docs/plans/` — scope already written down
+- any prioritised requirements or scope document — glob widely
+  (`docs/*requirement*`, `docs/*scope*`, `docs/*spec*`), because the document
+  that owns the requirement IDs every other doc cites rarely sits under a folder
+  name this list predicts. When one exists it is the authority: the spec records
+  rules decided around it and does not restate it
 - `src/` top-level directories — the actual layer candidates
 - env schema (`src/env.ts` or equivalent) and validation helpers — trust boundaries
 - deploy config (`.gitlab-ci.yml`, hosting config, `docker-compose*.yml`) — topology
