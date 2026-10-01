@@ -5,6 +5,7 @@
 - `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen`, `compact support months` -> `commands/compact-sprint.md`
 - `refinement`, `prepare refinement`, `refine tickets`, `refinement vastleggen` -> `commands/refinement.md`
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `commands/sprint-demo.md`
+- `release notes`, `releasenotes`, `release notes voor de klant`, `wat is er live` -> `commands/release-notes.md`
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `commands/sprint-planning.md`
 - `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `commands/sustainable-review.md`
 - `run checks`, `run-checks`, `quality checks` -> `commands/run-checks.md`

@@ -24,6 +24,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `compact-sprint` | skill + command | `skills/compact-sprint/SKILL.md` | `commands/compact-sprint.md` | yes |
 | `refinement` | skill + command | `skills/refinement/SKILL.md` | `commands/refinement.md` | yes |
 | `sprint-demo` | skill + command | `skills/sprint-demo/SKILL.md` | `commands/sprint-demo.md` | yes |
+| `release-notes` | skill + command | `skills/release-notes/SKILL.md` | `commands/release-notes.md` | yes |
 | `sprint-planning` | skill + command | `skills/sprint-planning/SKILL.md` | `commands/sprint-planning.md` | yes |
 | `work-backlog` | skill + command | `skills/work-backlog/SKILL.md` | `commands/work-backlog.md` | yes |
 | `address-review-comments` | skill only | `skills/address-review-comments/SKILL.md` | none | n/a |

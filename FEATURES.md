@@ -39,6 +39,7 @@ rely on skills directly.
 | Sprint Demo | `commands/sprint-demo.md` | Prepare a stakeholder-ready sprint demo runsheet and slide deck | `sprint demo`, `demo voorbereiden`, `prepare demo` |
 | Close Sprint | `commands/close-sprint.md` | Close out a sprint — or, on projects without sprints, a support month (`docs/support-<yyyy>-<mm>/`) — with a changelog, gaps/spillover doc, and archive folder, and clear out the sprint's working documents | `close sprint`, `sluit sprint af`, `close support month` |
 | Compact Sprint | `commands/compact-sprint.md` | Compact an old sprint or support month: flag durable BLI decisions, rewrite the changelog to the compact template, remove the archive folder and gaps doc behind a git tag | `compact sprint`, `sprint compacten` |
+| Release Notes | `commands/release-notes.md` | Write release notes a customer can read, for a release range or a closed sprint, stating where each change is live — draft only | `release notes`, `releasenotes`, `wat is er live` |
 | Sustainable Review | `commands/sustainable-review.md` | Audit a change or area for Sustainable IT and produce backlog-ready findings | `sustainable review`, `performance audit`, `green refactor` |
 | Safe Kill Port | `commands/safe-kill-port.md` | Stop a process on a port safely (default: 3000) | `kill port`, `port 3000`, `eaddrinuse` |
 | New Device Setup | `commands/new-device-setup.md` | Bootstrap AI workflows on a new machine | `new device`, `setup device`, `onboarding` |
@@ -72,6 +73,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `sprint-demo` | Prepare a stakeholder-ready sprint demo runsheet and Marp slide deck | Yes |
 | `close-sprint` | Close out a sprint — or a support month on projects without sprints — with a changelog, gaps/spillover doc, and archive folder, and clear out the sprint's working documents | Yes |
 | `compact-sprint` | Compact an old sprint or support month: flag durable decisions as todo follow-ups, rewrite the changelog to the compact template, remove the archive folder and gaps doc behind a git-tag archive | Yes |
+| `release-notes` | Release notes a customer can read, per release range or closed sprint — plain language, verified against the production ref, draft only | Yes |
 | `jira-ticket` | Create a Jira bug, story, or task from a type-specific template, grounded in the codebase | No (skill only) |
 | `address-review-comments` | Pick up reviewer comments on a PR/MR, propose an approach per comment, apply, and push | No (skill only) |
 | `receiving-code-review` | Evaluate incoming review feedback with technical rigor before implementing any of it | No (skill only) |

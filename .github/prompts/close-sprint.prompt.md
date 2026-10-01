@@ -436,6 +436,8 @@ End with a concise list of:
 - Items still open that need user follow-up
 - Sprints now older than the previous one, as candidates for
   `commands/compact-sprint.md` (never run it as part of the close)
+- Whether to write customer release notes next (`commands/release-notes.md`):
+  the changelog's `Opgeleverd` rows are its first source
 
 ## Changelog template
 

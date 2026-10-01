@@ -15,6 +15,20 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Added
+
+- `skills/release-notes` + `commands/release-notes.md` — release notes a
+  customer can read, for a release range or a closed sprint. Sources by trust
+  (sprint changelog, demo runsheet, tracker, git), a classification that
+  phrases security fixes as outcomes and folds internal work into one line, an
+  ancestor check against the production ref before anything is called live,
+  `docs/releases/<key>.md` from a normative template plus a paste-ready block,
+  and a review pause — draft only, never posted. `skills/close-sprint` and
+  `skills/sprint-demo` name it in their wrap-up. This reopens the
+  "per-release notes" row the pipeline map had closed: the team decided on
+  2026-09-30 to share release notes with clients, as a first step towards
+  standardised releases.
+
 ### Changed
 
 - `skills/sprint-demo`, `commands/sprint-demo.md` — the run opens with an

@@ -99,7 +99,7 @@ decision, recorded so it stops being re-proposed at every review. Both are liste
 | Release readiness | done | safe to ship — dependency and licence scanning, API-contract/breaking-change detection, docs updated | `skills/watch-mrs` (approval, pipeline, conflicts via `detailed_merge_status`), `skills/npm-maintenance` (dependencies, out of band) | ⚠️ partial — merge-readiness only, armed by hand |
 | Deploy health | done | the release is healthy in production — a post-deploy smoke check | nothing | ⛔ out of scope — canary and rollback automation are for traffic these projects do not have; a smoke check in CI is the whole intended ceiling |
 | Feedback triage | gate on the loop | is this comment actionable at all, before anything is reproduced or fixed | nothing | ❌ absent — filed, deliberately not next |
-| Skill-change health | done | exit from Improve — a skill that was edited still does what it did, and its new routing actually triggers | `skills/component-spec/evals/evals.json` — one skill, no runner, not in CI | ❌ absent |
+| Skill-change health | done | exit from Improve — a skill that was edited still does what it did, and its new routing actually triggers | `skills/component-spec/evals/evals.json` and its siblings — a few skills, no runner, not in CI | ❌ absent |
 | Workflow-asset review | done | any change to **this** repo | feature branch → GitLab MR → reviewer `wieteke.pots` (`shared/workflow-assets.md`) | ✅ policy, human-enforced |
 
 ## The improve loop
@@ -130,8 +130,8 @@ The dotted gate is the one this lane does not have. Every other phase closes on 
 check; a skill edit closes on a human reading the diff. `skills/improve-skill` may
 rewrite the instructions that drive every other phase, and nothing proves the rewritten
 skill still triggers on the same intent or still produces what it produced before —
-`skills/component-spec/evals/evals.json` is the only eval file in the repo and no
-runner executes it. See [Gaps](#gaps).
+the `evals.json` files under `skills/` (`skills/component-spec/evals/evals.json` and
+its siblings) have no runner that executes them. See [Gaps](#gaps).
 
 Every change to this repo passes that gate — a developer editing a rule by hand and
 an agent running an upstream skill are treated identically. No direct pushes to
@@ -308,15 +308,16 @@ can sit unnoticed. See [Gaps](#gaps).
 | `skills/close-sprint` | skill | `/close-sprint` · `"sluit sprint af"`, `"wrap up sprint"`, `"close support month"` | Sprint changelog (compact template), gaps/spillover, delivered BLIs moved into a sprint folder, the sprint's working documents (planning, refinement, tracker, journal) cleared out — or, on projects without sprints, the `docs/support-<yyyy>-<mm>/` equivalents (support mode) |
 | `skills/compact-sprint` | skill | `/compact-sprint` · `"sprint compacten"`, `"compact old sprints"` — after a close, over sprints (or support months) older than the previous one | Flag-only harvest of durable decisions into the project's todo docs, compact changelog rewrite, archive folder and gaps doc removed behind a `sprint-<N>-bli-archive` / `support-<yyyy>-<mm>-bli-archive` tag |
 | `skills/sprint-demo` | skill | `/sprint-demo` · `"demo voorbereiden"`, `"demo script"` | Presenter runsheet plus a Marp deck for sprint review |
-| `commands/close-sprint.md`, `commands/compact-sprint.md`, `commands/sprint-demo.md` | commands | trigger phrase → command | Fallback runbooks |
+| `skills/release-notes` | skill | `/release-notes` · `"release notes"`, `"wat is er live"` · named in the wrap-up of `skills/close-sprint` and `skills/sprint-demo` | Notes the customer reads, for a release range or a closed sprint: sources by trust, security phrased as outcome, an ancestor check against the production ref before anything is called live, `docs/releases/<key>.md` plus a paste-ready block — draft only, never posted |
+| `commands/close-sprint.md`, `commands/compact-sprint.md`, `commands/sprint-demo.md`, `commands/release-notes.md` | commands | trigger phrase → command | Fallback runbooks |
 | `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/`), "How to test this" comment for the PO covering the whole capability (posted after approval, deferred while slices remain), proposed ticket transition, branch/worktree cleanup |
 
 **Gate — Deploy health: out of scope.** `skills/mr-merged` hands the PO a way to test
-what shipped. Nothing verifies the deploy itself, and the intended ceiling is a
-post-deploy smoke check in CI — canary rollout, automated rollback, and per-release
-notes with a semver suggestion are ⛔ out of scope for agency delivery on managed
-hosting, where the sprint-level changelog from `skills/close-sprint` is the level
-stakeholders actually read. See
+what shipped, and `skills/release-notes` tells the customer what is live where — after
+checking each item against the production ref, not by trusting the sprint changelog.
+Nothing verifies the deploy itself, and the intended ceiling is a post-deploy smoke
+check in CI — canary rollout, automated rollback, and a semver suggestion per client
+release are ⛔ out of scope for agency delivery on managed hosting. See
 [Deliberately out of scope](#deliberately-out-of-scope).
 
 ### Operate — run + observe
@@ -368,7 +369,7 @@ cannot silently grow.
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
 | `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"`, `"learn from sessions"` · **policy says** after any run that needed intervention — enforced by nothing | Post-run retrospective: fold friction back into the skill's canonical source, decide whether a recurring pattern deserves a new skill or a lighter surface, and author the new skill when warranted |
-| `skills/component-spec/evals/evals.json` | evals | **nothing** — prompts and assertions exist, no runner and no CI job | The seed of the missing Skill-change-health gate: the only skill in the repo whose behaviour is written down as checkable cases |
+| `skills/component-spec/evals/evals.json` and its siblings under `skills/` | evals | **nothing** — prompts and assertions exist, no runner and no CI job | The seed of the missing Skill-change-health gate: the skills whose behaviour is written down as checkable cases |
 | `skills/upstream-rules` | skill | `/upstream-rules` · `"propose rule"` · **should** fire whenever a shared asset is edited in a synced project | Propose a rule/skill change back to this repo as a GitLab MR |
 | `skills/upstream-to-unicore` | skill | `/upstream-to-unicore` · `"port to unicore"` | Port a reusable change into `unicore-template` |
 | `skills/setup-ai-workflows` | skill | `/setup-ai-workflows` · `"apply ai-workflows"`, `"generate conventions"` | Generate `CONVENTIONS.md`, thin tool adapters, and sync shared assets into a project |
@@ -456,7 +457,7 @@ actually stands against it — the alignment view, not a wish list.
 | Review | semantic first-pass review beyond linting | ✅ | `skills/code-review`, eight explicit lenses merged into one severity-ordered list |
 | Review | breaking-change / API-contract detection | ⛔ | these projects publish no versioned API; intra-repo signature breakage is what the type-check and the correctness lens are for |
 | Ship | CI failure triage in plain language | ❌ | filed: `docs/backlog/feat-pipeline-triage.md` |
-| Ship | release notes / changelog + semver suggestion | ⛔ | `skills/close-sprint` at sprint level is the intended level; per-release semver applies to this repo's plugin, not to client deliverables |
+| Ship | release notes / changelog + semver suggestion | ⚠️ | `skills/release-notes` writes the notes the customer reads per release or sprint, `skills/close-sprint` the internal changelog; no semver suggestion — per-release semver applies to this repo's plugin, a client project's version comes from its own release process |
 | Operate | incident triage: error spike → likely PRs | ⛔ | no per-project observability stack to reason over |
 | Operate | log/error summarisation, on-call assistant | ⛔ | same — and nobody is on call |
 | Operate | docs-in-sync: code changed, which docs/ADRs are stale | ✅ | per-MR: doc-freshness dimension in `skills/code-review` (`rules/documentation.md`); periodic sweep: `skills/maintenance` |
@@ -492,7 +493,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 9 | "Run `improve-skill` after a run that needed intervention" is prose, not a hook | The retrospective happens when someone remembers | `docs/backlog/chore-improve-skill-stop-hook.md` |
 | 10 | QA reports what it ran, but the run leaves behind nothing a reviewer can re-run | "Done" stays an assertion: the report says the criteria are met, and checking that claim means redoing the work | `docs/backlog/feat-requirements-traceability.md` |
 | 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | `docs/backlog/feat-jira-feedback-loop.md` — filed, parked |
-| 12 | A changed skill has no regression net: no eval runner, no CI job, one eval file in the repo | `skills/improve-skill` rewrites the instructions that drive every other phase, and nothing proves the rewrite still triggers or still delivers | `docs/backlog/feat-skill-eval-harness.md` |
+| 12 | A changed skill has no regression net: no eval runner, no CI job, a few eval files in the repo | `skills/improve-skill` rewrites the instructions that drive every other phase, and nothing proves the rewrite still triggers or still delivers | `docs/backlog/feat-skill-eval-harness.md` |
 
 Everything else the spec proposes is in the coverage table above rather than filed —
 recording it beats twenty draft items nobody picks up.
@@ -533,9 +534,14 @@ delivery on managed hosting, in a stack where one person owns the pipeline.
 | Breaking-change / API-contract detection | type-check plus the correctness lens in `skills/code-review` | a project publishes a versioned API or a shared package |
 | Visual regression against a frame baseline | screenshot evidence attached to the MR | a design system ships with a maintained baseline |
 | Canary rollout, automated rollback | a post-deploy smoke check in CI | traffic or uptime commitments make a bad deploy expensive |
-| Per-release notes with a semver suggestion | `skills/close-sprint` at sprint level | a client consumes releases rather than sprints |
+| Semver suggestion per client release | `skills/release-notes` writes the notes; the version comes from the project's own release process | a client's release process asks for a version proposal |
 | Incident triage from an error spike | nothing — no data to reason over | a project gets an observability stack |
 | Log / on-call summarisation | nothing — nobody is on call | an on-call rota exists |
+
+The per-release-notes half of the semver row left this table on 2026-09-30: its
+reopen condition ("a client consumes releases rather than sprints") fired when the
+team decided to share release notes with clients, and `skills/release-notes` now
+covers it.
 
 Two of these are cheap to revisit if the stack review's visual-verification and
 CI-agent-lane tasks land: screenshot evidence on the MR and a smoke check in CI are the

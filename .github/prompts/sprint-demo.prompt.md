@@ -453,3 +453,6 @@ End with a concise list of:
 - The next step after the demo: suggest running `close-sprint` for Sprint N,
   which flattens `docs/demo/sprint-<N>/` into `docs/sprint-<N>/demo.md`. Revert
   any temporary local changes first (e.g. the mailer env guard).
+- Whether to write customer release notes (`commands/release-notes.md`): it
+  reads the runsheet's "Wat" and "Waarom het telt" lines as a source, before
+  or after the close.

@@ -96,6 +96,10 @@ Sprint folders older than the previous sprint are compacted by
 `skills/compact-sprint` — a separate, explicitly invoked lane; never compact
 as part of the close.
 
+The changelog is internal. Notes the customer reads are another separate,
+explicitly invoked lane: `skills/release-notes` takes the changelog's
+`Opgeleverd` rows as its first source, so name it in the wrap-up.
+
 ## Cleanup safety
 
 Phase 8 only surfaces candidates. Never run `git branch -d`, `git branch -D`, or
