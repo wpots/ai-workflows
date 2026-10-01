@@ -17,6 +17,24 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/sprint-demo`, `commands/sprint-demo.md` — the run opens with an
+  intake: the scope (full sprint, own stories, or one shared deck per person),
+  the client's previous demo format, a shareable version, status and outlook,
+  and an architecture before/after only when the sprint changed how systems
+  connect. The scope slide splits planned from extra delivered by created date
+  against the sprint start, a backlog slide lists what the sprint found but did
+  not fix, and demo slides carry screenshots and links into the demo
+  environment. The shareable pptx is built on the client's own deck without
+  notes, since Marp's `--pptx` carries them, and is synced from `deck.md` with a
+  two-way comparison. Phase 8 checks release claims against the release branch
+  before the summary. `docs/demo/` is now tracked instead of ignored: the run
+  removes an ignore rule it finds and ends by suggesting `close-sprint`.
+- `skills/close-sprint`, `commands/close-sprint.md` — a new Phase 5c flattens
+  `docs/demo/sprint-<N>/` into `docs/sprint-<N>/demo.md`: what each slide
+  showed, the tickets, the demo URLs and the expected questions, without the
+  klikpad, checklists or screenshots. The folder is then removed with `git rm`
+  and listed under `## Archief`. When git does not track the folder, the run
+  asks before deleting it.
 - `skills/mr-merged` — the squash-merge cleanup no longer stalls when the forge
   rebased the source branch right before merging, which makes the local head
   and the MR's source head differ for good. `git range-diff` against the squash

@@ -23,21 +23,38 @@ never edit issues, transitions, or comments.
 - **Never** run `git commit` — the user commits themselves.
 - Stakeholder-facing: keep every slide plain-language and value-first. All
   technical detail lives in presenter notes, never on a slide.
-- Validation is tracker-only — do **not** verify code delivery in this flow.
-  Flag mismatches; never fix them.
+- Story validation is tracker-only — do **not** verify code delivery per story.
+  Flag mismatches; never fix them. The one git check is the Phase 8 check of
+  forward-looking claims.
 - Stop and ask when a story is ambiguous or you cannot tell what to show; do not
   invent a demo.
 
 ## Inputs
 
-Ask the user at start (one question at a time):
+Ask at start, in one batch where the tool allows several questions (otherwise
+one at a time). Skip a question the repo or tracker already answers.
 
 1. Sprint name or id (e.g. `Sprint 7`).
-2. Assignee email — whose stories to demo (default: the configured tracker user;
-   verify with `jira me`).
-3. Tracker project key (infer from backlog filenames, e.g. `RFW`).
-4. Demo environment + base URL (e.g. acceptance `https://...`) — where the live
+2. Tracker project key (infer from backlog filenames, e.g. `RFW`).
+3. Demo environment + base URL (e.g. acceptance `https://...`) — where the live
    demo runs.
+4. **Scope** — whose work goes in:
+   - the full sprint (team demo);
+   - only the user's stories (assignee = the configured tracker user; verify
+     with `jira me`);
+   - per person — one deck with a section per assignee, so the developers
+     share one demo and each presents their own part.
+5. **Format** — is there a previous demo deck the client normally works with
+   (often a `.pptx` in Downloads or on a shared drive)? If so, it sets the slide
+   sequence and the look (Phase 7); the Greenberry theme is the fallback.
+6. **Shareable version** — does the client get a copy? Then a notes-free
+   `.pptx` is part of the deliverable (Phase 7, "Shareable version").
+7. **Status and outlook** — a status/velocity slide, and a look ahead at the
+   next sprint? When the tracker has no points or hours, say so: a slide of
+   `[..]` placeholders is only worth keeping when the user will fill it in.
+8. **Architecture before/after** — ask only when the sprint changed how systems
+   connect (a new integration, a vendor swap, a new layer) or the sprint docs
+   hold a diagram (`*.drawio`, `docs/sprint*/`, `docs/architecture*`).
 
 ## Phase 0 — Tracker connection is mandatory
 
@@ -54,26 +71,27 @@ If neither connects, **stop** and help the user connect (MCP: authenticate the
 connector; Jira CLI: `brew install ankitpokhrel/jira-cli/jira-cli` then
 `jira init`). Never silently fall back to local-only.
 
-## Phase 1 — Fetch the sprint stories on the user's name (read-only)
+## Phase 1 — Fetch the sprint's stories (read-only)
 
-Query the stories assigned to the user in the target sprint. The assignee filter
-is required — only the user's own stories go in the demo.
+Query the stories in the target sprint. Filter on assignee only when the intake
+scope is the user's own stories; for the per-person scope, group by assignee.
 
 With the CLI:
 
 ```bash
-jira sprint list --state active --plain          # confirm the sprint name
+jira sprint list --state active --plain          # sprint name, start and end
 jira issue list --plain --no-truncate \
   -a "<assignee-email>" \
-  --jql 'sprint = "Sprint 7" AND project = RFW'
+  --jql 'sprint = "Sprint 7" AND project = RFW'   # -a only for own-stories scope
 jira issue view RFW-XX --plain                    # per-story detail
 ```
 
 With the MCP, query the same JQL and request status, assignee, issue type,
-parent/epic, fixVersion, description, and acceptance criteria.
+parent/epic, fixVersion, created, description, and acceptance criteria.
 
-Capture per story: key, summary, status, issue type, parent/epic, description +
-acceptance criteria.
+Capture per story: key, summary, status, issue type, parent/epic, assignee,
+**created date**, description + acceptance criteria — plus the sprint's start
+and end dates.
 
 ## Phase 2 — Validate BLIs and "planned for Sprint N"
 
@@ -84,8 +102,16 @@ For each story:
 2. Validate the planning marker: the story / BLI is tagged **planned for
    Sprint N** (the agreed sprint label or field). Trust the tracker — no
    code or delivery verification in this flow.
-3. Flag, do not fix:
-   - story in the sprint but **not** "planned for Sprint N" → planning mismatch.
+3. Split planned from extra: a story **created after the sprint start** was
+   picked up during the sprint. That is not a mismatch to drop — it is "extra
+   opgeleverd" and gets its own table next to the planned work on the scope
+   slide (Phase 7).
+4. Collect the findings the sprint surfaced but did not fix — issues created
+   during the sprint that are not in it (`project = RFW AND created >= <start>
+   AND sprint is EMPTY`) — for the backlog-findings slide.
+5. Flag, do not fix:
+   - story created before the sprint start but **not** "planned for Sprint N"
+     → planning mismatch.
    - story with **no BLI** → missing doc.
    - BLI present but status not done / ready-to-demo → may not be demoable yet.
 
@@ -116,7 +142,14 @@ Write `docs/demo/sprint-<N>/demo-script.md`. Start with a header section:
   environment + URL.
 - `talk-only` items — one plain-language line each.
 - A combined **setup checklist** gathered across all stories (logins/roles, seed
-  data, feature flags, browser state).
+  data, feature flags, browser state). Include a rehearsal of every URL **one at
+  a time** when the demo environment sits behind a rate limiter.
+- **Vragen die je kunt verwachten** — a question/answer table for what
+  stakeholders will ask: test data versus production, features that are
+  missing on purpose, differences with the current site.
+- Numbers you quote (result counts, "aanwezig in 27 locaties") are measured on
+  the demo environment and carry their date ("op 29-09: 250"), since test data
+  drifts. Never estimate them.
 - **Mail-flow demos need a working local mailer.** When any story is a
   transactional email / mail flow, the email provider is usually guarded by an
   env check that no-ops outside production. Add a checklist item to make the
@@ -153,9 +186,10 @@ Where a story is `needs-context`, make the value land:
 
 Write `docs/demo/sprint-<N>/deck.md` as a Marp deck (markdown):
 
-- Frontmatter: `marp: true` + the **Greenberry house-style theme** below. This
-  is the default for every sprint-demo deck; only deviate when the user asks
-  for a different look.
+- Frontmatter: `marp: true` + a theme. **When the client has a previous demo
+  deck (intake 5), match it**: its slide sequence, section slides, fixed
+  labels, fonts and colours, rebuilt as Marp classes (`<!-- _class: … -->`).
+  Otherwise use the **Greenberry house-style theme** below.
 - **Project logo on every slide**: find the project's logo in the repo (often
   an SVG inside a `Logo` React component — extract the `<svg>` markup to a
   standalone `.svg` next to the deck), then embed it as a **base64 `data:`
@@ -222,11 +256,53 @@ Write `docs/demo/sprint-<N>/deck.md` as a Marp deck (markdown):
     footer { color: #999; }
   ```
 
-- Title slide: "Sprint <N> — wat is er nieuw".
-- One slide per `demoable` story, grouped by theme: the **headline is the
-  value**, with one supporting line and an optional screenshot/visual. No
-  implementation detail on slides.
-- A closing slide: what's next, plus `talk-only` highlights in one line each.
+- Slides, in this order — a client format may rename or restyle them, and the
+  intake may drop some:
+  1. Title, with the **demo date** (not the sprint's end date).
+  2. Sprint goals, with the planning and meetings (sprint dates, refinement,
+     retrospective, demo) from the tracker.
+  3. Scope: one table for **gepland** and one for **extra opgeleverd** (ticket,
+     plain-language summary, tracker status). The notes explain the extras.
+  4. Per topic: the same tickets grouped by theme, extras marked `*` with a
+     legend. Every `*` matches a row in the extra table.
+  5. Demo intro: why this sprint matters and "hoe je naar de demo kijkt" (test
+     data, counts that differ from production), plus the architecture
+     before/after when agreed.
+  6. One slide per `demoable` story, grouped by theme: the **headline is the
+     value**, one or two supporting lines, one or two screenshots, and a link
+     block. No implementation detail on slides.
+  7. The `talk-only` work on one slide, and deliberate differences from today
+     when there are any.
+  8. Status and outlook, when agreed.
+  9. Backlog findings (Phase 2), when there are any.
+  10. What's next, and a closing slide.
+
+### Screenshots and live links
+
+- Take the screenshots on the demo environment, not production, with headless
+  Chrome (`puppeteer-core` driving the system Chrome is enough). Basic auth
+  goes through `page.authenticate`, with the credentials read from the env file
+  **inside the script**, never on the command line. Load one page at a time
+  with a pause between pages: a rate limiter in front of an upstream API can
+  block a burst for every environment at once.
+- Pick records that render well (a working cover, the button you are about to
+  show) and crop out test content that would distract, such as placeholder
+  text in the CMS. The screenshots go on the slides and are the runsheet's
+  fallback.
+- Each demo slide gets a link block with the URLs of its klikpad, all with the
+  same `target="<name>"` so they open in one reused tab. The presenter clicks
+  them in the audience window, and opens one beforehand so the login and the
+  cookie banner are out of the way. Links point to the demo environment, never
+  to production; in the shareable version, keep them only when the recipients
+  have access.
+
+### Architecture before/after (when agreed)
+
+Render the tracked diagram, not a local copy, one page per image (draw.io: the
+diagrams.net `viewer-static.min.js` in headless Chrome). Explain it in the notes
+in plain language. Report typos and statements that no longer hold, such as a
+count that changed or a fallback that only applies in production, to the user
+instead of editing the diagram.
 
 ### Presenter notes = the read-aloud script (most important part)
 
@@ -280,7 +356,8 @@ Alternatives (only if asked):
 
 - `--pptx -o docs/demo/sprint-<N>/deck.pptx` — notes land in the slide notes
   pane; open in Keynote/PowerPoint for their rock-solid native presenter view.
-  Best fallback if the browser sync frustrates.
+  Best fallback if the browser sync frustrates. **Presenter-only:** the file
+  carries every note, so it is never the shareable version.
 - `--pdf` — clean slides for the beamer, **no notes**; pair with the runsheet on
   a second device.
 
@@ -289,18 +366,67 @@ if the user shares the **audience window/tab** (not the whole screen). The plain
 `deck.html` / PDF never shows notes, so sharing those is always safe — call this
 out explicitly.
 
-### Temporary artefacts — keep them out of git
+Marp pitfalls:
 
-The whole `docs/demo/` folder is a **throwaway**: it's prep for one demo and gets
-deleted afterwards. Make sure `docs/demo/` is in `.gitignore` (add it if not),
-and remind the user they can delete the folder once the demo is done. Never
-commit demo artefacts.
+- The default theme centres slide content vertically. For client-format
+  layouts, set `place-content: start` on `section` and keep centring only on
+  the section slides.
+- Every HTML comment becomes a presenter note, and Marp has no way to hide a
+  slide. A slide that is commented out leaves an **empty slide** behind, and
+  its text shows up in the notes of a neighbouring slide. After every render,
+  list the slides and check for empty ones. To park a slide, move it out of
+  `deck.md`, or remove the separator it leaves and tell the user which notes
+  now carry its text.
+
+### Shareable version (when agreed)
+
+The client gets a `.pptx` without notes, in their own format:
+
+- Build it on the client's previous deck rather than exporting from Marp: copy
+  that file, duplicate its slides per section, and reuse its paragraph
+  formatting (python-pptx: deep-copy a template paragraph as the prototype for
+  each text kind). Leave out every notes slide and validate the package.
+- `deck.md` is the single source. The user edits only `deck.md` and says when to
+  sync; the pptx is regenerated from it on each sync, and nobody edits the pptx
+  by hand until the final step. Once the user edits `deck.md`, never regenerate
+  it from your own draft and never write to it while they are editing — both
+  overwrite their changes.
+- On each sync, compare the two both ways: every text in the pptx appears in
+  `deck.md`, and every heading, list item and table cell in `deck.md` appears in
+  the pptx. Report any difference beyond formatting.
+- Render every slide to an image and look at it before the hand-off, checking
+  for tables that overflow, text over pictures and titles that wrap. Without
+  LibreOffice on macOS, `qlmanage -p -o <dir> <file>.pptx` writes an HTML
+  preview whose `div.slide` elements can be screenshotted one by one.
+- Both versions have the same slides in the same order, and the runsheet states
+  the count.
+
+### The demo folder is tracked
+
+`docs/demo/sprint-<N>/` is tracked in git like any other doc. After the demo,
+`close-sprint` flattens it into `docs/sprint-<N>/demo.md` and removes the
+folder, and git history keeps the full deck. Check
+`git check-ignore -v docs/demo/sprint-<N>/deck.md`. When it prints a rule — a
+`docs/demo/` line in `.gitignore`, often added by an earlier version of this
+runbook, or one in `.git/info/exclude` — remove that rule and tell the user
+which file held it. The user commits the folder; never commit it yourself.
 
 ## Phase 8 — Review pause (stop here)
 
+First, run a consistency pass and add every hit to the flags:
+
+- Forward-looking claims ("released", "live", "set up in production") against
+  the release branch: is the sprint's work an ancestor of it
+  (`git merge-base --is-ancestor <sha> <release-branch>`)? Also check the
+  tracker status of the ticket the claim rests on.
+- Each slide against its own notes and the runsheet, since a note can
+  contradict its slide after an edit.
+- Dates and counts: the title date against the demo date, and the `*` markers
+  against the extra table.
+
 Print a summary: runsheet path, deck path, support docs created, total demo
-time, demo order, and the Phase 2 flags awaiting the user's confirm/drop
-decision. Then stop. The docs are the deliverable — do not edit the tracker or
+time, demo order, and the Phase 2 and consistency flags awaiting the user's
+confirm/drop decision. Then stop. The docs are the deliverable — do not edit the tracker or
 the BLIs.
 
 ## Output
@@ -310,9 +436,12 @@ End with a concise list of:
 - The runsheet path (`docs/demo/sprint-<N>/demo-script.md`).
 - The deck path (`docs/demo/sprint-<N>/deck.md`) and the rendered
   `docs/demo/sprint-<N>/deck.html` (presenter view: press `p`).
+- The shareable `.pptx`, when agreed, with its slide count and "no notes".
 - Any support one-pagers created under `docs/demo/sprint-<N>/support/`.
-- Validation flags (not "planned for Sprint N", missing BLI, not-yet-done) that
-  need a user decision.
+- Validation flags (not "planned for Sprint N", missing BLI, not-yet-done) and
+  consistency flags (Phase 8) that need a user decision.
 - `talk-only` stories that will be mentioned but not shown live.
-- A reminder that `docs/demo/` is gitignored and throwaway — delete it after the
-  demo; revert any temporary local changes (e.g. the mailer env guard).
+- Whether an ignore rule for `docs/demo/` was found and removed.
+- The next step after the demo: suggest running `close-sprint` for Sprint N,
+  which flattens `docs/demo/sprint-<N>/` into `docs/sprint-<N>/demo.md`. Revert
+  any temporary local changes first (e.g. the mailer env guard).
