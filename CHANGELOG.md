@@ -57,6 +57,23 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   refused, so a refused or missing deploy becomes a recap warning, and the
   retry stays the user's call. The wait is one bounded poll of about 10
   minutes; a deploy job that has not run by then is reported as pending.
+- `skills/start-project` — lane 3a first checks whether the kickoff already
+  ran: `git worktree list` and `git stash list` (including `stash@{n}^3` for
+  files stashed with `-u`), read before interviewing, and a found prior run is
+  reconciled with the user before anything is written. The harvest also globs
+  widely for a requirements or scope document and treats it as the authority.
+  Lane 2 enumerates prior implementations in the GitLab group instead of
+  accepting the count someone remembered.
+
+### Fixed
+
+- `skills/start-project`, `skills/maintenance` — the merge-settings and
+  delivery-metrics scripts no longer run from `~/Web/ai-workflows/`, which only
+  a clone has; on a plugin-only install the check came out `unknown`. They
+  resolve from the skill's base directory first (the installed plugin version
+  exactly, never a glob over a cache that keeps old versions) and fall back to
+  the checkout. `scripts/validate-skills.mjs` now fails on any skill, command
+  or rule that runs a script through the checkout path.
 
 ## [2.3.0] - 2026-09-24
 

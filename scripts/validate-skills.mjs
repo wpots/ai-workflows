@@ -188,6 +188,24 @@ for (const dir of skillDirs) {
   }
 }
 
+// ── Shipped scripts are not run through a checkout-only path ─────────────────
+// `~/Web/ai-workflows/` exists only for developers who cloned this repo; a
+// plugin-only install has the scripts under the plugin cache instead. Naming the
+// checkout as a place to edit is fine — running a script from it is not.
+
+for (const rel of [...tracked].filter(
+  (f) => /^(skills|commands|rules)\//.test(f) && f.endsWith(".md"),
+)) {
+  for (const match of read(rel).matchAll(
+    /\b(?:node|bash|sh|python3)\s+["']?(?:~|\$HOME)\/Web\/ai-workflows\/scripts\/([\w.-]+)/g,
+  )) {
+    err(
+      rel,
+      `runs \`${match[1]}\` via ~/Web/ai-workflows/, which only a clone has — use \`<ai-workflows>/scripts/\` and resolve it from the skill's base directory first`,
+    );
+  }
+}
+
 // ── Relative markdown links in canonical docs ────────────────────────────────
 
 const linkScanFiles = [...tracked].filter(
