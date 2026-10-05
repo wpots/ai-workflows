@@ -429,26 +429,25 @@ The client gets a `.pptx` without notes, in their own format:
     or the local path. After a later sync, copy it again and say so; the copy
     does not follow the file in the demo folder.
 
-### The demo folder is tracked
+### The demo folder stays out of git
 
-`docs/demo/sprint-<N>/` is tracked in git like any other doc, except for two
-rendered files. `deck.html` is re-rendered from `deck.md` with one command. The
-shareable `.pptx` reaches the client from its own destination (see "Shareable
-version"); with its screenshots it runs to megabytes per sprint, too much for
-git history.
-After the demo, `close-sprint` flattens the folder into
-`docs/sprint-<N>/demo.md` and removes it, and git history keeps the source.
+`docs/demo/sprint-<N>/` is a working folder: the deck, the runsheet, the
+screenshots, the build script and the rendered files serve one demo, and with
+its screenshots and the pptx the folder runs to megabytes per sprint. It never
+goes into git. After the demo, `close-sprint` flattens it into
+`docs/sprint-<N>/demo.md`, the only demo record git keeps, and deletes it.
 
-- Check `git check-ignore -v docs/demo/sprint-<N>/deck.md`. When it prints a
-  rule — a folder-wide `docs/demo/` line in `.gitignore` (often added by an
-  earlier version of this runbook) or in `.git/info/exclude` — remove it and
-  tell the user which file held it.
-- Make `.gitignore` ignore the rendered files only: add
-  `docs/demo/**/deck.html` and `docs/demo/**/*.pptx` when missing.
+- Check `git check-ignore -v docs/demo/sprint-<N>/deck.md`. When it prints no
+  rule, add `docs/demo/` to `.gitignore`. It replaces the rendered-file rules
+  (`docs/demo/**/deck.html`, `docs/demo/**/*.pptx`) an earlier version of
+  this runbook added; tell the user which lines changed.
+- When `git ls-files docs/demo/` lists files, an earlier run committed a demo
+  folder. Name them and propose `git rm -r --cached docs/demo/`, which keeps
+  them on disk; history still holds the earlier commits.
 - Note in the runsheet header where the shared pptx lives: the Drive path or
   link, or the local path. `close-sprint` checks that place before it deletes
-  the copy in the demo folder.
-- The user commits the folder; never commit it yourself.
+  the demo folder.
+- Never commit the folder.
 
 ## Phase 8 — Review pause (stop here)
 
@@ -484,7 +483,8 @@ End with a concise list of:
 - Validation flags (not "planned for Sprint N", missing BLI, not-yet-done) and
   consistency flags (Phase 8) that need a user decision.
 - `talk-only` stories that will be mentioned but not shown live.
-- Whether an ignore rule for `docs/demo/` was found and removed.
+- Whether the `docs/demo/` ignore rule was added, and any committed demo files
+  found.
 - The next step after the demo: suggest running `close-sprint` for Sprint N,
   which flattens `docs/demo/sprint-<N>/` into `docs/sprint-<N>/demo.md`. Revert
   any temporary local changes first (e.g. the mailer env guard).

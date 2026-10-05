@@ -70,8 +70,8 @@ Written to `docs/demo/sprint-<N>/`:
   to `deck.html` for the presenter view.
 - `<client format>.pptx` — when agreed: the shareable version, same slides,
   no notes. Ignored by git; the runsheet header names the Drive or local
-  destination it was copied to. `build-pptx.py`, which every sync reruns, is
-  tracked next to it.
+  destination it was copied to. `build-pptx.py`, which every sync reruns,
+  sits next to it.
 - `parked-slides.md` — slides left out of the deck, when there are any.
 - `screenshots/` — taken on the demo environment; on the slides and the
   runsheet's fallback.
@@ -79,8 +79,9 @@ Written to `docs/demo/sprint-<N>/`:
 - A list of validation and consistency flags (not planned for Sprint N,
   missing BLI, not-yet-done, claims that do not hold) awaiting a user decision.
 
-The folder is tracked; only the rendered `deck.html` and `*.pptx` are ignored.
-When `git check-ignore` finds a folder-wide `docs/demo/` rule, replace it with
-those two. End by suggesting `close-sprint` after the demo; it flattens the
-folder into `docs/sprint-<N>/demo.md`. Offer `skills/release-notes` as well:
-the runsheet's plain-language lines are one of its sources.
+The folder stays out of git: `.gitignore` carries a folder-wide `docs/demo/`
+rule, added when `git check-ignore` finds none, in place of the rendered-file
+rules an earlier run added. End by suggesting `close-sprint` after the demo; it
+flattens the folder into `docs/sprint-<N>/demo.md`, the only demo record git
+keeps, and deletes it. Offer `skills/release-notes` as well: the runsheet's
+plain-language lines are one of its sources.

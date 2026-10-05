@@ -34,9 +34,15 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   records where. A remote Drive connector is not the upload route, because it
   cannot read the disk. close-sprint checks that destination before deleting
   the copy and moves the pptx instead when the destination does not hold it,
-  so the only copy of the client's deck is never deleted. For a demo folder
-  git never tracked, it offers a commit first so the full deck stays
-  retrievable.
+  so the only copy of the client's deck is never deleted.
+- `skills/sprint-demo`, `commands/sprint-demo.md`, `skills/close-sprint`,
+  `commands/close-sprint.md` — the demo folder stays out of git again: the
+  team does not want the full deck in git. sprint-demo adds a folder-wide
+  `docs/demo/` ignore rule in place of the 2.4.0 rendered-file rules, and
+  proposes `git rm -r --cached` for demo files an earlier run committed.
+  close-sprint flattens the folder into `docs/sprint-<N>/demo.md`, the only
+  demo record git keeps, then deletes it after asking, never offering a commit
+  to keep the deck; the `## Archief` demo line drops its `git show` recipe.
 
 ## [2.4.0] - 2026-10-01
 
