@@ -80,6 +80,26 @@
         "The output records in the runsheet the command that runs the build script",
         "The output states how python-pptx is made available to that command"
       ]
+    },
+    {
+      "id": 8,
+      "prompt": "The deck is final, hand off the shareable pptx. (Context the agent can discover: the intake named the client's Drive folder `Klant/Sprintdemo's`; `~/Library/CloudStorage/GoogleDrive-<account>/Shared drives/Klant/Sprintdemo's/` exists; a remote Google Drive connector is connected as well; the 12 MB pptx sits in the demo folder, ignored by git.)",
+      "expected_output": "The run copies the pptx into the mounted Drive folder instead of sending it through the remote connector, which cannot read the disk. It writes the Drive path into the runsheet header as the shared version's location, and does not leave the ignored copy in the demo folder as the only one.",
+      "assertions": [
+        "The output copies the pptx into the Google Drive for desktop folder",
+        "The output does not upload the pptx through the remote Drive connector",
+        "The output records the destination in the runsheet header"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Hand off the shareable pptx. (Context the agent can discover: the intake answer was 'op Google Drive als dat lukt, anders lokaal'; `~/Library/CloudStorage/` holds no Google Drive mount; no Drive connector is connected; the pptx sits in the demo folder, ignored by git.)",
+      "expected_output": "The run finds no Drive mount, asks for a local folder outside the repo, copies the pptx there, and writes that path into the runsheet header. It does not treat the ignored copy in the demo folder as the hand-off.",
+      "assertions": [
+        "The output checks for a Google Drive for desktop mount before choosing the local route",
+        "The output asks for a local folder outside the repository",
+        "The output records the local path in the runsheet header"
+      ]
     }
   ]
 }

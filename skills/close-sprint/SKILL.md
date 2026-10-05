@@ -41,7 +41,9 @@ share the same workflow; Copilot follows the runbook directly.
   in the gaps document with a proposed permanent home.
 - Flatten a sprint demo folder (`docs/demo/sprint-<N>/`) into
   `docs/sprint-<N>/demo.md` and remove the folder (runbook Phase 5c); ask
-  before removing one git does not track.
+  before removing one git does not track. Never delete the only copy of the
+  shared pptx: when the destination the runsheet names does not hold it, move
+  it to a place the user names.
 - Stop and ask whenever classification is ambiguous.
 - Populate `## Authors` on every moved BLI using the tracker assignee plus git
   commit authors. Deduplicate; never remove existing entries.

@@ -289,13 +289,23 @@ fold it into one text record, `docs/sprint-<N>/demo.md`:
    `durable` rule. An open flag from the demo prep goes to the gaps document.
    A support one-pager moves next to the record with `git mv`.
 3. **Remove the folder** with `git rm -r docs/demo/sprint-<N>/`. That leaves
-   the ignored rendered files (`deck.html`, the shareable `.pptx`) on disk:
-   ask the user to confirm the pptx is on the drive the runsheet names, then
-   delete them. When git does not track the folder at all, because an older
-   run ignored it, removing it cannot be undone: ask first, and name the files
-   that are only on disk (the shared pptx, above all).
+   the ignored rendered files (`deck.html`, the shareable `.pptx`) on disk.
+   Before deleting them, look up the destination the runsheet header names
+   for the pptx: a Drive path, a Drive link, or a local path outside the repo.
+   - The file is there (for a path, its size matches the repo copy): ask the
+     user to confirm, then delete both.
+   - Only a link, no destination, or the file is missing: ask where to keep
+     the pptx, move it there, and name that place in the record's header.
+     Never delete the only copy of the deck the client received.
+
+   When git does not track the folder at all, because an older run ignored it
+   or nobody committed it, removing it cannot be undone and the `## Archief`
+   recipe has no commit to point at. Ask first, name the files that are only
+   on disk (the shared pptx, above all), and offer the user to commit the
+   folder before the close so the full deck stays retrievable.
 4. **Record** the record's path and the retrieval recipe for the full deck in
-   the changelog's `## Archief`.
+   the changelog's `## Archief`. When the folder was never committed, say that
+   the full deck was not kept instead of giving a recipe.
 
 ## Phase 6 — Review pause (stop here)
 

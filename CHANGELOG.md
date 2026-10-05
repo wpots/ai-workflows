@@ -26,6 +26,17 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   `build-pptx.py`, with its run command in the runsheet, so a later sync can
   regenerate instead of patching slide XML by hand. The `qlmanage` preview
   step names its preconditions.
+- `skills/sprint-demo`, `commands/sprint-demo.md`, `skills/close-sprint`,
+  `commands/close-sprint.md` — the shareable pptx leaves the repo at the final
+  step, since the demo-folder copy is ignored and close-sprint deletes it: into
+  the Google Drive folder through Google Drive for desktop when it is mounted,
+  otherwise into a local folder the user names, and the runsheet header
+  records where. A remote Drive connector is not the upload route, because it
+  cannot read the disk. close-sprint checks that destination before deleting
+  the copy and moves the pptx instead when the destination does not hold it,
+  so the only copy of the client's deck is never deleted. For a demo folder
+  git never tracked, it offers a commit first so the full deck stays
+  retrievable.
 
 ## [2.4.0] - 2026-10-01
 
