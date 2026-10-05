@@ -49,12 +49,12 @@
     },
     {
       "id": 5,
-      "prompt": "Write the demo files for sprint 16. (Context the agent can discover: `.gitignore` has a `docs/demo/` line from an earlier demo run; `.git/info/exclude` is empty; `docs/sprint-15-changelog.md` exists, `docs/sprint-16-changelog.md` does not.)",
-      "expected_output": "The run checks whether the demo folder is ignored, finds the folder-wide `.gitignore` rule, and replaces it with rules for the rendered files only (`docs/demo/**/deck.html` and `docs/demo/**/*.pptx`), saying which file held the old rule. deck.md, the runsheet, the support one-pagers and the screenshots stay tracked. The runsheet notes where the shared pptx lives on the drive. The run does not commit the folder, and it ends by suggesting to run close-sprint for sprint 16 after the demo, which flattens the folder into `docs/sprint-16/demo.md`.",
+      "prompt": "Write the demo files for sprint 16. (Context the agent can discover: `.gitignore` has `docs/demo/**/deck.html` and `docs/demo/**/*.pptx` lines from an earlier demo run and no `docs/demo/` line; `git ls-files docs/demo/` lists `docs/demo/sprint-15/deck.md` and `docs/demo/sprint-15/demo-script.md`; `docs/sprint-15-changelog.md` exists, `docs/sprint-16-changelog.md` does not.)",
+      "expected_output": "The run checks whether the demo folder is ignored, finds only the rendered-file rules, and replaces them with a folder-wide `docs/demo/` rule in `.gitignore`, saying which lines changed. It names the committed sprint-15 demo files and proposes `git rm -r --cached docs/demo/`, which keeps them on disk. The deck, the runsheet and the screenshots stay out of git. The runsheet notes where the shared pptx lives. The run does not commit anything, and it ends by suggesting to run close-sprint for sprint 16 after the demo, which flattens the folder into `docs/sprint-16/demo.md`.",
       "assertions": [
         "The output checks whether docs/demo/ is ignored, for example with git check-ignore",
-        "The output removes the folder-wide docs/demo/ rule from .gitignore and reports it",
-        "The output ignores only the rendered deck.html and the pptx, so deck.md and the runsheet stay tracked",
+        "The output replaces the rendered-file rules with a folder-wide docs/demo/ rule and reports it",
+        "The output names the committed demo files and proposes removing them from the index while keeping them on disk",
         "The output notes where the shared pptx lives",
         "The output does not commit the demo folder",
         "The output suggests running close-sprint after the demo"
@@ -79,6 +79,26 @@
         "The output saves the pptx build script in the demo folder, not only in the scratchpad",
         "The output records in the runsheet the command that runs the build script",
         "The output states how python-pptx is made available to that command"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "The deck is final, hand off the shareable pptx. (Context the agent can discover: the intake named the client's Drive folder `Klant/Sprintdemo's`; `~/Library/CloudStorage/GoogleDrive-<account>/Shared drives/Klant/Sprintdemo's/` exists; a remote Google Drive connector is connected as well; the 12 MB pptx sits in the demo folder, ignored by git.)",
+      "expected_output": "The run copies the pptx into the mounted Drive folder instead of sending it through the remote connector, which cannot read the disk. It writes the Drive path into the runsheet header as the shared version's location, and does not leave the ignored copy in the demo folder as the only one.",
+      "assertions": [
+        "The output copies the pptx into the Google Drive for desktop folder",
+        "The output does not upload the pptx through the remote Drive connector",
+        "The output records the destination in the runsheet header"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Hand off the shareable pptx. (Context the agent can discover: the intake answer was 'op Google Drive als dat lukt, anders lokaal'; `~/Library/CloudStorage/` holds no Google Drive mount; no Drive connector is connected; the pptx sits in the demo folder, ignored by git.)",
+      "expected_output": "The run finds no Drive mount, asks for a local folder outside the repo, copies the pptx there, and writes that path into the runsheet header. It does not treat the ignored copy in the demo folder as the hand-off.",
+      "assertions": [
+        "The output checks for a Google Drive for desktop mount before choosing the local route",
+        "The output asks for a local folder outside the repository",
+        "The output records the local path in the runsheet header"
       ]
     }
   ]

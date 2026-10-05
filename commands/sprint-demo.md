@@ -43,7 +43,9 @@ one at a time). Skip a question the repo or tracker already answers.
    (often a `.pptx` in Downloads or on a shared drive)? If so, it sets the slide
    sequence and the look (Phase 7); the Greenberry theme is the fallback.
 6. **Shareable version** — does the client get a copy? Then a notes-free
-   `.pptx` is part of the deliverable (Phase 7, "Shareable version").
+   `.pptx` is part of the deliverable (Phase 7, "Shareable version"). Ask
+   where it goes too: a Google Drive folder, or a local folder outside the
+   repo when there is no Drive access.
 7. **Status and outlook** — a status/velocity slide, and a look ahead at the
    next sprint? When the tracker has no points or hours, say so: a slide of
    `[..]` placeholders is only worth keeping when the user will fill it in.
@@ -410,24 +412,42 @@ The client gets a `.pptx` without notes, in their own format:
   failed").
 - Both versions have the same slides in the same order, and the runsheet states
   the count.
+- Hand it off at the final step, to the destination from the intake. The
+  copy in the demo folder is ignored by git and `close-sprint` deletes it, so
+  it must never be the only one.
+  - **Google Drive**, when Google Drive for desktop is mounted
+    (`~/Library/CloudStorage/GoogleDrive-<account>/` on macOS, with
+    `My Drive/` and `Shared drives/` inside): copy the pptx into the folder
+    the user names. The mount sits outside the command sandbox, so the copy
+    asks for approval. A remote Drive connector is not the route for the file:
+    it cannot read the disk, so the deck would have to pass through the call
+    as base64, megabytes of it. Use a connector only to find the folder or its
+    share link.
+  - **Local**, when nothing is mounted: copy it to a folder outside the repo
+    that the user names.
+  - Write the destination into the runsheet header: the Drive path or link,
+    or the local path. After a later sync, copy it again and say so; the copy
+    does not follow the file in the demo folder.
 
-### The demo folder is tracked
+### The demo folder stays out of git
 
-`docs/demo/sprint-<N>/` is tracked in git like any other doc, except for two
-rendered files. `deck.html` is re-rendered from `deck.md` with one command. The
-shareable `.pptx` reaches the client through the project's shared drive; with
-its screenshots it runs to megabytes per sprint, too much for git history.
-After the demo, `close-sprint` flattens the folder into
-`docs/sprint-<N>/demo.md` and removes it, and git history keeps the source.
+`docs/demo/sprint-<N>/` is a working folder: the deck, the runsheet, the
+screenshots, the build script and the rendered files serve one demo, and with
+its screenshots and the pptx the folder runs to megabytes per sprint. It never
+goes into git. After the demo, `close-sprint` flattens it into
+`docs/sprint-<N>/demo.md`, the only demo record git keeps, and deletes it.
 
-- Check `git check-ignore -v docs/demo/sprint-<N>/deck.md`. When it prints a
-  rule — a folder-wide `docs/demo/` line in `.gitignore` (often added by an
-  earlier version of this runbook) or in `.git/info/exclude` — remove it and
-  tell the user which file held it.
-- Make `.gitignore` ignore the rendered files only: add
-  `docs/demo/**/deck.html` and `docs/demo/**/*.pptx` when missing.
-- Note in the runsheet header where the shared pptx lives on the drive.
-- The user commits the folder; never commit it yourself.
+- Check `git check-ignore -v docs/demo/sprint-<N>/deck.md`. When it prints no
+  rule, add `docs/demo/` to `.gitignore`. It replaces the rendered-file rules
+  (`docs/demo/**/deck.html`, `docs/demo/**/*.pptx`) an earlier version of
+  this runbook added; tell the user which lines changed.
+- When `git ls-files docs/demo/` lists files, an earlier run committed a demo
+  folder. Name them and propose `git rm -r --cached docs/demo/`, which keeps
+  them on disk; history still holds the earlier commits.
+- Note in the runsheet header where the shared pptx lives: the Drive path or
+  link, or the local path. `close-sprint` checks that place before it deletes
+  the demo folder.
+- Never commit the folder.
 
 ## Phase 8 — Review pause (stop here)
 
@@ -457,12 +477,14 @@ End with a concise list of:
 - The runsheet path (`docs/demo/sprint-<N>/demo-script.md`).
 - The deck path (`docs/demo/sprint-<N>/deck.md`) and the rendered
   `docs/demo/sprint-<N>/deck.html` (presenter view: press `p`).
-- The shareable `.pptx`, when agreed, with its slide count and "no notes".
+- The shareable `.pptx`, when agreed, with its slide count, "no notes", and
+  the destination it was copied to.
 - Any support one-pagers created under `docs/demo/sprint-<N>/support/`.
 - Validation flags (not "planned for Sprint N", missing BLI, not-yet-done) and
   consistency flags (Phase 8) that need a user decision.
 - `talk-only` stories that will be mentioned but not shown live.
-- Whether an ignore rule for `docs/demo/` was found and removed.
+- Whether the `docs/demo/` ignore rule was added, and any committed demo files
+  found.
 - The next step after the demo: suggest running `close-sprint` for Sprint N,
   which flattens `docs/demo/sprint-<N>/` into `docs/sprint-<N>/demo.md`. Revert
   any temporary local changes first (e.g. the mailer env guard).

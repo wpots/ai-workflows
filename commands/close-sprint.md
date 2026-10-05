@@ -14,8 +14,8 @@ transitions, or comments.
 - **Never** mutate Jira (no comments, transitions, edits, assignments).
 - **Never** run `git commit` — the user commits themselves.
 - Use `git mv` to relocate files so history is preserved.
-- `git rm` is for the Phase 5b working documents only — never a file that
-  code, tests or config reference.
+- `git rm` is for the Phase 5b working documents and a committed Phase 5c demo
+  folder only — never a file that code, tests or config reference.
 - Stop and ask when classification is ambiguous; do not guess.
 
 ## Inputs
@@ -287,15 +287,22 @@ fold it into one text record, `docs/sprint-<N>/demo.md`:
 2. **Route what is not a record.** A `(Niet voorlezen: …)` caveat that states
    a durable fact goes to its home (BLI, ADR, `docs/todo/`), as in the Phase 5b
    `durable` rule. An open flag from the demo prep goes to the gaps document.
-   A support one-pager moves next to the record with `git mv`.
-3. **Remove the folder** with `git rm -r docs/demo/sprint-<N>/`. That leaves
-   the ignored rendered files (`deck.html`, the shareable `.pptx`) on disk:
-   ask the user to confirm the pptx is on the drive the runsheet names, then
-   delete them. When git does not track the folder at all, because an older
-   run ignored it, removing it cannot be undone: ask first, and name the files
-   that are only on disk (the shared pptx, above all).
-4. **Record** the record's path and the retrieval recipe for the full deck in
-   the changelog's `## Archief`.
+   A support one-pager moves next to the record, and is tracked from there.
+3. **Check the shared pptx** before anything is deleted. Look up the
+   destination the runsheet header names: a Drive path, a Drive link, or a
+   local path outside the repo.
+   - The file is there (for a path, its size matches the demo-folder copy):
+     the demo-folder copy may go.
+   - Only a link, no destination, or the file is missing: ask where to keep
+     the pptx, move it there, and name that place in the record's header.
+     Never delete the only copy of the deck the client received.
+4. **Delete the folder.** Git does not track it (`docs/demo/` is ignored), so
+   `rm -r docs/demo/sprint-<N>/` cannot be undone and the deck is not kept
+   anywhere: list what goes (deck, runsheet, screenshots, build script,
+   rendered files), ask first, and never offer a commit to keep it. When
+   `git ls-files docs/demo/sprint-<N>/` lists files, an earlier run committed
+   the folder: remove those with `git rm -r` and the rest with `rm -r`.
+5. **Record** the record's path in the changelog's `## Archief`.
 
 ## Phase 6 — Review pause (stop here)
 
@@ -425,7 +432,8 @@ End with a concise list of:
 - Files moved (via `git mv`)
 - Working documents removed (Phase 5b), and those held back with their
   proposed home
-- The demo record (Phase 5c) and the demo folder it replaced
+- The demo record (Phase 5c), the demo folder it replaced, and where the
+  shared pptx lives
 - New docs created during Phase 7
 - Stale branch / worktree count from Phase 8
 - Items still open that need user follow-up
@@ -480,8 +488,7 @@ changelogs.
 - Werkdocumenten, verwijderd bij de close: `docs/sprint-<N>-planning.md`,
   `docs/sprint<N>/log.md` — `git show <sha>^:<path>`, met `<sha>` uit
   `git log --diff-filter=D --format=%h -1 -- <path>`
-- Demo: `docs/sprint-<N>/demo.md`; de volledige deck via
-  `git show <sha>^:docs/demo/sprint-<N>/deck.md`
+- Demo: `docs/sprint-<N>/demo.md`; de deck zelf is niet bewaard
 - BLI's van deze sprint: `git show sprint-<N>-bli-archive:docs/sprint-<N>/<file>`
 ````
 

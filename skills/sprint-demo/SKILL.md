@@ -39,6 +39,10 @@ same workflow; Copilot follows the runbook directly.
   fix them. The one git check is Phase 8's check of forward-looking claims.
 - Never hand out Marp's `--pptx` export: it carries every note. The shareable
   pptx is built on the client's previous deck, without notes.
+- The shareable pptx leaves the repo at the final step: the demo-folder copy is
+  ignored and `close-sprint` deletes it. Copy it into Google Drive for desktop
+  when it is mounted, otherwise into a local folder the user names. Never send
+  it through a remote Drive connector, which cannot read the disk.
 - Once the user edits `deck.md`, it is the single source: sync the pptx from it
   when they ask, and never regenerate or write to it while they edit.
 - Park a slide by moving it to `parked-slides.md`, never by commenting it out:
@@ -65,8 +69,9 @@ Written to `docs/demo/sprint-<N>/`:
   with the project logo embedded as a base64 data URI on every slide. Render
   to `deck.html` for the presenter view.
 - `<client format>.pptx` — when agreed: the shareable version, same slides,
-  no notes. Ignored by git; it goes to the client via the shared drive.
-  `build-pptx.py`, which every sync reruns, is tracked next to it.
+  no notes. Ignored by git; the runsheet header names the Drive or local
+  destination it was copied to. `build-pptx.py`, which every sync reruns,
+  sits next to it.
 - `parked-slides.md` — slides left out of the deck, when there are any.
 - `screenshots/` — taken on the demo environment; on the slides and the
   runsheet's fallback.
@@ -74,8 +79,9 @@ Written to `docs/demo/sprint-<N>/`:
 - A list of validation and consistency flags (not planned for Sprint N,
   missing BLI, not-yet-done, claims that do not hold) awaiting a user decision.
 
-The folder is tracked; only the rendered `deck.html` and `*.pptx` are ignored.
-When `git check-ignore` finds a folder-wide `docs/demo/` rule, replace it with
-those two. End by suggesting `close-sprint` after the demo; it flattens the
-folder into `docs/sprint-<N>/demo.md`. Offer `skills/release-notes` as well:
-the runsheet's plain-language lines are one of its sources.
+The folder stays out of git: `.gitignore` carries a folder-wide `docs/demo/`
+rule, added when `git check-ignore` finds none, in place of the rendered-file
+rules an earlier run added. End by suggesting `close-sprint` after the demo; it
+flattens the folder into `docs/sprint-<N>/demo.md`, the only demo record git
+keeps, and deletes it. Offer `skills/release-notes` as well: the runsheet's
+plain-language lines are one of its sources.

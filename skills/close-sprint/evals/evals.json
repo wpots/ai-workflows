@@ -3,27 +3,39 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Close sprint 16. (Context the agent can discover: `docs/demo/sprint-16/` is tracked and holds `deck.md` with twelve slides and presenter notes, `demo-script.md` with a klikpad, a setup checklist and the drive location of the shared pptx, `support/RFW-120-overstap.md` and twenty screenshots; the rendered `deck.html` and a 12 MB shareable pptx sit in the folder but are ignored by git; one note says '(Niet voorlezen: de detailpagina geeft een 404 op productie tot de release)'; the runsheet lists one open flag, a closing-slide claim that the release is live.)",
-      "expected_output": "Besides the usual close, the run writes `docs/sprint-16/demo.md`: a header with date, audience, environment and the pptx's drive location, then per slide the title, what was shown, the tickets and the demo URLs, plus the expected questions. It leaves out the klikpad, checklists, screenshots and rendered files. The durable caveat goes to its home rather than into the record, the open flag goes to the gaps document, and the support one-pager moves next to the record with git mv. It removes the demo folder with git rm, then asks the user to confirm the pptx is on the drive before deleting the ignored deck.html and pptx left on disk. It adds the record plus a retrieval recipe to the changelog's Archief and does not treat demo.md as a Phase 5b working document.",
+      "prompt": "Close sprint 16. (Context the agent can discover: `.gitignore` ignores `docs/demo/`; `docs/demo/sprint-16/` holds `deck.md` with twelve slides and presenter notes, `demo-script.md` with a klikpad, a setup checklist and the Drive path of the shared pptx, `support/RFW-120-overstap.md`, twenty screenshots, the rendered `deck.html` and a 12 MB shareable pptx; the pptx is present at the Drive path; one note says '(Niet voorlezen: de detailpagina geeft een 404 op productie tot de release)'; the runsheet lists one open flag, a closing-slide claim that the release is live.)",
+      "expected_output": "Besides the usual close, the run writes `docs/sprint-16/demo.md`: a header with date, audience, environment and the pptx's Drive location, then per slide the title, what was shown, the tickets and the demo URLs, plus the expected questions. It leaves out the klikpad, checklists, screenshots and rendered files. The durable caveat goes to its home rather than into the record, the open flag goes to the gaps document, and the support one-pager moves next to the record. It checks that the pptx is at the Drive path, then lists what the untracked demo folder holds and asks before deleting it, without committing the folder or offering to. It adds the record to the changelog's Archief without a git recipe for the deck, and does not treat demo.md as a Phase 5b working document.",
       "assertions": [
         "The output writes docs/sprint-16/demo.md with per-slide content in deck order",
         "The output leaves the klikpad, checklists and screenshots out of the record",
         "The output routes the durable caveat and the open flag instead of copying them into the record",
-        "The output moves the support one-pager with git mv",
-        "The output removes docs/demo/sprint-16/ with git rm and records it under Archief",
-        "The output asks to confirm the pptx is on the drive before deleting the ignored files left on disk",
+        "The output moves the support one-pager next to the record",
+        "The output checks the pptx at the destination the runsheet names before deleting anything",
+        "The output asks before deleting the untracked demo folder and does not commit it or offer a commit",
+        "The output records demo.md under Archief without a git retrieval recipe for the deck",
         "The output does not remove demo.md as an ephemeral working document"
       ]
     },
     {
       "id": 2,
-      "prompt": "Close sprint 15. (Context the agent can discover: `docs/demo/sprint-15/` exists but git does not track it — `.git/info/exclude` ignores `/docs/demo/` — and it holds the only copy of the shareable pptx.)",
-      "expected_output": "The run writes the demo record as usual, then sees the folder is untracked, so removing it cannot be undone. It asks before deleting and names the files that exist only on disk, the pptx first. It does not delete the folder without that answer.",
+      "prompt": "Close sprint 15. (Context the agent can discover: `docs/demo/sprint-15/` exists but git does not track it — `.git/info/exclude` ignores `/docs/demo/`; the runsheet header names no destination for the shareable pptx, so the copy in the folder is the only one.)",
+      "expected_output": "The run writes the demo record as usual, then sees the folder is untracked, so deleting it cannot be undone. Since the runsheet names no destination, it asks where to keep the pptx and moves it there before anything is deleted, then names the files that exist only on disk and asks before deleting the folder. It does not offer to commit the folder to keep the deck, and does not delete it without the user's answer.",
       "assertions": [
         "The output notices the demo folder is not tracked by git",
+        "The output names the shareable pptx as the only copy and asks where to keep it before deleting anything",
         "The output asks before removing the untracked folder",
-        "The output names the shareable pptx as a file that exists only on disk",
+        "The output does not offer to commit the demo folder to keep the deck",
         "The output does not delete the folder before the user answers"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Close sprint 17. (Context the agent can discover: `.gitignore` ignores `docs/demo/`; the runsheet header says the shared pptx was copied to `~/Documents/Klant/Demo Sprint 17.pptx`; that file does not exist; the 12 MB pptx sits in `docs/demo/sprint-17/`.)",
+      "expected_output": "Before deleting the demo folder, the run checks the destination the runsheet names, finds no pptx there, and does not delete the copy in the demo folder. It asks where to keep the pptx, moves it there, and names that place in the header of `docs/sprint-17/demo.md`.",
+      "assertions": [
+        "The output checks the destination named in the runsheet header for the pptx",
+        "The output does not delete the only remaining copy of the pptx",
+        "The output moves the pptx to a place the user names and records it in the demo record"
       ]
     }
   ]
