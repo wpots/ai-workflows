@@ -113,8 +113,13 @@ never hardcode; see the gotchas in `skills/jira-ticket`) and post with
      remove, reset, or stash a dirty worktree; report the local work instead.
   2. Remove a clean linked worktree first with
      `git worktree remove <path>`.
-  3. Delete the local source branch. Use `git branch -d` when Git proves it is
-     an ancestor of the default branch. For a squash merge, first verify that
+  3. Delete the local source branch. For a merge commit, prove it is merged
+     yourself: the local head equals the merged MR/PR source-head SHA and
+     `git merge-base --is-ancestor <local> <remote>/<default>` succeeds; then
+     use `git branch -D`. Do not let `git branch -d` decide: it checks the
+     branch's upstream, or without one the current `HEAD`, not the default
+     branch, so a checkout that sits on another session's branch refuses a
+     fully merged one. For a squash merge, first verify that
      the current local branch head still equals the merged MR/PR source-head
      SHA, then use `git branch -D`. When the two differ, the forge may have
      rewritten the branch just before merging (GitLab's **Rebase** button, or
