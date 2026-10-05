@@ -15,6 +15,8 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+## [2.4.2] - 2026-10-05
+
 ### Fixed
 
 - `skills/mr-merged` — Step 5 no longer lets `git branch -d` decide whether a
