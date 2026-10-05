@@ -15,6 +15,16 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Fixed
+
+- `skills/mr-merged` — Step 5 no longer lets `git branch -d` decide whether a
+  merge-commit branch is merged: `-d` checks the branch's upstream or the
+  current `HEAD`, not the default branch, so in a shared checkout that sits on
+  another session's branch it refuses a fully merged branch. The run now
+  proves it itself (the head equals the merged source SHA, and
+  `git merge-base --is-ancestor` against the default branch succeeds) and
+  deletes with `git branch -D`. Adds eval 3.
+
 ## [2.4.1] - 2026-10-05
 
 ### Changed
