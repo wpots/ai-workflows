@@ -15,6 +15,8 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-10-05
+
 ### Changed
 
 - `skills/sprint-demo`, `commands/sprint-demo.md` — a slide left out of the
