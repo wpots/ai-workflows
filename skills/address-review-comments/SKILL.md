@@ -1,6 +1,6 @@
 ---
 name: address-review-comments
-description: Pick up reviewer comments on a GitHub PR or GitLab MR, propose an approach per comment, then (after approval) apply, run checks, push, rebase onto the base branch, and clean up. Works in the main checkout by default; only uses an isolated worktree after explicitly asking the user. Use when the user asks to address/pick up/process review feedback or reviewer comments on a PR/MR.
+description: Pick up reviewer comments on a GitHub PR or GitLab MR, propose an approach per comment, then (after approval) apply, run checks, push, rebase onto the base branch, hand the MR back to the reviewer, and clean up. Works in the main checkout by default; only uses an isolated worktree after explicitly asking the user. Use when the user asks to address/pick up/process review feedback or reviewer comments on a PR/MR.
 ---
 
 # Address Review Comments Skill
@@ -28,6 +28,13 @@ and B back-to-back without the approval pause.
   `github.com` → GitHub (`gh`), `gitlab.com`/self-hosted → GitLab (`glab`).
 - Identify the target by number (if the user gave one) or by the current
   branch's open PR/MR.
+- A bare number names no repo, and the cwd remote is only one candidate. When
+  `<n>` there is merged, closed, or not the user's MR, search the user's open
+  MRs everywhere instead —
+  `glab api "merge_requests?scope=all&author_username=<me>&state=opened"` —
+  and take the one whose `references.full` ends in `!<n>`; a fresh
+  `updated_at` with a non-zero `user_notes_count` confirms it. Then find its
+  local checkout by matching `git -C <dir> remote get-url origin`.
 - Get the **source** and **target** branch:
   - GitLab: `glab api projects/<urlencoded-path>/merge_requests/<n>` → read
     `source_branch` / `target_branch`.
@@ -47,6 +54,9 @@ For each comment output: the reviewer, the quoted concern, and a one-line
 proposed approach. For `suggestion` blocks, note whether applying verbatim still
 type-checks (e.g. a dropped helper whose return value is used elsewhere needs the
 value re-derived).
+
+State the hand-back you will do after the push (step 9), so one go-ahead
+covers it.
 
 End the proposal with the **workspace question**: propose working in the main
 checkout (default), or — only if the main checkout is genuinely blocked — ask
@@ -122,6 +132,29 @@ sanity check; let the hooks/command run the full suite on commit/push.
 > ⚠️ **Respect the project's migration policy.** If the project owns migrations
 > manually, never generate or apply them — make the code change only, and if a
 > check legitimately reports pending migrations, **stop and tell the user**.
+>
+> ⚠️ **Checkout outside the session's working dirs.** You cannot `cd` there,
+> and `npm --prefix <root> exec -- eslint …` keeps the caller's cwd: ESLint
+> answers "File ignored because outside of base path" and typescript-eslint
+> "TSConfig does not include this file". `npm --prefix <root> run <script>`
+> does run in `<root>`. For a lint of only the touched files, call the ESLint
+> Node API from a scratchpad script that does `process.chdir(<root>)` and
+> `new ESLint({ cwd: <root> })`, resolving `eslint` from `<root>`.
+>
+> ⚠️ **`node_modules` installed for another branch.** When the checkout's
+> dependencies belong to the branch you found it on and its lockfile differs
+> from the source branch's
+> (`git diff --stat <found-branch> <source_branch> -- <lockfile>`), a
+> repo-wide `tsc` or lint in the pre-commit hook fails on files the diff never
+> touches. Don't reinstall in the user's checkout — it then mismatches the
+> branch they switch back to. Run lint and format on the touched files plus
+> the affected tests, show the remaining error sits outside the diff, commit
+> with `--no-verify`, and say so in the report. Leave the pre-push hook on.
+>
+> ⚠️ **A crashed jest worker is not a failing test.** "A jest worker process
+> … was terminated by another process: signal=SIGSEGV" under "Test suite
+> failed to run": rerun that suite alone, then retry the push once with the
+> hook on. Never `--no-verify` past it.
 
 **Evidence rule — "done" is a shown check, not a claim.** The closing report
 lists, per comment: what changed (`file:line`) and the check that proves it —
@@ -184,7 +217,23 @@ The expected count is `0 <dependent_commit_count>`. Re-run checks and push with
 `--force-with-lease`. If the trees differ, stop and inspect the difference;
 the old base cannot safely be substituted by the squash commit.
 
-### 9. Clean up
+### 9. Hand the MR back to the reviewer
+
+Once the final commit is on the remote, leave every thread open — resolving
+is the reviewer's call unless the user asks for it. On GitLab:
+
+1. Read the note ids from `…/merge_requests/<iid>/discussions` (non-system
+   notes only).
+2. Add a 👍 to each addressed note:
+   `glab api -X POST "projects/<path>/merge_requests/<iid>/notes/<note_id>/award_emoji" -f name=thumbsup`.
+3. Post one top-level note that mentions the reviewer, names the pushed sha
+   and what changed, and offers the MR for another look:
+   `glab api -X POST "projects/<path>/merge_requests/<iid>/notes" -f body='…'`.
+   Single-quote the body so backticks in it survive the shell.
+
+On GitHub, do the same with a reaction on each comment and `gh pr comment`.
+
+### 10. Clean up
 
 Only when a worktree was used:
 
@@ -195,7 +244,7 @@ git worktree remove <worktree> --force
 When working in the main checkout: switch back to the original branch and
 restore any stash.
 
-### 10. Evaluate workflow updates
+### 11. Evaluate workflow updates
 
 After finishing, briefly consider whether anything learned should update this
 skill or the shared `rules/`. If a reusable lesson emerged, suggest upstreaming
@@ -206,7 +255,7 @@ to the ai-workflows repo.
 ## Guidelines
 
 - One comment at a time when proposing; keep it scannable.
-- Resolving the comment thread on the platform is optional — offer it, don't
-  assume it.
+- Leave comment threads open for the reviewer (step 9); resolve one only when
+  the user asks.
 - Respect the project's migration policy absolutely: code change only, flag when
   a migration is needed, never generate one.

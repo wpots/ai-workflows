@@ -15,6 +15,20 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Changed
+
+- `skills/address-review-comments` — a bare MR number no longer resolves to
+  the cwd remote only: when `!<n>` there is merged, closed, or someone else's,
+  Step 1 searches the user's open MRs across GitLab and finds the matching
+  repo's local checkout. New Step 9 hands the MR back after the final push:
+  threads stay open for the reviewer, each addressed note gets a 👍 through
+  the award-emoji API, and one top-level note names the pushed sha. Step 3's
+  proposal names that hand-back, so one go-ahead covers it. Step 6 gains three
+  pitfalls: linting a checkout outside the session's working dirs (ESLint
+  follows `process.cwd()`, not `--prefix`), `node_modules` installed for
+  another branch failing a repo-wide `tsc` hook on untouched files, and a
+  crashed jest worker that is not a failing test. Adds evals 1 and 2.
+
 ## [2.4.2] - 2026-10-05
 
 ### Fixed

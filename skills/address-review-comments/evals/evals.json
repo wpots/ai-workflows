@@ -1,0 +1,27 @@
+{
+  "skill_name": "address-review-comments",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "We have feedback on MR 256. (Context the agent can discover: in the cwd repo, !256 is merged and authored by someone else; among the user's open MRs across GitLab, `other-group/other-repo!256` was updated today and has two unresolved reviewer notes; a local checkout of `other-group/other-repo` exists next to the cwd repo.)",
+      "expected_output": "The run does not stop at the cwd repo's merged !256. It lists the user's open MRs across GitLab, picks `other-group/other-repo!256` by its full reference, locates that repo's local checkout by remote URL, fetches the two reviewer notes, proposes an approach per note including the hand-back after the push, and stops for approval.",
+      "assertions": [
+        "The output does not treat the cwd repo's merged !256 as the target",
+        "The output searches the user's open MRs across GitLab and matches the full reference ending in !256",
+        "The output locates the local checkout of the matched repo by its remote URL",
+        "The proposal names the post-push hand-back and stops before changing code"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Go ahead and push, but don't resolve the threads. (Context the agent can discover: the approved changes for two reviewer notes on a GitLab MR are committed locally; the branch is not behind its target; the pre-push hook passes.)",
+      "expected_output": "After the push, the run leaves both threads unresolved. It reads the note ids from the MR's discussions, adds a thumbsup award emoji to each addressed note, and posts one top-level MR note that mentions the reviewer, names the pushed sha, and offers the MR for another look. The closing report lists the pushed sha, the two awards and the note.",
+      "assertions": [
+        "The output makes no call that resolves a discussion",
+        "The output adds a thumbsup award emoji to each addressed reviewer note",
+        "The output posts exactly one top-level MR note that mentions the reviewer and names the pushed sha",
+        "The hand-back happens after the final push, so the sha in the note is the remote head"
+      ]
+    }
+  ]
+}
