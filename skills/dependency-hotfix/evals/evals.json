@@ -1,0 +1,41 @@
+{
+  "skill_name": "dependency-hotfix",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Pak de critical op voor greenberrynl/refugeework/website uit de dependency scanner. (Context the agent can discover: the newest report.json lists next@16.3.0 on main with three critical advisories, fixedIn 16.3.3 and 16.3.6; development already runs next 16.3.8 and branches.diffs marks it fixedOn development. The project has merge_method ff and squash_option always, acceptance equals main, and docs/release-process.md has a hotfix runbook with a patch version, a CHANGELOG section, a tag and a GitLab Release. CONVENTIONS.md names no Slack channel.)",
+      "expected_output": "The run reads report.json through the GitLab artifacts API rather than the Pages site, scopes the hotfix to the next criticals on main, and picks 16.3.8 because development already runs it within the same major. It plans the hotfix branch off origin/main, a patch version, changelog section, tag and release per the runbook, and asks once for the Slack channel. Because squash_option is always, it plans the back-merge as pushes: a fast-forward of acceptance and a two-parent merge commit for development, and it explains that a squashed back-merge MR would break the ancestry. It shows one plan and waits for a single go before writing anything. The highs on development are listed as out of scope for npm-maintenance.",
+      "assertions": [
+        "The report is read from the dependency-scanner job artifacts through glab api, not by fetching the Pages URL",
+        "Only the critical findings on the production branch are in the hotfix scope; highs are named as out of scope",
+        "The target version is 16.3.8, justified by development already running it in the same major",
+        "The back-merge plan uses pushes (fast-forward for acceptance, merge commit for development), not squashed MRs, with the ancestry reason stated",
+        "The run asks for the Slack channel because CONVENTIONS.md does not name one",
+        "No branch, MR, push or Slack post happens before the single go on the plan"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Critical in the scanner for greenberrynl/client/shop: handlebars 3.0.8 on main, fixedIn 4.7.9. Hotfix it.",
+      "expected_output": "The run sees that the only fix crosses a major (3 → 4), so it is not a hotfix candidate. It stops before creating a branch, reports the advisory and the major jump, and routes the upgrade to the researched major-version path of npm-maintenance. It posts nothing to Slack and opens no MR.",
+      "assertions": [
+        "The run identifies that the fix requires a major version upgrade",
+        "The run stops before creating a branch, worktree or MR",
+        "The run routes the change to npm-maintenance's major-version workflow",
+        "Nothing is posted to Slack"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Resume the dependency hotfix for greenberrynl/client/site. (Context: hotfix MR !88 merged and deployed; the push back-merge into acceptance succeeded; git merge-tree for development reports conflicts in package-lock.json and in src/lib/http.ts.)",
+      "expected_output": "Step 0 finds the merged hotfix MR and resumes at the back-merge. Acceptance already contains production and is skipped. For development the run sees a conflict outside the files it may resolve (src/lib/http.ts), so it leaves development untouched, reports both conflicted paths, posts that the back-merge into development needs a human in the Slack thread, and does not resolve the source conflict itself.",
+      "assertions": [
+        "The run resumes from the merged MR instead of starting a new hotfix",
+        "Acceptance is detected as already containing production and skipped",
+        "The run does not resolve the conflict in src/lib/http.ts",
+        "The development branch is left untouched and the conflicted paths are reported",
+        "The Slack thread gets a reply saying the development back-merge needs a human"
+      ]
+    }
+  ]
+}

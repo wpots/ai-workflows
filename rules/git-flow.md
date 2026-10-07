@@ -88,6 +88,15 @@ exists; do not substitute a proxy metric that looks like it.
 - merge your own MR without the required approval, or with the pipeline red
 - rewrite history on the default branch
 
+One exception to the first two: after a hotfix has merged into the production
+branch, `skills/dependency-hotfix` back-merges production into `acceptance`
+and `development` as a fast-forward or two-parent merge-commit push when
+`squash_option` is `always`. A squashed back-merge MR copies the change but
+not the commit, so production stops being an ancestor and the next
+fast-forward release fails. The push carries only the reviewed hotfix commit
+and lockfile, `package.json` and changelog conflict resolution — never a new
+change.
+
 ## Enforcement
 
 | Moment | Surface | Level |
