@@ -110,6 +110,7 @@ cross-reference, so it still needs its own line.
 - `commit message`, `write commit`, `git commit` -> `skills/commit-message` (canonical), `commands/commit-message.md` (fallback)
 - `component spec`, `spec component`, `write spec`, `document component api` -> `skills/component-spec` (skill only)
 - `create pr`, `open pr`, `submit pr` -> `skills/create-pr` (canonical), `commands/create-pr.md` (fallback)
+- `greenberry maintenance`, `portfolio maintenance`, `portfolio-maintenance-report`, `greenberry onderhoud`, `herhaal onderhoudsinventaris`, `CI-adoptie en scannerdekking` -> `skills/greenberry-maintenance` (skill only; read-only portfolio inventory across GitLab, Notion and dependency reporting; project fixes stay in their own workflows)
 - `improve skill`, `take learnings`, `verbeter je skill`, `skill opportunity`, `learn from sessions`, `spot workflow patterns`, `should this be a skill` -> `skills/improve-skill` (skill only; also decides whether a recurring pattern deserves a new skill, an update, or a lighter surface)
 - `jira ticket`, `maak een jira ticket`, `file a bug`, `meld een bug`, `create a story`, `create a task` -> `skills/jira-ticket` (skill only; writes to the tracker, so it confirms before creating)
 - `maintenance`, `project maintenance`, `onderhoud`, `maintenance sweep`, `monthly check`, `health check`, `api key check` -> `skills/maintenance` (skill only; delegates the dependency lane to `skills/npm-maintenance`)

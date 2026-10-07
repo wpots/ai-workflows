@@ -88,6 +88,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `dependency-hotfix` | Ship a critical from the dependency-scanner report as a hotfix: MR to production with auto-merge, deploy read-back, back-merge into acceptance and development, Slack thread, cleanup | No (skill only) |
 | `release` | Run a production release around the project's runbook: start and live mail drafts, optional Slack thread, release notes, shipped tickets versioned and moved to Done, close-sprint check and stale-branch cleanup | No (skill only) |
 | `maintenance` | Periodic project maintenance sweep — deps, runtime EOL, credential/API-key currency (incl. Prepr tokens), quality baseline, CI, data, doc drift | No (skill only) |
+| `greenberry-maintenance` | Read-only Greenberry portfolio inventory: shared CI adoption, Notion code metrics, scanner/updater coverage and Slack reporting; compare dated evidence without starting scans or fixes | No (skill only) |
 | `upstream-to-unicore` | Upstream a reusable change from a synced project into the unicore-template repo via a GitLab MR | No (skill only) |
 | `mr-merged` | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup | No (skill only) |
 | `user-journeys` | Spec each user journey into `docs/journeys/` — walked path, branches, states, permissions, keyboard route, and the slice candidates the backlog is cut from | No (skill only) |

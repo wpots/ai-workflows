@@ -329,6 +329,7 @@ release are ⛔ out of scope for agency delivery on managed hosting. See
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
 | `skills/maintenance` | skill | `/maintenance` · `"onderhoud"`, `"monthly health check"`, `"api key check"` | Periodic sweep across every lane that rots silently: deps, runtime EOL, credential and API-key currency, quality baseline, CI, data, doc drift |
+| `skills/greenberry-maintenance` | skill | `/greenberry-maintenance` · `"portfolio maintenance"`, `"greenberry onderhoud"`, `"herhaal onderhoudsinventaris"` | Read-only portfolio evidence across GitLab CI adoption, Notion metrics, existing scan artifacts and dependency-channel reporting; records coverage gaps and deltas without starting scans, syncs or fixes |
 | `skills/npm-maintenance` | skill | `/npm-maintenance` · `"audit dependencies"`, `"patch a CVE"` | Dependency updates, `npm audit` remediation, researched major migrations |
 | `skills/payload-jobs` | skill | `/payload-jobs` · `"nightly job"`, `"autoRun"`, `"jobs draaien dubbel"` · delegated by lane F of `skills/maintenance` | Payload's jobs queue on multi-instance hosting: one elected runner, closed run endpoint, orphaned-run recovery, idempotent tasks, poll cadence vs the autoscaler |
 | `skills/wcag-audit` | skill | `/wcag-audit` · `"a11y audit of production"` | axe-core/Playwright scan of the live site, combined with the static findings |
@@ -338,6 +339,12 @@ release are ⛔ out of scope for agency delivery on managed hosting. See
 `skills/maintenance` is the entry point for this phase: it diagnoses across all
 lanes and delegates the deep work to the lane-specific skills above, landing one
 ranked report instead of several partial ones.
+
+For Greenberry-wide coverage and CI-adoption questions,
+`skills/greenberry-maintenance` is the portfolio entry point. It compares the
+current register/configuration with existing execution evidence and the previous
+dated inventory. It does not run the per-project sweep or apply its findings;
+requested fixes use the existing project workflows.
 
 That makes the sweep one invocation instead of five, but it does not make it
 automatic: nothing in this phase runs on a schedule. Every row above is invoked by
