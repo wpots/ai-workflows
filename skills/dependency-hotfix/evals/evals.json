@@ -3,15 +3,17 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "Pak de critical op voor greenberrynl/refugeework/website uit de dependency scanner. (Context the agent can discover: the newest report.json lists next@16.3.0 on main with three critical advisories, fixedIn 16.3.3 and 16.3.6; development already runs next 16.3.8 and branches.diffs marks it fixedOn development. The project has merge_method ff and squash_option always, acceptance equals main, and docs/release-process.md has a hotfix runbook with a patch version, a CHANGELOG section, a tag and a GitLab Release. CONVENTIONS.md names no Slack channel.)",
-      "expected_output": "The run reads report.json through the GitLab artifacts API rather than the Pages site, scopes the hotfix to the next criticals on main, and picks 16.3.8 because development already runs it within the same major. It plans the hotfix branch off origin/main, a patch version, changelog section, tag and release per the runbook, and asks once for the Slack channel. Because squash_option is always, it plans the back-merge as pushes: a fast-forward of acceptance and a two-parent merge commit for development, and it explains that a squashed back-merge MR would break the ancestry. It shows one plan and waits for a single go before writing anything. The highs on development are listed as out of scope for npm-maintenance.",
+      "prompt": "Pak de critical op voor greenberrynl/refugeework/website uit de dependency scanner. (Context the agent can discover: the newest report.json lists next@16.3.0 on main with three critical advisories, fixedIn 16.3.3 and 16.3.6; development already runs next 16.3.8 and branches.diffs marks it fixedOn development. The project has merge_method ff and squash_option always, acceptance equals main, and docs/release-process.md has a hotfix runbook with a patch version, a CHANGELOG section, a tag and a GitLab Release. CONVENTIONS.md names no Slack channel. npm has published next 16.4.0 since development moved to 16.3.8. The local database carries a newer schema than main.)",
+      "expected_output": "The run reads report.json through the GitLab artifacts API rather than the Pages site, scopes the hotfix to the next criticals on main, and picks 16.3.8 because development already runs it within the same major. It installs the exact version (next@16.3.8), so the published 16.4.0 is not picked up. It validates locally before asking, building against a scratch database migrated with main's migrations instead of the developer's database. It plans the hotfix branch off origin/main, a patch version, changelog section, tag and release per the runbook, and announces the MR in #merge_requests without asking for a channel. Because squash_option is always, it plans the back-merge as pushes: a fast-forward of acceptance and a two-parent merge commit for development, and it explains that a squashed back-merge MR would break the ancestry. It shows one plan and waits for a single go before anything leaves the machine. The highs on development are listed as out of scope for npm-maintenance.",
       "assertions": [
         "The report is read from the dependency-scanner job artifacts through glab api, not by fetching the Pages URL",
         "Only the critical findings on the production branch are in the hotfix scope; highs are named as out of scope",
         "The target version is 16.3.8, justified by development already running it in the same major",
         "The back-merge plan uses pushes (fast-forward for acceptance, merge commit for development), not squashed MRs, with the ancestry reason stated",
-        "The run asks for the Slack channel because CONVENTIONS.md does not name one",
-        "No branch, MR, push or Slack post happens before the single go on the plan"
+        "The install uses the exact version next@16.3.8, not a caret range, and the lockfile ends on 16.3.8",
+        "The production build runs against a scratch database with main's schema, not the developer's local database",
+        "The Slack plan names #merge_requests and the run does not ask for a channel",
+        "No MR, push or Slack post happens before the single go on the plan"
       ]
     },
     {

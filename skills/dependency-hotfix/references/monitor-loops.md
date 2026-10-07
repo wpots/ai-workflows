@@ -78,10 +78,35 @@ done
 
 A green pipeline proves the job ran, not that the host built it. Read the
 deploy job's log tail — `glab api "projects/ENC/jobs/<job-id>/trace" | tail -40`
-— and then confirm on the platform the way the project's runbook says (for
-Clever Cloud, `clever activity` shows the commit with state `OK`; a build
-there finishes minutes after the job). A `manual` deploy job ends the loop:
-triggering it is the user's call.
+— and then confirm on the platform the way the project's runbook says. A
+`manual` deploy job ends the loop: triggering it is the user's call.
+
+## Platform read-back — one notification, not a Monitor
+
+The platform check needs one answer ("did this commit build?"), and platform
+CLIs often cannot run inside the sandbox (`npx clever-tools` writes to the npm
+cache). `Monitor` has no sandbox switch, so use a bounded until-loop with Bash
+`run_in_background` and the sandbox off instead; it notifies once when it
+exits. Clever Cloud example, placeholders `APP_ID` and `SHORT_SHA`:
+
+```bash
+#!/usr/bin/env bash
+last=""
+for _ in $(seq 1 40); do
+  last=$(npx clever-tools activity --app APP_ID --format json 2>/dev/null \
+    | jq -r '[.[] | select((.commit // "") | startswith("SHORT_SHA"))] | sort_by(.date) | last // empty | "\(.state) \(.action) \(.date)"' || true)
+  case "$last" in
+    OK*|FAIL*|CANCELLED*) echo "SHORT_SHA: $last"; exit 0 ;;
+  esac
+  sleep 30
+done
+echo "SHORT_SHA: no terminal state after 20 min (last: ${last:-none})"
+exit 1
+```
+
+On the first run the production build reached `OK` about four minutes after
+the deploy job. Run the same check for acceptance after its back-merge push,
+since that push deploys acceptance.
 
 ## Loop 3 — back-merge pipelines
 

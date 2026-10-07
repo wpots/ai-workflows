@@ -27,10 +27,22 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   When `squash_option` is `always`, that back-merge is a fast-forward or a
   two-parent merge-commit push, because a squashed MR would break the
   ancestry the next release needs; otherwise it is an MR with auto-merge and
-  squash off. A Slack thread follows the transitions, Monitor loops watch the
-  MR, the deploy and the back-merges, and cleanup ends the run. One go covers
-  every write, and a later invocation resumes from GitLab's state. Majors,
-  migrations and source-code conflicts stop the run. Adds evals 1–3.
+  squash off. A thread in `#merge_requests` follows the transitions, Monitor
+  loops watch the MR, the deploy and the back-merges, and cleanup ends the
+  run. One go covers every write, and a later invocation resumes from
+  GitLab's state. Majors, migrations and source-code conflicts stop the run.
+  Adds evals 1–3. After the first real run (RefugeeWork): it installs exact
+  versions, since a caret range picked up a framework minor published that
+  week. The production build runs against a scratch database migrated with
+  the production branch's migrations, since the developer's database carries
+  another branch's schema. Local validation runs before the go, and the
+  Slack thread always goes to `#merge_requests`. The back-merge commit is
+  prepared while production builds and pushed only when the target has not
+  moved. When the resolved tree differs from the target only in version and
+  changelog, that diff replaces a re-run of the checks. The platform
+  read-back is a background until-loop with the sandbox off, since a Monitor
+  cannot leave the sandbox. Cleanup reports the orphaned build workers that
+  hold the scratch database open, and drops it with `dropdb --force`.
 - `rules/git-flow.md` — names that back-merge push as the one exception to
   "never push to a protected long-lived branch" and "never merge with a merge
   commit".
