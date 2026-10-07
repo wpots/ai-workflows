@@ -31,6 +31,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `jira-ticket` | skill only | `skills/jira-ticket/SKILL.md` | none | n/a |
 | `npm-maintenance` | skill only | `skills/npm-maintenance/SKILL.md` | none | n/a |
 | `maintenance` | skill only | `skills/maintenance/SKILL.md` | none | n/a |
+| `greenberry-maintenance` | skill only | `skills/greenberry-maintenance/SKILL.md` | none | n/a |
 | `improve-skill` | skill only | `skills/improve-skill/SKILL.md` | none | n/a |
 | `sustainable-review` | skill + command | `skills/sustainable-review/SKILL.md` | `commands/sustainable-review.md` | yes |
 | `test-driven-development` | skill only | `skills/test-driven-development/SKILL.md` | none | n/a |

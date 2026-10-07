@@ -15,6 +15,16 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Added
+
+- `skills/greenberry-maintenance` — repeats the Greenberry portfolio inventory
+  across GitLab, the existing Notion Code metrics register, scanner/updater
+  configuration, successful scan artifacts and dependency-channel messages.
+  A read-only Python/glab collector records immutable default-branch snapshots;
+  the workflow compares configuration, execution and production evidence
+  separately. Records dated reports and explicit coverage limits without
+  starting scans, syncs, updates or deploys. Adds routing and inventory entries.
+
 ## [2.5.0] - 2026-10-07
 
 ### Added

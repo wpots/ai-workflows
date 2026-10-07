@@ -1,0 +1,4 @@
+interface:
+  display_name: "Greenberry maintenance"
+  short_description: "Herhaalbare inventaris van CI en projectonderhoud"
+  default_prompt: "Gebruik $greenberry-maintenance om de actuele onderhoudsstatus te inventariseren en te vergelijken met het vorige rapport."
