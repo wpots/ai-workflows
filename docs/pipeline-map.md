@@ -163,12 +163,13 @@ reads them; on Claude the skill descriptions route in parallel via the plugin.
 ### Hooks and loops
 
 Automation that runs without being asked is thin but real, and it is not evenly
-distributed. One plugin-wide hard gate ships through `hooks/hooks.json`; four
+distributed. Two plugin-wide hard gates ship through `hooks/hooks.json`; four
 project harness hooks ship through `templates/project-claude-settings.json`:
 
 | Hook | Event | Does |
 | --- | --- | --- |
 | Process-termination approval | `PreToolUse(Bash)` | **Always asks** before `kill`, `pkill`, `killall`, or `taskkill`, even when a local allowlist would otherwise permit the command; the shared safety rule separately forbids terminating VS Code without approval for the exact PID and command |
+| CLI-first connector gate | `PreToolUse(mcp__.*)` | **Denies** an Atlassian or Axiom connector call that has a CLI equivalent while that CLI is installed, naming the `jira`/`axiom` command to run instead (`scripts/prefer_service_cli.py`); connector-only tools, other servers, a missing CLI and `AIW_ALLOW_MCP=1` pass through |
 | Migration guard | `PreToolUse(Bash)` | **Denies** `migrate:fresh` and `migrate:create` — the only mechanically blocking gate in the whole pipeline |
 | Graphify-before-grep | `PreToolUse(Bash)` | Requires a graph query before raw grep/find, when `graphify-out/graph.json` exists |
 | Graphify-before-read | `PreToolUse(Read\|Glob)` | Same, for reading source files |
@@ -181,7 +182,8 @@ GitLab, so nothing survives closing the laptop.
 Two asymmetries worth naming. This repo ships harness hooks to projects but configures
 none for itself; its only own automation is the git pre-commit hook from
 `scripts/install-hooks.sh`, which runs the validators. And the hooks that exist are
-mostly *nudges* — only the migration guard actually blocks. That is the gap
+mostly *nudges* — only the migration guard and the CLI-first connector gate
+actually block. That is the gap
 `docs/backlog/chore-improve-skill-stop-hook.md` starts closing.
 
 ## Phase by phase
@@ -423,11 +425,12 @@ The repo-owned half, in real paths:
 | `shared/core-rules.md`, `shared/command-mappings.md`, `shared/skill-mappings.md`, `shared/safety.md`, `shared/graphify.md`, `shared/workflow-assets.md` | Fragments injected into generated adapters, so every tool sees the same baseline. `command-mappings` and `skill-mappings` are the routing registries: a workflow absent from them is unreachable by intent, which `scripts/validate-skills.mjs` treats as an error |
 | `templates/project-CLAUDE.md`, `templates/project-AGENTS.md`, `templates/project-copilot-instructions.md`, `templates/project-cursor-conventions.mdc`, `templates/project-cursor-graphify.mdc`, `templates/project-ai-workflows.md`, `templates/project-claude-settings.json` | Thin per-tool adapters generated into a project |
 | `templates/pull_request_template.md` | Last-resort MR body skeleton for `skills/create-pr` |
-| `docs/tooling.md` + per-project `.mcp.json` | Integration tooling: CLI-first doctrine, machine CLI table (glab, jira, dotenvx), project MCP config emitted by `skills/setup-ai-workflows` |
+| `docs/tooling.md` + `skills/service-cli` + per-project `.mcp.json` | Integration tooling: CLI-first doctrine, machine CLI table (glab, jira, axiom, dotenvx), the per-service recipes and connector-only remainder in `skills/service-cli`, project MCP config emitted by `skills/setup-ai-workflows`; `scripts/prefer_service_cli.py` (PreToolUse) denies an Atlassian or Axiom connector call that has a CLI equivalent while that CLI is installed |
 | `docs/backlog/` | Local backlog items — the contract `skills/work-backlog` delivers against |
 | `graphify-out/` | Generated knowledge graph over the repo, queried before re-reading files |
 
-Live context — the Jira box in the diagram — is read through MCP at run time. Every
+Live context — the Jira box in the diagram — is read at run time through the `jira`
+CLI (`skills/service-cli`), the connector only when the CLI is missing. Every
 tracker-reading skill treats it as **read-only**; only `skills/jira-ticket` and
 `skills/mr-merged` write, and only after explicit confirmation — the second
 sanctioned write is the mr-merged "how to test this" comment for the product owner.

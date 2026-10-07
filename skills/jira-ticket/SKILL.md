@@ -1,6 +1,6 @@
 ---
 name: jira-ticket
-description: Create a Jira issue (bug, story, or task) from a consistent, type-specific template — gather the facts, ground it in the codebase where relevant, then create the issue with assignee and sprint after confirmation. Writes to the tracker. Project-agnostic: discover instance ids at runtime. Use when the user asks to file, log, create, or open a Jira ticket / bug / story / task (e.g. "maak een jira ticket", "file a story", "meld een bug", "create a task").
+description: Create a Jira issue (bug, story, or task) from a consistent, type-specific template — gather the facts, ground it in the codebase where relevant, then create the issue with assignee and sprint after confirmation, through the jira CLI. Writes to the tracker. Project-agnostic: discover the project key, sprint id and field keys at runtime. Use when the user asks to file, log, create, or open a Jira ticket / bug / story / task (e.g. "maak een jira ticket", "file a story", "meld een bug", "create a task").
 ---
 
 # Jira Ticket Skill
@@ -41,7 +41,7 @@ that moment, not per MR.
 ## Tracker write — safety
 
 - This skill creates a Jira issue. **Always confirm the issue type, summary,
-  assignee, and sprint with the user before calling `createJiraIssue`.**
+  assignee, and sprint with the user before running `jira issue create`.**
 - Never transition, comment on, or edit existing issues unless explicitly asked.
 - Create exactly one issue per request. Do not batch-create without approval.
 
@@ -55,7 +55,7 @@ Pick from the user's intent:
   spike, docs).
 
 If the type is ambiguous, ask. The type drives the template (below) and the
-issue-type id.
+`-t` value.
 
 ## Context to load
 
@@ -64,9 +64,10 @@ issue-type id.
 2. For **bugs** and code-grounded **tasks**: the relevant source files, so the
    root cause / touchpoints are grounded and not guessed. For **stories**: the
    feature area, enough to write realistic acceptance criteria.
-
-Jira connection values (cloudId, issue-type ids, sprint field id) are
-**instance-specific — discover them at runtime.** See "Jira gotchas".
+3. The CLI: `jira me` must print the configured user. Recipes and repair steps
+   are in `skills/service-cli/references/jira.md`. The Atlassian connector is
+   the fallback only when the CLI is not installed and cannot be installed now
+   — see "Connector fallback" at the end, and say so in the recap.
 
 ## Workflow
 
@@ -83,21 +84,31 @@ Jira connection values (cloudId, issue-type ids, sprint field id) are
    label it — never invent. Offload heavy reading to a subagent to keep context
    clean.
 3. **Resolve the Jira context:**
-   - `cloudId` → `getAccessibleAtlassianResources`.
-   - Project key → from step "Context to load".
-   - Issue type → pass `issueTypeName` (`"Bug"` / `"Story"` / `"Task"`). If the
-     name is rejected, resolve the numeric id via
-     `getJiraProjectIssueTypesMetadata`.
-   - Assignee → `lookupJiraAccountId`. If more than one match, confirm the exact
-     person before using the `accountId`.
-   - Sprint (optional) → resolve the **numeric sprint id** and the **sprint field
-     key** (see gotchas). Skip for backlog tickets.
-4. **Write the body** using the matching template. Match the language and
-   English/native-term mix of the project's existing tickets. Use
-   `contentFormat: "markdown"`.
+   - Project key → from "Context to load"; pass it as `-p <KEY>` whenever it
+     is not the CLI's configured default.
+   - Issue type → `-t Bug` / `-t Story` / `-t Task` by name. When the instance
+     names its types differently and the create is rejected, ask the user which
+     name the project uses.
+   - Assignee → `-a "<email or display name>"`; the CLI resolves it. Confirm
+     the person first when the name could match more than one account.
+   - Sprint (optional) → the numeric id from
+     `jira sprint list --state active,future --plain --columns ID,NAME,STATE`.
+     Skip for backlog tickets.
+4. **Write the body** to a file in the scratchpad using the matching template,
+   in Markdown — the CLI renders it to Jira's format. Match the language and
+   English/native-term mix of the project's existing tickets.
 5. **Confirm, then create.** Show the user: issue type + summary + assignee +
-   sprint + project. On approval, call `createJiraIssue`.
-6. **Report back** the issue key and `webUrl`.
+   sprint + project. On approval:
+
+   ```bash
+   jira issue create -p RFW -t Bug -s "<summary>" -a "<email>" \
+     -T <path/to/body.md> --no-input
+   jira sprint add <sprint-id> <NEW-KEY>      # only when a sprint was chosen
+   ```
+
+   `--no-input` keeps the CLI from prompting for optional fields or opening an
+   editor; without it the command blocks.
+6. **Report back** the issue key and the URL the create command prints.
 
 ## Templates (ticket body)
 
@@ -183,33 +194,41 @@ Set only these — keep it minimal:
 
 | Field      | Value                                                       |
 | ---------- | ----------------------------------------------------------- |
-| project    | tracker key from project config (e.g. `RFW`)                |
-| issue type | `Bug` / `Story` / `Task`                                    |
-| assignee   | resolved `accountId` (confirm the person first)             |
-| sprint     | numeric sprint id via the sprint field key (optional)       |
+| project    | `-p <KEY>` from project config (e.g. `RFW`)                 |
+| issue type | `-t Bug` / `-t Story` / `-t Task`                           |
+| assignee   | `-a "<email>"` (confirm the person first)                   |
+| sprint     | `jira sprint add <id> <KEY>` after creation (optional)      |
 
-No priority, labels, components, or reporter overrides unless the user asks.
+No priority, labels, components, or reporter overrides unless the user asks
+(`-y`, `-l`, `-C`, `-r`); no parent unless the user names the epic (`-P`).
 
 ## Jira gotchas
 
-Instance ids drift and differ per Jira site — **discover, don't assume.**
+- **`--no-input` always**, and the body through `-T <file>` (or `-b` for one
+  line): the CLI otherwise prompts for every optional field.
+- **Sprint by id, after creation.** `jira sprint add` takes the numeric id from
+  `jira sprint list`; JQL `sprint = "Sprint N"` matches the short name even when
+  the real name is prefixed, so the list is the reliable lookup.
+- **Custom fields** (story points, a non-default sprint field) go in with
+  `--custom <name>=<value>`, where the name is the one listed under
+  `issue.fields.custom` in the CLI config (populated by `jira init`). Which
+  custom fields carry values on this instance:
+  `jira issue view <KEY-in-sprint> --raw | jq '.fields | to_entries[] | select(.key | startswith("customfield")) | select(.value != null) | .key'`
+  — keys differ per Jira site, so discover, never assume.
+- **Another project or board** than the configured default: `-p <KEY>` on
+  every command; a different board needs its own config (`JIRA_CONFIG_FILE`).
 
-- **cloudId** → `getAccessibleAtlassianResources`. Cache it per session only.
-- **Project + issue-type ids** → `getJiraProjectIssueTypesMetadata` for the
-  project key. Prefer passing `issueTypeName`; fall back to the numeric id only
-  if the name is rejected.
-- **Sprint field key is not universal.** The default `customfield_10020` returns
-  `null` on some instances even for issues that are in a sprint; another key
-  (e.g. `customfield_10021`) may hold it. Discover the real one by querying an
-  issue already in the target sprint (`fields: ["*all"]`) and reading which
-  custom field carries the sprint object.
-- **Sprint value is the numeric sprint id**, not the sprint object, e.g.
-  `additional_fields: { "<sprintFieldKey>": 1545 }`.
-- **Finding the sprint id**: `searchJiraIssuesUsingJql`,
-  jql `project = <KEY> AND sprint = "Sprint N"`, `fields: ["*all"]`,
-  `maxResults: 1`; read the sprint object's `id`. JQL matches the short name even
-  when the real name is prefixed. The `*all` response is large — do this in a
-  subagent that returns only the field key + sprint id.
+## Connector fallback
+
+Only when `jira` is not installed and cannot be installed now, and say so in
+the recap. Through the Atlassian connector: `cloudId` from
+`getAccessibleAtlassianResources`; `createJiraIssue` with `issueTypeName`
+(the numeric id via `getJiraProjectIssueTypesMetadata` only if the name is
+rejected); the assignee `accountId` via `lookupJiraAccountId` (confirm on more
+than one match); the sprint as its numeric id under the instance's sprint
+field key, discovered by reading an issue already in the target sprint with
+`fields: ["*all"]` in a subagent (the default `customfield_10020` is `null` on
+some instances); `contentFormat: "markdown"` for the body.
 
 ## Constraints
 
@@ -219,6 +238,6 @@ Instance ids drift and differ per Jira site — **discover, don't assume.**
 
 ## Output
 
-- The created issue key and `webUrl`.
+- The created issue key and URL.
 - A one-line recap of issue type + assignee + sprint.
 - Any assumption (e.g. an unconfirmed root cause) the user still needs to verify.

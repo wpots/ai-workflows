@@ -97,6 +97,7 @@ cross-reference, so it still needs its own line.
 - `release notes`, `releasenotes`, `release notes voor de klant`, `klantupdate`, `wat is er live` -> `skills/release-notes` (canonical), `commands/release-notes.md` (fallback); the customer-facing half of a release — `skills/close-sprint` writes the internal changelog, and both it and `skills/sprint-demo` hand off here after their review pause
 - `run checks`, `run-checks`, `quality checks` -> `skills/run-checks` (canonical), `commands/run-checks.md` (fallback)
 - `new component`, `scaffold`, `create component` -> `skills/scaffold-component` (canonical), `commands/scaffold-component.md` (fallback)
+- `service cli`, `jira cli`, `glab`, `axiom query`, `via de cli`, `cli first` -> `skills/service-cli` (skill only; the recipes behind the CLI-first rule in `docs/tooling.md` — the tracker-reading skills and `skills/jira-ticket` route Jira through it, and the plugin's PreToolUse hook sends a denied connector call here)
 - `apply ai-workflows`, `setup ai-workflows`, `generate conventions`, `refresh project config` -> `skills/setup-ai-workflows` (canonical), `commands/setup-ai-workflows.md` (fallback); the config lane only — a whole new project starts with `skills/start-project`
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `skills/sprint-demo` (canonical), `commands/sprint-demo.md` (fallback)
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `skills/sprint-planning` (canonical), `commands/sprint-planning.md` (fallback)
@@ -226,7 +227,28 @@ These return a scoped subgraph, usually much smaller than raw grep output or `GR
 
 - Use the Read, Grep, and Glob tools for reading and searching files, not
   `cat`/`grep`/`find` via Bash.
-- Bash is meant for: git, glab, jira, npm/npx, and project scripts.
+- Bash is meant for: git, glab, jira, axiom, npm/npx, and project scripts.
+
+### Service access: CLI first, connector for the remainder
+
+Reach GitLab, Jira and Axiom through their CLI (`glab`, `jira`, `axiom`)
+before any MCP connector tool, and load `skills/service-cli` for the recipes
+(auth check, read-only subcommands, `--raw | jq` projections, the write
+commands). A CLI runs in every harness and in headless runs, every teammate
+has it from new-device-setup, its commands are allowlisted per subcommand,
+and the call stays in the transcript for a human to re-run. A connector tool
+is the fallback only for what the CLI cannot reach:
+
+- GitLab: nothing — `glab` covers it.
+- Jira: Confluence, the Teamwork Graph, Compass, Loom.
+- Axiom: monitors, dashboards, notifiers, spotlight, the service map — the
+  CLI stops at datasets, APL queries and ingest.
+
+The plugin's PreToolUse hook enforces this: an Atlassian or Axiom connector
+call with a CLI equivalent is denied, with the command to run instead, as
+long as that CLI is installed. When the CLI is missing the call goes through
+— say so in the recap. `AIW_ALLOW_MCP=1` in the environment switches the hook
+off for a session when the CLI itself is broken.
 
 ### Autonomy: write commands that match the allowlist
 

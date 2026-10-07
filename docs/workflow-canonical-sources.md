@@ -45,6 +45,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `dependency-hotfix` | skill only | `skills/dependency-hotfix/SKILL.md` | none | n/a |
 | `start-project` | skill only | `skills/start-project/SKILL.md` | none | n/a |
 | `user-journeys` | skill only | `skills/user-journeys/SKILL.md` | none | n/a |
+| `service-cli` | skill only | `skills/service-cli/SKILL.md` | none | n/a |
 
 ## Interpretation
 

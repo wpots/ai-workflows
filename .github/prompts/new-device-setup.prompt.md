@@ -15,7 +15,9 @@ Before starting, verify these are installed:
 2. `node` / `npm` — `node --version && npm --version`
 3. `rsync` — `rsync --version`
 4. `glab` — `glab --version` (`brew install glab`)
-5. `jira` — `jira version` (`brew install jira-cli`)
+5. `jira` — `jira version` (`brew install ankitpokhrel/jira-cli/jira-cli`)
+6. `axiom` — `axiom version` (`brew install --cask axiomhq/tap/axiom`); only
+   on machines that work on a project with Axiom logging
 
 If any are missing, stop and tell the user what to install.
 
@@ -24,15 +26,18 @@ Then authenticate the CLIs (once per machine):
 - `glab auth login` with a **Personal Access Token** (scopes `api` +
   `write_repository`) — PATs avoid OAuth refresh races.
 - `jira init` with a Jira API token.
+- `axiom auth login` with a personal API token, when installed.
 - `dotenvx` needs no install or auth — commands run it via `npx dotenvx`.
-- claude.ai connectors (Atlassian, Figma) are authorized per user in the
-  claude.ai connector settings — the Jira- and Figma-backed skills depend on
-  them.
+- claude.ai connectors (Atlassian, Figma, Axiom) are authorized per user in the
+  claude.ai connector settings. They cover only what the CLI cannot reach
+  (Confluence, the Teamwork Graph, Figma, Axiom monitors and dashboards); the
+  Jira-backed skills run on the `jira` CLI.
 
 Verify the auth actually works before moving on: `glab auth status` and
-`jira me` must both succeed.
+`jira me` must both succeed (`axiom auth status` too, when installed).
 
-The CLI-vs-MCP doctrine and the full tooling table live in `docs/tooling.md`.
+The CLI-vs-MCP doctrine and the full tooling table live in `docs/tooling.md`;
+the per-service recipes in `skills/service-cli`.
 
 ## Steps
 

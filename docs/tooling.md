@@ -7,12 +7,21 @@ the old `mcp/servers.json` + `mcp/README.md` global definitions.
 ## The Doctrine
 
 - **CLI-first** for anything scriptable or headless: git, GitLab (`glab`),
-  tracker access in scripts (`jira`), secrets (`npx dotenvx`). CLIs work in
-  every harness and in CI, and their commands match the permissions
-  allowlist, so autonomous runs never stall on them.
-- **MCP** for what a CLI cannot give: live browser control (`playwright`,
-  `chrome-devtools`), design context (Figma), and OAuth-gated SaaS where the
-  claude.ai connector already holds the session (Atlassian, Slack).
+  Jira (`jira`), Axiom (`axiom`), secrets (`npx dotenvx`). CLIs work in every
+  harness and in CI, their commands match the permissions allowlist per
+  subcommand (so read-only skills can be held to read-only), and the call
+  stays in the transcript for a human to re-run. The recipes per service live
+  in `skills/service-cli`.
+- **MCP / connector** for what a CLI cannot give: live browser control
+  (`playwright`, `chrome-devtools`), design context (Figma), and the remainder
+  of a service its CLI does not cover — Confluence and the Teamwork Graph on
+  the Atlassian connector, monitors and dashboards on the Axiom connector.
+  "The connector already holds the session" is not a reason by itself: it
+  holds it for one person in one harness.
+- **Enforced, not only preferred**: the plugin's PreToolUse hook
+  (`scripts/prefer_service_cli.py`) denies an Atlassian or Axiom connector
+  call that has a CLI equivalent while that CLI is installed, naming the
+  command to run instead. `AIW_ALLOW_MCP=1` switches it off for a session.
 - **Secrets never land in config or transcripts**: MCP definitions reference
   env vars (`${VAR}` expansion); commands read secrets with
   `npx dotenvx get`.
@@ -24,9 +33,10 @@ Installed and authenticated during `commands/new-device-setup.md`:
 | Tool | Install | Auth | Used by |
 | ---- | ------- | ---- | ------- |
 | `glab` | `brew install glab` | `glab auth login` with a Personal Access Token (scopes `api` + `write_repository`; PATs avoid OAuth refresh races) | create-pr, watch-mrs, mr-merged, address-review-comments, the MR contribution rule |
-| `jira` | `brew install jira-cli` | `jira init` with a Jira API token | scripted tracker access where the Atlassian connector is unavailable (headless/CI) |
+| `jira` | `brew install ankitpokhrel/jira-cli/jira-cli` | `jira init` with a Jira API token | the tracker path of jira-ticket, close-sprint, sprint-planning, refinement, sprint-demo, mr-merged |
+| `axiom` | `brew install --cask axiomhq/tap/axiom` | `axiom auth login` with a personal API token (`AXIOM_TOKEN` + `AXIOM_ORG_ID` headless) | log and metric lookups during maintenance and incident triage |
 | `dotenvx` | none — runs via `npx dotenvx` | per-project `.env` files | secret reads in commands without pasting values |
-| claude.ai connectors | — | authorize Atlassian and Figma once per user in claude.ai connector settings | jira-ticket, sprint/refinement skills (Jira); component-spec and design work (Figma) |
+| claude.ai connectors | — | authorize Atlassian, Figma and Axiom once per user in claude.ai connector settings | the connector-only remainder per service (Confluence, Teamwork Graph; Axiom monitors and dashboards — see `skills/service-cli`); component-spec and design work (Figma) |
 
 ## Project Level — Emitted by setup-ai-workflows
 

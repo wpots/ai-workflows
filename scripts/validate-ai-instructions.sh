@@ -27,11 +27,12 @@ else
   exit 1
 fi
 
-echo "Running process-termination approval hook tests..."
+echo "Running hook tests (process-termination approval, CLI-first connector gate)..."
 if command -v python3 >/dev/null 2>&1; then
   python3 "$ROOT_DIR/scripts/test_process_termination_approval.py"
+  python3 "$ROOT_DIR/scripts/test_prefer_service_cli.py"
 else
-  echo "python3 not found; process-termination approval hook tests require Python 3." >&2
+  echo "python3 not found; the hook tests require Python 3." >&2
   exit 1
 fi
 

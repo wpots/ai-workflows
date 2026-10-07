@@ -97,14 +97,14 @@ the checkout at all (the skill's background-run fallback).
 ## Phase 1 — Fetch Jira tickets (read-only)
 
 A live Jira connection is a **hard precondition** — closing a sprint on local
-docs alone produces an inaccurate changelog. Use the **most efficient method
-available**: the **Atlassian MCP** if it is connected (preferred), otherwise the
-**`jira` CLI** (`ankitpokhrel/jira-cli`). If neither connects, **stop** and help
-the user connect before continuing (MCP: authenticate the Atlassian connector;
-CLI: `brew install ankitpokhrel/jira-cli/jira-cli` then `jira init`). Never fall
-back to local-only.
+docs alone produces an inaccurate changelog. CLI first: the **`jira` CLI**
+(`ankitpokhrel/jira-cli`; recipes in `skills/service-cli/references/jira.md`).
+The Atlassian connector only when the CLI is not installed and cannot be
+installed now (`brew install ankitpokhrel/jira-cli/jira-cli` then `jira init`)
+— and say so in the recap. If neither connects, **stop** and help the user
+connect before continuing. Never fall back to local-only.
 
-With the CLI:
+With the CLI (`--raw | jq` instead of `--plain` when the list is long):
 
 ```bash
 # Verify config
@@ -122,8 +122,8 @@ jira issue list --plain --no-truncate \
 jira issue view RFW-XX --plain
 ```
 
-With the MCP, query the same set by JQL and request status, assignee,
-fixVersion, and linked issues.
+Without the CLI, query the same set by JQL through the connector and request
+status, assignee, fixVersion, and linked issues.
 
 Capture for each ticket: key, summary, Jira status, assignee, fixVersion,
 linked issues.

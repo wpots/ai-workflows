@@ -122,6 +122,7 @@ cross-reference, so it still needs its own line.
 - `release notes`, `releasenotes`, `release notes voor de klant`, `klantupdate`, `wat is er live` -> `skills/release-notes` (canonical), `commands/release-notes.md` (fallback); the customer-facing half of a release — `skills/close-sprint` writes the internal changelog, and both it and `skills/sprint-demo` hand off here after their review pause
 - `run checks`, `run-checks`, `quality checks` -> `skills/run-checks` (canonical), `commands/run-checks.md` (fallback)
 - `new component`, `scaffold`, `create component` -> `skills/scaffold-component` (canonical), `commands/scaffold-component.md` (fallback)
+- `service cli`, `jira cli`, `glab`, `axiom query`, `via de cli`, `cli first` -> `skills/service-cli` (skill only; the recipes behind the CLI-first rule in `docs/tooling.md` — the tracker-reading skills and `skills/jira-ticket` route Jira through it, and the plugin's PreToolUse hook sends a denied connector call here)
 - `apply ai-workflows`, `setup ai-workflows`, `generate conventions`, `refresh project config` -> `skills/setup-ai-workflows` (canonical), `commands/setup-ai-workflows.md` (fallback); the config lane only — a whole new project starts with `skills/start-project`
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `skills/sprint-demo` (canonical), `commands/sprint-demo.md` (fallback)
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `skills/sprint-planning` (canonical), `commands/sprint-planning.md` (fallback)
@@ -160,10 +161,14 @@ These return a scoped subgraph, usually much smaller than raw grep output or `GR
 
 ### Integration Tooling
 
-The CLI-vs-MCP doctrine lives in `docs/tooling.md`.
+The CLI-vs-MCP doctrine lives in `docs/tooling.md`; the per-service recipes
+in `skills/service-cli`.
 
-- Machine-level CLIs (`glab`, `jira`, `dotenvx`) install once per developer
-  via `commands/new-device-setup.md`.
+- CLI first: GitLab through `glab`, Jira through `jira`, Axiom through
+  `axiom`. A connector tool only for what the CLI cannot reach (Confluence
+  and the Teamwork Graph; Axiom monitors and dashboards).
+- Machine-level CLIs (`glab`, `jira`, `axiom`, `dotenvx`) install once per
+  developer via `commands/new-device-setup.md`.
 - Project-level MCP servers are per project: a checked-in, env-var-based
   `.mcp.json` (plus `.cursor/mcp.json`), emitted by `setup-ai-workflows`.
 - Prefer environment variables for secrets — never literal values in config.

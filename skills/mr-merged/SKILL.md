@@ -81,10 +81,17 @@ draft instead of inventing steps ("no user-facing change; verify by …").
 
 ## Step 4 — Post after approval
 
-Show the draft. After the go: resolve the `cloudId` via
-`getAccessibleAtlassianResources` (instance ids drift — discover at runtime,
-never hardcode; see the gotchas in `skills/jira-ticket`) and post with
-`addCommentToJiraIssue`. Report the posted comment URL in the recap.
+Show the draft. After the go, write it to a file in the scratchpad and post it
+with the CLI (`skills/service-cli/references/jira.md`):
+
+```bash
+jira issue comment add <KEY> -T <path/to/comment.md> --no-input
+```
+
+Only when `jira` is not installed and cannot be installed now: resolve the
+`cloudId` via `getAccessibleAtlassianResources` (instance ids drift — discover
+at runtime, never hardcode) and post with `addCommentToJiraIssue`, and say in
+the recap that the connector was used. Report the ticket URL in the recap.
 
 ## Step 5 — Propose the transition and clean up
 
@@ -139,7 +146,8 @@ never hardcode; see the gotchas in `skills/jira-ticket`) and post with
 
 ## Step 6 — Degrade honestly
 
-No tracker available (no MCP connection, no ticket key, or the lookup fails):
+No tracker available (no `jira` CLI and no connector, no ticket key, or the
+lookup fails):
 still do the cleanup, and report the "How to test this"
 comment as **drafted but undelivered** — include the draft in the recap so it
 can be pasted by hand. Never skip the draft just because posting is
