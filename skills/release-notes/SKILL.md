@@ -66,3 +66,5 @@ dropped internal items and not-yet-live items awaiting the user's decision.
 - Projects that version their releases (`npm version`, a `v<x.y.z>` tag) run
   it per tag: the notes are the customer-facing half of that release, the
   sprint changelog stays the internal half.
+- `skills/release` hands off here after the promotion, for the new tag's
+  range. Its live mail takes the overview from this skill's notes file.

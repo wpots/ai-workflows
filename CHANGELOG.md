@@ -17,6 +17,28 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Added
 
+- `skills/release` — runs a production release around the project's own
+  release runbook, which keeps deciding the mechanics. Up front it asks who
+  gets the release mails, proposing the recipients of the previous release
+  mail, and whether to share in the project's Slack channel. It drafts a
+  "release is starting" mail with a one-hour indication and waits until the
+  user has sent it before the promotion. After the runbook's promotion, tag
+  and back-sync, it hands the notes to `skills/release-notes` and drafts the
+  "release is live" reply in the same thread, with the overview of changes.
+  Mail is drafted, never sent. Tickets from the range are classified as
+  shipped, context or partial, so a ticket with an open MR or an unanswered
+  PO question stays open. Shipped tickets get the version and move to Done.
+  Without the Jira rights to create a version, they get the label `vX.Y.Z`
+  instead. It ends by checking whether `skills/close-sprint` ran for the
+  period and by cleaning up stale branches and worktrees after per-item
+  approval. Also covers the after-the-fact case of versioning and closing
+  the tickets of an earlier tag. On a project without versions it proposes
+  introducing them once, as a setup MR plus a baseline tag, so the next
+  release is the first versioned one. It records the decision in
+  `CONVENTIONS.md`, also when the answer is "no versions"
+  (`references/introduce-versioning.md`). Jira goes CLI first through
+  `skills/service-cli`; only version creation uses the connector. Adds
+  evals 1–4.
 - `skills/dependency-hotfix` — picks up a critical from the Greenberry
   dependency scanner and ships it as a hotfix in one run. It reads the
   scanner's `report.json` through the GitLab artifacts API, since the report
