@@ -37,6 +37,29 @@
         "The output does not delete the only remaining copy of the pptx",
         "The output moves the pptx to a place the user names and records it in the demo record"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Close sprint 18. (Context the agent can discover: the session is interactive and can write to the checkout; `git status` shows a staged edit to `docs/sprint18/architecture.drawio` and an unstaged `next-env.d.ts`; a project memory says 'several sessions share this checkout — commit from a worktree, never from the main checkout'.)",
+      "expected_output": "The run stays in the user's checkout on the integration branch, because the user edits the changelog, gaps document and moved BLIs there during the review. It names the two dirty files, says the staged drawio sits in the sprint folder the close will clear out, and asks how to handle it before going on. It does not create a worktree or enter one, and it does not read the worktree memory as applying to a close.",
+      "assertions": [
+        "The output runs the close in the user's own checkout",
+        "The output does not create or enter a worktree",
+        "The output names the dirty files and asks before going on",
+        "The output flags that the staged file sits in the sprint folder the close will move or remove"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Close sprint 19. (Context the agent can discover: 30 delivered BLIs move to `docs/sprint-19/`; `docs/adr/0004-x.md` links `../backlog/RFW-131-feat-a.md`, which moves; the moved `RFW-131-feat-a.md` links its sibling `RFW-140-feat-b.md`, which stays in `docs/backlog/` as spillover; the staying `RFW-140-feat-b.md` links `RFW-131-feat-a.md`; `docs/backlog/README.md` lists both; a test file comment names `docs/backlog/RFW-131-feat-a.md`; `docs/todo/old.md` links a source file that was renamed two sprints ago.)",
+      "expected_output": "Before the first move the run snapshots the tree. After the moves it lists the relative links whose target is missing now but resolved in the snapshot, and fixes them: the ADR link becomes `../sprint-19/RFW-131-feat-a.md`, the moved item's sibling link becomes `../backlog/RFW-140-feat-b.md`, and the staying item's link becomes `../sprint-19/RFW-131-feat-a.md`. It removes RFW-131's row from the backlog index. It leaves the test file alone and lists it under Actions in the gaps document for its own MR. It does not touch the link in `docs/todo/old.md`, which was broken before the close.",
+      "assertions": [
+        "The output rewrites the ADR link to the moved item's new path",
+        "The output rewrites the moved item's link to its staying sibling as ../backlog/",
+        "The output rewrites the staying item's link to the moved sibling as ../sprint-19/",
+        "The output does not edit the test file and records it as a follow-up in the gaps document",
+        "The output leaves links that were broken before the close untouched"
+      ]
     }
   ]
 }
