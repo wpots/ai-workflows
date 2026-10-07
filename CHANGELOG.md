@@ -15,6 +15,26 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+### Added
+
+- `skills/dependency-hotfix` — picks up a critical from the Greenberry
+  dependency scanner and ships it as a hotfix in one run. It reads the
+  scanner's `report.json` through the GitLab artifacts API, since the report
+  site sits behind Pages access control. It bumps to the lowest fixing version
+  in the same major, preferring the version development already runs. The MR
+  to production gets GitLab auto-merge on the reviewed head, and the deploy is
+  read back. Production is then back-merged into acceptance and development.
+  When `squash_option` is `always`, that back-merge is a fast-forward or a
+  two-parent merge-commit push, because a squashed MR would break the
+  ancestry the next release needs; otherwise it is an MR with auto-merge and
+  squash off. A Slack thread follows the transitions, Monitor loops watch the
+  MR, the deploy and the back-merges, and cleanup ends the run. One go covers
+  every write, and a later invocation resumes from GitLab's state. Majors,
+  migrations and source-code conflicts stop the run. Adds evals 1–3.
+- `rules/git-flow.md` — names that back-merge push as the one exception to
+  "never push to a protected long-lived branch" and "never merge with a merge
+  commit".
+
 ### Changed
 
 - `skills/address-review-comments` — a bare MR number no longer resolves to

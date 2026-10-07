@@ -106,6 +106,7 @@ cross-reference, so it still needs its own line.
 - `review code`, `code review`, `review changes` -> `skills/code-review` (canonical), `commands/review-code.md` (fallback)
 - `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen`, `prune sprint docs`, `compact support months` -> `skills/compact-sprint` (canonical), `commands/compact-sprint.md` (fallback); runs after `skills/close-sprint`, never on the current or previous sprint (or, in support mode, month)
 - `datocms migration`, `cms migration`, `fork cms environment`, `change the cms schema` -> `skills/datocms-migration` (skill only; the DatoCMS counterpart to `skills/migration-check`, which covers Payload/Postgres)
+- `dependency hotfix`, `critical hotfix`, `security hotfix`, `pak de critical op`, `scanner critical`, `critical uit de dependency scanner` -> `skills/dependency-hotfix` (skill only; criticals on production only — highs and lower go to `skills/npm-maintenance` on development)
 - `commit message`, `write commit`, `git commit` -> `skills/commit-message` (canonical), `commands/commit-message.md` (fallback)
 - `component spec`, `spec component`, `write spec`, `document component api` -> `skills/component-spec` (skill only)
 - `create pr`, `open pr`, `submit pr` -> `skills/create-pr` (canonical), `commands/create-pr.md` (fallback)

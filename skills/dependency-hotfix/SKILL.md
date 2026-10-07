@@ -1,0 +1,321 @@
+---
+name: dependency-hotfix
+description: Ship a critical npm vulnerability from the Greenberry dependency-scanner report as a hotfix — minimal bump on a hotfix branch off the production branch, MR to production with GitLab auto-merge, then back-merge production into acceptance and development, with a Slack thread for the team, a Monitor loop over the MR, the deploy and the back-merges, and worktree and branch cleanup at the end. Resumable across sessions. Use when a critical from the dependency scanner (or any critical advisory running on production) is picked up ("pak de critical op", "critical hotfix", "dependency hotfix", "security hotfix naar main", "scanner critical"), or when an earlier hotfix run needs resuming.
+---
+
+# Dependency hotfix
+
+A critical runs on production, so its fix goes to production first — not
+through development and the next release. The scanner's policy gives a
+critical 24–72 hours. This skill owns the whole path in one run: read the
+report, bump, MR with auto-merge, deploy read-back, back-merge into the other
+long-lived branches, tell the team, clean up.
+
+One project per invocation. Criticals only: highs and lower go through
+`skills/npm-maintenance` on development, as regular maintenance.
+
+## What this skill writes — one go covers it
+
+Everything outward-facing is listed in the plan of Step 3 and approved there
+in **one** go. Nothing is written before it, and nothing beyond it:
+
+- a hotfix branch, its MR to the production branch, and GitLab auto-merge on
+  that MR (the merge itself still waits for a human approval and a green
+  pipeline);
+- the back-merge of production into acceptance and development, as pushes or
+  MRs depending on the project's merge settings (Step 3);
+- the version, changelog section, tag and GitLab Release, when the project's
+  hotfix runbook asks for them;
+- Slack posts in the project's channel: one parent message, then thread
+  replies.
+
+Never: approve the hotfix MR yourself, merge past a red pipeline, force-push,
+push to the production branch directly, bump across a major, or resolve a
+conflict in source code. Each of those stops the run and reports.
+
+## Step 0 — Resume or start
+
+A run spans hours (it waits for a reviewer), so look for an earlier one first.
+Hotfix branches are named `hotfix/deps-<package>-<version>`, or
+`hotfix/deps-<yyyy-mm-dd>` when several packages move together.
+
+```sh
+git fetch origin
+glab api "projects/<enc-path>/merge_requests?state=all&search=deps&in=title&order_by=updated_at&per_page=20" \
+  | jq '.[] | select(.source_branch | test("^(hotfix/deps-|backmerge/)")) | {iid, state, source_branch, target_branch, web_url}'
+```
+
+| Found | Resume at |
+| --- | --- |
+| open hotfix MR | Step 6 (Slack: reply in the existing thread when its link is in the MR description) |
+| merged hotfix MR, production not yet an ancestor of acceptance or development | Step 8 |
+| merged and back-merged | Step 9 — verify and clean up |
+| nothing | Step 1 |
+
+## Step 1 — Read the scanner report
+
+The report site is behind GitLab Pages access control, so a CLI cannot read
+it. Read the JSON artifact through the API instead — same data, every branch:
+
+```sh
+# newest scheduled scan
+glab api "projects/greenberrynl%2Fthe-greenhouse%2Fdependency-scanner/jobs/artifacts/main/raw/report.json?job=dependency-scan" > <scratch>/report.json
+# a specific scan: a report URL ending in /-/jobs/<id>/artifacts/report.html gives the job id
+glab api "projects/greenberrynl%2Fthe-greenhouse%2Fdependency-scanner/jobs/<id>/artifacts/report.json" > <scratch>/report.json
+```
+
+Select the project by its GitLab path:
+`jq '.projects[] | select(.path=="<group/path>")' <scratch>/report.json`.
+
+| Field | Meaning |
+| --- | --- |
+| `.branch` | production branch (`main`, or `master` when there is no `main`) |
+| `.findings[]` | production findings: `package`, `version`, `severity`, `fixedIn`, `id` (GHSA), `summary`, `isNew` |
+| `.byBranch.<branch>.findings[]` | the same for `acceptance` and `development` |
+| `.branches.diffs[]` | per package the version on each branch, the worst production severity, and `fixedOn` — branches that already carry the fix |
+| top-level `generatedAt` | scan time; Step 2 re-checks the live lockfile anyway |
+
+The scope is every production finding with `severity == "critical"`, grouped
+by package. No critical on production means this is not a hotfix: say so,
+show the development tier, and stop.
+
+**Target version per package.** The lowest version in the same major that
+fixes every advisory the scanner lists for that package (`fixedIn` is per
+advisory). When development already runs a version of the same major that is
+at least that high — `branches.diffs[].versions.development` — take
+development's version: it has been through CI there, and the back-merge then
+does not conflict on that package.
+
+## Step 2 — Verify against the live lockfile and the history
+
+- `git show origin/<production>:package-lock.json` still has the vulnerable
+  version. When someone already fixed it, stop and say so: the next scan will
+  catch up.
+- Read the package's history as `skills/npm-maintenance/SKILL.md` §1 step 5
+  prescribes. A reverted bump of the same package is a hard stop until its
+  reason is known.
+- Packages released in lockstep move together: `@next/*` and
+  `eslint-config-next` with `next`, `@payloadcms/*` with `payload`, and the
+  like. Name them in the plan.
+- The fix is a major, or there is no fix (`fixedIn` empty) → stop. A major
+  goes through the researched path of `skills/npm-maintenance/SKILL.md` §3; a
+  missing fix needs a mitigation decision from a human.
+- The package owns the database schema (Payload, Prisma, Drizzle) → the bump
+  can need a migration. Stop and ask: generating a migration is the user's
+  step, and a hotfix with a migration is their call.
+
+## Step 3 — Plan, then one go
+
+Read the project before planning:
+
+- **Merge settings**:
+  `glab api "projects/<enc-path>" | jq '{merge_method, squash_option, only_allow_merge_if_pipeline_succeeds, remove_source_branch_after_merge}'`.
+- **Long-lived branches**: which of `acceptance` and `development` exist
+  (`git ls-remote --heads origin`); missing ones are skipped.
+- **Hotfix runbook**: `docs/release-process.md`, or whatever `CONVENTIONS.md`
+  points to. It decides version bump, changelog section, tag, release,
+  deploy windows and how a deploy is verified. Without a runbook: add a
+  `Security` line to `CHANGELOG.md` when the project keeps one, and no
+  version, tag or release — say so in the recap.
+- **Slack channel**: the project's `CONVENTIONS.md` names it (for example a
+  `Slack` or `Notifications` entry with the channel id). When it does not,
+  ask once and offer to add the line to `CONVENTIONS.md` in the same MR.
+
+**Back-merge route.** Production must become an ancestor of acceptance and
+development again, or the next release cannot fast-forward and re-conflicts
+on every later release. A squashed MR copies the change but not the commit,
+so it never restores that:
+
+| `squash_option` | Route |
+| --- | --- |
+| `always` | **Push.** Fast-forward when the branch has nothing of its own; otherwise a merge commit with both parents, pushed. |
+| `never`, `default_off`, `default_on` | **MR with auto-merge**, squash off: a `backmerge/<production>-into-<branch>-<version>` branch cut from the target, containing the merge commit, so it fast-forwards under any `merge_method`. |
+
+The push route is the one deliberate exception to "never push to a protected
+long-lived branch" in `rules/git-flow.md`: it carries a commit that was
+already reviewed and merged, plus conflict resolution limited to the files
+Step 8 allows. When the target branch does not allow Developer pushes, the
+push route is unavailable: stop before Step 4 and report it.
+
+Then show one plan block and ask for the go with `AskUserQuestion`:
+
+```
+Project       greenberrynl/<client>/<site> · production branch main
+Critical      next 16.3.0 → 16.3.8 (GHSA-2xp9-…, GHSA-p293-…, GHSA-vcvr-…); with it @next/third-parties
+Branch        hotfix/deps-next-16.3.8 in ~/.worktrees/<repo>-hotfix-next
+MR            fix(deps): bump next to 16.3.8 for three critical RCE advisories → main, auto-merge armed
+Version       1.1.3 + CHANGELOG [1.1.3] Security, tag v1.1.3, GitLab Release (per docs/release-process.md)
+Back-merge    acceptance: fast-forward push · development: merge commit push (squash_option always)
+Slack         #<channel> — parent message below, thread replies on merge, live, failure
+Not in scope  33 high / 16 moderate on development → npm-maintenance
+```
+
+Include the draft parent message. No go, no writes.
+
+## Step 4 — Build the hotfix
+
+- Worktree from the production branch:
+  `git worktree add -b hotfix/deps-<package>-<version> ~/.worktrees/<repo>-hotfix-<slug> origin/<production>`.
+  The change *is* the dependency tree, so a symlinked `node_modules` cannot
+  work: clone the main checkout's tree copy-on-write (`cp -Rc`) and let the
+  package manager reconcile it, per the worktree rules in `CLAUDE.md`. Copy the
+  env files the build needs; they leave with the worktree.
+- Direct dependency: install the target version, keeping the range style
+  `package.json` already uses. Transitive: `npm update <package>` when the
+  parents' ranges allow it; otherwise an `overrides` entry pinned to the
+  target, and the MR says when it can go.
+- Never hand-edit a lockfile; never `--force`, `--legacy-peer-deps` or
+  `--ignore-scripts`. Read the lockfile diff: only the intended packages and
+  their own dependencies move. An unexpected major elsewhere stops the run.
+- Version, changelog, tag preparation as the runbook says. The changelog line
+  states the outcome for a reader who did not see the MR: "Next.js 16.3.0 →
+  16.3.8: closes three remote-code-execution advisories".
+- Validate with the project's own scripts, each on its own, reading exit
+  codes: lint, type-check, tests, and the **production build** — this goes
+  straight to production. Then `npm ls <package>` shows only fixed versions;
+  when `osv-scanner` is installed (the scanner's engine), scan the lockfile
+  with it and expect no critical.
+
+## Step 5 — Open the MR and arm auto-merge
+
+- Commit `fix(deps): bump <package> to <version>`, push, open the MR against
+  the production branch with the mechanics of `skills/create-pr/SKILL.md`
+  (conventional title, `ai:agent-authored` label, no `--reviewer`: a human
+  picks the reviewer, and the Slack message asks for one). Description: the
+  advisories with links, versions before and after, the scanner job, what was
+  validated, the back-merge plan, deploy notes.
+- Arm auto-merge on the reviewed head only:
+
+  ```sh
+  glab mr merge <iid> -R <group/path> --auto-merge --remove-source-branch --sha <head-sha> --yes
+  ```
+
+  Confirm with `glab api "projects/<enc-path>/merge_requests/<iid>" | jq '{merge_when_pipeline_succeeds, detailed_merge_status}'`.
+  Report what the API says, not what the command was meant to do.
+- When the runbook names a no-deploy window (nightly jobs, for example) and
+  the merge could land in it, arm auto-merge after the window instead.
+
+## Step 6 — Slack
+
+Post with the Slack connector, in the channel's working language — read its
+last few messages first.
+
+- **Parent message**, right after the MR exists: project, package and
+  versions, advisory ids with severity, the MR link, "needs one approval".
+  Keep its `ts`; every later post is a reply in that thread, and the thread
+  link goes into the MR description so a resumed run finds it.
+- **Thread replies on transitions only**: pipeline failed (job name),
+  merged and deploying, live on production (version, tag), back-merged,
+  blocked (conflict, failed deploy). One or two lines each.
+- No connector available: put the drafts in the recap, marked undelivered.
+
+## Step 7 — Monitor
+
+Three bounded loops, each with the `Monitor` tool, polling `glab api` every
+60 s and emitting one line per transition. The scripts are in
+`references/monitor-loops.md` (read it before arming the first loop).
+
+1. **Hotfix MR** until `merged` or `closed`: `detailed_merge_status` and
+   head-pipeline transitions. A Monitor expires after 30 minutes: re-arm while
+   the MR is open. When the session ends, GitLab's auto-merge still merges
+   server-side, and the next invocation resumes at Step 0.
+2. **Production pipeline** of the squash commit until it is terminal. Read the
+   deploy job's log, not only its status, then confirm on the platform the way
+   the runbook says (a hook job can be green while the host refused the
+   build — see Step 5 of `skills/mr-merged/SKILL.md`).
+3. **Back-merge pipelines** (Step 8), lighter: status only.
+
+On each event, tell the user in one line, and send a push notification for
+merged, live, and any failure. A failed pipeline or deploy stops the run at
+that point: report the failing job, post it in the thread, fix nothing on
+your own.
+
+## Step 8 — Back-merge
+
+After production deployed, and after the tag and release when the runbook
+asks for them. Pre-push hooks test the local working tree, not the pushed
+ref, so tag and back-merge pushes skip them (`--no-verify`); the target
+branch's CI runs on what was pushed.
+
+For acceptance, then development (each that exists):
+
+1. `git fetch origin`. Already contains production
+   (`git merge-base --is-ancestor origin/<production> origin/<branch>`) → skip.
+2. **Push route**:
+   - the branch has nothing of its own
+     (`git merge-base --is-ancestor origin/<branch> origin/<production>`):
+     `git push --no-verify origin origin/<production>:<branch>`;
+   - otherwise
+     `git merge-tree --write-tree --name-only origin/<branch> origin/<production>`.
+     Exit 0 prints the tree id:
+     `git commit-tree <tree> -p origin/<branch> -p origin/<production> -m "Merge branch '<production>' into <branch>"`,
+     then `git push --no-verify origin <sha>:<branch>`.
+3. **MR route**: cut `backmerge/<production>-into-<branch>-<version>` from
+   `origin/<branch>`, `git merge --no-ff origin/<production>`, push, open the
+   MR with `"squash": false`, arm auto-merge, watch it like loop 1.
+4. **Conflicts** (merge-tree exit 1, or `git merge` stops). Resolve in a
+   worktree on the target branch, and only these files:
+   - `package.json`: per dependency the higher version wins (a branch already
+     ahead keeps its own); `version` takes production's.
+   - lockfile: take the target branch's side, then regenerate it with the
+     package manager (`npm install --package-lock-only`). Never merge a
+     lockfile by hand.
+   - `CHANGELOG.md`: the hotfix section sits below `## [Unreleased]`; delete
+     from `[Unreleased]` any line the hotfix already shipped.
+
+   Then `npm ci`, type-check and tests, commit the merge, push (or open the
+   MR). A conflict in any other path stops the back-merge for that branch:
+   report the paths, post "back-merge into <branch> needs a human" in the
+   thread, and leave the branch untouched.
+5. Verify: `git merge-base --is-ancestor origin/<production> origin/<branch>`
+   holds for every long-lived branch.
+
+A push to acceptance deploys acceptance. That is intended: it now runs what
+production runs.
+
+## Step 9 — Verify, report, clean up
+
+- `git show origin/<production>:package-lock.json` carries the fixed versions
+  for every critical in scope. Do not trigger a scanner run by hand: it posts
+  to Slack, and its `report.json` becomes the baseline that decides what the
+  next run flags as new. The next scheduled scan confirms the tier change.
+- Final thread reply: live on production with the version, back-merged, and
+  what stays for regular maintenance.
+- Clean up as one batch (covered by the go):
+  1. `TaskStop` every Monitor of this run.
+  2. Each worktree: `git -C <path> status --short` must be clean (never remove
+     local work — report it), then `git worktree remove --force <path>`; the
+     copied env files go with it.
+  3. Local hotfix and back-merge branches: prove them merged the way Step 5 of
+     `skills/mr-merged/SKILL.md` describes for a squash merge, then
+     `git branch -D`. Delete a remote source branch that survived the merge.
+  4. Scratch report files.
+  5. Verify the worktree entries and local branches are gone.
+- Run needed intervention (corrections, re-steering, a workaround) → hand off
+  to `skills/improve-skill/SKILL.md` before closing out.
+
+## Recap
+
+| | |
+| --- | --- |
+| Critical(s) | package, versions, advisory ids |
+| Hotfix MR | link, merged at, squash sha |
+| Deploy | production pipeline + platform read-back, or ⚠️ with the quoted response |
+| Version | tag and release links, or "no runbook — none" |
+| Back-merge | per branch: fast-forward / merge commit / MR link, ancestor check ✅ |
+| Slack | thread link, or drafts marked undelivered |
+| Cleanup | monitors, worktrees, branches |
+| Not in scope | what remains for `skills/npm-maintenance`, with the development tier |
+
+## Constraints
+
+- Criticals on the production branch only; one project per run.
+- No major versions, no migrations, no source-code conflict resolution inside
+  a hotfix.
+- The hotfix MR always gets a human approval; auto-merge only removes the
+  wait after it.
+- The back-merge push route exists because squash would break the ancestry;
+  it is never used for new changes.
+- Session-scoped loops: GitLab's auto-merge survives the session, the
+  Monitors do not. Say so when the user expects the run to continue after
+  they close the laptop, and resume on the next invocation.
