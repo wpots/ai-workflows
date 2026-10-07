@@ -48,6 +48,20 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   follows `process.cwd()`, not `--prefix`), `node_modules` installed for
   another branch failing a repo-wide `tsc` hook on untouched files, and a
   crashed jest worker that is not a failing test. Adds evals 1 and 2.
+- `skills/close-sprint`, `commands/close-sprint.md` — an interactive close runs
+  in the user's own checkout, never in a worktree: the user edits the
+  changelog, gaps document and moved BLIs in their editor during the review.
+  A dirty tree is a question to ask (Phase 0 names each dirty file and the
+  ones the close will move), and the background-run worktree fallback is the
+  only exception.
+- `skills/close-sprint`, `commands/close-sprint.md` — Phase 5 snapshots the tree
+  before the BLI moves and afterwards sweeps the relative links the moves
+  broke, in all three directions: into `docs/backlog/` from ADRs, todos and
+  the backlog index, from moved items to siblings that stayed, and back. Links
+  that were broken before the close are left alone; a code comment naming a
+  moved path goes to the gaps document as a follow-up. The status rewrite
+  keeps the evidence that followed `done`, and a placeholder ticket key is
+  replaced when a tracker ticket names the item. Adds evals 4 and 5.
 
 ## [2.4.2] - 2026-10-05
 

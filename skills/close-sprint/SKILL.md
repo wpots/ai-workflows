@@ -29,6 +29,14 @@ share the same workflow; Copilot follows the runbook directly.
 - Always run from an up-to-date integration branch (`development` by default):
   check it out and fast-forward before any analysis. A feature branch is ahead
   of the integration branch and misclassifies delivered vs spillover work.
+- Run in the user's own checkout, never in a worktree you create: the user
+  edits the changelog, the gaps document and the moved BLIs in their editor
+  during the review. A dirty tree is a question to ask, and a project habit of
+  committing from worktrees does not apply to a close. The background-run
+  fallback below is the only exception.
+- After the BLI moves, sweep the relative links they broke in both directions
+  (runbook Phase 5): links into `docs/backlog/` from ADRs, todos and the
+  backlog index, and sibling links between moved and staying items.
 - The issue tracker is **read-only**. No comments, transitions, edits, or
   assignments.
 - Never run `git commit` — the user commits themselves (sole exception: the
@@ -55,9 +63,9 @@ share the same workflow; Copilot follows the runbook directly.
 ## Background runs (Claude Code)
 
 Background sessions may refuse Edit/Write in the shared checkout until the
-session isolates itself ("call EnterWorktree first" guard). When that guard is
-active, pick the route **before Phase 1** — not at the first write, after the
-analysis is already done:
+session isolates itself ("call EnterWorktree first" guard). Only when that
+guard is active — never in an interactive session — pick the route **before
+Phase 1**, not at the first write, after the analysis is already done:
 
 - Do not try to lift the guard from inside the session. The opt-out flag
   (`"worktree": { "bgIsolation": "none" }` in `.claude/settings.json`) is

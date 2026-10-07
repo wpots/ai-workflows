@@ -65,9 +65,17 @@ support-specific notes; everything else in this runbook applies unchanged:
 
 Closing a sprint means reporting what landed on the **integration branch**
 (`development` by default — confirm the project's main branch if unsure). Run
-the whole flow from there, not from a feature branch:
+the whole flow from there, not from a feature branch, and in the user's own
+checkout — the one they open in their editor. The user edits the changelog,
+the gaps document and the moved BLIs during the review (Phases 6–7); files in
+a worktree are out of their reach. So an interactive close never moves to a
+worktree: not to sidestep a dirty tree, and not because a project habit says
+to commit from one. The only worktree route is a session that cannot write to
+the checkout at all (the skill's background-run fallback).
 
 1. Verify a clean working tree (`git status --short`); stop and ask if dirty.
+   Name each dirty file, and say which ones the close will move or delete — a
+   staged edit inside the sprint folder needs the user's call before Phase 5b.
 2. Check out the integration branch and bring it up to date with the remote:
    ```bash
    git checkout development
@@ -195,12 +203,20 @@ the sprint being closed. As each item is resolved, remove it:
 
 ## Phase 5 — Move delivered BLIs into the sprint folder
 
+Before the first move, snapshot the tree for the link sweep below:
+`git archive --format=tar -o "$TMPDIR/pre-close.tar" HEAD`, extracted into a
+scratch folder.
+
 For each ticket classified `delivered`:
 
 1. `git mv docs/backlog/<TICKET>-*.md docs/sprint-<N>/<TICKET>-*.md`
    (create `docs/sprint-<N>/` if missing).
 2. Update the BLI:
-   - `## Status` → `Delivered in Sprint <N>.`
+   - `## Status` → `Delivered in Sprint <N>.` When the old status carried
+     evidence after `done` (`done — merged … as <sha> (MR !N); …`), keep that
+     evidence after the sentence.
+   - `## Ticket` → when it still holds a placeholder key (`<KEY>-TBD`) and a
+     tracker ticket names this file as its spec, write that key.
    - `## Authors` → populate from Jira assignee plus git commit authors.
      - Primary: assignee from `jira issue view <TICKET> --plain`.
      - Additional: unique committers from
@@ -212,6 +228,19 @@ For each ticket classified `delivered`:
 
        - Wieteke Pots <wieteke.pots@greenberry.nl>
        ```
+
+After the moves, **sweep the links they broke.** A move out of `docs/backlog/`
+breaks relative links three ways: documents that link `../backlog/<moved>.md`
+(ADRs, todos, specs, the backlog index), moved BLIs that link a sibling that
+stayed (`<file>.md` → `../backlog/<file>.md`), and staying BLIs that link a
+moved sibling (`<file>.md` → `../sprint-<N>/<file>.md`). A big sprint breaks
+hundreds. List every relative markdown link under `docs/` whose target is
+missing now but resolves in the snapshot — that leaves out links that were
+already broken — and fix those. In a file where every `../backlog/` link points
+at a moved item, one replace-all of the prefix does it. Remove the delivered
+rows from the backlog index and point it at the changelog. A code comment, test
+or fixture that names a moved BLI's path is code: list it under Actions in the
+gaps document for its own MR.
 
 Spillover and partial BLIs stay in `docs/backlog/` or `docs/refine/` — do not
 move them.
