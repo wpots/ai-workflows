@@ -17,7 +17,11 @@ One project per invocation. Criticals only: highs and lower go through
 ## What this skill writes — one go covers it
 
 Everything outward-facing is listed in the plan of Step 3 and approved there
-in **one** go. Nothing is written before it, and nothing beyond it:
+in **one** go. Nothing leaves the machine before it, and nothing beyond it.
+The local part of Step 4 — worktree, install, validation — is reversible, so
+run it before asking: the go then covers a change that is already verified.
+
+The go covers:
 
 - a hotfix branch, its MR to the production branch, and GitLab auto-merge on
   that MR (the merge itself still waits for a human approval and a green
@@ -26,8 +30,7 @@ in **one** go. Nothing is written before it, and nothing beyond it:
   MRs depending on the project's merge settings (Step 3);
 - the version, changelog section, tag and GitLab Release, when the project's
   hotfix runbook asks for them;
-- Slack posts in the project's channel: one parent message, then thread
-  replies.
+- Slack posts in `#merge_requests`: one parent message, then thread replies.
 
 Never: approve the hotfix MR yourself, merge past a red pipeline, force-push,
 push to the production branch directly, bump across a major, or resolve a
@@ -117,9 +120,10 @@ Read the project before planning:
   deploy windows and how a deploy is verified. Without a runbook: add a
   `Security` line to `CHANGELOG.md` when the project keeps one, and no
   version, tag or release — say so in the recap.
-- **Slack channel**: the project's `CONVENTIONS.md` names it (for example a
-  `Slack` or `Notifications` entry with the channel id). When it does not,
-  ask once and offer to add the line to `CONVENTIONS.md` in the same MR.
+- **Slack channel**: always `#merge_requests` (`C050SLLPVFU`), the
+  Greenberry-wide channel where every MR is announced for review. Do not ask
+  and do not use a project channel: the thread is about an MR, and reviewers
+  watch that one channel.
 
 **Back-merge route.** Production must become an ancestor of acceptance and
 development again, or the next release cannot fast-forward and re-conflicts
@@ -146,11 +150,12 @@ Branch        hotfix/deps-next-16.3.8 in ~/.worktrees/<repo>-hotfix-next
 MR            fix(deps): bump next to 16.3.8 for three critical RCE advisories → main, auto-merge armed
 Version       1.1.3 + CHANGELOG [1.1.3] Security, tag v1.1.3, GitLab Release (per docs/release-process.md)
 Back-merge    acceptance: fast-forward push · development: merge commit push (squash_option always)
-Slack         #<channel> — parent message below, thread replies on merge, live, failure
+Verified      type-check 0 · tests green · production build green (scratch DB, production schema)
+Slack         #merge_requests — parent message below, thread replies on merge, live, failure
 Not in scope  33 high / 16 moderate on development → npm-maintenance
 ```
 
-Include the draft parent message. No go, no writes.
+Include the draft parent message. No go, nothing leaves the machine.
 
 ## Step 4 — Build the hotfix
 
@@ -159,14 +164,25 @@ Include the draft parent message. No go, no writes.
   The change *is* the dependency tree, so a symlinked `node_modules` cannot
   work: clone the main checkout's tree copy-on-write (`cp -Rc`) and let the
   package manager reconcile it, per the worktree rules in `CLAUDE.md`. Copy the
-  env files the build needs; they leave with the worktree.
-- Direct dependency: install the target version, keeping the range style
-  `package.json` already uses. Transitive: `npm update <package>` when the
+  env files the build needs; they leave with the worktree. Run the package
+  manager through the Node version the project pins (see
+  `skills/npm-maintenance/SKILL.md` §1). Inside the sandbox the user's npm
+  cache is read-only (`EPERM` under `~/.npm/_cacache`): run the install
+  outside the sandbox, or pass `--cache <scratch dir>`; never `sudo chown`.
+- Direct dependency: install the **exact** target version —
+  `npm install next@16.3.8`, never `next@^16.3.8`. A range resolves to the
+  newest matching release: on the first run `^16.3.8` installed a 16.4.0
+  published that week, a framework minor nobody had tested. npm still saves
+  the caret in `package.json`. Transitive: `npm update <package>` when the
   parents' ranges allow it; otherwise an `overrides` entry pinned to the
   target, and the MR says when it can go.
 - Never hand-edit a lockfile; never `--force`, `--legacy-peer-deps` or
-  `--ignore-scripts`. Read the lockfile diff: only the intended packages and
-  their own dependencies move. An unexpected major elsewhere stops the run.
+  `--ignore-scripts`. Read the lockfile diff per entry, not per line: only the
+  intended packages and their own dependencies may change version. An
+  unexpected major elsewhere stops the run. Flag-only changes (`dev: true`
+  dropped on optional platform binaries, a nested optional peer removed) are
+  the bumped package's new graph when development's lockfile, which already
+  runs that version, shows the same flags — check it there.
 - Version, changelog, tag preparation as the runbook says. The changelog line
   states the outcome for a reader who did not see the MR: "Next.js 16.3.0 →
   16.3.8: closes three remote-code-execution advisories".
@@ -175,6 +191,20 @@ Include the draft parent message. No go, no writes.
   straight to production. Then `npm ls <package>` shows only fixed versions;
   when `osv-scanner` is installed (the scanner's engine), scan the lockfile
   with it and expect no critical.
+- **The build prerenders against the local database.** That database usually
+  carries the schema of whatever branch the developer works on, not
+  production's, and the build then dies on `column … does not exist` — an
+  environment mismatch, not the bump. Build against a scratch database
+  instead: `createdb` a new one in the local Postgres container, point only
+  the worktree's copied env file at it (rewrite the database name with a
+  small script so the URL, which carries the password, is never printed),
+  run the project's migrate command — the production branch's migrations —
+  and build. The developer's own database stays untouched. Drop the scratch
+  database at cleanup.
+- Check whether CI builds at all (the job list of the production branch's
+  last pipeline). When it does not, the hosting platform's build on
+  production is the first real build: say so in the MR, and the deploy
+  read-back in Step 7 is not optional.
 
 ## Step 5 — Open the MR and arm auto-merge
 
@@ -197,11 +227,14 @@ Include the draft parent message. No go, no writes.
 
 ## Step 6 — Slack
 
-Post with the Slack connector, in the channel's working language — read its
-last few messages first.
+Post with the Slack connector in `#merge_requests` (`C050SLLPVFU`). Match the
+channel: every post there is one short line followed by the MR link, in the
+team's language — read its last few messages first.
 
-- **Parent message**, right after the MR exists: project, package and
-  versions, advisory ids with severity, the MR link, "needs one approval".
+- **Parent message**, right after the MR exists, one line: a critical marker,
+  project, package and target version, how many critical advisories, that
+  auto-merge is on and one approval is needed, then the MR link. Example:
+  `:rotating_light: Critical hotfix RFW: next 16.3.8 (3 critical RCE-advisories op prod), auto-merge staat aan, 1 approval nodig <MR link>`.
   Keep its `ts`; every later post is a reply in that thread, and the thread
   link goes into the MR description so a resumed run finds it.
 - **Thread replies on transitions only**: pipeline failed (job name),
@@ -222,7 +255,9 @@ Three bounded loops, each with the `Monitor` tool, polling `glab api` every
 2. **Production pipeline** of the squash commit until it is terminal. Read the
    deploy job's log, not only its status, then confirm on the platform the way
    the runbook says (a hook job can be green while the host refused the
-   build — see Step 5 of `skills/mr-merged/SKILL.md`).
+   build — see Step 5 of `skills/mr-merged/SKILL.md`). The platform check is
+   a bounded until-loop in Bash `run_in_background`, not a Monitor: platform
+   CLIs usually need the sandbox off, which a Monitor cannot do.
 3. **Back-merge pipelines** (Step 8), lighter: status only.
 
 On each event, tell the user in one line, and send a push notification for
@@ -232,10 +267,14 @@ your own.
 
 ## Step 8 — Back-merge
 
-After production deployed, and after the tag and release when the runbook
-asks for them. Pre-push hooks test the local working tree, not the pushed
-ref, so tag and back-merge pushes skip them (`--no-verify`); the target
-branch's CI runs on what was pushed.
+Push after production deployed, and after the tag and release when the
+runbook asks for them. Prepare before that: while production builds, run the
+merge-tree check and, when it conflicts, build the merge commit in a worktree
+on the target branch (point 4), committed but not pushed. Right before the
+push, `git fetch` and confirm the target's head is still the merge commit's
+first parent; when it moved, redo the merge. Pre-push hooks test the local
+working tree, not the pushed ref, so tag and back-merge pushes skip them
+(`--no-verify`); the target branch's CI runs on what was pushed.
 
 For acceptance, then development (each that exists):
 
@@ -263,8 +302,15 @@ For acceptance, then development (each that exists):
    - `CHANGELOG.md`: the hotfix section sits below `## [Unreleased]`; delete
      from `[Unreleased]` any line the hotfix already shipped.
 
-   Then `npm ci`, type-check and tests, commit the merge, push (or open the
-   MR). A conflict in any other path stops the back-merge for that branch:
+   Then compare the resolved tree with the target:
+   `git diff --cached --stat origin/<branch>`. When only the version and the
+   changelog differ — the usual case when the target already ran the fixed
+   versions — the tree's code and dependencies equal what the target's CI
+   already tested, and that diff is the check. Otherwise run `npm ci`,
+   type-check and tests. Commit the merge with the message
+   `Merge branch '<production>' into <branch>` (git's default names the
+   remote-tracking ref and the local branch), then push or open the MR.
+   A conflict in any other path stops the back-merge for that branch:
    report the paths, post "back-merge into <branch> needs a human" in the
    thread, and leave the branch untouched.
 5. Verify: `git merge-base --is-ancestor origin/<production> origin/<branch>`
@@ -289,7 +335,14 @@ production runs.
   3. Local hotfix and back-merge branches: prove them merged the way Step 5 of
      `skills/mr-merged/SKILL.md` describes for a squash merge, then
      `git branch -D`. Delete a remote source branch that survived the merge.
-  4. Scratch report files.
+  4. The scratch database from Step 4 (`dropdb` in the same container) and
+     the scratch report files. A local `next build` can leave orphaned
+     `jest-worker/processChild.js` processes (parent pid 1) that keep the
+     scratch database's connections open, so `dropdb` refuses with "being
+     accessed by other users". List them by the worktree path and report the
+     exact PIDs and commands; stopping them is the user's call, not part of
+     the go. `dropdb --force` closes only the connections to that scratch
+     database and is enough to drop it.
   5. Verify the worktree entries and local branches are gone.
 - Run needed intervention (corrections, re-steering, a workaround) → hand off
   to `skills/improve-skill/SKILL.md` before closing out.
