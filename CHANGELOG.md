@@ -15,6 +15,8 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-10-07
+
 ### Added
 
 - `skills/release` — runs a production release around the project's own
