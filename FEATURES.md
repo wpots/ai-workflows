@@ -86,6 +86,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `wcag-audit` | WCAG 2 compliance audit combining static code review with an axe-core/Playwright scan of the live site | No (skill only) |
 | `npm-maintenance` | Inspect and update Node.js dependencies, npm audit remediation, and major-version migrations | No (skill only) |
 | `dependency-hotfix` | Ship a critical from the dependency-scanner report as a hotfix: MR to production with auto-merge, deploy read-back, back-merge into acceptance and development, Slack thread, cleanup | No (skill only) |
+| `release` | Run a production release around the project's runbook: start and live mail drafts, optional Slack thread, release notes, shipped tickets versioned and moved to Done, close-sprint check and stale-branch cleanup | No (skill only) |
 | `maintenance` | Periodic project maintenance sweep — deps, runtime EOL, credential/API-key currency (incl. Prepr tokens), quality baseline, CI, data, doc drift | No (skill only) |
 | `upstream-to-unicore` | Upstream a reusable change from a synced project into the unicore-template repo via a GitLab MR | No (skill only) |
 | `mr-merged` | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup | No (skill only) |
