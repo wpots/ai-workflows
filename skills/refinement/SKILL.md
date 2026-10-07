@@ -19,10 +19,11 @@ the same workflow; Copilot follows the runbook directly.
    from the user or by checking whether `docs/plans/refinement-<today>.md`
    already exists.
 3. Follow the phases in order. Do not skip the Phase 4 review pause in prep mode.
-4. A live tracker connection is mandatory (Phase 0). Use the most efficient
-   method available: the tracker's MCP connector if connected, otherwise its
-   CLI. If neither connects, stop and help the user connect — never refine on
-   local docs alone.
+4. A live tracker connection is mandatory (Phase 0). CLI first: `jira`
+   (verify with `jira me`, recipes in `skills/service-cli/references/jira.md`);
+   the tracker's connector only when the CLI is not installed and cannot be
+   installed now — say so in the recap. If neither connects, stop and help the
+   user connect — never refine on local docs alone.
 5. When `docs/solutions/` exists, scan it for notes touching the tickets
    under refinement — a documented root cause or prevention belongs in the
    per-ticket notes and the story-point rationale.

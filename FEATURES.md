@@ -90,14 +90,18 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `upstream-to-unicore` | Upstream a reusable change from a synced project into the unicore-template repo via a GitLab MR | No (skill only) |
 | `mr-merged` | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup | No (skill only) |
 | `user-journeys` | Spec each user journey into `docs/journeys/` — walked path, branches, states, permissions, keyboard route, and the slice candidates the backlog is cut from | No (skill only) |
+| `service-cli` | CLI-first access to GitLab, Jira and Axiom — install/auth checks, read-only recipes with jq projections, write commands, and the connector-only remainder per service; backed by the `prefer_service_cli.py` hook | No (skill only) |
 
 ## Integration Tooling
 
-CLI-first for scriptable/headless work; MCP for browser control, design
-context, and OAuth SaaS. The doctrine, the machine-level CLI table (`glab`,
-`jira`, `dotenvx`), and the per-project `.mcp.json` convention live in
-`docs/tooling.md`; the `setup-ai-workflows` skill emits the per-project config and
-`commands/new-device-setup.md` installs the machine baseline.
+CLI-first for GitLab, Jira and Axiom; a connector only for browser control,
+design context, and the remainder a CLI does not cover. The doctrine, the
+machine-level CLI table (`glab`, `jira`, `axiom`, `dotenvx`), and the
+per-project `.mcp.json` convention live in `docs/tooling.md`; the recipes per
+service in `skills/service-cli`; the `prefer_service_cli.py` hook enforces the
+rule for the Atlassian and Axiom connectors. The `setup-ai-workflows` skill
+emits the per-project config and `commands/new-device-setup.md` installs the
+machine baseline.
 
 ## Rules
 

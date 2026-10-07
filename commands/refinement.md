@@ -44,32 +44,34 @@ Ask the user at start (keep it to one question at a time):
 ## Phase 0 — Tracker connection is mandatory
 
 A live connection to the issue tracker is a **hard precondition**. Refining on
-local docs alone produces estimates on stale information — do not do it. Use the
-**most efficient method available**:
+local docs alone produces estimates on stale information — do not do it. CLI
+first:
 
-1. The tracker's **MCP connector** if it is connected — richest data, full
-   description + acceptance criteria + parent in one query. Preferred.
-2. The tracker **CLI** otherwise (e.g. `ankitpokhrel/jira-cli` for Jira — verify
-   with `jira me`).
+1. The tracker **CLI** (`ankitpokhrel/jira-cli` for Jira — verify with
+   `jira me`; recipes in `skills/service-cli/references/jira.md`).
+2. The tracker's **connector** only when the CLI is not installed and cannot
+   be installed now — say so in the recap.
 
 If neither connects, **stop** and help the user get connected before continuing:
 
-- MCP: walk them through authenticating the connector.
 - Jira CLI: `brew install ankitpokhrel/jira-cli/jira-cli` then `jira init`.
+- Connector: walk them through authenticating it in claude.ai.
 
 Never silently fall back to local-only refinement.
 
 ## Phase 1 — Fetch tickets (read-only)
 
-Via the connected method from Phase 0, fetch the batch in scope. With an MCP,
-query by the tracker's query language (e.g. JQL `key in (KEY-1, KEY-2, ...)`)
-and request description, status, issue type, parent, and the story-point field.
-With a CLI (Jira example):
+Via the connected method from Phase 0, fetch the batch in scope. With a CLI
+(Jira example):
 
 ```bash
 jira issue list --plain --no-truncate --jql 'project = KEY AND key in (KEY-1, ...)'
 jira issue view KEY-XX --plain   # per-ticket: description, AC, links, parent
 ```
+
+Without the CLI, query through the connector by the tracker's query language
+(e.g. JQL `key in (KEY-1, KEY-2, ...)`) and request description, status, issue
+type, parent, and the story-point field.
 
 Capture per ticket: key, summary, parent/epic, status, current story points (if
 any), full description + acceptance criteria, linked issues, last-updated

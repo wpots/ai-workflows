@@ -22,10 +22,11 @@ retrospective is the `close-sprint` flow; its changelog and gaps document are
    dir). Use `skills/sprint-planning/templates/planning-template.md` and
    `templates/refinement-template.md` as the skeletons for the two output docs.
 2. Follow the phases in order. Do not skip the Phase 7 review pause.
-3. A live tracker connection is mandatory (Phase 0). Use the most efficient
-   method available: the tracker's MCP connector if connected, otherwise its
-   CLI. If neither connects, stop and help the user connect — never plan a
-   sprint on local docs alone.
+3. A live tracker connection is mandatory (Phase 0). CLI first: `jira`
+   (verify with `jira me`, recipes in `skills/service-cli/references/jira.md`);
+   the tracker's connector only when the CLI is not installed and cannot be
+   installed now — say so in the recap. If neither connects, stop and help the
+   user connect — never plan a sprint on local docs alone.
 4. Before writing anything, switch to the `development` branch (Phase 0) and pull
    the latest — docs must land on the integration branch, not a feature branch.
    If the working tree is dirty, stop and ask before switching.

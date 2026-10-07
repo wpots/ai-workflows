@@ -61,17 +61,16 @@ one at a time). Skip a question the repo or tracker already answers.
 ## Phase 0 — Tracker connection is mandatory
 
 A live tracker connection is a **hard precondition**. Preparing a demo on local
-docs alone produces an inaccurate script. Use the **most efficient method
-available**:
+docs alone produces an inaccurate script. CLI first:
 
-1. The tracker's **MCP connector** if connected — richest data in one query.
-   Preferred.
-2. The tracker **CLI** otherwise (e.g. `ankitpokhrel/jira-cli` for Jira — verify
-   with `jira me`).
+1. The tracker **CLI** (`ankitpokhrel/jira-cli` for Jira — verify with
+   `jira me`; recipes in `skills/service-cli/references/jira.md`).
+2. The tracker's **connector** only when the CLI is not installed and cannot
+   be installed now — say so in the recap.
 
-If neither connects, **stop** and help the user connect (MCP: authenticate the
-connector; Jira CLI: `brew install ankitpokhrel/jira-cli/jira-cli` then
-`jira init`). Never silently fall back to local-only.
+If neither connects, **stop** and help the user connect (Jira CLI:
+`brew install ankitpokhrel/jira-cli/jira-cli` then `jira init`; connector:
+authenticate it in claude.ai). Never silently fall back to local-only.
 
 ## Phase 1 — Fetch the sprint's stories (read-only)
 
@@ -88,8 +87,9 @@ jira issue list --plain --no-truncate \
 jira issue view RFW-XX --plain                    # per-story detail
 ```
 
-With the MCP, query the same JQL and request status, assignee, issue type,
-parent/epic, fixVersion, created, description, and acceptance criteria.
+Without the CLI, query the same JQL through the connector and request status,
+assignee, issue type, parent/epic, fixVersion, created, description, and
+acceptance criteria.
 
 Capture per story: key, summary, status, issue type, parent/epic, assignee,
 **created date**, description + acceptance criteria — plus the sprint's start

@@ -19,10 +19,12 @@ share the same workflow; Copilot follows the runbook directly.
    `sprint-<N>` artifact maps to `support-<yyyy>-<mm>` (e.g. `support-2026-08`).
 3. Follow every phase in order. Start with Phase 0 (switch to an up-to-date
    integration branch) and do not skip Phase 6 (review pause).
-4. A live tracker connection is mandatory. Use the most efficient method
-   available: the tracker's MCP connector if connected, otherwise its CLI (e.g.
-   `ankitpokhrel/jira-cli`). If neither connects, stop and help the user connect
-   — never close a sprint on local docs alone.
+4. A live tracker connection is mandatory. CLI first: `jira`
+   (`ankitpokhrel/jira-cli`; verify with `jira me`, recipes in
+   `skills/service-cli/references/jira.md`). The tracker's connector only when
+   the CLI is not installed and cannot be installed now — say so in the recap.
+   If neither connects, stop and help the user connect — never close a sprint
+   on local docs alone.
 
 ## Constraints
 

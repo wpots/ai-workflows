@@ -58,17 +58,16 @@ Ask the user at start (one question at a time):
 ### Tracker connection is mandatory
 
 A live connection to the issue tracker is a **hard precondition**. Planning on
-local docs alone produces a plan against stale scope — do not do it. Use the
-**most efficient method available**:
+local docs alone produces a plan against stale scope — do not do it. CLI first:
 
-1. The tracker's **MCP connector** if it is connected — richest data, full
-   description + acceptance criteria + parent + links in one query. Preferred.
-2. The tracker **CLI** otherwise (e.g. `ankitpokhrel/jira-cli` for Jira — verify
-   with `jira me`).
+1. The tracker **CLI** (`ankitpokhrel/jira-cli` for Jira — verify with
+   `jira me`; recipes in `skills/service-cli/references/jira.md`).
+2. The tracker's **connector** only when the CLI is not installed and cannot
+   be installed now — say so in the recap.
 
-If neither connects, **stop** and help the user get connected (MCP: authenticate
-the connector; Jira CLI: `brew install ankitpokhrel/jira-cli/jira-cli` then
-`jira init`). Never silently fall back to local-only planning.
+If neither connects, **stop** and help the user get connected (Jira CLI:
+`brew install ankitpokhrel/jira-cli/jira-cli` then `jira init`; connector:
+authenticate it in claude.ai). Never silently fall back to local-only planning.
 
 ### Work on the `development` branch
 
@@ -104,9 +103,9 @@ jira issue list --plain --no-truncate \
 jira issue view RFW-XX --plain                    # per-ticket: AC, links, parent
 ```
 
-With the MCP, query the same JQL and request status, assignee, issue type,
-parent/epic, story points, description + acceptance criteria, and **linked
-issues** (blocks / is-blocked-by).
+Without the CLI, query the same JQL through the connector and request status,
+assignee, issue type, parent/epic, story points, description + acceptance
+criteria, and **linked issues** (blocks / is-blocked-by).
 
 Capture per ticket: key, summary, assignee, status, issue type, parent/epic,
 story points, AC, and links. Tag each as **mine** (user's name) or **other**.

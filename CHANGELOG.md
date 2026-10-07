@@ -34,9 +34,34 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 - `rules/git-flow.md` — names that back-merge push as the one exception to
   "never push to a protected long-lived branch" and "never merge with a merge
   commit".
+- `skills/service-cli` — the recipes behind the CLI-first rule: install and
+  auth checks, the read-only subcommand set, `--raw | jq` projections, the
+  write commands, and the connector-only remainder for GitLab (`glab`), Jira
+  (`jira`) and Axiom (`axiom`). The tracker-reading skills and `jira-ticket`
+  link here instead of carrying their own snippets.
+- `hooks/hooks.json` + `scripts/prefer_service_cli.py` — a PreToolUse hook on
+  `mcp__*` that denies an Atlassian or Axiom connector call with a CLI
+  equivalent while that CLI is installed, naming the command to run instead.
+  Everything else passes through (Confluence, Teamwork Graph, Axiom monitors,
+  a missing CLI); `AIW_ALLOW_MCP=1` switches it off for a session. Tests in
+  `scripts/test_prefer_service_cli.py`.
 
 ### Changed
 
+- `CLAUDE.md` — new "Service access: CLI first" section under Shell Usage:
+  GitLab, Jira and Axiom go through their CLI before any connector tool, with
+  the connector-only remainder per service spelled out and the hook named.
+- `skills/close-sprint`, `skills/sprint-planning`, `skills/refinement`,
+  `skills/sprint-demo` and their command runbooks — the tracker precondition
+  now reads CLI first (`jira`, recipes in `skills/service-cli`), connector
+  only when the CLI is not installed; the connector was "preferred" before,
+  against the doctrine in `docs/tooling.md`.
+- `skills/jira-ticket` — creates through `jira issue create` (body from the
+  template file, `jira sprint add` for the sprint); the connector path with
+  its cloudId, account-id and sprint-field discovery is the fallback, not the
+  default.
+- `skills/mr-merged` — posts the product-owner comment with
+  `jira issue comment add`; the degrade step names the CLI.
 - `skills/address-review-comments` — a bare MR number no longer resolves to
   the cwd remote only: when `!<n>` there is merged, closed, or someone else's,
   Step 1 searches the user's open MRs across GitLab and finds the matching
