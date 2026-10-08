@@ -49,6 +49,15 @@ Use it to decide where updates should land first and whether a command is a full
 | `user-journeys` | skill only | `skills/user-journeys/SKILL.md` | none | n/a |
 | `service-cli` | skill only | `skills/service-cli/SKILL.md` | none | n/a |
 
+## Skill Regression Cases
+
+The canonical source for skill regression cases is `evals/`: one directory per
+case under `evals/<skill>/`, run with `claude plugin eval`. Layout, tags, the
+routing suite and the run commands are in
+[`evals/README.md`](../evals/README.md). A skill's `SKILL.md` stays the source
+of its behaviour; the cases there only check it, and a failing case is fixed in
+the skill or the case, never by copying cases elsewhere.
+
 ## Interpretation
 
 - Canonical source: the workflow artifact that should be updated first.

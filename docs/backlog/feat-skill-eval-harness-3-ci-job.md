@@ -34,7 +34,8 @@ suite.
 - [ ] A job in `.gitlab-ci.yml`, run only on merge requests changing `skills/**`
       or `evals/**`, installs Claude Code on the runner and runs
       `claude plugin eval . --tag routing --ablation none --no-publish
-      --trust-plugin --json results.json --threshold 0.8 --max-cost-usd <cap>`
+      --trust-plugin --judge-model sonnet --json results.json --threshold 0.8
+      --max-cost-usd <cap>`
       (`--no-publish`: the report is otherwise published to claude.ai by
       default, and the prompts name client projects).
 - [ ] `--model` and `--judge-model` are pinned, so scores are comparable between
@@ -64,6 +65,13 @@ the run is refused. Keep the CI suite to cases that need no shell.
 
 A scheduled variant (nightly, full suite with `Δ`) is the "Scheduled lane" item
 of the October review and is not part of this slice.
+
+Judge: slice 2 compared Haiku (the default) and Sonnet on five cases and pinned
+`--judge-model sonnet` (evidence in `evals/README.md`). `sonnet` is an alias
+that moves with new releases; for comparable scores over time, criterion 2 pins
+a full model ID for both `--model` and `--judge-model`. The routing suite has
+only `tool_used` graders today, so the judge costs nothing there until an `llm`
+grader joins it.
 
 ## Out of Scope
 

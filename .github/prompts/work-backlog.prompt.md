@@ -15,7 +15,10 @@ implement → verify → merge request. Stop after one MR; humans review and mer
 
 1. One MR per run.
 2. Never commit or push to `main`; all work on a feature branch.
-3. WIP limit 1 — an open MR from a previous run means stop and report.
+3. WIP limit 1 — advance the in-flight MR before starting anything new. An open
+   MR from a previous run with unresolved reviewer comments: reworking it is
+   this run's work. Awaiting review or blocked on a human: stop and report.
+   Never open a second MR.
 4. The BLI's acceptance criteria are the definition of done; no scope invention.
 5. Checks green before the MR opens; otherwise a **draft** MR listing blockers.
 6. Blocked steps (missing secrets, human-only actions) are reported, not
@@ -27,8 +30,12 @@ implement → verify → merge request. Stop after one MR; humans review and mer
 1. **Sync** — `git fetch origin && git checkout main && git pull --ff-only`.
    Refuse on a dirty tree.
 2. **WIP check** — `glab mr list` (or `gh pr list`; open is the default, and
-   `glab mr list` has no `--state` flag); stop if an open MR maps to a backlog
-   item. Flag orphaned work-backlog branches.
+   `glab mr list` has no `--state` flag). When an open MR maps to a backlog
+   item, pick nothing new. Unresolved threads from a reviewer other than the
+   MR author → rework that MR as this run's unit of work (the
+   `skills/address-review-comments/SKILL.md` flow, no approval pause), resolve
+   each thread you addressed, report, stop. No actionable comments → stop and
+   report. Flag orphaned work-backlog branches.
 3. **Pick** — first `docs/backlog/*.md` with `Status: ready` whose
    `Depends on:` BLIs are `done` on `origin/main` (or `in-progress` with their
    MR merged and only a post-merge check left); order by roadmap number, then
