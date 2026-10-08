@@ -16,6 +16,8 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-10-08
+
 ### Added
 
 - `skills/greenberry-maintenance` — repeats the Greenberry portfolio inventory
@@ -133,6 +135,14 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
   `CONVENTIONS.md` gains a `## Hosting` section. It records the platform, its
   cost-sensitive metrics and a baseline the developer confirms. The risk
   analysis reads its cost surface from there.
+- Changelog entries are fragments now: a content MR adds one file
+  `changelog.d/<section>.<slug>.md` (`added`, `changed`, `fixed`, …) with its
+  `- ` bullets instead of editing `## [Unreleased]`, so two MRs never conflict
+  on the changelog again. `scripts/assign-plugin-version.mjs` assembles the
+  fragments (and any entries still under Unreleased) into the `## [x.y.z]`
+  section in Keep a Changelog order and deletes them; the `release_train` job
+  stages that; `validate-skills.mjs` rejects a misnamed or empty fragment. The
+  MR rule in `CLAUDE.md`/`AGENTS.md` and `docs/contributing.md` describe it.
 
 ## [2.5.0] - 2026-10-07
 
