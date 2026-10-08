@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Rewritten 2026-10-08 from the October 2026 stack review. The July draft planned
 a custom runner (`scripts/run-evals.mjs`). Claude Code v2.1.269 ships
