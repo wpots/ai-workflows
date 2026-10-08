@@ -14,7 +14,8 @@
 // paths that exist but are untracked, skills/commands/rules/MCP servers missing
 // from the FEATURES.md inventories, descriptions without a routing cue,
 // SKILL.md bodies over the 500-line progressive-disclosure budget,
-// unknown frontmatter keys.
+// unknown frontmatter keys, a skill in the risky set without an evals/<skill>/
+// directory.
 //
 // Why routing gaps are errors and inventory gaps are warnings: the two docs are
 // documentation, but shared/command-mappings.md and shared/skill-mappings.md are
@@ -520,6 +521,30 @@ if (tracked.has(PIPELINE)) {
   }
 } else {
   warn(PIPELINE, "file not found; pipeline-map check skipped");
+}
+
+// ── The riskiest skills keep regression cases ────────────────────────────────
+// A description edit that stops matching natural phrasing is the commonest
+// skill regression, and only a routing case in evals/<skill>/ catches it. These
+// skills drive delivery end to end, so losing their cases is flagged.
+
+const RISKY_SKILLS = [
+  "code-review",
+  "create-pr",
+  "refinement",
+  "start-project",
+  "work-backlog",
+];
+
+for (const dir of RISKY_SKILLS) {
+  if (!tracked.has(`skills/${dir}/SKILL.md`)) continue;
+  if (![...tracked].some((f) => f.startsWith(`evals/${dir}/`))) {
+    warn(
+      `skills/${dir}`,
+      `is in the risky set but has no evals/${dir}/ cases — add a routing ` +
+        "case (see evals/README.md)",
+    );
+  }
 }
 
 // ── Plugin manifest is versioned and the changelog matches ──────────────────

@@ -11,32 +11,68 @@ evals/<skill>/<skill>-<id>/
 ├── prompt.md             # frontmatter (tags, max_turns, allowed_tools,
 │                         # expected_outcome) and the prompt as the body
 └── graders/
-    ├── criteria.md       # type: llm — numbered PASS conditions; the report
-    │                     # shows only the judge's votes, not which one failed
-    └── skill-fired.md    # type: tool_used — the run called this skill
+    ├── a1.md, a2.md, …   # type: llm — one assertion each, body
+    │                     # "PASS if this holds for the response: <assertion>"
+    ├── skill-fired.md    # type: tool_used — the run called this skill
+    └── skill-not-fired.md  # routing should-not-fire cases only (see below)
 ```
 
 Every case is tagged with its skill and with `runnable` or `needs-scaffold`.
 To add a case, copy a neighbouring directory and change the prompt and the
-conditions; `skills/improve-skill` does this when a failure earns a regression
+assertions; `skills/improve-skill` does this when a failure earns a regression
 case.
+
+One `llm` grader checks one assertion. The JSON result and the report keep
+only the judge's votes per grader (`judge votes: FAIL FAIL FAIL`), not its
+reasoning, so a rubric with several numbered conditions fails without saying
+which one; a grader per assertion names it. A case passes only when every
+grader passes.
+
+## Routing cases
+
+Most skill regressions are a `description` edit that quietly stops matching
+the request it was written for. Routing cases catch that, tagged `routing`:
+
+- **should fire** — a prompt a user would type, not naming the skill, graded
+  by `skill-fired.md` (`tool_used: Skill` with `input_match` on the skill's
+  name, including the `greenberry:` form).
+- **should not fire** — a near miss ("review this paragraph" against
+  `code-review`), graded by `skill-not-fired.md`: the same `input_match` with
+  `min: 0`, `max: 0` and `arm: both`.
+
+`code-review`, `create-pr`, `refinement`, `start-project` and `work-backlog`
+each have one of both plus one output case; `scripts/validate-skills.mjs` warns
+when one of these five has no `evals/<skill>/` directory. A should-fire case
+that fails on a fresh prompt is a finding about the skill's `description`, not
+a reason to loosen the prompt.
 
 ## Run
 
 ```bash
+# the routing suite
+claude plugin eval . --tag routing --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 3
+
 # one skill
-claude plugin eval . --tag component-spec --runs 1 --ablation none --no-publish --trust-plugin --max-cost-usd 3
+claude plugin eval . --tag component-spec --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 3
 
 # everything that needs nothing beyond its prompt
-claude plugin eval . --tag runnable --runs 1 --ablation none --no-publish --trust-plugin --max-cost-usd 10
+claude plugin eval . --tag runnable --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 10
 ```
 
 - Always pass `--no-publish`. The report is otherwise published to claude.ai
   when the account supports it, and these prompts name client projects.
-- `--ablation none` runs one arm. In a two-arm run the `skill-fired` grader is
-  not scored (it is an indicator), so a case that stops triggering its skill
-  would still pass.
+- `--ablation none` runs one arm. In a two-arm run every `tool_used: Skill`
+  grader without `arm: both` is not scored (it is an indicator), so a case that
+  stops triggering its skill would still pass.
+- `--judge-model sonnet`: on 2026-10-08 (Claude Code 2.1.283, five cases, 33
+  assertions per judge) the default judge, Haiku, voted FAIL on 11 assertions
+  that held in the final message it graded; Sonnet misjudged at most 2 of 33,
+  for about $0.03 more per case.
 - `--trust-plugin` skips the first-run trust prompt; use it on this repo only.
+- `--case` takes one glob without alternation, and a second `--case` replaces
+  the first; run several named cases as separate commands.
+- `--max-cost-usd 0` loads and validates every case file without starting a
+  run, at no cost; a file that does not load is printed with a `✗`.
 - Results land in `evals/results/` (gitignored). Every run is a real model call
   on your account: keep `--max-cost-usd` set.
 

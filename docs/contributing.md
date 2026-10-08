@@ -121,8 +121,10 @@ Three rules keep process docs trustworthy:
    fires in, which gate it helps close, and how it is invoked.
 5. Add or update the regression cases for the skill in `evals/<name>/` and run
    them: `claude plugin eval . --tag <name> --runs 1 --ablation none --no-publish
-   --trust-plugin --max-cost-usd 3`. Layout, the `runnable` and `needs-scaffold`
-   tags, and why `--no-publish` is not optional are in
+   --trust-plugin --judge-model sonnet --max-cost-usd 3`. A `description` edit
+   also runs the routing suite: the same command with `--tag routing`. Layout,
+   the `runnable`, `needs-scaffold` and `routing` tags, the judge choice, and
+   why `--no-publish` is not optional are in
    [`evals/README.md`](../evals/README.md). Each run is a real model call on your
    account.
 6. Run `./scripts/validate-ai-instructions.sh`; steps 2–4 are checked, so a
