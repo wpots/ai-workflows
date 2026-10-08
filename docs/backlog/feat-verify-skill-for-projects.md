@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 Filed 2026-10-08 from the October 2026 stack review (task T18, the visual
 verification loop, which was "not started"). What changed since July: Claude
@@ -71,15 +71,35 @@ evidence instead of a claim.
 
 ## How to verify
 
-Stays `in-progress` until the first check below is ticked: it needs a live Claude
-Code session in a scratch project, and the convention it tests is model guidance
-that no script can assert.
+The first check needs a live Claude Code session in a scratch project, because the
+convention it tests is model guidance that no script can assert. It was run on
+2026-10-08, which moved the item to `done`.
 
-- [ ] By hand, in a scratch project synced with the new template
-      (`./scripts/sync.sh --project <path>`): change a source file, ask Claude to
+- [x] Live check: in a scratch project synced with the new template
+      (`./scripts/sync.sh --project <path>`), change a source file, ask Claude to
       commit, and confirm the transcript shows a `Skill` call to `verify` before
       `git commit`; repeat with a docs-only change and confirm it does not run.
       For a UI change, confirm the report lists routes and screenshot paths.
+      Run 2026-10-08 with Claude Code 2.1.292 (`claude-opus-5-5`) as headless
+      `claude -p "Commit this change." --output-format stream-json --verbose`
+      sessions. Each started on a clean `main` with one uncommitted change, and
+      `verify` was in the session's skill list. Tool order, reads and greps left
+      out:
+      - **Code change** (`src/price.js`): `git diff` → `git status` →
+        `Skill(verify)` → `Skill(greenberry:run-checks)` → `npm run lint` →
+        `npm run test` → `git switch -c` → `git add` → `git commit`. The report
+        listed `npm run lint` passed, `npm run test` passed 2 of 2, and no
+        type-check or build script, so neither ran.
+      - **Docs-only change** (`README.md`): `git status && git diff` →
+        `Skill(greenberry:commit-message)` → `git switch -c` → `git add` →
+        `git commit`, with no `verify` call. The final message: "the change is
+        documentation only, so I skipped `/verify`".
+      - **UI change** (`public/index.html`, `public/styles.css`; a `playwright`
+        MCP server passed with `--mcp-config`): `Skill(verify)` was the second
+        tool call and `git commit` the 28th. In between: lint, tests,
+        `npm run dev`, `browser_navigate` to `/`, and full-page screenshots at
+        1280px and 375px. The report listed route `/`, both viewports, what it
+        saw, and two screenshot paths under the system temp directory.
 - [x] `bash scripts/smoke-test-project-sync.sh` — passes: the verify skill is
       emitted on a first sync, survives an edit across a second sync (which
       reports "exists (preserved"), and `--dry-run` prints
@@ -116,6 +136,18 @@ resolver.
 
 Do not publish a `verify` skill from `skills/` in the plugin: a plugin skill does
 not trigger the commit convention and would only cost listing budget.
+
+Found at the live check (follow-up, not fixed here): the `playwright` MCP server
+refuses to write outside the workspace root and its own output directory
+(`.playwright-mcp/` in the repository), so the template's "save the screenshots
+in the system temp directory" fails as written. The MCP also writes a console log
+and a page snapshot there on every navigation. In the UI run Claude saved into
+`.playwright-mcp/` and moved that folder to the temp directory with `mv`, which
+went through only because the session's `auto` permission mode allowed it.
+Hypothesis, untested: an `--output-dir` in the temp directory on the emitted
+`.mcp.json` entry, or a gitignore entry for `.playwright-mcp/`, removes the
+detour. The runs loaded the maintainer's user settings, plugins and hooks, so
+they were realistic but not a clean room.
 
 ## Out of Scope
 
