@@ -27,6 +27,8 @@ import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { FRAGMENT_FILE, FRAGMENT_HINT } from "./changelog-fragments.mjs";
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const errors = [];
@@ -591,6 +593,25 @@ if (tracked.has(PLUGIN)) {
   }
 } else {
   warn(PLUGIN, "file not found; plugin version check skipped");
+}
+
+// ── Changelog fragments are well-formed ──────────────────────────────────────
+// One file per MR under changelog.d/ (see scripts/changelog-fragments.mjs); the
+// release assembles them. A misnamed file would be skipped silently at release
+// time, so the name and the leading bullet are checked here, on tracked files.
+
+const FRAGMENT_DIR = "changelog.d/";
+for (const rel of tracked) {
+  if (!rel.startsWith(FRAGMENT_DIR)) continue;
+  const name = rel.slice(FRAGMENT_DIR.length);
+  if (name.startsWith(".")) continue;
+  if (!FRAGMENT_FILE.test(name)) {
+    err(rel, `changelog fragment: ${FRAGMENT_HINT}`);
+    continue;
+  }
+  if (!read(rel).trim().startsWith("- ")) {
+    err(rel, `changelog fragment has no leading bullet: ${FRAGMENT_HINT}`);
+  }
 }
 
 // ── "Enforced by nothing" ratchet ────────────────────────────────────────────
