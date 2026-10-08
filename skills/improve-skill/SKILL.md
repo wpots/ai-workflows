@@ -68,8 +68,11 @@ If a run had zero friction, skip silently — do not touch the skill.
      that folder as grounding, so the lesson resurfaces at planning time
      instead of being relearned.
 6. **Update intent mappings** when new trigger phrases surfaced this session:
-   the `## Command Mapping` section in `<ai-workflows>/CLAUDE.md` (source)
-   and the synced `~/.claude/CLAUDE.md`.
+   the skill's row in `<ai-workflows>/shared/skill-mappings.md`, or its row in
+   `shared/command-mappings.md` for a command without a skill (that row is also
+   copied verbatim into the `## Command Mapping` section of `CLAUDE.md`).
+   `scripts/generate-adapters.sh` injects the fragments into the adapters;
+   never edit the generated blocks or the synced `~/.claude/CLAUDE.md`.
 7. **Report once**: which files changed and the learnings captured, one line
    per learning, including which compound artifacts (check/eval/solution
    note) each produced.
@@ -150,7 +153,7 @@ for: symptoms, error strings, synonyms, tool names.
 - [ ] Cross-references sibling skills by name (no `@` links — they force-load context)
 - [ ] Rationalization table + red-flags list (discipline skills only)
 - [ ] Registered: `docs/workflow-canonical-sources.md` inventory row, and an intent
-      line in the `## Command Mapping` section of `CLAUDE.md` if it needs routing
+      line in `shared/skill-mappings.md` (the validator fails on a skill without one)
 - [ ] `node scripts/validate-skills.mjs` passes (stage the new files first — the
       validator only sees git-tracked files)
 

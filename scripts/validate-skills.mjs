@@ -350,12 +350,70 @@ if (tracked.has(SKILL_MAPPINGS)) {
   }
 }
 
+// ── CLAUDE.md routes only the commands no skill row covers ───────────────────
+// CLAUDE.md loads in every session, and a skill row that names
+// `commands/<x>.md` as its fallback already routes that runbook. So CLAUDE.md
+// carries only the uncovered command rows, verbatim, and a covering skill row
+// must hold every trigger of the command row it replaces there. AGENTS.md and
+// the Copilot adapter keep the full command block.
+
+function mappingRows(rel) {
+  if (!tracked.has(rel)) return [];
+  return read(rel)
+    .split("\n")
+    .filter((line) => line.startsWith("- ") && line.includes("->"))
+    .map((line) => {
+      const arrow = line.indexOf("->");
+      const triggers = [...line.slice(0, arrow).matchAll(/`([^`]+)`/g)].map((m) => m[1]);
+      const routed = line.slice(arrow).split(";")[0];
+      const commands = [...routed.matchAll(/`(commands\/[^`\s]+\.md)`/g)].map((m) => m[1]);
+      return { line, triggers, commands };
+    });
+}
+
+if (tracked.has(COMMAND_MAPPINGS) && tracked.has(SKILL_MAPPINGS) && tracked.has("CLAUDE.md")) {
+  const skillRows = mappingRows(SKILL_MAPPINGS);
+  const ambientLines = read("CLAUDE.md").split("\n");
+
+  for (const { line, triggers, commands } of mappingRows(COMMAND_MAPPINGS)) {
+    const command = commands[0];
+    if (!command) continue;
+    const covering = skillRows.filter((row) => row.commands.includes(command));
+
+    if (covering.length === 0) {
+      if (!ambientLines.includes(line)) {
+        err(
+          "CLAUDE.md",
+          `must route \`${command}\` (no skill row covers it) with its line from ` +
+            `${COMMAND_MAPPINGS}, verbatim: ${line}`,
+        );
+      }
+      continue;
+    }
+
+    const skillTriggers = new Set(covering.flatMap((row) => row.triggers));
+    for (const trigger of triggers.filter((t) => !skillTriggers.has(t))) {
+      err(
+        SKILL_MAPPINGS,
+        `the skill row for \`${command}\` lacks \`${trigger}\` from its command row; ` +
+          "CLAUDE.md routes that runbook through the skill row only",
+      );
+    }
+    if (ambientLines.some((l) => l.startsWith("- ") && l.includes(`-> \`${command}\``))) {
+      err(
+        "CLAUDE.md",
+        `routes \`${command}\` in a command row, but a skill row already covers it`,
+      );
+    }
+  }
+}
+
 // ── Adapters compose the shared fragments instead of copying them ─────────────
 // A hand-maintained copy of a shared list drifts silently — that is how
 // AGENTS.md ended up routing fewer commands than the fragment it duplicated.
 
 const REQUIRED_MARKERS = {
-  "CLAUDE.md": ["command-mappings", "skill-mappings", "safety", "graphify"],
+  "CLAUDE.md": ["skill-mappings", "safety", "graphify"],
   "AGENTS.md": ["command-mappings", "skill-mappings", "safety", "graphify"],
   ".github/copilot-instructions.md": ["core-rules", "command-mappings", "safety"],
   "templates/project-CLAUDE.md": ["command-mappings", "safety", "graphify", "workflow-assets"],
