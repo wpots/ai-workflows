@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 Filed 2026-10-08 from the October 2026 stack review (task T7, first slice). The
 review counted 17 hits in 7 shipped files; on `main` it is 19 hits in 8 files, and
@@ -29,30 +29,41 @@ exists on the maintainer's machine.
 
 ## Acceptance Criteria
 
-- [ ] `skills/improve-skill/SKILL.md` (lines 30, 31, 69, 108) says
+- [x] `skills/improve-skill/SKILL.md` (lines 30, 31, 69, 108) says
       `<ai-workflows>/…`, and step 1 defines it: the local clone of
       `greenberrynl/config/ai-workflows`, `~/Web/ai-workflows` by default, asking
       for the path when it is not there; the plugin cache copy is never edited
       because an update replaces it.
-- [ ] `skills/setup-ai-workflows/SKILL.md` (lines 107 and 203) reads rules and
+- [x] `skills/setup-ai-workflows/SKILL.md` (lines 107 and 203) reads rules and
       templates from `<ai-workflows>`, resolved the way `skills/start-project`
       already documents: the skill's base directory (`../../templates/`,
       `../../rules/`) first, a local clone second, and neither means the check is
       reported as unknown with both paths named.
-- [ ] `skills/create-pr/SKILL.md` (line 82) says the change "likely belongs in the
+- [x] `skills/create-pr/SKILL.md` (line 82) says the change "likely belongs in the
       ai-workflows repo" and drops the path.
-- [ ] `scripts/validate-skills.mjs` errors on `~/Web/ai-workflows` in any file under
+- [x] `scripts/validate-skills.mjs` errors on `~/Web/ai-workflows` in any file under
       `skills/` outside an allowlist kept in the validator: `start-project`,
-      `maintenance`, `upstream-rules` and `improve-skill`, the four that name it as
-      a documented default or lookup. The existing rule on checkout-path script
-      calls stays.
-- [ ] A changelog fragment `changelog.d/changed.skill-checkout-paths.md` describes
+      `maintenance`, `upstream-rules`, `improve-skill` and `setup-ai-workflows`, the
+      five that name it as a documented default or lookup (the fifth joined at
+      delivery: the new lookup section in `setup-ai-workflows` names the default
+      clone). The existing rule on checkout-path script calls stays.
+- [x] A changelog fragment `changelog.d/changed.skill-checkout-paths.md` describes
       the change; `CHANGELOG.md` and the plugin version are untouched.
-- [ ] `./scripts/validate-ai-instructions.sh` passes.
+- [x] `./scripts/validate-ai-instructions.sh` passes.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `rg -F "~/Web/ai-workflows" skills` lists only the five allowlisted skills:
+      `improve-skill` (the definition line), `maintenance`, `setup-ai-workflows`
+      (the lookup section), `start-project` and `upstream-rules`. `create-pr` is
+      clean; `improve-skill` has one literal where it had four.
+- [x] `node scripts/validate-skills.mjs` — 38 skills validated, 90 docs
+      link-checked, no errors.
+- [x] The rule fails without the fix: with only `skills/create-pr/SKILL.md` stashed
+      back to its original, the validator exits 1 with
+      `skills/create-pr/SKILL.md: names ~/Web/ai-workflows …`.
+- [x] `bash scripts/validate-ai-instructions.sh` (and the pre-commit hook on the
+      delivery commit) — all suites pass, no adapter drift.
 
 ## Technical Notes
 
@@ -66,7 +77,7 @@ The 19 hits on `main`, and what each becomes:
 | `skills/maintenance/SKILL.md` | 1 | keep: already a lookup with a plugin-root first choice |
 | `skills/upstream-rules/SKILL.md` | 4 | keep: contributing back needs a clone, and this names the default |
 | `skills/improve-skill/SKILL.md` | 4 | change (criterion 1) |
-| `skills/setup-ai-workflows/SKILL.md` | 2 | change (criterion 2) |
+| `skills/setup-ai-workflows/SKILL.md` | 2 | change (criterion 2); the file then names the default once, in its lookup section, so it joins the allowlist |
 | `skills/create-pr/SKILL.md` | 1 | change (criterion 3) |
 
 Reading from the plugin install is right for rules and templates, which a skill
