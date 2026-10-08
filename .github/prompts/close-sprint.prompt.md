@@ -12,11 +12,14 @@ tools should follow these steps directly.
 Goal: produce a sprint changelog, a gaps/spillover document, move the
 delivered backlog items into a dedicated sprint folder, and clear out the
 sprint's working documents. Jira is read-only throughout — never edit issues,
-transitions, or comments.
+transitions, or comments, and never close the Jira sprint.
 
 ## Safety
 
-- **Never** mutate Jira (no comments, transitions, edits, assignments).
+- **Never** mutate Jira (no comments, transitions, edits, assignments), and
+  never close the Jira sprint — the user does that, even after a go for other
+  tracker writes. Name the system whenever both closes come up: "sprint
+  sluiten" alone reads as this runbook's close.
 - **Never** run `git commit` — the user commits themselves.
 - Use `git mv` to relocate files so history is preserved.
 - `git rm` is for the Phase 5b working documents and a committed Phase 5c demo
@@ -257,8 +260,8 @@ this toolkit writes, plus whatever the project kept next to them — a tracker o
 plan, a journal, spike notes, captured payloads. Once the sprint closes nothing
 reads them to decide anything, and left in place they are most of the markdown
 an AI-assisted project accumulates. Clear them at close, not at compaction: the
-retention guard in `commands/compact-sprint.md` protects BLIs that a later
-close still cross-references, and working documents have no such reader.
+retention guard in `commands/compact-sprint.md` keeps BLIs until the next
+planning has run, and working documents have no such reader.
 
 1. **Inventory.** The sprint's working documents are:
    - `docs/sprint-<N>-planning.md` and `docs/sprint-<N>-refinement.md`
@@ -471,8 +474,12 @@ End with a concise list of:
 - New docs created during Phase 7
 - Stale branch / worktree count from Phase 8
 - Items still open that need user follow-up
-- Sprints now older than the previous one, as candidates for
-  `commands/compact-sprint.md` (never run it as part of the close)
+- Tickets a Jira sprint close would carry out of the sprint: those outside the
+  board's Done column (first cut `statusCategory != Done`; the board's last
+  column decides). The user closes the Jira sprint
+- Closed sprints that still have a folder, as candidates for
+  `commands/compact-sprint.md` (its retention guard decides; never run it as
+  part of the close)
 - Whether to write customer release notes next (`commands/release-notes.md`):
   the changelog's `Opgeleverd` rows are its first source
 

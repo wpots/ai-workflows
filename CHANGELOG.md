@@ -27,6 +27,26 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/close-sprint` — never closes the sprint in the tracker, also not
+  after a go for other tracker writes: a go covers the writes it names. The
+  close reports which tickets a tracker close would carry out of the sprint
+  (those outside the board's last column) and leaves that close to the user.
+  When both closes come up, every sentence names the system: "sprint sluiten"
+  on its own was read as the repo close, and the tracker sprint got closed on
+  that misread. The description now also fires on a request to close the
+  sprint in the tracker, and states the rule, since a run after the repo close
+  answered without loading the skill. When the changelog is already on the
+  integration branch, the skill reports instead of rerunning the phases.
+  Eval 6.
+- `skills/compact-sprint` — the retention guard follows its reason instead of
+  a sprint count. A sprint is eligible once its close is pushed (its changelog
+  is on the integration branch's remote); the last-closed sprint also waits
+  for the next planning, which reads its gaps document. The old rule (only
+  sprints ≤ N-2) blocked a sprint nothing read any more. Phase 0 now counts
+  the links into the folder from living docs and recommends waiting while
+  ADRs, architecture docs, a register or open backlog items still lean on
+  it, since each link becomes a retrieval recipe. Support months keep their
+  month-based guard. Evals 1 and 2, the first for this skill.
 - `skills/npm-maintenance`, `skills/dependency-hotfix` — a maintenance MR
   hangs under the tracker's maintenance ticket of the current quarter, as its
   own subtask. A critical hotfix and the regular maintenance after it are

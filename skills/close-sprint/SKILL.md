@@ -1,6 +1,6 @@
 ---
 name: close-sprint
-description: Close out a sprint by reading issue-tracker tickets on the user's name, verifying code delivery, and producing a sprint changelog, a gaps/spillover document, and moving delivered backlog items into a dedicated sprint folder. On projects without sprints the same close runs in support mode over a calendar month, archiving delivered backlog items into docs/support-<yyyy>-<mm>/. The tracker is read-only. Use when the user asks to close, finalize, or wrap up a sprint or a support month ("close support month", "support maand afsluiten").
+description: Close out a sprint by reading issue-tracker tickets on the user's name, verifying code delivery, and producing a sprint changelog, a gaps/spillover document, and moving delivered backlog items into a dedicated sprint folder. On projects without sprints the same close runs in support mode over a calendar month, archiving delivered backlog items into docs/support-<yyyy>-<mm>/. The tracker is read-only, and the sprint in the tracker is closed by the user, never by this skill. Use when the user asks to close, finalize, or wrap up a sprint or a support month ("sprint sluiten", "close support month", "support maand afsluiten"), including a request to close or complete the sprint in Jira or another tracker.
 ---
 
 # Close Sprint Skill
@@ -25,6 +25,10 @@ share the same workflow; Copilot follows the runbook directly.
    the CLI is not installed and cannot be installed now — say so in the recap.
    If neither connects, stop and help the user connect — never close a sprint
    on local docs alone.
+5. When the sprint's changelog is already on the integration branch and the
+   request is about the tracker sprint, do not rerun the phases: say the repo
+   close is done, list which tickets a tracker close would carry out of the
+   sprint, and leave that close to the user.
 
 ## Constraints
 
@@ -40,7 +44,15 @@ share the same workflow; Copilot follows the runbook directly.
   (runbook Phase 5): links into `docs/backlog/` from ADRs, todos and the
   backlog index, and sibling links between moved and staying items.
 - The issue tracker is **read-only**. No comments, transitions, edits, or
-  assignments.
+  assignments, and never close the sprint in the tracker: the user does that.
+  A tracker-write go the user gives during or after the close covers the
+  writes it names, never the sprint close. Report instead which tickets a
+  tracker close would carry out of the sprint: those outside the board's Done
+  column, since only the last column counts as complete.
+- Name the system in every sentence where both closes come up ("in Jira", "in
+  de repo"). "Sprint sluiten" on its own reads as this skill's close; a
+  question that left it open once got the tracker sprint closed on that
+  misread.
 - Never run `git commit` — the user commits themselves (sole exception: the
   worktree hand-off commit under "Background runs" below).
 - Use `git mv` when relocating BLIs so history is preserved.
@@ -104,9 +116,9 @@ demo folder exists, and a list of spillover items prepared for the Phase 7
 walkthrough. In support mode the same
 outputs land at the `docs/support-<yyyy>-<mm>` equivalents.
 
-Sprint folders older than the previous sprint are compacted by
-`skills/compact-sprint` — a separate, explicitly invoked lane; never compact
-as part of the close.
+Closed sprint folders are compacted by `skills/compact-sprint` — a separate,
+explicitly invoked lane with its own retention guard; never compact as part of
+the close.
 
 The changelog is internal. Notes the customer reads are another separate,
 explicitly invoked lane: `skills/release-notes` takes the changelog's
