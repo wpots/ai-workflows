@@ -70,6 +70,10 @@ Summarise: what lands, what was adapted, what was dropped and why.
 
 ### 3. Prepare the clone and branch
 
+Read [../upstream-rules/references/upstream-mr.md](../upstream-rules/references/upstream-mr.md)
+first: it is the full rule for landing a change in `unicore-template` (branch, GitLab
+MR, no reviewer), and the always-on `CLAUDE.md` only points at it.
+
 Git write ops may need the sandbox disabled (see the parent repo's git-config
 sandbox note). Run:
 

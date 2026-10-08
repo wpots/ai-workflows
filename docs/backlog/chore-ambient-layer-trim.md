@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 Filed 2026-10-08 from the October 2026 stack review (findings F4 and F10) as a
 `draft` that should not be picked up alone. Decided the same day (see
@@ -113,31 +113,50 @@ never on the team.
 
 ## Acceptance Criteria
 
-- [ ] `CLAUDE.md` no longer carries the `upstream-mr` fragment; a pointer of a
+- [x] `CLAUDE.md` no longer carries the `upstream-mr` fragment; a pointer of a
       few lines names the rule and where the full text loads.
-- [ ] Every Claude session inside `ai-workflows` (main checkout and worktrees)
+- [x] Every Claude session inside `ai-workflows` (main checkout and worktrees)
       loads the full rule from a repo-only file that `scripts/sync-ambient.sh`
       does not sync and the plugin does not ship as ambient layer:
       `.claude/rules/upstream-mr.md`, generated from `shared/upstream-mr.md`.
-- [ ] Codex in `ai-workflows` keeps the rule: `AGENTS.md` still carries the
+- [x] Codex in `ai-workflows` keeps the rule: `AGENTS.md` still carries the
       `upstream-mr` fragment (unchanged).
-- [ ] `upstream-rules` and `upstream-to-unicore` load the full rule from
+- [x] `upstream-rules` and `upstream-to-unicore` load the full rule from
       `skills/upstream-rules/references/upstream-mr.md` (generated from the same
       fragment) before they branch; `improve-skill`, which also edits
       `ai-workflows` from other projects, points at it too.
-- [ ] `scripts/validate-skills.mjs` fails when `CLAUDE.md` carries the
+- [x] `scripts/validate-skills.mjs` fails when `CLAUDE.md` carries the
       `upstream-mr` fragment again, or when the repo-only rule, the skill
       reference or `AGENTS.md` loses it.
-- [ ] unicore-template checked read-only: if its own `CLAUDE.md` / `AGENTS.md`
+- [x] unicore-template checked read-only: if its own `CLAUDE.md` / `AGENTS.md`
       lacks the rule, the MR notes carry the exact text to add before merge.
-- [ ] A changelog fragment `changelog.d/changed.ambient-upstream-mr-rule.md`;
+- [x] A changelog fragment `changelog.d/changed.ambient-upstream-mr-rule.md`;
       `CHANGELOG.md` and the plugin version untouched.
-- [ ] `node scripts/validate-skills.mjs` and
+- [x] `node scripts/validate-skills.mjs` and
       `bash scripts/validate-ai-instructions.sh` pass; no adapter drift.
 
 ## How to verify
 
-<!-- Filled in at delivery. -->
+- [x] `wc -c CLAUDE.md` — 26,992 bytes on `main` (`98a39c3`), 23,302 on this
+      branch: −3,690 bytes, about 920 tokens per turn in every session.
+- [x] `rg -c "BEGIN SHARED:upstream-mr" CLAUDE.md AGENTS.md
+      .claude/rules/upstream-mr.md skills/upstream-rules/references/upstream-mr.md`
+      — `CLAUDE.md` has none, the other three one each.
+- [x] The repo-only rule loads: from the worktree,
+      `claude -p "…is .claude/rules/upstream-mr.md loaded…" --tools ""` answered
+      YES and quoted the rule's first bullet verbatim.
+- [x] `node scripts/validate-skills.mjs` — 38 skills validated, 91 docs
+      link-checked, no errors. With `CLAUDE.md` stashed back to `main` it exits 1:
+      `CLAUDE.md: carries the upstream-mr fragment, which loads in every project`.
+- [x] `bash scripts/validate-ai-instructions.sh` (the pre-commit hook on the
+      delivery commit) — all suites pass, no adapter drift; `AGENTS.md` and
+      `.github/copilot-instructions.md` unchanged.
+- [x] unicore-template, read-only via `glab api` (project
+      `greenberrynl/the-greenhouse/unicore-template`, default branch
+      `development`): no `CLAUDE.md` or `AGENTS.md` on `development`, `main`,
+      `experimental-new-setup` or `development-payloadcms`; only the stale
+      `feat/AI-workflows` branch (April 2026) has them, without this rule. The
+      text to add is in the MR notes.
 
 ## Technical Notes
 

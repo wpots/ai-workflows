@@ -8,8 +8,12 @@ stricter than the size of most changes suggests.
 Hard rule, not a preference: never a direct push to `main`, not even a one-line
 doc fix. The same rule applies to the `upstream-rules` and `upstream-to-unicore`
 skills when run from a project. The canonical wording lives in
-[`shared/upstream-mr.md`](../shared/upstream-mr.md) and is injected into every
-adapter.
+[`shared/upstream-mr.md`](../shared/upstream-mr.md). It is injected into this
+repo's `AGENTS.md`, Copilot adapter and repo-only Claude rule
+(`.claude/rules/upstream-mr.md`), into the project templates, and into
+`skills/upstream-rules/references/upstream-mr.md` for the upstream skills — but
+not into the root `CLAUDE.md`, which loads in every session of every project and
+only carries a short pointer.
 
 ```bash
 git switch -c <type>/<slug>
