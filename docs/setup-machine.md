@@ -76,6 +76,12 @@ tooling table live in [tooling.md](tooling.md).
 Do this **before** running `sync.sh`, because sync removes the old skill copies
 from `~/.claude` — installing first means you are never without skills.
 
+> **Org-managed settings.** When the Teams Owner has applied
+> [org-managed-plugin-settings.md](org-managed-plugin-settings.md), the
+> marketplace and the plugin arrive on your first launch with auto-update on:
+> do step 1, start Claude Code once, then check step 4. Steps 2 and 3 are the
+> fallback for when `/plugin` does not list `greenberry` at Managed scope.
+
 ### 1. Check GitLab access
 
 The marketplace clones over git. Test SSH with `ssh -T git@gitlab.com` — a
