@@ -59,6 +59,7 @@ to validate. Saying "checks passed" after an inventory run is a false claim.
 For a requested minor or patch update:
 
 1. Update only the requested packages. If the request is general maintenance, keep the batch limited to compatible minor and patch releases.
+   Install a direct dependency at its **exact** target version (`<pkg>@1.2.3`), not a range. A range resolves to the newest matching release: `next@^16.3.8` once installed a 16.4.0 published that week, a framework minor nobody had tested. npm still saves the caret in `package.json`.
 2. Reinstall or update the lockfile using the selected package manager; never hand-edit a lockfile.
 3. Inspect `package.json` and the lockfile diff. Call out unexpected added, removed, or major-version transitive changes.
 4. Run the relevant checks in [Validation](#validation).
@@ -105,8 +106,8 @@ calling it safe:
 For an audit or CVE request:
 
 1. Run the package manager's audit command in both machine-readable and readable formats when available.
-2. Report each actionable vulnerability: package, severity, direct or transitive path, affected range, and available remediation.
-3. Apply safe compatible fixes covered by the user's requested scope, then run the audit again. To move one package, write only the lockfile with `<pm> install <pkg>@<range> --package-lock-only`. Diff the lockfile entry by entry (added, removed and re-versioned paths), not just its line count. A plain install over a copied or stale `node_modules` can drop optional platform packages, such as the wasm runtimes, from the lockfile.
+2. Report each actionable vulnerability: package, severity, direct or transitive path, affected range, and available remediation. Count before and after in **unique advisories**, deduplicated by advisory id. `npm audit`'s totals also count every package that only depends on a vulnerable one, so the total can rise while advisories close.
+3. Apply safe compatible fixes covered by the user's requested scope, then run the audit again. Do not reach for a plain `npm audit fix` for transitive fixes: it re-resolves every dependent, and a dependency declared as `latest` or with a wide range then pulls in unrelated new releases. One run took `react-doctor` from 0.7 to 0.9, with a nested `playwright-core`, into the runtime install, because `react-scan` declares `react-doctor: "latest"`. Move the vulnerable packages by name with `<pm> update <pkg> …`. To move one package, write only the lockfile with `<pm> install <pkg>@<range> --package-lock-only`. Diff the lockfile entry by entry (added, removed and re-versioned paths), not just its line count. A plain install over a copied or stale `node_modules` can drop optional platform packages, such as the wasm runtimes, from the lockfile.
 4. Never run `npm audit fix --force` or an equivalent breaking update without explicit user approval. Treat any remediation that upgrades a major version as a major update and follow the research workflow.
 5. Clearly distinguish unresolved vulnerabilities with no upstream fix from vulnerabilities deferred by the approved scope.
 6. Once the fix is live — the delivering commit is an ancestor of the production ref and the deploy pipeline passed — offer the short dev-team mail from `references/advisory-mail.md` in this skill's directory. Mirror the previous `OSV scan (PATCHED)` mail in the sent folder. Create it as a draft through the mail connector first, and put it in the reply ready to paste only when that fails. Never send it.
@@ -132,6 +133,18 @@ Run only scripts present in `package.json`, preferring the project's documented 
 For Next.js projects, include the production build. State any skipped check and why. Never claim validation passed when a required command was not run.
 
 Capture exit codes, not excerpts: run each validation command on its own and read its status. `npm run build | tail` returns `tail`'s status, so a failed build prints as a green line.
+
+A test that times out is not yet evidence against the update. Check the machine's load (`uptime`; a load average of 40 makes 5-second test timeouts routine) and whether the suite ran inside a sandbox that blocks something it needs. Rerun that one suite outside the sandbox before you blame the bump: a suite that hung for 17 minutes in the sandbox passed in one second outside it.
+
+When the update moves a code generator's engine (svgo for icons, a GraphQL or schema codegen), run the generator and diff its output. An empty diff, or one that only re-encodes the same result, is the evidence that the engine bump is safe.
+
+## Maintenance ticket
+
+When the user asks for an MR from this work, it hangs under the tracker's
+maintenance ticket of the current quarter as its own subtask. Create the
+subtask before the MR, put its key in the MR, and never touch the parent
+ticket. The procedure, including how to find the quarter's ticket, is in
+`skills/npm-maintenance/references/maintenance-ticket.md`.
 
 ## Safety constraints
 

@@ -27,6 +27,24 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
 
 ### Changed
 
+- `skills/npm-maintenance`, `skills/dependency-hotfix` — a maintenance MR
+  hangs under the tracker's maintenance ticket of the current quarter, as its
+  own subtask. A critical hotfix and the regular maintenance after it are
+  separate MRs, so they get separate subtasks. The subtask is created before
+  its MR, so the MR carries the key and the GitLab–Jira integration closes
+  it. Only subtasks are written; the quarterly parent stays under human
+  control, and an automation move of the parent is reported, never undone.
+  No ticket for the quarter means asking, never creating it. The procedure
+  lives in the new `skills/npm-maintenance/references/maintenance-ticket.md`,
+  with eval 4 in `dependency-hotfix`.
+- `skills/npm-maintenance` — direct dependencies are installed at the exact
+  target version, since a range picked up a framework minor published that
+  week. Transitive fixes move by name with `npm update <pkg>` instead of a
+  plain `npm audit fix`, which re-resolves dependents declared as `latest`.
+  Before and after are counted in unique advisories, since `npm audit`'s
+  totals also count dependents. A test timeout is checked against machine
+  load and the sandbox before the bump is blamed. A code generator whose
+  engine moved is run and its output diffed.
 - `rules/communication.md` — when a result leaves manual steps for the
   developer (a token to create, a setting to flip, a UI action), ask whether
   they want a step-by-step, and give one on yes: the navigation path, every

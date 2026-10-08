@@ -38,6 +38,18 @@
         "The development branch is left untouched and the conflicted paths are reported",
         "The Slack thread gets a reply saying the development back-merge needs a human"
       ]
+    },
+    {
+      "id": 4,
+      "prompt": "Hotfix the next critical for greenberrynl/refugeework/website, and afterwards do the regular dependency maintenance for the highs on development. (Context the agent can discover: today is in October 2026; Jira project RFW has RFW-319 'Refugeework onderhoud  Q4-2026', type Task, label maintenance:periodical, status Open, no subtasks. The project's MRs use 'RFW-XXX: ...' titles and 'Closes RFW-XXX' descriptions.)",
+      "expected_output": "The run finds RFW-319 through the maintenance:periodical label and the quarter in its summary. Before opening the hotfix MR it creates a Sub-task under RFW-319 for the hotfix and puts that key in the MR title and as 'Closes <key>' in the description, then adds the MR as a remote link on the subtask. The regular maintenance MR gets its own second subtask the same way. It never edits, comments on, links or transitions RFW-319 itself; when Jira automation moves RFW-319 to In Progress, it reports that and leaves it.",
+      "assertions": [
+        "The run identifies RFW-319 as the current quarter's maintenance ticket",
+        "Two separate subtasks are created under RFW-319, one per MR",
+        "Each subtask exists before its MR is opened, and the MR carries the subtask key in its title and a 'Closes' line",
+        "No edit, comment, link or transition is made on RFW-319 itself",
+        "A status change of RFW-319 by Jira automation is reported, not reverted"
+      ]
     }
   ]
 }
