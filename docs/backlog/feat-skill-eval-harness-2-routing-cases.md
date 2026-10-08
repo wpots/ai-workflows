@@ -172,6 +172,7 @@ Found while delivering (2026-10-08):
 
 Depends on: feat-skill-eval-harness.md
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/161
 - [feat-skill-eval-harness.md](feat-skill-eval-harness.md)
 - [feat-skill-eval-harness-3-ci-job.md](feat-skill-eval-harness-3-ci-job.md)
 - https://code.claude.com/docs/en/plugin-evals
