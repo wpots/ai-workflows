@@ -92,6 +92,7 @@ asks for the clone instead of falling back to the plugin cache.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/158
 - [feat-skill-owner-metadata.md](feat-skill-owner-metadata.md)
 - [../../skills/start-project/SKILL.md](../../skills/start-project/SKILL.md)
 - [../../skills/improve-skill/SKILL.md](../../skills/improve-skill/SKILL.md)
