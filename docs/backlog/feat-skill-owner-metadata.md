@@ -80,3 +80,4 @@ validator enforces is measured on the same text as before.
 - [chore-skill-checkout-paths.md](chore-skill-checkout-paths.md)
 - [../../scripts/validate-skills.mjs](../../scripts/validate-skills.mjs)
 - https://code.claude.com/docs/en/skills
+- Slice 1 MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/162
