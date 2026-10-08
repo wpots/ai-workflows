@@ -81,6 +81,7 @@ that have no skill, and make sure no trigger phrase is lost on the way.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/168
 - `chore-ambient-layer-trim.md` (slice 1/3, holds the measurements and the
   skill-doctor evidence) — independent, no ordering
 - [../../CLAUDE.md](../../CLAUDE.md)
