@@ -36,6 +36,9 @@ else
   exit 1
 fi
 
+echo "Running release automation tests..."
+node --test "$ROOT_DIR/scripts/test-release-automation.mjs"
+
 # ── Run generation ───────────────────────────────────────────────────────────
 
 echo "Running generate-adapters.sh..."

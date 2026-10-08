@@ -1,5 +1,6 @@
 stages:
   - validate
+  - release
 
 validate_ai_workflows:
   stage: validate
@@ -8,3 +9,34 @@ validate_ai_workflows:
     - apk add --no-cache bash git rsync nodejs python3
   script:
     - bash scripts/validate-ai-instructions.sh
+
+# Release automation on main (docs/contributing.md § Ship A Plugin Release).
+# Both jobs print what they would do and exit 0 while their CI/CD variable is
+# missing: RELEASE_BOT_TOKEN (project access token, scopes api +
+# write_repository) for release_train, SLACK_WEBHOOK_URL (#development incoming
+# webhook) for announce_release. GIT_DEPTH 2 keeps HEAD^1 available, which is
+# how announce_release tells a release merge from a content merge.
+.release_job:
+  stage: release
+  image: alpine:3.20
+  variables:
+    GIT_DEPTH: "2"
+  before_script:
+    - apk add --no-cache git nodejs
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Keeps the release/next MR current: cuts the next version from
+# `## [Unreleased]` after every merge to main, opens the MR once, updates it
+# on later merges, no-op when there is nothing to release.
+release_train:
+  extends: .release_job
+  script:
+    - node scripts/release-train.mjs
+
+# Posts the release notes and the update reminder in Slack when the merge
+# changed the plugin version, i.e. when a release MR merged.
+announce_release:
+  extends: .release_job
+  script:
+    - node scripts/announce-release.mjs
