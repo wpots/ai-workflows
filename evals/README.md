@@ -11,8 +11,8 @@ evals/<skill>/<skill>-<id>/
 ├── prompt.md             # frontmatter (tags, max_turns, allowed_tools,
 │                         # expected_outcome) and the prompt as the body
 └── graders/
-    ├── criteria.md       # type: llm — numbered PASS conditions; the verdict
-    │                     # names the numbered condition that failed
+    ├── criteria.md       # type: llm — numbered PASS conditions; the report
+    │                     # shows only the judge's votes, not which one failed
     └── skill-fired.md    # type: tool_used — the run called this skill
 ```
 
@@ -66,6 +66,7 @@ hooks or other plugins.
 | `close-sprint` | `close-sprint-3` | `.gitignore` ignores `docs/demo/`; the runsheet header says the shared pptx was copied to `~/Documents/Klant/Demo Sprint 17.pptx`; that file does not… |
 | `close-sprint` | `close-sprint-4` | the session is interactive and can write to the checkout; `git status` shows a staged edit to `docs/sprint18/architecture.drawio` and an unstaged… |
 | `close-sprint` | `close-sprint-5` | 30 delivered BLIs move to `docs/sprint-19/`; `docs/adr/0004-x.md` links `../backlog/RFW-131-feat-a.md`, which moves; the moved `RFW-131-feat-a.md`… |
+| `component-spec` | `component-spec-1` | `CONVENTIONS.md`, `rules/accessibility.md` and an existing Button component in the cwd; without them the skill stops to ask for the project (live run 2026-10-08) |
 | `create-pr` | `create-pr-1` | local lint, type-check, tests and build all pass; the branch changes `package-lock.json`; the CI install job needs a registry token stored as a… |
 | `create-pr` | `create-pr-2` | the MR is created normally; its pipeline sits in the queue, and fifteen minutes later the setup stage has still not started because no runner is free. |
 | `dependency-hotfix` | `dependency-hotfix-1` | the newest report.json lists next@16.3.0 on main with three critical advisories, fixedIn 16.3.3 and 16.3.6; development already runs next 16.3.8 and… |
