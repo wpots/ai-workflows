@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Rewritten 2026-10-08 from the October 2026 stack review. The 2026-07-29
 blocker was "no observable predicate for 'this run needed intervention'". That
