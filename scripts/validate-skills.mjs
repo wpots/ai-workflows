@@ -209,6 +209,19 @@ for (const dir of skillDirs) {
   }
 }
 
+// The ambient CLAUDE.md keeps short pointers to rules that moved into skill
+// references; a pointer to a renamed file would drop the rule silently.
+if (tracked.has("CLAUDE.md")) {
+  for (const match of read("CLAUDE.md").matchAll(
+    /`((?:commands|skills|rules|shared)\/[^`\s]+\.(?:md|mdc|json))`/g,
+  )) {
+    if (/[<>*]/.test(match[1])) continue;
+    if (!tracked.has(match[1])) {
+      err("CLAUDE.md", `points at \`${match[1]}\`, which is not a tracked file`);
+    }
+  }
+}
+
 // ── Shipped scripts are not run through a checkout-only path ─────────────────
 // `~/Web/ai-workflows/` exists only for developers who cloned this repo; a
 // plugin-only install has the scripts under the plugin cache instead. Naming the

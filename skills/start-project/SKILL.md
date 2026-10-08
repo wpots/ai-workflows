@@ -185,7 +185,7 @@ git stash list      # a prior session may have stashed the scope document
 ```
 
 Harness-created worktrees land in `.claude/worktrees/<name>`, hand-made ones in
-`~/.worktrees/<repo>-<slug>` (`CLAUDE.md` § Worktrees); `git worktree list`
+`~/.worktrees/<repo>-<slug>` (`skills/create-pr/references/worktrees.md`); `git worktree list`
 shows both. Read what they hold before interviewing:
 
 - per worktree: `git -C <path> status --porcelain`, then `ls <path>/docs`

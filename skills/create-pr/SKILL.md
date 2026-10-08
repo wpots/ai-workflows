@@ -189,9 +189,10 @@ push must use `--force-with-lease`.
 > **Worktree caveat.** If the branch is checked out in a git worktree
 > (`git worktree list` shows it under e.g. `.worktrees/<name>`), hooks and
 > test runners usually do **not** work there unmodified. Before step 2, read
-> `references/push-and-mr-mechanics.md` in this skill's directory and follow
-> its worktree section — it covers node_modules provisioning, ignored test
-> paths, and running every hook command verbatim on the exact commit.
+> `references/worktrees.md` in this skill's directory and follow it — it
+> covers node_modules provisioning, ignored test paths, running every hook
+> command verbatim on the exact commit, and removing the worktree after the
+> push.
 
 1. **Show the base branch, title, and description to the user and get
    approval before pushing** — pushing is outward-facing. Skip the ask only
