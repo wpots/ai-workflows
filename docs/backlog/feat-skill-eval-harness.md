@@ -145,6 +145,7 @@ in the MR description ("N generated case files + ~M authored lines").
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/150
 - Slice 2: [feat-skill-eval-harness-2-routing-cases.md](feat-skill-eval-harness-2-routing-cases.md)
 - Slice 3: [feat-skill-eval-harness-3-ci-job.md](feat-skill-eval-harness-3-ci-job.md)
 - [../../skills/improve-skill/SKILL.md](../../skills/improve-skill/SKILL.md)
