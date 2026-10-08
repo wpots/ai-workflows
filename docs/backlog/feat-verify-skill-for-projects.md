@@ -126,6 +126,7 @@ not trigger the commit convention and would only cost listing budget.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/153
 - [feat-verify-before-done.md](feat-verify-before-done.md) (done — evidence-anchored reports in the plugin skills)
 - [../../scripts/sync.sh](../../scripts/sync.sh)
 - [../../scripts/smoke-test-project-sync.sh](../../scripts/smoke-test-project-sync.sh)
