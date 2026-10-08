@@ -12,6 +12,15 @@ live caller waiting. Otherwise the most concrete of the CI items (exact
 `glab` calls, classification set, and negative constraints are all
 specified).
 
+Readiness pass 2026-10-08 — one more reason not to start: GitLab's Fix pipeline
+flow (generally available since 18.8, https://docs.gitlab.com/ci/pipelines/fix_pipeline/)
+is the platform's own triage of a failing pipeline, and the maintainer's licence
+(Premium with Duo Core) may cover it. Before building this skill, see what the flow
+does on a real failing MR pipeline; `spike-pilot-gitlab-code-review-flow.md` has
+that check. The part a platform flow cannot do is reproduce the failure with the
+project's own local command (criterion 5), so that is what this skill would still
+be for, and it still waits on `chore-run-checks-ci-parity.md`.
+
 ## Priority
 
 high
