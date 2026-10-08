@@ -99,7 +99,7 @@ decision, recorded so it stops being re-proposed at every review. Both are liste
 | Release readiness | done | safe to ship — dependency and licence scanning, API-contract/breaking-change detection, docs updated | `skills/watch-mrs` (approval, pipeline, conflicts via `detailed_merge_status`), `skills/npm-maintenance` (dependencies, out of band) | ⚠️ partial — merge-readiness only, armed by hand |
 | Deploy health | done | the release is healthy in production — a post-deploy smoke check | nothing | ⛔ out of scope — canary and rollback automation are for traffic these projects do not have; a smoke check in CI is the whole intended ceiling |
 | Feedback triage | gate on the loop | is this comment actionable at all, before anything is reproduced or fixed | nothing | ❌ absent — filed, deliberately not next |
-| Skill-change health | done | exit from Improve — a skill that was edited still does what it did, and its new routing actually triggers | `skills/component-spec/evals/evals.json` and its siblings — a few skills, no runner, not in CI | ❌ absent |
+| Skill-change health | done | exit from Improve — a skill that was edited still does what it did, and its new routing actually triggers | `claude plugin eval` over the cases in `evals/` — 42 cases for 12 skills, 6 of which run in an empty workspace; run by hand, not in CI | ⚠️ partial — a runner exists, nothing arms it |
 | Workflow-asset review | done | any change to **this** repo | feature branch → GitLab MR → reviewer `wieteke.pots` (`shared/workflow-assets.md`) | ✅ policy, human-enforced |
 
 ## The improve loop
@@ -116,22 +116,22 @@ flowchart LR
   gate{{"GitLab MR<br/>reviewer wieteke.pots"}}
   ctx["Shared context layer<br/><small>rules · skills · commands · templates</small>"]
 
-  evals(["Skill-change health<br/><small>done · absent</small>"])
+  evals(["Skill-change health<br/><small>done · partial</small>"])
 
   friction --> learn --> upstream --> gate --> ctx
   ctx -. "loaded by every tool, in every phase" .-> friction
   learn -.- evals
 
-  classDef gap fill:#fef2f2,stroke:#b91c1c,color:#7f1d1d;
-  class evals gap;
+  classDef gate fill:#fff7ed,stroke:#c2751a,color:#7c3f04;
+  class evals gate;
 ```
 
-The dotted gate is the one this lane does not have. Every other phase closes on a
-check; a skill edit closes on a human reading the diff. `skills/improve-skill` may
-rewrite the instructions that drive every other phase, and nothing proves the rewritten
-skill still triggers on the same intent or still produces what it produced before —
-the `evals.json` files under `skills/` (`skills/component-spec/evals/evals.json` and
-its siblings) have no runner that executes them. See [Gaps](#gaps).
+The dotted gate is only half there. Every other phase closes on a check; a skill edit
+closes on a human reading the diff, plus whatever eval someone remembers to run.
+`skills/improve-skill` may rewrite the instructions that drive every other phase.
+`claude plugin eval` now runs the cases in `evals/` (see `evals/README.md`), but only 6
+of the 42 cases run in an empty workspace, there are no routing cases for most skills,
+and no CI job runs any of it. See [Gaps](#gaps).
 
 Every change to this repo passes that gate — a developer editing a rule by hand and
 an agent running an upstream skill are treated identically. No direct pushes to
@@ -380,7 +380,7 @@ cannot silently grow.
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
 | `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"`, `"learn from sessions"` · **policy says** after any run that needed intervention — enforced by nothing | Post-run retrospective: fold friction back into the skill's canonical source, decide whether a recurring pattern deserves a new skill or a lighter surface, and author the new skill when warranted |
-| `skills/component-spec/evals/evals.json` and its siblings under `skills/` | evals | **nothing** — prompts and assertions exist, no runner and no CI job | The seed of the missing Skill-change-health gate: the skills whose behaviour is written down as checkable cases |
+| `evals/<skill>/<case>/` | evals | `claude plugin eval . --tag <skill> --no-publish` by hand — no CI job yet | The Skill-change-health gate's cases: 42 converted from the earlier `evals.json` files, 6 runnable in an empty workspace and 36 waiting for a fixture |
 | `skills/upstream-rules` | skill | `/upstream-rules` · `"propose rule"` · **should** fire whenever a shared asset is edited in a synced project | Propose a rule/skill change back to this repo as a GitLab MR |
 | `skills/upstream-to-unicore` | skill | `/upstream-to-unicore` · `"port to unicore"` | Port a reusable change into `unicore-template` |
 | `skills/setup-ai-workflows` | skill | `/setup-ai-workflows` · `"apply ai-workflows"`, `"generate conventions"` | Generate `CONVENTIONS.md`, thin tool adapters, and sync shared assets into a project |
@@ -505,7 +505,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 9 | "Run `improve-skill` after a run that needed intervention" is prose, not a hook | The retrospective happens when someone remembers | `docs/backlog/chore-improve-skill-stop-hook.md` |
 | 10 | QA reports what it ran, but the run leaves behind nothing a reviewer can re-run | "Done" stays an assertion: the report says the criteria are met, and checking that claim means redoing the work | `docs/backlog/feat-requirements-traceability.md` |
 | 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | `docs/backlog/feat-jira-feedback-loop.md` — filed, parked |
-| 12 | A changed skill has no regression net: no eval runner, no CI job, a few eval files in the repo | `skills/improve-skill` rewrites the instructions that drive every other phase, and nothing proves the rewrite still triggers or still delivers | `docs/backlog/feat-skill-eval-harness.md` |
+| 12 | A changed skill has a runner but no regression net: no CI job, no routing cases for most skills, and 36 of 42 converted cases need a fixture before they run | `skills/improve-skill` rewrites the instructions that drive every other phase, and nothing arms the check that the rewrite still triggers or still delivers | `docs/backlog/feat-skill-eval-harness.md` (slice 1 converts; slices 2–3 add routing cases and the CI job) |
 
 Everything else the spec proposes is in the coverage table above rather than filed —
 recording it beats twenty draft items nobody picks up.

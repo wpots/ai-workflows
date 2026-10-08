@@ -55,8 +55,10 @@ If a run had zero friction, skip silently — do not touch the skill.
      machines look: a `scripts/validate-skills.mjs` block, a lint rule, a
      hook, or a CI step.
    - **an eval** — when the failure was behavioral (the skill produced the
-     wrong shape), add a case to `skills/<name>/evals/evals.json` capturing
-     the prompt and the assertion that would have caught it.
+     wrong shape), add a case under `evals/<name>/` (copy a neighbouring
+     case: `prompt.md` plus `graders/`) capturing the prompt and the
+     condition that would have caught it. `evals/README.md` has the layout
+     and the run command.
    - **a solution note** — when the learning is project-specific (belongs to
      that codebase, not the shared skill), write
      `docs/solutions/<slug>.md` in the project: symptom, root cause, fix,

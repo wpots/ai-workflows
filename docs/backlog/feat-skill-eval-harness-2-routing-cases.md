@@ -42,7 +42,8 @@ skill stops triggering on natural phrasing, so that I find out before a user doe
 - [ ] Each of the five has one output case whose `llm` grader names the failing
       condition, not a free-text diff.
 - [ ] Routing cases are tagged `routing`; the local command for the routing
-      suite is `claude plugin eval . --tag routing --runs 1 --ablation none`.
+      suite is `claude plugin eval . --tag routing --runs 1 --ablation none
+      --no-publish --trust-plugin --max-cost-usd 3`.
       Under a two-arm run the should-fire grader is an indicator, not a gate,
       so the documented command and any CI job must use `--ablation none`.
 - [ ] `scripts/validate-skills.mjs` warns when a skill in a named risky set has
