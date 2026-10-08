@@ -14,7 +14,7 @@
 // paths that exist but are untracked, skills/commands/rules/MCP servers missing
 // from the FEATURES.md inventories, descriptions without a routing cue,
 // SKILL.md bodies over the 500-line progressive-disclosure budget,
-// unknown frontmatter keys.
+// unknown frontmatter keys, skills without a metadata.owner.
 //
 // Why routing gaps are errors and inventory gaps are warnings: the two docs are
 // documentation, but shared/command-mappings.md and shared/skill-mappings.md are
@@ -85,6 +85,10 @@ for (const rel of tracked) {
   }
 }
 
+// Frontmatter keys whose value is a block map of indented `key: value` lines
+// instead of a scalar. Every other key folds its indented lines into one string.
+const MAP_KEYS = new Set(["metadata"]);
+
 function parseFrontmatter(rel) {
   const text = read(rel);
   if (!text.startsWith("---\n")) return { fm: null, body: text };
@@ -96,9 +100,15 @@ function parseFrontmatter(rel) {
     const kv = line.match(/^([A-Za-z][\w-]*):\s*(.*)$/);
     if (kv) {
       currentKey = kv[1];
-      fm[kv[1]] = kv[2].trim();
+      const value = kv[2].trim();
+      fm[kv[1]] = MAP_KEYS.has(kv[1]) && value === "" ? {} : value;
     } else if (currentKey && /^\s+\S/.test(line)) {
-      fm[currentKey] += ` ${line.trim()}`;
+      if (typeof fm[currentKey] === "object") {
+        const entry = line.match(/^\s+([A-Za-z][\w-]*):\s*(.*)$/);
+        if (entry) fm[currentKey][entry[1]] = entry[2].trim();
+      } else {
+        fm[currentKey] += ` ${line.trim()}`;
+      }
     }
   }
   return { fm, body: text.slice(end + 5) };
@@ -121,6 +131,7 @@ const KNOWN_KEYS = new Set([
   "argument-hint",
   "allowed-tools",
   "model",
+  "metadata",
 ]);
 // Codex rejects descriptions longer than 1024 characters.
 const DESCRIPTION_LIMIT = 1024;
@@ -189,6 +200,17 @@ for (const dir of skillDirs) {
     if (!ROUTING_CUE.test(fm.description)) {
       warn(rel, "description has no 'Use when ...' routing cue");
     }
+  }
+
+  // `metadata` is the Agent Skills spec's string-to-string map; Claude Code and
+  // Codex load the skill without acting on it.
+  const owner = typeof fm.metadata === "object" ? fm.metadata.owner : undefined;
+  if (!owner) {
+    warn(
+      rel,
+      "frontmatter has no 'metadata.owner' — add `metadata:` with an indented " +
+        "`owner: <gitlab username>` line",
+    );
   }
 }
 
