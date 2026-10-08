@@ -110,9 +110,15 @@ Three rules keep process docs trustworthy:
    inventory row in [`FEATURES.md`](../FEATURES.md).
 4. Place it in the process in [pipeline-map.md](pipeline-map.md) — which phase it
    fires in, which gate it helps close, and how it is invoked.
-5. Run `./scripts/validate-ai-instructions.sh`; steps 2–4 are checked, so a
+5. Add or update the regression cases for the skill in `evals/<name>/` and run
+   them: `claude plugin eval . --tag <name> --runs 1 --ablation none --no-publish
+   --trust-plugin --max-cost-usd 3`. Layout, the `runnable` and `needs-scaffold`
+   tags, and why `--no-publish` is not optional are in
+   [`evals/README.md`](../evals/README.md). Each run is a real model call on your
+   account.
+6. Run `./scripts/validate-ai-instructions.sh`; steps 2–4 are checked, so a
    missing entry surfaces instead of staying invisible.
-6. Republish the pipeline map so the shared copy matches the repo — see
+7. Republish the pipeline map so the shared copy matches the repo — see
    [how-it-works.md](how-it-works.md#the-delivery-pipeline).
 
 ## Add Or Update A Shared Fragment

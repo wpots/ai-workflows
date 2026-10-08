@@ -33,8 +33,10 @@ suite.
 
 - [ ] A job in `.gitlab-ci.yml`, run only on merge requests changing `skills/**`
       or `evals/**`, installs Claude Code on the runner and runs
-      `claude plugin eval . --tag routing --ablation none --trust-plugin
-      --json results.json --threshold 0.8 --max-cost-usd <cap>`.
+      `claude plugin eval . --tag routing --ablation none --no-publish
+      --trust-plugin --json results.json --threshold 0.8 --max-cost-usd <cap>`
+      (`--no-publish`: the report is otherwise published to claude.ai by
+      default, and the prompts name client projects).
 - [ ] `--model` and `--judge-model` are pinned, so scores are comparable between
       runs.
 - [ ] The job fails on exit code 1 and warns on exit code 2 (the cost ceiling

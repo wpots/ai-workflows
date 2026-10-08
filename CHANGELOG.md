@@ -45,6 +45,11 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   totals also count dependents. A test timeout is checked against machine
   load and the sandbox before the bump is blamed. A code generator whose
   engine moved is run and its output diffed.
+- `skills/improve-skill` — the "add an eval" step now points at the cases under
+  `evals/<skill>/` that `claude plugin eval` runs, instead of
+  `skills/<skill>/evals/evals.json`, which nothing could run. The 42 existing
+  cases moved there; the repo gains an `evals/` directory at the plugin root
+  (never loaded into context).
 - `rules/communication.md` — when a result leaves manual steps for the
   developer (a token to create, a setting to flip, a UI action), ask whether
   they want a step-by-step, and give one on yes: the navigation path, every
