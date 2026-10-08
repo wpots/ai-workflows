@@ -1,5 +1,5 @@
 ---
-tags: [component-spec, runnable]
+tags: [component-spec, needs-scaffold]
 max_turns: 10
 allowed_tools: [Read, Glob, Grep, Skill]
 expected_outcome: "A comprehensive markdown spec for an accessible Text Input component covering props with TypeScript types, controlled and uncontrolled behavior, WCAG references, ARIA requirements such as aria-invalid and aria-describedby, keyboard behavior, screen reader behavior, error state handling, recommended file structure, Storybook coverage, usage examples, testing guidance, and open questions."

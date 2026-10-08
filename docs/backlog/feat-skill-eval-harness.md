@@ -2,9 +2,10 @@
 
 ## Status
 
-in-progress
+done
 
-Rewritten 2026-10-08 from the October 2026 stack review. The July draft planned
+Task T4 of the AI stack reviews (July and October 2026). Rewritten 2026-10-08
+from the October 2026 stack review. The July draft planned
 a custom runner (`scripts/run-evals.mjs`). Claude Code v2.1.269 ships
 `claude plugin eval`, so this item converts the existing cases and builds no
 runner. Premise corrections against `main`: 12 of 38 skills have
@@ -69,13 +70,29 @@ changes are.
 
 ## How to verify
 
-Stays `in-progress` until the first check below is ticked: a live run needs a
-network and a model account, which the delivering run did not have.
-
-- [ ] A live run, by the maintainer: `claude plugin eval . --tag runnable --runs 1
-      --ablation none --no-publish --trust-plugin --max-cost-usd 10`. Expect 6
-      cases to run; read each verdict. A `criteria` verdict that fails is a
-      finding about the skill or the assertion, not about the conversion.
+- [x] A live run, by the maintainer, 2026-10-08 on Claude Code 2.1.283 and
+      plugin 2.6.0: `claude plugin eval . --tag runnable --runs 1 --ablation none
+      --no-publish --trust-plugin --max-cost-usd 10`. 11 cases ran, not 6:
+      later MRs added `close-sprint-6`, `compact-sprint-1`/`-2`,
+      `dependency-hotfix-5` and `npm-maintenance-3` as `runnable`. $2.28, 404 s,
+      report kept local. Every `skill-fired` grader passed (10 of 10);
+      5 of 11 cases passed. The 6 failures are all `criteria` verdicts, and
+      none of them is about the conversion:
+  - `component-spec-1` was mis-tagged: the prompt points at `CONVENTIONS.md`
+    and `rules/accessibility.md`, the run starts in an empty directory, and the
+    skill rightly stopped to ask for the project. Retagged `needs-scaffold`.
+  - `npm-maintenance-2` asserted actions ("measures", "rebuilt") a run with
+    only Read, Glob, Grep and Skill cannot take. Reworded to what the answer
+    must require.
+  - `close-sprint-6` had no `skill-fired` grader; added.
+  - `dependency-hotfix-5`, `npm-maintenance-3`, `payload-jobs-1` and
+    `close-sprint-6` read as passing or nearly passing on a manual check
+    against their assertions, yet got three unanimous FAIL votes. The judge
+    (Haiku by default) records only its votes, so "name the numbered assertion
+    that failed" is lost, and a multi-assertion rubric hides the cause. Judge
+    cost was $0.07 of the $2.28, so the one-judge-call-per-case saving in
+    criterion 1 buys almost nothing. Slice 2 takes the fix: one grader per
+    assertion and a judge-model comparison.
 - [x] `node scripts/validate-skills.mjs` — 38 skills validated, 88 docs
       link-checked, no errors, with the 12 `evals.json` files gone.
 - [x] `claude plugin validate .` — "Validation passed" (it validated

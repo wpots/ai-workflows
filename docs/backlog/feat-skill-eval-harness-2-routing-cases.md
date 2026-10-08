@@ -2,11 +2,12 @@
 
 ## Status
 
-draft
+ready
 
-Filed 2026-10-08 as slice 2 of the eval work. Becomes `ready` once slice 1 is
-`done` on `main`: the case layout and the local loop it defines are what this
-slice extends.
+Task T4 of the AI stack reviews (July and October 2026). Filed 2026-10-08 as
+slice 2 of the eval work; `ready` since slice 1's live run (2026-10-08) closed
+it. That run added the two grader criteria below: the judge returned only
+votes, so no failure named its assertion.
 
 ## Slice
 
@@ -46,6 +47,20 @@ skill stops triggering on natural phrasing, so that I find out before a user doe
       --no-publish --trust-plugin --max-cost-usd 3`.
       Under a two-arm run the should-fire grader is an indicator, not a gate,
       so the documented command and any CI job must use `--ablation none`.
+- [ ] Every `llm` grader checks one assertion: each existing
+      `graders/criteria.md` (all 47 cases on 2026-10-08, 10 `runnable` and 37
+      `needs-scaffold`, so there is one format) is split by a throwaway script into one file per
+      numbered assertion (`graders/a1.md`, `a2.md`, …, body `PASS if <the
+      assertion>`), and the new output cases are written that way. A failing
+      case then names the assertion in the report.
+- [ ] The judge model is chosen on evidence: run the cases that failed on
+      2026-10-08 (`dependency-hotfix-5`, `npm-maintenance-2`,
+      `npm-maintenance-3`, `payload-jobs-1`, `close-sprint-6`) with the split
+      graders, once with the default judge (Haiku) and once with
+      `--judge-model sonnet`, `--runs 1 --ablation none --no-publish`. The MR
+      reports each per-assertion verdict for both. If the two judges disagree on
+      assertions that hold in the final message, every documented command (and
+      slice 3's) pins the stronger judge with `--judge-model`.
 - [ ] `scripts/validate-skills.mjs` warns when a skill in a named risky set has
       no `evals/<skill>/` directory.
 - [ ] `docs/workflow-canonical-sources.md` lists `evals/` as the canonical
@@ -62,6 +77,14 @@ prompt, that is a finding about the skill's `description` (the
 `description` + `when_to_use` text is truncated at 1,536 characters in the
 listing; front-load the trigger), not a reason to loosen the case. Record such
 findings in the MR; fix a description only when the case proves it is wrong.
+
+Grader split: the 2026-10-08 run put judge cost at $0.07 of $2.28, so one judge
+call per assertion adds cents. `weight` per grader stays at the default; a case
+still passes only when every grader passes (default `--threshold 1.0`). The
+`criteria.md` line "FAIL if any of them does not hold. Name the numbered
+assertion that failed." goes, because the report keeps only the votes. A failing
+assertion after the split is a finding about the skill or the assertion; record
+it in the MR, do not loosen it in this slice.
 
 Cost: routing cases are cheap, output cases are not. Keep one output case per
 skill here; more cases are added by `skills/improve-skill` when a failure
