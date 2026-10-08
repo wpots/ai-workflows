@@ -7,7 +7,7 @@
 // mapping targets that don't exist, a skill or command missing from its routing
 // registry, an adapter missing a shared marker, canonical-sources rows pointing
 // at missing files, pipeline-map paths that don't exist, FEATURES.md rows
-// naming untracked paths.
+// naming untracked paths, MR-creation snippets missing the provenance label.
 //
 // Warnings (exit 0): skills/commands missing from the canonical-sources
 // inventory, skills/commands/rules not placed in the pipeline map, pipeline-map
@@ -66,6 +66,24 @@ for (const rel of tracked) {
 }
 
 const read = (rel) => readFileSync(path.join(ROOT, rel), "utf8");
+
+// ── MR-creation snippets carry the provenance label ──────────────────────────
+// `glab api … /merge_requests --method POST` is the route create-pr takes
+// whenever the description comes from a file, and `labels` is a plain field
+// there (unlike the reviewer, which needs numeric ids). A snippet that omits it
+// teaches the agent to ship MRs without the only provenance signal that
+// survives a squash merge — the failure rules/git-flow.md exists to prevent.
+for (const rel of tracked) {
+  if (!/^(skills|commands)\/.*\.md$/.test(rel)) continue;
+  // Fold shell line continuations so a multi-line snippet reads as one command.
+  for (const line of read(rel).replace(/\\\n\s*/g, " ").split("\n")) {
+    if (!line.includes("glab api")) continue;
+    if (!/\/merge_requests"/.test(line) || !/--method\s+POST/.test(line)) continue;
+    if (!line.includes("labels=ai:agent-authored")) {
+      err(rel, 'glab MR-creation snippet omits --field "labels=ai:agent-authored"');
+    }
+  }
+}
 
 function parseFrontmatter(rel) {
   const text = read(rel);

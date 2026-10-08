@@ -39,6 +39,14 @@ If ambiguous, ask the user.
 2. Verify the CLI is authenticated (`gh auth status` / `glab auth status`).
    If not, use the no-CLI fallbacks under Fallback Execution instead of aborting.
 3. Check `git status` for uncommitted changes — warn and ask before continuing.
+   When the tree mixes unrelated work with the change to ship, carve it out:
+   `git stash push -u -m "<what>" -- <paths>`, then
+   `git switch -c <branch> --no-track <remote>/<base>`, then `git stash pop`
+   and stage by path — never `git add -A` or `git commit -a`. Use `switch`, not
+   `git checkout -b <new> <remote>/<base>`: where the shell is sandboxed the
+   latter cannot write `.git/config`, exits 1 after creating the branch and
+   leaves you on the old one, so confirm with `git branch --show-current`
+   before staging.
    If the user wants the work split across **several** MRs, settle three things
    with them first, because each changes every branch you create: stacked (each
    branch targets the previous) or independent (each targets the base — nicer to
@@ -174,7 +182,9 @@ Applies on every run, including updates to an existing PR/MR.
      reason by analogy from GitHub's `--body-file`: guessing it fails with
      `Unknown flag: --description-file`. Create the MR in one API call with the
      body read from a file instead:
-     `glab api "projects/<encoded-path>/merge_requests" --method POST --field "source_branch=<branch>" --field "target_branch=<base>" --field "title=<title>" --field "description=@<file>"`.
+     `glab api "projects/<encoded-path>/merge_requests" --method POST --field "source_branch=<branch>" --field "target_branch=<base>" --field "title=<title>" --field "description=@<file>" --field "labels=ai:agent-authored" --field "remove_source_branch=true"`.
+     Carry `labels` in that call — it is a plain field on the API path, and
+     leaving it out ships the MR without the provenance label.
      This also sidesteps `glab mr create`'s cwd dependency: it resolves repo
      context from the current directory's git remotes and can fail despite
      `--repo` (use the API call when driving the repo from another directory).
