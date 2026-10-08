@@ -2,11 +2,11 @@
 
 ## Status
 
-draft
+in-progress
 
-Filed 2026-10-08 from the October 2026 stack review (task T7, second slice). Not
-`ready`: which person owns which skill is the maintainer's call, and the first
-step is validator work, not content.
+Filed 2026-10-08 from the October 2026 stack review (task T7, second slice). The
+owner decision was made on 2026-10-08 (see `## Decision`), which made the item
+deliverable.
 
 ## Priority
 
@@ -35,11 +35,11 @@ Sliced because the second step touches 38 files, over the budget in
 - [ ] **Slice 2 — the owners.** Every `skills/*/SKILL.md` gains
       `metadata:` / `owner: <gitlab username>`, and the check becomes an error.
 
-## Open decision
+## Decision
 
-Who owns which skill. A default of the maintainer for all 38 is possible but makes
-the field empty of information; the useful version assigns by who maintains each
-skill.
+2026-10-08, Wieteke Pots (maintainer): every skill is owned by `wieteke.pots`
+(GitLab username) for now. Both slices go ahead, and in slice 2 a missing owner
+becomes a validator error.
 
 ## Technical Notes
 
