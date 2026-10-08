@@ -182,4 +182,34 @@ if [[ -n "$NEWER_FILES" ]]; then
   exit 1
 fi
 
+echo "Smoke test: sync emits the verify skill once and never overwrites it"
+VERIFY_PROJECT="$TMP_DIR/verify-skill"
+mkdir -p "$VERIFY_PROJECT"
+printf '{\n  "name": "sync-smoke-verify",\n  "private": true\n}\n' > "$VERIFY_PROJECT/package.json"
+VERIFY_FILE="$VERIFY_PROJECT/.claude/skills/verify/SKILL.md"
+
+"$SYNC_SCRIPT" --project "$VERIFY_PROJECT" >/dev/null
+assert_exists "$VERIFY_FILE"
+assert_contains "$VERIFY_FILE" "name: verify"
+if grep -Fq "disable-model-invocation" "$VERIFY_FILE"; then
+  echo "The verify skill must stay invocable by the model" >&2
+  exit 1
+fi
+
+printf '\nProject edit.\n' >> "$VERIFY_FILE"
+SECOND_SYNC_OUT="$("$SYNC_SCRIPT" --project "$VERIFY_PROJECT")"
+assert_contains "$VERIFY_FILE" "Project edit."
+echo "$SECOND_SYNC_OUT" | grep -Fq "verify/SKILL.md exists (preserved" || { echo "Second sync did not report the preserved verify skill" >&2; exit 1; }
+
+echo "Smoke test: --dry-run reports the verify skill and writes nothing"
+DRY_PROJECT="$TMP_DIR/verify-dry-run"
+mkdir -p "$DRY_PROJECT"
+printf '{\n  "name": "sync-smoke-verify-dry",\n  "private": true\n}\n' > "$DRY_PROJECT/package.json"
+DRY_OUT="$("$SYNC_SCRIPT" --dry-run --project "$DRY_PROJECT")"
+echo "$DRY_OUT" | grep -Fq "[dry-run] write .claude/skills/verify/SKILL.md" || { echo "Dry run did not mention the verify skill" >&2; exit 1; }
+if [[ -e "$DRY_PROJECT/.claude/skills/verify/SKILL.md" ]]; then
+  echo "Dry run wrote the verify skill" >&2
+  exit 1
+fi
+
 echo "Project sync smoke test passed."

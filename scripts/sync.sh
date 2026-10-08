@@ -11,6 +11,7 @@ SRC_TEMPLATES="$ROOT_DIR/templates"
 SRC_AI_WORKFLOWS_TEMPLATE="$ROOT_DIR/templates/project-ai-workflows.md"
 SRC_CURSOR_GRAPHIFY="$ROOT_DIR/templates/project-cursor-graphify.mdc"
 SRC_CLAUDE_SETTINGS="$ROOT_DIR/templates/project-claude-settings.json"
+SRC_VERIFY_SKILL="$ROOT_DIR/templates/project-verify-SKILL.md"
 SRC_FRESHNESS="$ROOT_DIR/scripts/project-sync-freshness.sh"
 
 TARGET_CURSOR="$HOME/.cursor"
@@ -36,6 +37,7 @@ Project sync copies:
   .cursor/rules/conventions.mdc     (Cursor conventions adapter)
   rules/ and commands/              (shared baseline rules and runbooks)
   .github/prompts/*.prompt.md       (attachable via #file: in Copilot chat)
+  .claude/skills/verify/SKILL.md    (pre-commit verification; only when missing)
 
 Options:
   --dry-run     Show what would be synced without writing
@@ -380,6 +382,21 @@ if [[ -n "$PROJECT_DIR" ]]; then
       ensure_dir "$PROJECT_DIR/.claude"
       cp "$SRC_CLAUDE_SETTINGS" "$PROJECT_DIR/.claude/settings.json"
       echo "  [ok] .claude/settings.json (graphify hooks)"
+    fi
+  fi
+
+  # Emit the verify skill only when the project has none: Claude Code runs a
+  # project skill named `verify` before each commit (a plugin skill would not
+  # count), and the project owns the file once it exists.
+  if [[ -f "$SRC_VERIFY_SKILL" ]]; then
+    if [[ -f "$PROJECT_DIR/.claude/skills/verify/SKILL.md" ]]; then
+      echo "  [ok] .claude/skills/verify/SKILL.md exists (preserved — project-owned)"
+    elif [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[dry-run] write .claude/skills/verify/SKILL.md"
+    else
+      ensure_dir "$PROJECT_DIR/.claude/skills/verify"
+      cp "$SRC_VERIFY_SKILL" "$PROJECT_DIR/.claude/skills/verify/SKILL.md"
+      echo "  [ok] .claude/skills/verify/SKILL.md (pre-commit verification)"
     fi
   fi
 

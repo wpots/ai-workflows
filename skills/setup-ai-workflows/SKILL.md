@@ -258,6 +258,13 @@ Write two files, then document them:
 If either file already exists, do not overwrite it — report what a manual
 merge should add instead.
 
+Also emit `.claude/skills/verify/SKILL.md` from
+`templates/project-verify-SKILL.md` (`scripts/sync.sh --project` does the same
+copy), unless the project already has one — never overwrite it; the project owns
+it from then on. Claude Code runs a project skill named `verify` before each
+commit, except docs-only and tests-only ones. A skill shipped in the plugin does
+not count, which is why this one lives in the project.
+
 ### 9. Summary
 
 Output a summary of what was created/synced:
