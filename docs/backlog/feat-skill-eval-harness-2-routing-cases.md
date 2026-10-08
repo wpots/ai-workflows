@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Task T4 of the AI stack reviews (July and October 2026). Filed 2026-10-08 as
 slice 2 of the eval work; `ready` since slice 1's live run (2026-10-08) closed
