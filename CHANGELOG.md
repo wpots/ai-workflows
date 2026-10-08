@@ -25,6 +25,15 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   separately. Records dated reports and explicit coverage limits without
   starting scans, syncs, updates or deploys. Adds routing and inventory entries.
 
+### Changed
+
+- `rules/communication.md` — when a result leaves manual steps for the
+  developer (a token to create, a setting to flip, a UI action), ask whether
+  they want a step-by-step, and give one on yes: the navigation path, every
+  field value and flag, what gets copied where, and the verification step.
+  The first one lives in `docs/contributing.md`, for the two CI variables the
+  release automation needs.
+
 ## [2.5.0] - 2026-10-07
 
 ### Added

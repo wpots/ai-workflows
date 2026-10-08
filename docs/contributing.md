@@ -167,6 +167,43 @@ and print what they would do while it is missing, so the pipeline stays green:
 | `RELEASE_BOT_TOKEN` | project access token, role Developer, scopes `api` + `write_repository`; pushes `release/next` and opens the MR | `release_train` |
 | `SLACK_WEBHOOK_URL` | Slack incoming webhook for `#development` | `announce_release` |
 
+### Setting up the two variables (once)
+
+`RELEASE_BOT_TOKEN`:
+
+1. Project → Settings → Access tokens → **Add new token**. Name
+   `release-train`, role **Developer**, scopes **`api`** and
+   **`write_repository`**, an expiry date (GitLab requires one; a year out is
+   fine, `skills/maintenance` flags it when it comes near). Create, and copy
+   the token now: it is shown once.
+2. Project → Settings → CI/CD → Variables → **Add variable**. Key
+   `RELEASE_BOT_TOKEN`, value the token, type *Variable*, environment scope
+   *All*, **Protect variable** on (`main` is protected, and only the `main`
+   pipeline needs it), **Mask variable** on, *Expand variable reference* off.
+   Save.
+
+`SLACK_WEBHOOK_URL`:
+
+1. <https://api.slack.com/apps> → **Create New App** → *From scratch* → name
+   `ai-workflows releases`, workspace Greenberry → Create. An existing app
+   that already has incoming webhooks works too.
+2. Features → **Incoming Webhooks** → switch *Activate Incoming Webhooks* on →
+   **Add New Webhook to Workspace** → channel `#development` → Allow. Copy the
+   webhook URL (`https://hooks.slack.com/services/…`).
+3. Optional: Settings → Basic Information → *Display Information* sets the
+   name and icon the posts appear under.
+4. Project → Settings → CI/CD → Variables → **Add variable**. Key
+   `SLACK_WEBHOOK_URL`, value the URL, **Protect variable** on, **Mask
+   variable** on (the URL's characters are within GitLab's mask set). Save.
+
+Verify: the next push to `main` runs both jobs. The `release_train` log ends
+in `Opened !<n> (release: x.y.z)`, the `announce_release` log in `Not a
+release commit`. Merge that release MR, and the following `announce_release`
+log ends in `Announced x.y.z in Slack`, with the post in `#development`. To
+announce a version released before the webhook existed, run
+`SLACK_WEBHOOK_URL=<url> node scripts/announce-release.mjs --version x.y.z`
+from your own terminal; the URL never lands in the repo.
+
 The bump inference lives in `scripts/assign-plugin-version.mjs`, for CI and
 for the manual fallback alike: `### Removed` or a `BREAKING` marker is MAJOR
 (removed/renamed skill or command, changed workflow contract), `### Added` is
