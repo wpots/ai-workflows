@@ -87,6 +87,7 @@ ad-hoc worktrees still follow them.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/167
 - `chore-ambient-layer-trim.md` (slice 1/3, holds the decisions and the
   skill-doctor evidence) — independent, no ordering
 - [../../CLAUDE.md](../../CLAUDE.md)
