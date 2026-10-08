@@ -27,10 +27,12 @@ If a run had zero friction, skip silently — do not touch the skill.
 ## Workflow
 
 1. **Identify the skill that ran** and locate its canonical source:
-   `~/Web/ai-workflows/skills/<name>/SKILL.md`, with
-   `~/Web/ai-workflows/commands/<name>.md` as the fallback runbook. Project
-   sync copies these outward — always edit the ai-workflows source, never only
-   a synced copy.
+   `<ai-workflows>/skills/<name>/SKILL.md`, with
+   `<ai-workflows>/commands/<name>.md` as the fallback runbook. `<ai-workflows>`
+   is your local clone of `greenberrynl/config/ai-workflows`, `~/Web/ai-workflows`
+   by default; when it is not there, ask for the path. Never edit the plugin
+   cache copy: an update replaces it. Project sync copies these outward —
+   always edit the ai-workflows source, never only a synced copy.
 2. **List the frictions** from the session, concretely: each user
    intervention, each failed command paired with the fix that worked, each
    assumption that turned out wrong.
@@ -66,7 +68,7 @@ If a run had zero friction, skip silently — do not touch the skill.
      that folder as grounding, so the lesson resurfaces at planning time
      instead of being relearned.
 6. **Update intent mappings** when new trigger phrases surfaced this session:
-   the `## Command Mapping` section in `~/Web/ai-workflows/CLAUDE.md` (source)
+   the `## Command Mapping` section in `<ai-workflows>/CLAUDE.md` (source)
    and the synced `~/.claude/CLAUDE.md`.
 7. **Report once**: which files changed and the learnings captured, one line
    per learning, including which compound artifacts (check/eval/solution
@@ -105,7 +107,7 @@ resources, adapters, validation, risks.
 
 The workflow above folds learnings into an *existing* skill. When the session
 surfaced a genuinely new, reusable technique that no skill covers, author a new one
-in `~/Web/ai-workflows/skills/<name>/SKILL.md`. Adapted from obra/superpowers'
+in `<ai-workflows>/skills/<name>/SKILL.md`. Adapted from obra/superpowers'
 `writing-skills` — creating a skill is TDD for process documentation.
 
 **Create only when** the technique wasn't obvious, you'd reference it again across

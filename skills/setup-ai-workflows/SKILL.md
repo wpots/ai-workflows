@@ -37,6 +37,22 @@ So when `docs/architecture.md` exists, it is the authority on the intended
 mapping — see Step 3. If none of the three documents exist and this is a fresh
 project rather than an existing codebase, offer `start-project` first.
 
+## Where The Rules And Templates Come From
+
+Steps 4 and 6 read the shared rules and the project templates as
+`<ai-workflows>/rules/` and `<ai-workflows>/templates/`. They ship with the
+plugin; a `~/Web/ai-workflows/` clone exists only for developers who cloned the
+repo. Use the first that exists:
+
+1. `<skill base directory>/../../` — the harness prints the base directory when
+   the skill loads, so this is the installed version exactly. Do not glob the
+   plugin cache: old versions linger there.
+2. `~/Web/ai-workflows/` — a local clone, and the only option on tools that do
+   not load skills from the plugin.
+
+Neither exists → say so and name both paths tried; do not guess a template.
+Never edit a file under the plugin cache: an update replaces it.
+
 ## Steps
 
 ### 1. Validate Target
@@ -104,7 +120,7 @@ relevant stack rules table and record the mapping for use in CONVENTIONS.md.
 ### 4. Detect Deviations from Global Rules
 
 Compare the detected project config against global rules in
-`~/Web/ai-workflows/rules/` (or `~/.claude/rules/`). Flag deviations such as:
+`<ai-workflows>/rules/` (or `~/.claude/rules/`). Flag deviations such as:
 
 - Component libraries that differ from global rules
   (e.g., React Aria Components vs. the "no component libraries" rule)
@@ -200,7 +216,7 @@ Guidelines:
 ### 6. Generate Thin Adapters
 
 Generate tool-specific adapter files that reference CONVENTIONS.md.
-Use templates from `~/Web/ai-workflows/templates/`:
+Use templates from `<ai-workflows>/templates/`:
 
 | File | Template | Strategy |
 |------|----------|----------|

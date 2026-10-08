@@ -226,6 +226,29 @@ for (const rel of [...tracked].filter(
   }
 }
 
+// ── Skills do not hard-code the maintainer's checkout path ───────────────────
+// A skill that reads from or edits the ai-workflows repo says `<ai-workflows>`
+// and resolves it. Only these skills may name the default clone location, because
+// each documents a lookup or a default for developers who cloned the repo.
+
+const CHECKOUT_PATH_ALLOWLIST = new Set([
+  "skills/improve-skill/SKILL.md",
+  "skills/maintenance/SKILL.md",
+  "skills/setup-ai-workflows/SKILL.md",
+  "skills/start-project/SKILL.md",
+  "skills/upstream-rules/SKILL.md",
+]);
+
+for (const rel of [...tracked].filter((f) => f.startsWith("skills/"))) {
+  if (CHECKOUT_PATH_ALLOWLIST.has(rel)) continue;
+  if (read(rel).includes("~/Web/ai-workflows")) {
+    err(
+      rel,
+      "names `~/Web/ai-workflows`, a path only a clone has — say `<ai-workflows>` and resolve it (see skills/start-project); only the skills that document the default clone location may name it",
+    );
+  }
+}
+
 // ── Relative markdown links in canonical docs ────────────────────────────────
 
 const linkScanFiles = [...tracked].filter(
