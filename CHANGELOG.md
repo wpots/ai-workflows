@@ -97,6 +97,41 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   one opening sentence and a facts table. It is created as a draft through the
   mail connector first, and given paste-ready only when the connector refuses.
   It is never sent. The template is in the new `references/advisory-mail.md`.
+- `skills/npm-maintenance` — every MR that moves a dependency now carries a
+  risk analysis per package (`references/risk-analysis.md`), replacing what
+  Renovate's MR body used to give and adding project context Renovate never
+  had. The block covers:
+  - the exact range, including production's version when it differs;
+  - the runtime-relevant entries in every release in between, plus a diff of
+    the framework defaults;
+  - where this project uses each change (`path:line`);
+  - the hosting metric it can move;
+  - maturity: release age with a 7-day flag, adoption per version from the
+    npm downloads API, and open upstream regressions;
+  - the package's own revert history;
+  - a Low, Medium or High verdict with what to watch after deploy and the
+    rollback.
+
+  Everything comes from CLIs and public APIs, so headless runs produce it too.
+  High keeps the MR in Draft until the request-volume measurement has run. The
+  former "Framework minors are behavioural changes" section is now
+  "Behavioural changes need a measurement" and also starts on a High verdict.
+  Its positive control applies when a known-bad version exists. Origin: a
+  next 16.2 → 16.3 bump that passed lint, tests and the build and raised
+  hosting cost about 7×. Adds eval case `npm-maintenance-3`.
+- `skills/dependency-hotfix` — the plan, the MR description and the recap
+  carry the risk verdict. The Slack parent mentions a High verdict, and the
+  "live" thread reply names the metric to watch. When development's version
+  sits on a later minor than the lowest fix and that extra range rates High,
+  the hotfix takes the lowest fix; the back-merge keeps development's
+  version. A High verdict never delays the hotfix. The measurement runs when
+  it fits the 24–72 hour window, and otherwise the plan says "not measured".
+  Adds eval case `dependency-hotfix-5` and a risk condition to
+  `dependency-hotfix-1`.
+- `skills/setup-ai-workflows` and `commands/setup-ai-workflows.md` —
+  `CONVENTIONS.md` gains a `## Hosting` section. It records the platform, its
+  cost-sensitive metrics and a baseline the developer confirms. The risk
+  analysis reads its cost surface from there.
 
 ## [2.5.0] - 2026-10-07
 

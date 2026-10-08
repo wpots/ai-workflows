@@ -1,6 +1,6 @@
 ---
 name: npm-maintenance
-description: Safely inspect and update Node.js dependencies, including routine minor or patch updates, npm audit remediation, and researched major-version migrations. Use when the user asks to update npm packages, run npm outdated or npm update, manage dependency versions, fix dependency vulnerabilities, or assess breaking changes from a package upgrade.
+description: Safely inspect and update Node.js dependencies, including routine minor or patch updates, npm audit remediation, and researched major-version migrations, with a per-package risk analysis (behaviour changes, project exposure, hosting cost, maturity) in every MR. Use when the user asks to update npm packages, run npm outdated or npm update, manage dependency versions, fix dependency vulnerabilities, or assess the risk or breaking changes of a package upgrade.
 ---
 
 # npm dependency maintenance
@@ -63,7 +63,7 @@ For a requested minor or patch update:
 2. Reinstall or update the lockfile using the selected package manager; never hand-edit a lockfile.
 3. Inspect `package.json` and the lockfile diff. Call out unexpected added, removed, or major-version transitive changes.
 4. Run the relevant checks in [Validation](#validation).
-5. Summarize updated packages, version transitions, audit status, changed files, and validation results.
+5. Summarize updated packages, version transitions, risk verdicts ([Risk analysis](#risk-analysis-in-every-mr)), audit status, changed files, and validation results.
 
 ## 3. Handle major updates
 
@@ -71,35 +71,52 @@ Before changing a direct dependency across a major version:
 
 1. Identify the installed version, target version, package role, peer dependencies, and dependents in the repository.
 2. Research the upstream migration guide, release notes, changelog, and official documentation. Prefer primary sources. Summarize breaking changes with file-level codebase impact where discoverable.
-3. Propose a bounded migration plan, including configuration, API, type, build, and test changes.
+3. Propose a bounded migration plan, including configuration, API, type, build, and test changes, with the [risk analysis](#risk-analysis-in-every-mr) of the range.
 4. Obtain explicit approval for the target version and plan before modifying dependencies or application code.
 5. Apply the approved migration, then run validation. If checks fail, diagnose and report the failure; do not silently weaken tests, pins, or configuration to make the update pass.
 
-## Framework minors are behavioural changes
+## Risk analysis in every MR
+
+Lint, tests and the build say whether the code still works. They do not say
+what it now does in production. Before any MR that moves a dependency —
+routine (§2), major (§3) or vulnerability (§4) — run the analysis in
+[references/risk-analysis.md](references/risk-analysis.md) and put its block
+in the MR description. Per package the block gives:
+
+- the exact range;
+- the runtime-relevant changes in every release in between;
+- where this project uses them;
+- the hosting metric they can move;
+- maturity (age, adoption, open regressions) and history;
+- a Low, Medium or High verdict, with what to watch after deploy and the
+  rollback.
+
+A High verdict keeps the MR in Draft until the measurement below has run.
+Without an MR, the same verdicts go in the summary.
+
+## Behavioural changes need a measurement
 
 A minor of the framework (Next, Nuxt, Remix, Expo) can flip defaults and change
-request patterns while lint, tests and the build stay green. When the bump is a
-framework minor, or the history check in §1 found a revert, do this before
+request patterns while lint, tests and the build stay green. The risk analysis
+(release notes in range, defaults diff, cost surface) shows where to look. It
+does not show what happens. When the bump is a framework minor, the history
+check in §1 found a revert, or the risk verdict is High, measure before
 calling it safe:
 
-1. Diff the release notes between the **exact** deployed version and the target
-   — every patch in between, from the releases API, not the minor's blog post.
-2. Diff the framework's default configuration between the two tags (for Next:
-   `packages/next/src/server/config-shared.ts`). A flipped default is a
-   behavioural change the app never opted into.
-3. Name the host's cost-sensitive metrics (Vercel: Function Invocations, Edge
-   Requests, Firewall Rate Limit Requests) and what the app's baseline is.
-4. Measure request volume on a production build served locally (`next start`)
+1. Measure request volume on a production build served locally (`next start`)
    against the current production deployment as baseline: the homepage and one
    list page, DevTools filtered on the framework's data-request marker
    (`_rsc` for Next), counted after load, after 60 s idle, and after forced
    re-renders.
-5. **Positive control**: reinstall the known-bad version with
-   `<pm> install <pkg>@<bad> --no-save`, rebuild, repeat the measurement. A clean
-   result on the target without a reproduced failure on the bad version proves
-   nothing. Restore `node_modules` from the lockfile afterwards.
-6. Put all three numbers in the MR, name the metric to watch in the first hour
-   after deploy, and name the rollback.
+2. **Positive control**, when a known-bad version exists (a revert found in §1
+   step 5): reinstall it with `<pm> install <pkg>@<bad> --no-save`, rebuild,
+   and repeat the measurement. A clean result on the target proves nothing
+   until the failure has been reproduced on the bad version. Restore
+   `node_modules` from the lockfile afterwards. When no known-bad version
+   exists, say that the result has no positive control.
+3. Put the numbers in the **Measurement** line of the risk block, and fill in
+   its **Watch after deploy** (the metric to check in the first hour) and
+   **Rollback** lines.
 
 ## 4. Address vulnerabilities
 

@@ -1,6 +1,6 @@
 ---
 name: dependency-hotfix
-description: Ship a critical npm vulnerability from the Greenberry dependency-scanner report as a hotfix — minimal bump on a hotfix branch off the production branch, MR to production with GitLab auto-merge, then back-merge production into acceptance and development, with a Slack thread for the team, a Monitor loop over the MR, the deploy and the back-merges, and worktree and branch cleanup at the end. Resumable across sessions. Use when a critical from the dependency scanner (or any critical advisory running on production) is picked up ("pak de critical op", "critical hotfix", "dependency hotfix", "security hotfix naar main", "scanner critical"), or when an earlier hotfix run needs resuming.
+description: Ship a critical npm vulnerability from the Greenberry dependency-scanner report as a hotfix — minimal bump with a risk analysis on a hotfix branch off the production branch, MR to production with GitLab auto-merge, then back-merge production into acceptance and development, with a Slack thread for the team, a Monitor loop over the MR, the deploy and the back-merges, and worktree and branch cleanup at the end. Resumable across sessions. Use when a critical from the dependency scanner (or any critical advisory running on production) is picked up ("pak de critical op", "critical hotfix", "dependency hotfix", "security hotfix naar main", "scanner critical"), or when an earlier hotfix run needs resuming.
 ---
 
 # Dependency hotfix
@@ -89,7 +89,13 @@ fixes every advisory the scanner lists for that package (`fixedIn` is per
 advisory). When development already runs a version of the same major that is
 at least that high — `branches.diffs[].versions.development` — take
 development's version: it has been through CI there, and the back-merge then
-does not conflict on that package.
+does not conflict on that package. One exception, decided in Step 3: when
+development's version is on a later minor than the lowest fix and the risk
+analysis rates that extra range High, take the lowest fix and say why in the
+plan. CI on development proves the build, not the request behaviour. The
+later minor reaches production with the next regular release, which carries
+its own analysis, and the back-merge keeps development's higher version
+(Step 8).
 
 ## Step 2 — Verify against the live lockfile and the history
 
@@ -132,6 +138,22 @@ Read the project before planning:
   maintenance that follows is a separate MR and gets a separate subtask. No
   ticket for the quarter → ask; never create the parent.
 
+**Risk.** Run the analysis in `skills/npm-maintenance/references/risk-analysis.md`
+over the range from production's version to the target. A hotfix never waits
+on the verdict: the critical is running on production now. The verdict does
+shape the plan:
+
+- When development's version and the lowest fix sit on different minors,
+  analyse both ranges. The target version rule in Step 1 picks between them.
+- **High**: run the measurement from `skills/npm-maintenance/SKILL.md`
+  ("Behavioural changes need a measurement") when it fits the 24–72 hour
+  window, and put the numbers in the plan. When it does not fit, the plan says
+  "not measured", and the go accepts that knowingly. The MR stays ready, not
+  Draft, because auto-merge needs a ready MR. The verdict travels in the plan,
+  the MR description and the Slack parent instead.
+- Every verdict carries "watch after deploy" and "rollback". The live reply
+  in Step 6 names the metric to watch.
+
 **Back-merge route.** Production must become an ancestor of acceptance and
 development again, or the next release cannot fast-forward and re-conflicts
 on every later release. A squashed MR copies the change but not the commit,
@@ -153,6 +175,7 @@ Then show one plan block and ask for the go with `AskUserQuestion`:
 ```
 Project       greenberrynl/<client>/<site> · production branch main
 Critical      next 16.3.0 → 16.3.8 (GHSA-2xp9-…, GHSA-p293-…, GHSA-vcvr-…); with it @next/third-parties
+Risk          Low — patch range, no runtime-relevant change used here, 16.3.8 is 12 d old · watch Function Invocations 1 h
 Branch        hotfix/deps-next-16.3.8 in ~/.worktrees/<repo>-hotfix-next
 MR            fix(deps): bump next to 16.3.8 for three critical RCE advisories → main, auto-merge armed
 Version       1.1.3 + CHANGELOG [1.1.3] Security, tag v1.1.3, GitLab Release (per docs/release-process.md)
@@ -226,8 +249,9 @@ Include the draft parent message. No go, nothing leaves the machine.
   description follow the project's ticket convention with the subtask key —
   in RefugeeWork `RFW-325: fix(deps): …` and `Closes RFW-325` on the first
   line. Description: the advisories with links, versions before and after,
-  the scanner job, what was validated, the back-merge plan, deploy notes.
-  Then add the MR as a remote link on the subtask.
+  the scanner job, the risk-analysis block (Step 3), what was validated, the
+  back-merge plan, deploy notes. Then add the MR as a remote link on the
+  subtask.
 - Arm auto-merge on the reviewed head only:
 
   ```sh
@@ -249,11 +273,15 @@ team's language — read its last few messages first.
   project, package and target version, how many critical advisories, that
   auto-merge is on and one approval is needed, then the MR link. Example:
   `:rotating_light: Critical hotfix RFW: next 16.3.8 (3 critical RCE-advisories op prod), auto-merge staat aan, 1 approval nodig <MR link>`.
+  When the risk verdict is High, add it with its reason in a few words
+  (`· risico hoog: prefetch-gedrag 16.3, kostenvlak Vercel`). The reviewer
+  should know before approving.
   Keep its `ts`; every later post is a reply in that thread, and the thread
   link goes into the MR description so a resumed run finds it.
 - **Thread replies on transitions only**: pipeline failed (job name),
-  merged and deploying, live on production (version, tag), back-merged,
-  blocked (conflict, failed deploy). One or two lines each.
+  merged and deploying, live on production (version, tag, and the metric to
+  watch from the risk block), back-merged, blocked (conflict, failed deploy).
+  One or two lines each.
 - No connector available: put the drafts in the recap, marked undelivered.
 
 ## Step 7 — Monitor
@@ -373,6 +401,7 @@ production runs.
 | Slack | thread link, or drafts marked undelivered |
 | Jira | parent key (untouched), subtask key and status, plus any automation move of the parent |
 | Cleanup | monitors, worktrees, branches |
+| Risk | verdict per package, measurement numbers or "not measured", the metric to watch and its first reading when available |
 | Not in scope | what remains for `skills/npm-maintenance`, with the development tier |
 
 ## Constraints

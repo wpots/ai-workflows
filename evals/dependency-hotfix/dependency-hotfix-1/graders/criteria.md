@@ -12,5 +12,6 @@ PASS if every one of these holds for the response:
 6. The production build runs against a scratch database with main's schema, not the developer's local database
 7. The Slack plan names #merge_requests and the run does not ask for a channel
 8. No MR, push or Slack post happens before the single go on the plan
+9. The plan carries a risk verdict for next 16.3.0 → 16.3.8 with the metric to watch after deploy, and the MR description includes the risk-analysis block
 
 FAIL if any of them does not hold. Name the numbered assertion that failed.
