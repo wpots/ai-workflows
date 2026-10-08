@@ -22,6 +22,7 @@ Know this before you run anything.
 | `.cursor/rules/conventions.mdc` | Created or updated. Your other `.cursor/rules/*` files are left alone. |
 | `.github/copilot-instructions.md` | Replaced by the generated adapter, with conventions inlined. |
 | `.claude/settings.json` | **Preserved** if present — nothing is merged for you. See [below](#merge-claudesettingsjson-by-hand). |
+| `.claude/skills/verify/SKILL.md` | Created if missing, **never overwritten** — project-owned. Claude Code runs it before each commit. |
 | `rules/`, `commands/` | Shared baseline written in. Treat as generated from then on. |
 | Anything else | Untouched. |
 

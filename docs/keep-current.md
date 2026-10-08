@@ -58,6 +58,7 @@ What survives:
 
 - `CONVENTIONS.md` — project-owned
 - `.claude/settings.json` — preserved when it already exists
+- `.claude/skills/verify/SKILL.md` — written once, then project-owned
 - `docs/project-brief.md`, `docs/project-spec.md`, `docs/architecture.md`
 - everything else in the project
 

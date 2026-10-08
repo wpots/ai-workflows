@@ -24,6 +24,13 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   the workflow compares configuration, execution and production evidence
   separately. Records dated reports and explicit coverage limits without
   starting scans, syncs, updates or deploys. Adds routing and inventory entries.
+- `templates/project-verify-SKILL.md`, emitted by `scripts/sync.sh --project` and
+  `skills/setup-ai-workflows` to `.claude/skills/verify/SKILL.md` when a project
+  has none. Claude Code runs a project skill named `verify` before each commit
+  (docs-only and tests-only ones excepted); a plugin skill does not count, so it
+  lives in the project and is never overwritten. It runs the project checks via
+  `greenberry:run-checks` and, for a UI change, opens the affected routes in a
+  browser and reports screenshot paths.
 
 ### Changed
 
