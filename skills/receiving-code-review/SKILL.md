@@ -1,6 +1,8 @@
 ---
 name: receiving-code-review
 description: Evaluate incoming code-review feedback with technical rigor before implementing any of it — restate, verify against the codebase, push back with reasoning when a suggestion is wrong, and only then apply. Use when responding to reviewer comments on a PR/MR, when feedback seems unclear or technically questionable, or before acting on review suggestions. Complements address-review-comments, which handles the apply-and-push mechanics.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Receiving Code Review

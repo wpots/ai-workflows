@@ -7,14 +7,15 @@
 // mapping targets that don't exist, a skill or command missing from its routing
 // registry, an adapter missing a shared marker, canonical-sources rows pointing
 // at missing files, pipeline-map paths that don't exist, FEATURES.md rows
-// naming untracked paths, MR-creation snippets missing the provenance label.
+// naming untracked paths, MR-creation snippets missing the provenance label,
+// skills without a metadata.owner.
 //
 // Warnings (exit 0): skills/commands missing from the canonical-sources
 // inventory, skills/commands/rules not placed in the pipeline map, pipeline-map
 // paths that exist but are untracked, skills/commands/rules/MCP servers missing
 // from the FEATURES.md inventories, descriptions without a routing cue,
 // SKILL.md bodies over the 500-line progressive-disclosure budget,
-// unknown frontmatter keys, skills without a metadata.owner.
+// unknown frontmatter keys.
 //
 // Why routing gaps are errors and inventory gaps are warnings: the two docs are
 // documentation, but shared/command-mappings.md and shared/skill-mappings.md are
@@ -206,7 +207,7 @@ for (const dir of skillDirs) {
   // Codex load the skill without acting on it.
   const owner = typeof fm.metadata === "object" ? fm.metadata.owner : undefined;
   if (!owner) {
-    warn(
+    err(
       rel,
       "frontmatter has no 'metadata.owner' — add `metadata:` with an indented " +
         "`owner: <gitlab username>` line",

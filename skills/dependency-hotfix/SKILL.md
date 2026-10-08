@@ -1,6 +1,8 @@
 ---
 name: dependency-hotfix
 description: Ship a critical npm vulnerability from the Greenberry dependency-scanner report as a hotfix — minimal bump with a risk analysis on a hotfix branch off the production branch, MR to production with GitLab auto-merge, then back-merge production into acceptance and development, with a Slack thread for the team, a Monitor loop over the MR, the deploy and the back-merges, and worktree and branch cleanup at the end. Resumable across sessions. Use when a critical from the dependency scanner (or any critical advisory running on production) is picked up ("pak de critical op", "critical hotfix", "dependency hotfix", "security hotfix naar main", "scanner critical"), or when an earlier hotfix run needs resuming.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Dependency hotfix

@@ -1,6 +1,8 @@
 ---
 name: test-driven-development
 description: Drive any feature or bugfix test-first through a strict RED-GREEN-REFACTOR cycle — write the failing test, watch it fail for the right reason, write minimal code to pass, then refactor. Use when implementing a feature, fixing a bug, or changing behavior before writing implementation code, or when the user asks for TDD / "test eerst" / "schrijf eerst een test". Adapted from obra/superpowers.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Test-Driven Development (TDD)

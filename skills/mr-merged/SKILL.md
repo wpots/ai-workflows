@@ -1,6 +1,8 @@
 ---
 name: mr-merged
 description: Post-merge closeout for a merged MR/PR — check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, confirm the post-merge deploy went out, propose the ticket transition, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change or whether it is live yet ("staat het live").
+metadata:
+  owner: wieteke.pots
 ---
 
 # MR Merged — Post-merge Closeout

@@ -1,6 +1,8 @@
 ---
 name: run-checks
 description: Run project quality checks sequentially, stop on failures for user decision, and summarize results. Use when user asks to run checks, lint/type/test/build pipeline, or validate branch health.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Run Project Checks

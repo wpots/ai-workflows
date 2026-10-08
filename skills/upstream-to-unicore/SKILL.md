@@ -1,6 +1,8 @@
 ---
 name: upstream-to-unicore
 description: Upstream a reusable change from a synced Greenberry project (e.g. the RefugeeWork website) into the unicore-template repo via a GitLab MR, adapting project-specific bits to the template's conventions. Use when the user asks to upstream/port/share something to unicore, the unicore-template, or the project template.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Upstream to Unicore Skill

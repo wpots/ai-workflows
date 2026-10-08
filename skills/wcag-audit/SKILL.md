@@ -1,6 +1,8 @@
 ---
 name: wcag-audit
 description: Run a WCAG 2 compliance audit combining a static code review against rules/accessibility.md with an automated axe-core/Playwright scan of the live production (or staging) site, producing one combined report plus backlog-ready findings. Always runs in an isolated worktree so scan tooling never touches the main checkout. Use when the user asks for a WCAG/accessibility compliance audit, an a11y audit of production, or to check the live site against WCAG.
+metadata:
+  owner: wieteke.pots
 ---
 
 # WCAG 2 Compliance Audit

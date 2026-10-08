@@ -1,6 +1,8 @@
 ---
 name: address-review-comments
 description: Pick up reviewer comments on a GitHub PR or GitLab MR, propose an approach per comment, then (after approval) apply, run checks, push, rebase onto the base branch, hand the MR back to the reviewer, and clean up. Works in the main checkout by default; only uses an isolated worktree after explicitly asking the user. Use when the user asks to address/pick up/process review feedback or reviewer comments on a PR/MR.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Address Review Comments Skill

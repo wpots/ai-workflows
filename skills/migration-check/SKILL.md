@@ -1,6 +1,8 @@
 ---
 name: migration-check
 description: Statically verify a freshly generated Payload/Postgres migration for snapshot-drift bugs BEFORE it is committed or run — duplicate/phantom object creation, a regressed baseline snapshot from parallel branches, and cross-feature statements. Read-only: never runs migrate. Use right after generating a migration file, when a migration fails with "already exists", or as a create-pr pre-flight when the diff touches migrations.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Migration Check Skill

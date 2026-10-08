@@ -1,6 +1,8 @@
 ---
 name: user-journeys
 description: Spec the user journeys of a release — one document per journey with the actor, the end-to-end path, decision points, alternate and error paths, per-surface states, permissions, the keyboard route, and the slice candidates the backlog is cut from. Reads docs/project-spec.md and the Figma designs when they exist, and harvests routes and roles from an existing codebase when they do not. Use when the user asks to spec user journeys, user flows, or a customer journey ("journeys uitwerken", "user flows uitschrijven", "spec the flows"), or when a spec exists but nothing describes how a user actually walks through it.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Spec The User Journeys

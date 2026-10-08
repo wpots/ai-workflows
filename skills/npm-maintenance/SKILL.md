@@ -1,6 +1,8 @@
 ---
 name: npm-maintenance
 description: Safely inspect and update Node.js dependencies, including routine minor or patch updates, npm audit remediation, and researched major-version migrations, with a per-package risk analysis (behaviour changes, project exposure, hosting cost, maturity) in every MR. Use when the user asks to update npm packages, run npm outdated or npm update, manage dependency versions, fix dependency vulnerabilities, or assess the risk or breaking changes of a package upgrade.
+metadata:
+  owner: wieteke.pots
 ---
 
 # npm dependency maintenance

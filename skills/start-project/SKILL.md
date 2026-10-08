@@ -1,6 +1,8 @@
 ---
 name: start-project
 description: The single entry point for a project — verifies the repository was created the Greenberry way (GitLab "Create from template" inside the client group, with an explicit recorded waiver when it is a PoC), makes sure the AI-workflow config exists, collects the design and service resources up front, writes docs/project-brief.md, docs/project-spec.md and docs/architecture.md, then hands the journeys to skills/user-journeys and the first sliced work to skills/backlog. Works on a fresh template clone and as a retrofit on an existing project. Use when a project starts or is being set up ("nieuw project", "project opzetten", "init project", "setup project", "project kickoff", "project brief", "project spec"), or when an existing project never wrote these documents down.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Start A Project

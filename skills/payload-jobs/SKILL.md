@@ -1,6 +1,8 @@
 ---
 name: payload-jobs
 description: Audit or set up Payload's jobs queue for hosting with more than one instance (Clever Cloud autoscaling and similar) — one elected runner, a closed run endpoint, recovery of runs killed mid-flight, idempotent tasks, poll cadence versus the autoscaler, heartbeat coverage. Read-only audit by default; scaffolds the runner after approval. Use when a project adds Payload tasks or autoRun, when jobs run twice or never run, when a nightly job or export silently stopped without an error, when INSTANCE_NUMBER, shouldAutoRun, jobs:run or payload-jobs/run come up, or when the maintenance sweep flags the jobs lane.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Payload Jobs Skill

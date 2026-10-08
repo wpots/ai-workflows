@@ -1,6 +1,8 @@
 ---
 name: close-sprint
 description: Close out a sprint by reading issue-tracker tickets on the user's name, verifying code delivery, and producing a sprint changelog, a gaps/spillover document, and moving delivered backlog items into a dedicated sprint folder. On projects without sprints the same close runs in support mode over a calendar month, archiving delivered backlog items into docs/support-<yyyy>-<mm>/. The tracker is read-only, and the sprint in the tracker is closed by the user, never by this skill. Use when the user asks to close, finalize, or wrap up a sprint or a support month ("sprint sluiten", "close support month", "support maand afsluiten"), including a request to close or complete the sprint in Jira or another tracker.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Close Sprint Skill

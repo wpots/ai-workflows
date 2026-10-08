@@ -1,6 +1,8 @@
 ---
 name: code-review
 description: Review current branch changes against remote base branch — or a GitLab MR / GitHub PR by URL — and produce a structured, severity-ordered review with file references and actionable fixes. Can post findings as inline MR comments autonomously once the user gives a go. Use when the user asks to review current changes, a pull request, or a merge request.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Code Review

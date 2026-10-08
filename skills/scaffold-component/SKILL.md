@@ -1,6 +1,8 @@
 ---
 name: scaffold-component
 description: Create a new React component with the correct file structure, templates, and project conventions. Use when the user asks to create a new component, scaffold a component, or generate component boilerplate.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Scaffold a Component

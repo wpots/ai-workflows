@@ -1,6 +1,8 @@
 ---
 name: create-pr
 description: Push the current branch and create a pull request (GitHub or GitLab) with a structured description generated from the branch diff. Use when the user asks to open, create, or submit a PR/MR.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Create PR Skill

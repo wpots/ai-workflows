@@ -1,6 +1,8 @@
 ---
 name: work-backlog
 description: Autonomously pick up the next eligible backlog item from docs/backlog/, implement it on a feature branch, verify with project checks, self-review, and open one merge request for human review. Use when the user asks to work the backlog, pick up the next backlog item, or run autonomous delivery.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Work the Backlog

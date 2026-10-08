@@ -1,6 +1,8 @@
 ---
 name: backlog
 description: Draft or update a backlog item in docs/backlog by following the project's backlog rules, existing specs, and codebase context. Use when the user asks to create, write, refine, or update a backlog item, feature story, bug item, task, or local BLI.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Backlog Skill

@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 Filed 2026-10-08 from the October 2026 stack review (task T7, second slice). The
 owner decision was made on 2026-10-08 (see `## Decision`), which made the item
@@ -32,7 +32,7 @@ Sliced because the second step touches 38 files, over the budget in
       a nested `metadata:` map (its frontmatter parser flattens indented lines
       today) and adds `metadata` to `KNOWN_KEYS`; a skill with `metadata.owner`
       passes, one without it only warns. No skill file changes.
-- [ ] **Slice 2 — the owners.** Every `skills/*/SKILL.md` gains
+- [x] **Slice 2 — the owners.** Every `skills/*/SKILL.md` gains
       `metadata:` / `owner: <gitlab username>`, and the check becomes an error.
 
 ## How to verify
@@ -48,6 +48,21 @@ Slice 1:
       and no owner warnings: the old parser has no owner check.
 - [x] Same edit with an empty `owner:` — the `commit-message` warning is back
       (38 warnings).
+- [x] `bash scripts/validate-ai-instructions.sh` — passes.
+
+Slice 2:
+
+- [x] `node scripts/validate-skills.mjs` — exit 0, no owner warnings or errors;
+      `git diff --stat` over `skills/` shows 38 files, 76 insertions, no
+      deletions (two frontmatter lines each).
+- [x] Remove the two `metadata` lines from `skills/commit-message/SKILL.md` and
+      rerun — exit 1, one error `frontmatter has no 'metadata.owner'`. With the
+      slice 1 validator the same state exits 0 with a warning.
+- [x] Parse each frontmatter with a strict YAML parser (Ruby Psych) — 35 of 38
+      give `metadata` = `{"owner" => "wieteke.pots"}`, string to string. The
+      other three (`jira-ticket`, `migration-check`, `release-notes`) fail on
+      their `description` line, which has an unquoted `: `; that predates this
+      item.
 - [x] `bash scripts/validate-ai-instructions.sh` — passes.
 
 ## Decision

@@ -1,6 +1,8 @@
 ---
 name: service-cli
 description: CLI-first access to GitLab (glab), Jira (jira) and Axiom (axiom) — verify install and auth, the read-only subcommand set, JSON projections with jq, the write commands, and the short list of what stays connector-only per service. Use before reaching GitLab, Jira or Axiom from any skill or task, when the CLI-first hook denies a connector tool call, or when a glab, jira or axiom command fails with an auth or not-installed error ("jira cli", "glab api", "axiom query", "via de cli", "cli first").
+metadata:
+  owner: wieteke.pots
 ---
 
 # Service CLI Skill

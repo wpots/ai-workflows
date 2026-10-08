@@ -1,6 +1,8 @@
 ---
 name: sprint-planning
 description: Plan the upcoming sprint by reading the issue tracker for tickets on the user's name, carrying in spillover from the closed sprint, mapping dependencies across the whole sprint, checking realism against velocity and capacity, and producing a planning document with a proposed execution order. Creates missing BLIs, flags doc/tracker mismatches, and marks planned BLIs. The tracker is read-only. Use when the user asks to plan a sprint, start a sprint, or plan the upcoming sprint.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Sprint Planning Skill

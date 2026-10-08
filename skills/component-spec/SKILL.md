@@ -1,6 +1,8 @@
 ---
 name: component-spec
 description: Write a production-ready specification for an accessible React component, including API design, accessibility requirements, keyboard behavior, screen reader behavior, testing guidance, and open questions. Use when the user asks for a component spec, API documentation, accessibility spec, or implementation plan for a React component.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Component Spec
