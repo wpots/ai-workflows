@@ -35,6 +35,10 @@ When you are inside a synced project, also read:
 
 Project-local conventions win over this global baseline.
 
+Before browser verification, read `rules/testing.md` from the project (or
+the plugin source when the project has no copy). It defines the choice
+between an interactive browser check and reusable automated tests.
+
 ## Command Mapping
 
 When user intent matches one of these prompts, skills, or command requests, read and follow the corresponding prompt, skill, or runbook:

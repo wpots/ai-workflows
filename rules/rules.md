@@ -18,7 +18,7 @@ In practice, treat this directory as a topic-based rule library:
 | `project.md`                            | React, Next.js, TypeScript, component design, naming                |
 | `type-safety.md`                        | Runtime trust boundaries, strict TypeScript posture, review guardrails |
 | `tailwind.md`                           | Tailwind 4, design tokens, Figma export workflow                    |
-| `testing.md`                            | Jest + Storybook split, query priority, coverage                    |
+| `testing.md`                            | Browser verification tool choice, Jest + Storybook split, query priority, coverage |
 | `accessibility.md`                      | WCAG requirements, ARIA, keyboard navigation                        |
 | `sustainability.md`                     | Sustainable IT: caching/rendering, LCP/assets, bundle & client JS, CI cost, deps |
 | `sonarqube.md`                          | Opt-in SonarQube/SonarLint rule parity: avoid flagged patterns, apply preferred fixes |
@@ -41,7 +41,7 @@ In practice, treat this directory as a topic-based rule library:
 4. Load `type-safety.md` when handling TypeScript-heavy code, integrations,
    parsing, config, or code review focused on correctness.
 5. Load `tailwind.md` when working on styles or design tokens.
-6. Load `testing.md` when writing or reviewing tests.
+6. Load `testing.md` before browser verification, or when writing or reviewing tests.
 7. Load `backlog.md` when writing user stories, backlog items, or task specs.
 8. Load `mr-sizing.md` alongside `backlog.md` whenever work is sized or sliced
    (backlog, refinement, sprint planning), and when opening or reviewing an MR.

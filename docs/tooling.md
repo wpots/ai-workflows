@@ -12,7 +12,14 @@ the old `mcp/servers.json` + `mcp/README.md` global definitions.
   subcommand (so read-only skills can be held to read-only), and the call
   stays in the transcript for a human to re-run. The recipes per service live
   in `skills/service-cli`.
-- **MCP / connector** for what a CLI cannot give: live browser control
+- **Native browser control** for one-off UI verification when the harness
+  exposes it. Browser checks follow
+  [`rules/testing.md`](../rules/testing.md#browser-verification-choose-by-purpose):
+  choose by purpose and available capability, before adding setup. The
+  CLI-first service policy does not require a standalone Playwright script
+  for a task that can be verified in the available browser.
+- **MCP / connector** for browser control where native control cannot cover
+  the task
   (`playwright`, `chrome-devtools`), design context (Figma), and the remainder
   of a service its CLI does not cover — Confluence and the Teamwork Graph on
   the Atlassian connector, monitors and dashboards on the Axiom connector.
@@ -25,6 +32,10 @@ the old `mcp/servers.json` + `mcp/README.md` global definitions.
 - **Secrets never land in config or transcripts**: MCP definitions reference
   env vars (`${VAR}` expansion); commands read secrets with
   `npx dotenvx get`.
+
+For Codex desktop browser capabilities and session choice, see the official
+[built-in browser](https://learn.chatgpt.com/docs/browser) and
+[computer-use guidance](https://learn.chatgpt.com/use-cases/use-your-computer-with-codex).
 
 ## Machine Level — Once Per Developer
 
@@ -47,6 +58,9 @@ Installed and authenticated during `commands/new-device-setup.md`:
   section of that project's `CONVENTIONS.md`.
 
 Detection heuristics used by `skills/setup-ai-workflows/SKILL.md`:
+
+These signals configure available integrations; they do not decide which
+verification method an agent should use for an individual task.
 
 | Signal | Server |
 | ------ | ------ |

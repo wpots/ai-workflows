@@ -6,7 +6,7 @@ Read `rules/` for baseline coding standards (shared across all projects).
 Load only the relevant focused rule files for the task:
 
 - `rules/tailwind.md` for styling and design-token work
-- `rules/testing.md` for tests and test reviews
+- `rules/testing.md` before browser verification, tests, and test reviews
 - `rules/accessibility.md` for interactive UI and accessibility checks
 - `rules/type-safety.md` for TypeScript-heavy work, trust boundaries, and runtime validation checks
 - `rules/adr.md` when recording an architecture decision, creating `docs/adr/` or `docs/architecture.md`, or changing something a recorded decision covers

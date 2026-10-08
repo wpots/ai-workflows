@@ -166,6 +166,8 @@ These return a scoped subgraph, usually much smaller than raw grep output or `GR
 The CLI-vs-MCP doctrine lives in `docs/tooling.md`; the per-service recipes
 in `skills/service-cli`.
 
+- Before browser verification, read `rules/testing.md` for the choice
+  between an interactive browser check and reusable automated tests.
 - CLI first: GitLab through `glab`, Jira through `jira`, Axiom through
   `axiom`. A connector tool only for what the CLI cannot reach (Confluence
   and the Teamwork Graph; Axiom monitors and dashboards).
