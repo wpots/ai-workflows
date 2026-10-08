@@ -77,6 +77,14 @@ Also detect:
 - **Accessibility primitives**: react-aria-components, radix-ui, etc.
 - **Available scripts**: from `package.json` scripts field
 - **Notable dependencies**: animation libs, state management, CMS, etc.
+- **Hosting and its cost-sensitive metrics**: `vercel.json` or `.vercel/` →
+  Vercel (Function Invocations, Edge Requests, Firewall Rate Limit Requests);
+  `netlify.toml` → Netlify (function invocations, bandwidth); `clevercloud/`
+  or `CC_*` variables in `.env.example` → Clever Cloud (instance count under
+  autoscaling). Confirm
+  the metric names on the host's usage page and ask the developer for the
+  baseline. Never guess one. The risk analysis of every dependency MR
+  (`skills/npm-maintenance/references/risk-analysis.md`) reads this.
 
 ### 3. Probe Project Structure
 
@@ -148,6 +156,12 @@ reasoning behind it: `docs/architecture.md`" — and no restated rationale>
 
 - <MCP servers from `.mcp.json` and the env vars each expects>
 - <project CLIs beyond the machine baseline — see docs/tooling.md in ai-workflows>
+
+## Hosting
+
+- <platform and runtime; link `docs/architecture.md` when it exists>
+- Cost-sensitive metrics: <metric> (<usage page>), …
+- Baseline: <value per day or month, or "unknown">
 
 ## Conventions
 

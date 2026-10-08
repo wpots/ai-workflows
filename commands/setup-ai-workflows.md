@@ -28,6 +28,10 @@ Preferred path:
    - TypeScript strictness posture and unsafe-type linting
    - boundary-validation approach for API, env, JSON, database, file, and queue inputs
    - notable dependencies
+   - hosting platform (`vercel.json`, `netlify.toml`, `clevercloud/`) and its
+     cost-sensitive metrics, recorded under `## Hosting` in `CONVENTIONS.md`
+     with a baseline from the developer (never a guess) — dependency MRs read
+     it for their risk analysis
 4. Probe the project structure and map folders to clean-architecture layers.
 5. Detect deviations from the shared baseline, including weaker `tsconfig`
    posture, missing unsafe-type lint rules, or missing trust-boundary
