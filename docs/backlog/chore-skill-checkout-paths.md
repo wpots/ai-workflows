@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Filed 2026-10-08 from the October 2026 stack review (task T7, first slice). The
 review counted 17 hits in 7 shipped files; on `main` it is 19 hits in 8 files, and
