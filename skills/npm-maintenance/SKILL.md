@@ -106,9 +106,19 @@ For an audit or CVE request:
 
 1. Run the package manager's audit command in both machine-readable and readable formats when available.
 2. Report each actionable vulnerability: package, severity, direct or transitive path, affected range, and available remediation.
-3. Apply safe compatible fixes covered by the user's requested scope, then run the audit again.
+3. Apply safe compatible fixes covered by the user's requested scope, then run the audit again. To move one package, write only the lockfile with `<pm> install <pkg>@<range> --package-lock-only`. Diff the lockfile entry by entry (added, removed and re-versioned paths), not just its line count. A plain install over a copied or stale `node_modules` can drop optional platform packages, such as the wasm runtimes, from the lockfile.
 4. Never run `npm audit fix --force` or an equivalent breaking update without explicit user approval. Treat any remediation that upgrades a major version as a major update and follow the research workflow.
 5. Clearly distinguish unresolved vulnerabilities with no upstream fix from vulnerabilities deferred by the approved scope.
+6. Once the fix is live — the delivering commit is an ancestor of the production ref and the deploy pipeline passed — offer the short dev-team mail from `references/advisory-mail.md` in this skill's directory. Mirror the previous `OSV scan (PATCHED)` mail in the sent folder. Create it as a draft through the mail connector first, and put it in the reply ready to paste only when that fails. Never send it.
+
+### A finding from an external scanner
+
+An external scanner (OSV-Scanner or a similar service) need not agree with the project's own audit:
+
+- **It may scan another ref.** Scanners often read the production branch, not the working tree. Audit that ref's lockfile without checking it out: `git archive --output=<scratch>/lock.tar <ref> package.json package-lock.json`, unpack it, then `npm audit --package-lock-only --prefix <dir>`.
+- **Its severity may differ.** OSV can call critical what `npm audit` and GitHub call high, and it can list an advisory before `npm audit` has it. Filtering `npm audit` on the scanner's severity then finds nothing. Ask OSV directly instead: POST the lockfile's `name@version` list to `https://api.osv.dev/v1/querybatch`, then fetch each hit from `/v1/vulns/<id>`. The newest `published` date is usually the "new" finding.
+- **Its dates may differ.** OSV's `published` date and the date on the GitHub advisory page can be days apart. Report both.
+- **Check whether the vulnerable code path is reachable** before you rank urgency. An SVG-decoder bug matters little in an app that never decodes SVG. That decides between a hotfix and riding along with the next release, not whether the fix goes in.
 
 ## Validation
 

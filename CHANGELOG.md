@@ -33,6 +33,20 @@ release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
   field value and flag, what gets copied where, and the verification step.
   The first one lives in `docs/contributing.md`, for the two CI variables the
   release automation needs.
+- `skills/npm-maintenance` §4 handles a finding from an external scanner.
+  OSV-Scanner may read the production ref instead of the working tree, so §4
+  audits that lockfile through `git archive`. The scanner can also call an
+  advisory critical while `npm audit` and GitHub call it high, so §4 asks
+  `api.osv.dev` for the finding instead of filtering `npm audit`. And OSV and
+  GitHub can give different publication dates, so §4 reports both. A one-package
+  bump now writes only the lockfile with `--package-lock-only` and diffs it
+  entry by entry, because a plain install over a stale `node_modules` dropped
+  the optional wasm runtimes. A new step 6 offers the dev team a mail once the
+  fix is live: subject `OSV scan (PATCHED) - <project> - <GHSA-id>`, sent to
+  `development@greenberry.nl` and the recipients of the previous such mail, with
+  one opening sentence and a facts table. It is created as a draft through the
+  mail connector first, and given paste-ready only when the connector refuses.
+  It is never sent. The template is in the new `references/advisory-mail.md`.
 
 ## [2.5.0] - 2026-10-07
 
