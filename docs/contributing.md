@@ -141,17 +141,45 @@ In a content MR:
    using the normal `### Added` / `### Changed` / `### Fixed` headings.
 2. Leave `.claude-plugin/plugin.json` alone.
 
-To cut the release, in its own small MR:
+The release itself is cut by CI, in the release-please pattern: one release MR
+that is always current, and merging it is the release decision.
 
-1. `node scripts/assign-plugin-version.mjs` — prints the plan and writes
-   nothing. It infers the bump from what accumulated under `## [Unreleased]`:
-   `### Removed` or a `BREAKING` marker is MAJOR (removed/renamed skill or
-   command, changed workflow contract), `### Added` is MINOR (new skills or
-   commands, notable behaviour changes), anything else is PATCH (fixes and
-   wording). Override with `--bump minor` or `--as 2.0.0` when judgment differs.
-2. `node scripts/assign-plugin-version.mjs --write` — renames the section to
-   `## [x.y.z] - YYYY-MM-DD`, leaves a fresh empty `## [Unreleased]` on top, and
-   bumps the manifest. Commit both files.
+- **`release_train`** runs on every push to `main`. When `## [Unreleased]` has
+  content it runs `scripts/assign-plugin-version.mjs --write` on the branch
+  `release/next`, commits `release: x.y.z`, force-pushes, and opens the MR to
+  `main` with the maintainer as reviewer — or updates the open MR's title and
+  body when a later content merge changes what the release carries. With an
+  empty `## [Unreleased]` it does nothing. So the question "do we need a
+  release MR?" has a standing answer: if there is something to release, the
+  MR exists; merge it when you want the version out.
+- **`announce_release`** runs on the same pushes and posts only when the merge
+  changed the version in `.claude-plugin/plugin.json`: the `## [x.y.z]` section
+  as bullets (first sentence per entry, Dutch section labels) plus the update
+  reminder, to the `#development` Slack channel. `node
+  scripts/announce-release.mjs --dry-run --version x.y.z` shows the message a
+  version would get.
+
+Both jobs need a CI/CD variable (Settings → CI/CD → Variables, masked, protected)
+and print what they would do while it is missing, so the pipeline stays green:
+
+| Variable | What | Used by |
+| --- | --- | --- |
+| `RELEASE_BOT_TOKEN` | project access token, role Developer, scopes `api` + `write_repository`; pushes `release/next` and opens the MR | `release_train` |
+| `SLACK_WEBHOOK_URL` | Slack incoming webhook for `#development` | `announce_release` |
+
+The bump inference lives in `scripts/assign-plugin-version.mjs`, for CI and
+for the manual fallback alike: `### Removed` or a `BREAKING` marker is MAJOR
+(removed/renamed skill or command, changed workflow contract), `### Added` is
+MINOR (new skills or commands, notable behaviour changes), anything else is
+PATCH (fixes and wording). When judgment differs from that default, cut the
+release by hand in its own small MR — `node scripts/assign-plugin-version.mjs`
+prints the plan, `--write` applies it (`--bump minor` or `--as 2.0.0` override
+the inference); commit `CHANGELOG.md` and `.claude-plugin/plugin.json`. The
+train leaves an open hand-cut MR alone as long as its branch is not
+`release/next`, and goes quiet once it merges and `## [Unreleased]` is empty.
+
+The readers behind both jobs (`scripts/changelog-sections.mjs`) are covered by
+`scripts/test-release-automation.mjs`, which `validate-ai-instructions.sh` runs.
 
 Why not bump in the content MR: every MR would edit the same manifest line and
 insert at the same changelog position. Four concurrent MRs did exactly that on
