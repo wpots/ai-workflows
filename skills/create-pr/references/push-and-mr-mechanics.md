@@ -115,10 +115,14 @@ then:
   glab api "projects/<url-encoded-project-path>/merge_requests" \
     --method POST \
     --field "source_branch=<branch>" --field "target_branch=<base>" \
-    --field "title=<title>" --field "description=@<file>"
+    --field "title=<title>" --field "description=@<file>" \
+    --field "labels=ai:agent-authored" --field "remove_source_branch=true"
   ```
 
-  (`--field key=@file` reads the value from the file.) Verify the response
+  (`--field key=@file` reads the value from the file.) `labels` and
+  `remove_source_branch` are plain fields here, unlike the reviewer below —
+  carry them in this call, or the file-based route quietly ships an MR without
+  the one provenance signal that survives a squash merge. Verify the response
   echoes a non-trivial description before reporting the URL.
 
 ### When the MR also needs an assignee or a reviewer
@@ -153,6 +157,38 @@ as its HTTPS credential helper, an expired glab OAuth token breaks
 `git push`/`fetch` too (`could not read Username`) — `glab auth login` fixes
 both.
 
+## Carving one MR out of a dirty tree
+
+The single-MR case of step 3's "create a fresh branch from the base and stage
+only the files that belong to this PR": the change is ready, the tree also holds
+unrelated edits, and the current branch is the wrong base.
+
+1. Park your own files, not the tree:
+   `git stash push -u -m "<what>" -- <paths>`, so unrelated WIP stays where it
+   is. (A branch switch carries uncommitted changes along anyway — the stash is
+   insurance against a switch that refuses, not a requirement.)
+2. `git switch -c <branch> --no-track <remote>/<base>`, then `git stash pop`.
+3. **Verify you moved**: `git branch --show-current`, before staging anything.
+4. Stage by path (`git add <paths>`) — never `git add -A` or `git commit -a`.
+   The unrelated edits are still in the tree and otherwise ride along into the
+   MR.
+
+**Why `--no-track`: `git checkout -b <new> <remote>/<base>` can create the
+branch and leave you on the old one.** Where the shell is sandboxed, git cannot
+write `.git/config`, so the tracking setup fails:
+
+```text
+error: could not lock config file .git/config: Operation not permitted
+error: unable to write upstream branch configuration
+```
+
+The command exits 1, the new branch exists at the right commit, and `HEAD` never
+moved — so the next commit lands on the branch you were trying to leave.
+`--no-track` writes no config and switches cleanly; `git push -u <remote> HEAD`
+sets the upstream later regardless. And never pipe a branch-creating command
+through `head`/`tail` in an `&&` chain: the pipe swallows the error line and the
+exit status both, so the chain marches on as if it had worked.
+
 ## Splitting one working tree into several MRs
 
 When a session produced more change than belongs in one MR, the user may ask
@@ -173,8 +209,9 @@ branches, and files whose hunks belong to different MRs.
 1. **Snapshot before touching anything.** `git checkout -b wip-snapshot` and
    commit the whole tree. Nothing can be lost, and it becomes the ref every
    branch pulls from. Keep it until the MRs land; never push it.
-2. Per MR: `git checkout -b <name> <remote>/<base>`, then
-   `git checkout wip-snapshot -- <paths>` for the files that belong to it.
+2. Per MR: `git switch -c <name> --no-track <remote>/<base>` (see the trap
+   above), then `git checkout wip-snapshot -- <paths>` for the files that
+   belong to it.
 3. **A file whose hunks span two MRs**: take the whole file from the snapshot,
    then hand-revert the hunks belonging elsewhere. Prove the separation with a
    grep for the other MR's markers, e.g.

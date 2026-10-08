@@ -294,6 +294,37 @@ that doesn't match costs a human approval and blocks autonomous runs.
 - Pass these rules on to subagents in their prompt too; they inherit the
   permission system but don't always read this file.
 
+### Git inside the sandbox
+
+Three git operations the sandbox blocks. Each fails in a way that points at the
+server, your permissions or the repo rather than at the sandbox, so recognise
+them:
+
+- **Writes to `.git/config`.** `error: could not lock config file .git/config:
+  Operation not permitted`. That makes `git checkout -b <new> <remote>/<base>`
+  exit 1 after creating the branch **without switching to it** — the next
+  commit then lands on the branch you were leaving. Use
+  `git switch -c <branch> --no-track <start-point>` (writes no config) and
+  confirm with `git branch --show-current` before staging. `git branch -d` warns
+  the same way but does delete.
+- **Anything over SSH** (`git fetch`, `git push`): `~/.ssh` is unreadable, so
+  git reports `Please make sure you have the correct access rights and the
+  repository exists` — which reads as a revoked GitLab token, not a sandbox
+  denial. Run those with the sandbox bypass; they need the network anyway.
+- **Checkouts that rewrite a write-protected path.** A `merge`, `rebase` or
+  `switch` that has to replace a file the sandbox protects (e.g. `.vscode/`)
+  dies halfway: `error: unable to unlink old '.vscode/tasks.json': Operation
+  not permitted`. `HEAD` stays put but the tree is already half-written, so
+  `git status` shows the incoming commits as hundreds of local edits. When
+  `git diff --stat <target>` lists only the protected path and your own work is
+  stashed, `git reset --hard <target>` with the bypass finishes the move;
+  otherwise stop and ask. Moving a branch across many commits, start with the
+  bypass.
+
+Never pipe a command whose failure matters through `head`/`tail` in an `&&`
+chain: the pipe returns the pager's exit status, so the chain continues and the
+error line scrolls out of the excerpt.
+
 ### Worktrees: cheap by default, heavy only on purpose
 
 A checkout costs ~90 MB; the same worktree with `node_modules` and a build

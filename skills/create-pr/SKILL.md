@@ -63,7 +63,10 @@ If the platform cannot be inferred, ask the user.
    state — resolve first: create a fresh branch from the base and stage only
    the files that belong to this PR, leave unrelated WIP untouched where it
    is, and ask the user when ownership of a change is unclear. Only proceed
-   when every commit and staged file on the branch belongs to the PR.
+   when every commit and staged file on the branch belongs to the PR. The
+   mechanics of that carve-out — stashing by path, creating the branch so it
+   actually switches, staging by path — are in "Carving one MR out of a dirty
+   tree" in `references/push-and-mr-mechanics.md`.
    When the user wants the work split across **several** MRs, follow
    "Splitting one working tree into several MRs" in
    `references/push-and-mr-mechanics.md` — it covers what to settle with the
