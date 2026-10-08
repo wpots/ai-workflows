@@ -1,6 +1,6 @@
 ---
 name: compact-sprint
-description: Compact old sprint documentation — flag durable decisions from delivered BLIs as docs/todo/ follow-ups, rewrite the sprint changelog to the compact template, and remove the sprint folder behind a git-tag archive anchor. Never touches the current or previous sprint. Support-mode archives (docs/support-<yyyy>-<mm>/) compact the same way with a month-based retention guard. Use when the user asks to compact sprints or support months, prune or clean up old sprint or support folders, or reduce sprint documentation noise ("sprint compacten", "oude sprints opruimen").
+description: Compact old sprint documentation — flag durable decisions from delivered BLIs as docs/todo/ follow-ups, rewrite the sprint changelog to the compact template, and remove the sprint folder behind a git-tag archive anchor. Only touches a sprint whose close is pushed; the last-closed one waits for the next planning. Support-mode archives (docs/support-<yyyy>-<mm>/) compact the same way with a month-based retention guard. Use when the user asks to compact sprints or support months, prune or clean up old sprint or support folders, or reduce sprint documentation noise ("sprint compacten", "oude sprints opruimen").
 ---
 
 # Compact Sprint Skill
@@ -25,9 +25,15 @@ share the same workflow; Copilot follows the runbook directly.
 
 ## Constraints
 
-- **Retention guard:** only sprints older than the previous one (≤ N-2) are
-  eligible; refuse the current and previous sprint. In support mode the guard
+- **Retention guard:** only a closed sprint whose changelog is on the
+  integration branch's remote is eligible, so the running sprint never is. The
+  last-closed sprint also waits until the next sprint's planning has read its
+  gaps document, or the user confirms none follows. In support mode the guard
   counts calendar months: refuse the current and previous month.
+- Before compacting, count the links from living docs (ADRs, architecture, a
+  cross-sprint register, open backlog items) into the folder and report them:
+  each becomes a retrieval recipe, so while many still lean on it, recommend
+  waiting until the work they document has shipped. The user decides.
 - Harvest is **flag-only**: durable decisions become `docs/todo/` items with a
   source recipe; nothing moves into specs/conventions/rules in this run.
 - Never run `git commit`, `git tag`, or `git push` — hand the user the exact

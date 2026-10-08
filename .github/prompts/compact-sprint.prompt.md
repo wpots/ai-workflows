@@ -21,9 +21,17 @@ nothing is lost, only relocated into git history.
 
 ## Safety
 
-- **Retention guard:** never compact the current sprint or the previous one.
-  With sprint N in progress, only sprints ≤ N-2 are eligible — the close of
-  sprint N still cross-references the folder of sprint N-1.
+- **Retention guard:** only a closed sprint is eligible — its changelog is on
+  the integration branch's remote, so the close is committed and pushed and
+  the running sprint never qualifies. The last-closed sprint also waits for
+  the next sprint's planning, which reads its gaps document
+  (`commands/sprint-planning.md`): eligible once
+  `docs/sprint-<M+1>-planning.md` exists or the user confirms no planning
+  follows. Older closed sprints are eligible.
+- Count what still leans on the folder before compacting it (Phase 0): every
+  link from a living doc becomes a retrieval recipe, so while ADRs,
+  architecture docs, a cross-sprint register or open backlog items link in,
+  recommend waiting until the work they document has shipped.
 - **Never** run `git commit`, `git tag`, or `git push` — prepare everything and
   hand the exact commands to the user (same rule as close-sprint).
 - Harvest is **flag-only**: durable content becomes `docs/todo/` items; this
@@ -38,11 +46,11 @@ nothing is lost, only relocated into git history.
 
 Ask the user at start:
 
-1. Sprint number(s) to compact (default: every closed sprint older than the
-   previous one that still has a `docs/sprint-<M>/` folder).
-2. The current sprint number N — infer from the highest
-   `docs/sprint-*` folder/changelog plus the tracker, and confirm; the
-   retention guard depends on it.
+1. Sprint number(s) to compact (default: every closed sprint that still has a
+   `docs/sprint-<M>/` folder and passes the retention guard).
+2. When a target is the last-closed sprint (the highest changelog): whether
+   the next sprint's planning has run — infer from
+   `docs/sprint-<M+1>-planning.md`, and confirm.
 
 ## Support mode (projects without sprints)
 
@@ -61,9 +69,21 @@ eligible — the close of month M still cross-references month M−1.
    clean working tree, `git fetch` + `git pull --ff-only` — same as
    close-sprint Phase 0.
 2. For each target sprint M verify, refusing the sprint when a check fails:
-   - M ≤ N-2 (retention guard);
-   - `docs/sprint-<M>/` exists;
-   - `docs/sprint-<M>-changelog.md` exists.
+   - the close is pushed:
+     `git cat-file -e origin/<integration>:docs/sprint-<M>-changelog.md`;
+   - for the last-closed sprint, the next planning has run (Inputs 2);
+   - `docs/sprint-<M>/` exists.
+3. Count the links into the folder from living docs and report them per file:
+
+   ```bash
+   rg -c "sprint-<M>/" docs/ rules/ commands/ README.md CONVENTIONS.md \
+     --glob '!docs/sprint-<M>/**' --glob '!docs/sprint-<M>-changelog.md'
+   ```
+
+   Phase 2 turns each of them into a retrieval recipe. When ADRs, architecture
+   docs, a cross-sprint register or open backlog items are among them,
+   recommend waiting until the work they document has shipped, and let the
+   user decide. Not a refusal: the count is the user's input.
 
 ## Phase 1 — Harvest durable content (flag-only)
 
