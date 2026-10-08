@@ -67,7 +67,7 @@ Load the relevant file when the task needs it:
 | --------- | --------------- |
 | TypeScript-heavy code, API/JSON/env/database boundaries | `rules/type-safety.md` |
 | Styling, tokens, Tailwind | `rules/tailwind.md` |
-| Tests, test reviews | `rules/testing.md` |
+| Browser verification, tests, test reviews | `rules/testing.md` |
 | Interactive UI, a11y checks | `rules/accessibility.md` |
 | User stories, specs, backlog work | `rules/backlog.md` |
 | CMS-backed content block architecture and transforms | `rules/content-blocks.md` |
@@ -165,7 +165,8 @@ shaped outside the list costs a human approval and blocks autonomous runs.
 - Project-level MCP servers live in `.mcp.json` (checked in, env-var-based)
   with a `.cursor/mcp.json` mirror; `setup-ai-workflows` emits both and documents
   them in the `## Tooling` section of `CONVENTIONS.md`.
-- Doctrine — CLI for scriptable/headless work; MCP for browser control,
+- Doctrine — CLI for scriptable/headless work; available browser control
+  for one-off UI checks (`rules/testing.md`); MCP for browser fallback,
   design context, and OAuth SaaS. Full table: `docs/tooling.md` in
   ai-workflows.
 - claude.ai connectors (Atlassian, Figma) are authorized per user, not per

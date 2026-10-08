@@ -1,5 +1,33 @@
 # Testing Rules
 
+## Browser Verification: Choose By Purpose
+
+Choose the verification method from the task and the tools available in the
+current session, before installing tooling or writing a script.
+
+| Purpose | Preferred method |
+| --- | --- |
+| One-off layout check, screenshot, interaction check, or bug reproduction | Available native browser control; reuse a suitable tab/session |
+| One-off browser check without native browser control | Existing browser MCP, such as Chrome DevTools or Playwright MCP |
+| Repeatable regression, CI, or a route/viewport/browser matrix | Existing project test runner; Playwright where the project uses it |
+| Structured audit requiring results a browser tool cannot provide | Existing audit/test tooling; add a script only for the missing capability |
+
+- Honor a browser or tab named by the user. In Codex desktop, prefer the
+  built-in browser for localhost/public pages; use a connected browser when
+  the task requires its signed-in session. In CLI/IDE environments, choose
+  from the browser tools actually exposed there.
+- Native browser control and Playwright MCP both perform interactive checks;
+  they are distinct from launching a standalone Playwright script or suite.
+  An installed Playwright dependency is not a reason to choose the latter.
+- For a one-off check, reuse available browser control before creating a
+  temporary script, installing packages, or launching another browser.
+  If a required capability is missing, state that reason briefly and use
+  the smallest fallback that can verify the result.
+- Run required project checks and preserve regression coverage. A browser
+  spot-check complements automated tests; it does not replace them.
+- Report the route/scenario checked, the observed result, and any unverified
+  requirement. Only report an automated test as passed when it actually ran.
+
 ## Philosophy
 
 Split tests into two complementary approaches:

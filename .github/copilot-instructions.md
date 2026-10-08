@@ -39,6 +39,10 @@ Apply these as the default coding baseline when project-local conventions do not
 - Domain code stays framework-free and side-effect free.
 - Validate and map API, CMS, database, file, and other transport payloads at the boundary before they leak into the UI or domain.
 
+## Browser Verification
+
+- For one-off UI checks, prefer available browser control; use the project's test runner for repeatable regression and CI. Read `rules/testing.md` before choosing tooling.
+
 ## Avoid
 
 - `any`, unchecked parsing, broad assertions, and anonymous exported APIs.
