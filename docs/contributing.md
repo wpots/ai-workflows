@@ -143,16 +143,26 @@ that changes something.
 
 In a content MR:
 
-1. Add your entry under `## [Unreleased]` in [`CHANGELOG.md`](../CHANGELOG.md),
-   using the normal `### Added` / `### Changed` / `### Fixed` headings.
-2. Leave `.claude-plugin/plugin.json` alone.
+1. Add one fragment file `changelog.d/<section>.<slug>.md`, where `section` is
+   `added`, `changed`, `deprecated`, `removed`, `fixed` or `security` and the
+   slug names the change (`changelog.d/added.service-cli.md`). Its content is
+   the `- ` bullet(s) exactly as they will read under the `### <Section>`
+   heading, continuation lines indented by two spaces. The word `BREAKING`
+   anywhere in it makes the release a MAJOR. Several MRs can each add their
+   file without ever touching the same line; `validate-skills.mjs` rejects a
+   misnamed or empty fragment.
+2. Leave [`CHANGELOG.md`](../CHANGELOG.md) and `.claude-plugin/plugin.json`
+   alone. (Entries that older MRs still wrote under `## [Unreleased]` are
+   picked up by the next release too, so a half-migrated state is fine.)
 
 The release itself is cut by CI, in the release-please pattern: one release MR
 that is always current, and merging it is the release decision.
 
-- **`release_train`** runs on every push to `main`. When `## [Unreleased]` has
-  content it runs `scripts/assign-plugin-version.mjs --write` on the branch
-  `release/next`, commits `release: x.y.z`, force-pushes, and opens the MR to
+- **`release_train`** runs on every push to `main`. When `changelog.d/` holds
+  fragments (or `## [Unreleased]` still has entries) it runs
+  `scripts/assign-plugin-version.mjs --write` on the branch `release/next` —
+  the fragments become the `## [x.y.z]` section, in Keep a Changelog order,
+  and are deleted — commits `release: x.y.z`, force-pushes, and opens the MR to
   `main` with the maintainer as reviewer — or updates the open MR's title and
   body when a later content merge changes what the release carries. With an
   empty `## [Unreleased]` it does nothing. So the question "do we need a

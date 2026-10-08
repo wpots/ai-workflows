@@ -113,6 +113,11 @@ for (const name of ["CI_API_V4_URL", "CI_PROJECT_PATH", "CI_SERVER_HOST"]) {
 run("git", ["checkout", "-q", "-B", BRANCH]);
 run(process.execPath, [ASSIGN, "--write"]);
 run("git", ["add", "CHANGELOG.md", ".claude-plugin/plugin.json"]);
+// The fragments the script folded in are deleted from the tree; stage that
+// too. Only when the directory is tracked: a bare pathspec errors otherwise.
+if (run("git", ["ls-files", "changelog.d"])) {
+  run("git", ["add", "-A", "--", "changelog.d"]);
+}
 run("git", [
   "-c",
   "user.name=release-train",

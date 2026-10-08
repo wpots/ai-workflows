@@ -150,8 +150,9 @@ Three things about committing here, each of which costs a wasted cycle otherwise
   project paths in words ("the project's ADR folder") instead of path literals.
 
 A change to a `shared/*.md` fragment or anything else the plugin ships also needs
-a `## [Unreleased]` entry in `CHANGELOG.md`, and must **not** touch the `version`
-in `.claude-plugin/plugin.json` — see the shared workflow-assets rule.
+a changelog fragment `changelog.d/<section>.<slug>.md`, and must **not** touch
+`CHANGELOG.md` or the `version` in `.claude-plugin/plugin.json` — see the shared
+workflow-assets rule.
 
 ### 5. Create the GitLab MR and capture its approval link
 

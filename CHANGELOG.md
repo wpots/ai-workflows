@@ -6,12 +6,13 @@ plus the scripts they run, and the ambient layer those hooks deliver
 (`CLAUDE.md` and the universal `rules/` subset).
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions are
-plain semver. Describe the change under `## [Unreleased]` **in the same MR**
-whenever it alters what the plugin ships; do not touch the `version` in
-`.claude-plugin/plugin.json` — the number is assigned after merge by
-`scripts/assign-plugin-version.mjs` in its own release MR. See "Ship a plugin
-release" in `docs/contributing.md`. Repo-internal changes (`README.md`,
-`docs/`, CI) don't get an entry.
+plain semver. Describe a change that alters what the plugin ships **in the same
+MR**, as a fragment `changelog.d/<section>.<slug>.md` — not here, and without
+touching the `version` in `.claude-plugin/plugin.json`. The release is cut
+after merge by the `release_train` CI job via `scripts/assign-plugin-version.mjs`,
+which assembles the fragments (and anything still under `## [Unreleased]`) into
+the version section. See "Ship a plugin release" in `docs/contributing.md`.
+Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
