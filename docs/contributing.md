@@ -43,6 +43,15 @@ cd ~/Web/ai-workflows
 - **pre-commit** — runs `validate-ai-instructions.sh` as a drift check
 - **pre-push** — refuses direct pushes to `main`/`master`
 
+Those are git hooks for this repo. The plugin ships a second kind: Claude Code
+hooks in [`hooks/hooks.json`](../hooks/hooks.json), which run in every session
+once the plugin is enabled — here too, so this repo needs no extra setup for
+them. One of them is the `Stop` hook (`scripts/improve_skill_retrospective.py`):
+after a Greenberry skill ran and the user stepped in, it blocks the stop once per
+session so Claude offers `skills/improve-skill`. It never runs the retrospective
+itself, and its test (`scripts/test_improve_skill_retrospective.py`) runs inside
+`validate-ai-instructions.sh`.
+
 ## Daily Loop
 
 1. Edit the canonical source in this repo.

@@ -163,13 +163,15 @@ reads them; on Claude the skill descriptions route in parallel via the plugin.
 ### Hooks and loops
 
 Automation that runs without being asked is thin but real, and it is not evenly
-distributed. Two plugin-wide hard gates ship through `hooks/hooks.json`; four
-project harness hooks ship through `templates/project-claude-settings.json`:
+distributed. Two plugin-wide hard gates and a retrospective prompt ship through
+`hooks/hooks.json`; four project harness hooks ship through
+`templates/project-claude-settings.json`:
 
 | Hook | Event | Does |
 | --- | --- | --- |
 | Process-termination approval | `PreToolUse(Bash)` | **Always asks** before `kill`, `pkill`, `killall`, or `taskkill`, even when a local allowlist would otherwise permit the command; the shared safety rule separately forbids terminating VS Code without approval for the exact PID and command |
 | CLI-first connector gate | `PreToolUse(mcp__.*)` | **Denies** an Atlassian or Axiom connector call that has a CLI equivalent while that CLI is installed, naming the `jira`/`axiom` command to run instead (`scripts/prefer_service_cli.py`); connector-only tools, other servers, a missing CLI and `AIW_ALLOW_MCP=1` pass through |
+| Improve-skill retrospective prompt | `Stop` | **Asks once per session**, by blocking the stop once, whether to run `skills/improve-skill` — only after a Greenberry skill ran and the user then stepped in: an interrupt, an explicit tool rejection, or typing right after a failed tool call that was the run's latest outcome. Never runs it or edits a skill itself (`scripts/improve_skill_retrospective.py`) |
 | Migration guard | `PreToolUse(Bash)` | **Denies** `migrate:fresh` and `migrate:create` — the only mechanically blocking gate in the whole pipeline |
 | Graphify-before-grep | `PreToolUse(Bash)` | Requires a graph query before raw grep/find, when `graphify-out/graph.json` exists |
 | Graphify-before-read | `PreToolUse(Read\|Glob)` | Same, for reading source files |
@@ -183,8 +185,8 @@ Two asymmetries worth naming. This repo ships harness hooks to projects but conf
 none for itself; its only own automation is the git pre-commit hook from
 `scripts/install-hooks.sh`, which runs the validators. And the hooks that exist are
 mostly *nudges* — only the migration guard and the CLI-first connector gate
-actually block. That is the gap
-`docs/backlog/chore-improve-skill-stop-hook.md` starts closing.
+actually block. The Stop prompt above closes the improve-skill gap by blocking once to
+ask, never to run.
 
 ## Phase by phase
 
@@ -380,7 +382,7 @@ cannot silently grow.
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
-| `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"`, `"learn from sessions"` · **policy says** after any run that needed intervention — enforced by nothing | Post-run retrospective: fold friction back into the skill's canonical source, decide whether a recurring pattern deserves a new skill or a lighter surface, and author the new skill when warranted |
+| `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"`, `"learn from sessions"` · **policy says** after any run that needed intervention · offered once per session by the `Stop` hook (`scripts/improve_skill_retrospective.py`) | Post-run retrospective: fold friction back into the skill's canonical source, decide whether a recurring pattern deserves a new skill or a lighter surface, and author the new skill when warranted |
 | `evals/<skill>/<case>/` | evals | `claude plugin eval . --tag <skill> --no-publish` by hand — no CI job yet | The Skill-change-health gate's cases: 42 converted from the earlier `evals.json` files, 6 runnable in an empty workspace and 36 waiting for a fixture |
 | `skills/upstream-rules` | skill | `/upstream-rules` · `"propose rule"` · **should** fire whenever a shared asset is edited in a synced project | Propose a rule/skill change back to this repo as a GitLab MR |
 | `skills/upstream-to-unicore` | skill | `/upstream-to-unicore` · `"port to unicore"` | Port a reusable change into `unicore-template` |
@@ -504,7 +506,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 6 | ~~Nothing happens after merge~~ | Delivered 2026-07-29: `skills/mr-merged` closes out board, PO handoff, ticket proposal, and cleanup | delivered |
 | 7 | ~~No policy or review dimension for stale comments and docs~~ | Delivered 2026-07-29: `rules/documentation.md` + the doc-freshness dimension in `skills/code-review` | delivered |
 | 8 | ~~Project kickoff starts at stack detection, not at intent~~ | Delivered 2026-07-29: `skills/start-project` writes brief, release spec and architecture doc before `skills/setup-ai-workflows` detects anything, and both `setup-ai-workflows` and `skills/architecture-review` now defer to the intended layer mapping instead of re-deriving it | delivered |
-| 9 | "Run `improve-skill` after a run that needed intervention" is prose, not a hook | The retrospective happens when someone remembers | `docs/backlog/chore-improve-skill-stop-hook.md` |
+| 9 | ~~"Run `improve-skill` after a run that needed intervention" is prose, not a hook~~ | Delivered 2026-10-08: a plugin `Stop` hook blocks once per session after a Greenberry skill run the user stepped into, so Claude offers the retrospective | delivered |
 | 10 | QA reports what it ran, but the run leaves behind nothing a reviewer can re-run | "Done" stays an assertion: the report says the criteria are met, and checking that claim means redoing the work | `docs/backlog/feat-requirements-traceability.md` |
 | 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | `docs/backlog/feat-jira-feedback-loop.md` — filed, parked |
 | 12 | A changed skill has a runner but no regression net: no CI job, no routing cases for most skills, and 36 of 42 converted cases need a fixture before they run | `skills/improve-skill` rewrites the instructions that drive every other phase, and nothing arms the check that the rewrite still triggers or still delivers | `docs/backlog/feat-skill-eval-harness.md` (slice 1 converts; slices 2–3 add routing cases and the CI job) |

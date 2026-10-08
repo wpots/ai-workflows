@@ -621,7 +621,7 @@ for (const rel of tracked) {
 // same MR, carrying a tracked follow-up for the enforcement it still owes.
 
 const PIPELINE_MAP = "docs/pipeline-map.md";
-const ENFORCED_BY_NOTHING_BUDGET = 1;
+const ENFORCED_BY_NOTHING_BUDGET = 0;
 if (tracked.has(PIPELINE_MAP)) {
   // Match the row marker "— enforced by nothing" only, so prose *about* the
   // budget (like the paragraph introducing it) does not count against it.

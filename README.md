@@ -66,7 +66,7 @@ files are generated: [How it works](docs/how-it-works.md).
 | `shared/` | canonical fragments injected into adapter files |
 | `templates/` | thin project adapter and document templates |
 | `.claude-plugin/` | plugin and marketplace manifests for the `greenberry` plugin |
-| `hooks/hooks.json` | hooks shipped by that plugin (currently the ambient-layer `SessionStart` hook) |
+| `hooks/hooks.json` | hooks shipped by that plugin: the `PreToolUse` gates, the added-comments check, the ambient-layer `SessionStart` sync and the `Stop` prompt for the improve-skill retrospective |
 | `scripts/` | sync, adapter generation, validation, smoke tests |
 | `docs/` | the guides below, plus the pipeline map and decision records |
 | `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md` | generated adapters for this repo itself |
