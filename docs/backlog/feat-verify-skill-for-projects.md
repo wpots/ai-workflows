@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Filed 2026-10-08 from the October 2026 stack review (task T18, the visual
 verification loop, which was "not started"). What changed since July: Claude
