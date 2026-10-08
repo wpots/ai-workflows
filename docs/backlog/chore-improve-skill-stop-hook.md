@@ -168,6 +168,7 @@ alone.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/156
 - [../../skills/improve-skill/SKILL.md](../../skills/improve-skill/SKILL.md)
 - [../../hooks/hooks.json](../../hooks/hooks.json)
 - [../../scripts/improve_skill_retrospective.py](../../scripts/improve_skill_retrospective.py)
