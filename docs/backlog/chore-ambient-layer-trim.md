@@ -68,6 +68,13 @@ upstream from elsewhere.
   `sustainable-review`). `AGENTS.md` and the Copilot adapter need the block: they
   are the routing for tools without skills.
 
+### After all three slices
+
+A throwaway merge of the three branches on `main` at `7626469` merges cleanly,
+passes `scripts/validate-skills.mjs` and shows no adapter drift. `CLAUDE.md`:
+26,992 → 18,866 bytes (−8,126, −30%, about 2,000 tokens per turn). Per slice
+alone: upstream-MR rule −3,690, worktrees −2,820, command rows −1,616.
+
 ### skill-doctor (2026-10-08, Claude Code 2.1.283)
 
 `claude -p "/skill-doctor"` from a worktree at `98a39c3`. The usage columns are
@@ -184,5 +191,6 @@ never on the team.
 - [../../skills/upstream-to-unicore/SKILL.md](../../skills/upstream-to-unicore/SKILL.md)
 - [../../scripts/generate-adapters.sh](../../scripts/generate-adapters.sh)
 - [../../scripts/validate-skills.mjs](../../scripts/validate-skills.mjs)
-- `chore-ambient-layer-trim-2-worktree-reference.md` (slice 2/3)
-- `chore-ambient-layer-trim-3-command-rows.md` (slice 3/3)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/166
+- `chore-ambient-layer-trim-2-worktree-reference.md` (slice 2/3) — MR !167
+- `chore-ambient-layer-trim-3-command-rows.md` (slice 3/3) — MR !168
