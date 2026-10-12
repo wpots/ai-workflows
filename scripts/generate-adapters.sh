@@ -10,6 +10,8 @@ ADAPTER_FILES=(
   "$ROOT_DIR/AGENTS.md"
   "$ROOT_DIR/CLAUDE.md"
   "$ROOT_DIR/.github/copilot-instructions.md"
+  "$ROOT_DIR/.claude/rules/upstream-mr.md"
+  "$ROOT_DIR/skills/upstream-rules/references/upstream-mr.md"
 )
 
 ERRORS=0

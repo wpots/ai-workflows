@@ -52,7 +52,9 @@ If a run had zero friction, skip silently — do not touch the skill.
    change. Editing `commands/<name>.md` changes its generated Copilot adapter
    `.github/prompts/<name>.prompt.md`: the pre-commit hook regenerates it and
    blocks the commit until the regenerated file is staged — `git add -A` and
-   commit again; never hand-edit the adapter.
+   commit again; never hand-edit the adapter. The edit lands in `ai-workflows`
+   through a GitLab MR, never on `main`: read
+   `skills/upstream-rules/references/upstream-mr.md` before branching.
 5. **Compound each learning into every artifact it deserves** — a prose edit
    alone evaporates under pressure; a check fires every time:
    - **a check** — when the failure is mechanically detectable, add it where

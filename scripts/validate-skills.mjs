@@ -413,6 +413,31 @@ for (const [rel, markers] of Object.entries(REQUIRED_MARKERS)) {
   }
 }
 
+// ── The upstream-MR rule stays out of the ambient layer ──────────────────────
+// Root CLAUDE.md is synced to ~/.claude/CLAUDE.md and loads in every session of
+// every project. The rule loads from these copies instead: Codex in this repo,
+// Claude in this repo, and the upstream skills anywhere.
+
+const UPSTREAM_MR_COPIES = [
+  "AGENTS.md",
+  ".claude/rules/upstream-mr.md",
+  "skills/upstream-rules/references/upstream-mr.md",
+];
+const UPSTREAM_MR_MARKER = "<!-- BEGIN SHARED:upstream-mr -->";
+
+for (const rel of UPSTREAM_MR_COPIES) {
+  if (!tracked.has(rel) || !read(rel).includes(UPSTREAM_MR_MARKER)) {
+    err(rel, "must carry the `upstream-mr` fragment; CLAUDE.md no longer does");
+  }
+}
+if (tracked.has("CLAUDE.md") && read("CLAUDE.md").includes(UPSTREAM_MR_MARKER)) {
+  err(
+    "CLAUDE.md",
+    "carries the `upstream-mr` fragment, which loads in every project; it " +
+      `belongs in ${UPSTREAM_MR_COPIES.join(", ")}`,
+  );
+}
+
 // ── Canonical-sources inventory is accurate and complete ─────────────────────
 
 const CANONICAL = "docs/workflow-canonical-sources.md";

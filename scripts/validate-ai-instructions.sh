@@ -10,6 +10,8 @@ GENERATED_FILES=(
   "AGENTS.md"
   "CLAUDE.md"
   ".github/copilot-instructions.md"
+  ".claude/rules/upstream-mr.md"
+  "skills/upstream-rules/references/upstream-mr.md"
   ".vscode/tasks.json"
 )
 

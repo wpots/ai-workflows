@@ -103,6 +103,10 @@ only the generic parts for upstreaming.
 
 ### 4. Clone, Branch, and Apply Changes
 
+Read [references/upstream-mr.md](references/upstream-mr.md) first: it is the
+full rule for landing a change in `ai-workflows` (branch, GitLab MR, reviewer,
+changelog fragment), and the always-on `CLAUDE.md` only points at it.
+
 Use the local clone when it exists. Otherwise clone the canonical GitLab
 repository into a temporary directory:
 
@@ -153,8 +157,8 @@ Three things about committing here, each of which costs a wasted cycle otherwise
 
 A change to a `shared/*.md` fragment or anything else the plugin ships also needs
 a changelog fragment `changelog.d/<section>.<slug>.md`, and must **not** touch
-`CHANGELOG.md` or the `version` in `.claude-plugin/plugin.json` — see the shared
-workflow-assets rule.
+`CHANGELOG.md` or the `version` in `.claude-plugin/plugin.json` — see
+[references/upstream-mr.md](references/upstream-mr.md).
 
 ### 5. Create the GitLab MR and capture its approval link
 
