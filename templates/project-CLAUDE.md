@@ -47,7 +47,8 @@ When CONVENTIONS.md conflicts with rules/, CONVENTIONS.md wins.
 When a change touches shared workflow assets in a reusable way, suggest
 upstreaming it to the
 [ai-workflows](https://gitlab.com/greenberrynl/config/ai-workflows) repo rather
-than keeping it only in this synced target repo.
+than keeping it only in this synced target repo. The `upstream-rules` skill
+does that, and carries the rule for landing it via a GitLab MR.
 
 Shared workflow assets:
 
@@ -72,11 +73,6 @@ When user intent matches one of these triggers, read and follow the correspondin
 <!-- END SHARED:command-mappings -->
 
 Do not assume command files auto-run. Select and execute them when intent matches.
-
-## Shared Workflow Assets Land via MR
-
-<!-- BEGIN SHARED:upstream-mr -->
-<!-- END SHARED:upstream-mr -->
 
 ## Safety
 
