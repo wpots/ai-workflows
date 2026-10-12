@@ -44,24 +44,36 @@ that I do not spend effort keeping a tool working that nobody runs.
 
 ## Acceptance Criteria
 
-- [ ] `docs/skills-first-migration-plan.md` is reduced to a decision record: the
+- [x] `docs/skills-first-migration-plan.md` is reduced to a decision record: the
       2026-07-27 record stays and gains a 2026-10-08 line (the team uses Claude
       and Codex; Cursor is out, so the supported-tools line no longer lists it);
       the phases are marked done or superseded and the open "decide the support
       matrix" text is removed.
-- [ ] The Cursor row in each support-matrix copy — `AGENTS.md` (line 23),
+- [x] The Cursor row in each support-matrix copy — `AGENTS.md` (line 23),
       `FEATURES.md` (line 159), `templates/project-ai-workflows.md` (lines 20 and
-      52) — says Cursor is not used by the Greenberry team and its adapters are
-      still generated but get no further work. The Claude and Codex rows do not
-      change. `README.md` lines 3 and 52 stop naming Cursor as a supported tool.
-- [ ] `templates/project-cursor-conventions.mdc` is not changed: no pointer line,
+      50; it was 52 when this was filed) — says Cursor is not used by the
+      Greenberry team and its adapters are still generated but get no further
+      work. The Claude and Codex rows do not change. `README.md` lines 3 and 52
+      stop naming Cursor as a supported tool.
+- [x] `templates/project-cursor-conventions.mdc` is not changed: no pointer line,
       and no fix for its rule list omitting `rules/sonarqube.md`.
-- [ ] `./scripts/generate-adapters.sh` is run and
+- [x] `./scripts/generate-adapters.sh` is run and
       `./scripts/validate-ai-instructions.sh` passes, with no adapter drift.
+
+Added at delivery: a changelog fragment, `changelog.d/changed.cursor-not-supported.md`.
+`templates/project-ai-workflows.md` is part of the project-sync freshness digest, so
+editing it makes every synced project read as stale once; the fragment says so.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `rg -n "Cursor" AGENTS.md FEATURES.md templates/project-ai-workflows.md`
+      shows the matrix rows saying "not used by the Greenberry team" (the other
+      Cursor lines there describe files that are still generated and are unchanged).
+- [x] `git diff --stat main` lists no change to `templates/project-cursor-conventions.mdc`.
+- [x] The plan's Phase 3 row is backed by `CLAUDE.md`: 15 skill rows name a
+      `(canonical)` skill and a `(fallback)` command.
+- [x] `bash scripts/validate-ai-instructions.sh` (and the pre-commit hook on the
+      delivery commit): 38 skills validated, all suites pass, no adapter drift.
 
 ## Technical Notes
 

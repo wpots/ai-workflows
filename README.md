@@ -1,7 +1,7 @@
 # ai-workflows
 
-Shared AI workflow configuration for Claude Code, Cursor, Codex, and GitHub
-Copilot — and the sync that installs it into a project.
+Shared AI workflow configuration for Claude Code, Codex, and GitHub Copilot —
+and the sync that installs it into a project.
 
 This repo is the source of truth for reusable:
 
@@ -49,7 +49,8 @@ Two things worth knowing up front:
 
 - **Claude Code gets skills and commands from the `greenberry` plugin**, not from
   file copies, and its ambient layer refreshes itself through a `SessionStart`
-  hook. Cursor and Codex are file-copy only, via `scripts/sync.sh`.
+  hook. Codex is file-copy only, via `scripts/sync.sh`. Cursor files are still
+  copied, but Cursor is not used by the team and gets no further work.
 - **`CONVENTIONS.md` in a project is project-owned** and never overwritten.
   Everything else sync writes is generated — edit it here, not there.
 

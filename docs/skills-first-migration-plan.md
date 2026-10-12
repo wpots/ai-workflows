@@ -1,11 +1,14 @@
 # Skills-First Migration Plan
 
+This is a decision record. The migration it planned is done; what stays is what
+was decided and the model it left behind.
+
 ## Decision Record (2026-07-27)
 
 Phase 1 is decided:
 
-- **Supported tools:** Cursor, Codex, Claude, and GitHub Copilot. Roo is
-  dropped as a sync target.
+- **Supported tools:** Codex, Claude, and GitHub Copilot; Roo is dropped as a
+  sync target. Cursor was on this list until 2026-10-08 (see the amendment).
 - **Claude skill status: first-class.** Skills are the canonical workflow
   surface on Claude and ship via the `greenberry` plugin from this repo's
   marketplace (`.claude-plugin/`, root-as-plugin). Commands stay as the
@@ -13,6 +16,15 @@ Phase 1 is decided:
 - **Claude distribution:** skills/commands come from the plugin and
   auto-update; `~/.claude/CLAUDE.md` and the universal rules subset stay on
   global sync because plugins have no primitive for always-on context.
+
+## Amendment (2026-10-08)
+
+- **Cursor is out.** The team uses Claude and Codex. Cursor no longer counts as
+  a supported tool: its adapters (`.cursor/rules/*.mdc`, `.cursor/mcp.json`) are
+  still generated and get no further work. Removing them from sync is
+  [`chore-retire-cursor-adapters.md`](backlog/chore-retire-cursor-adapters.md)
+  and waits for a go, because it changes what synced projects already have.
+- Nothing else in the 2026-07-27 record changes.
 
 ## Goal
 
@@ -40,7 +52,7 @@ Tool support target:
 | Tool | Always-on entry point | Workflow strategy |
 | --- | --- | --- |
 | GitHub Copilot | `.github/copilot-instructions.md` | command/runbook-first, no skills dependency |
-| Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | skill-first where possible, commands as fallback |
+| Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | not used by the team; adapters generated, no further work (2026-10-08) |
 | Codex | `AGENTS.md` | skill-first where possible, commands as fallback |
 | Claude | `CLAUDE.md` plus global/project rules | skill-first via the `greenberry` plugin, commands as fallback (decided 2026-07-27) |
 
@@ -55,133 +67,15 @@ Tool support target:
 4. Keep always-on instructions compact.
    Do not compensate for missing workflow structure by bloating adapters or baseline rules.
 
-## Phase 1: Decide The Support Matrix
+## Phases
 
-Goal: remove architecture ambiguity before migrating workflows.
-
-Actions:
-
-- Publish an explicit support matrix in repo docs.
-- Decide Claude’s official skill status:
-  - first-class
-  - unsupported as a primary abstraction
-- Make the repo wording consistent with the chosen answer.
-
-Primary files:
-
-- [AGENTS.md](../AGENTS.md)
-- [README.md](../README.md)
-- [scripts/sync.sh](../scripts/sync.sh)
-- [templates/project-ai-workflows.md](../templates/project-ai-workflows.md)
-
-Exit criteria:
-
-- A contributor can tell, without inference, which tools are skill-first, command-first, or mixed.
-
-## Phase 2: Classify Existing Assets
-
-Goal: assign each current workflow asset to the right abstraction.
-
-Classify every major workflow into one of these buckets:
-
-- policy-only: belongs in `rules/`
-- workflow-first: belongs in `skills/`
-- compatibility-only: belongs in `commands/`
-- dual-surface: skill as canonical, command as fallback wrapper
-
-Recommended initial classification:
-
-| Workflow | Recommendation |
-| --- | --- |
-| `commit-message` | dual-surface |
-| `create-pr` | dual-surface |
-| `code-review` | skill-first |
-| `run-checks` | skill-first |
-| `scaffold-component` | skill-first |
-| `setup-ai-workflows` | skill-first |
-| `upstream-rules` | skill-first |
-
-Exit criteria:
-
-- Each workflow has one declared canonical source.
-
-## Phase 3: Normalize Skill-First Workflows
-
-Goal: reduce drift between skills and commands.
-
-Actions:
-
-- For each skill-first workflow, shorten the matching command into a compatibility runbook that:
-  - names the skill when supported
-  - preserves a fallback procedure for non-skill-aware tools
-  - avoids becoming a second full implementation
-- Align trigger phrases and summaries across:
-  - `skills/*/SKILL.md`
-  - `commands/*.md`
-  - `shared/command-mappings.md`
-  - project adapters
-
-Good first candidates:
-
-- `code-review`
-- `run-checks`
-- `setup-ai-workflows`
-
-Exit criteria:
-
-- The skill is clearly the canonical workflow for supported tools.
-- The command remains useful for Copilot and fallback tools without duplicating the full logic.
-
-## Phase 4: Tighten Rule Usage
-
-Goal: make rules easier for skills and developers to apply consistently.
-
-Actions:
-
-- Keep `rules/` as a focused library of policy files.
-- Make sure skills explicitly load or reference the rule files they depend on.
-- Keep compact baseline guidance in always-on adapters only when it is truly universal.
-- Add small, high-signal examples showing when developers should explicitly mention a focused rule in prompts.
-
-This phase is successful when:
-
-- rules are not trying to be workflows
-- skills are not trying to be full policy handbooks
-- contributors know when to name a rule explicitly
-
-## Phase 5: Align Sync And Documentation
-
-Goal: make the strategy visible in the actual synced experience.
-
-Actions:
-
-- Ensure `sync.sh` and generated project files reflect the chosen support matrix.
-- Keep `AI-WORKFLOWS.md` explicit about:
-  - always-on vs on-demand
-  - skills vs commands
-  - per-tool expectations
-- Update maintainer docs so new workflow additions follow the same model by default.
-
-Primary files:
-
-- [scripts/sync.sh](../scripts/sync.sh)
-- [README.md](../README.md)
-- [templates/project-ai-workflows.md](../templates/project-ai-workflows.md)
-
-## Risks
-
-- Claude ambiguity: syncing skills to Claude without officially supporting a skills-first model creates architecture drift.
-- Duplicate maintenance: if commands and skills both remain full implementations, the repo will drift quickly.
-- Overusing skills: trying to turn static policy into skills will make standards less discoverable and harder to reuse.
-- Under-documenting Copilot fallback: if commands get too thin without a real fallback path, Copilot users lose functionality.
-
-## Suggested Execution Order
-
-1. Complete the support-matrix decision.
-2. Mark canonical workflow sources for existing assets.
-3. Normalize the top 3 highest-value workflows to skill-first plus command fallback.
-4. Refresh docs and templates to match the chosen model.
-5. Normalize the remaining workflows.
+| Phase | Outcome | Where it landed |
+| --- | --- | --- |
+| 1. Decide the support matrix | decided 2026-07-27, amended 2026-10-08 | the decision record above; the matrix in [`AGENTS.md`](../AGENTS.md), [`README.md`](../README.md), [`FEATURES.md`](../FEATURES.md) and [`templates/project-ai-workflows.md`](../templates/project-ai-workflows.md) |
+| 2. Classify existing assets | done | [`workflow-canonical-sources.md`](workflow-canonical-sources.md) names one canonical source per workflow |
+| 3. Normalize skill-first workflows | done | skills are canonical and commands remain as fallback runbooks; the skill-mapping rows in `CLAUDE.md` name both |
+| 4. Tighten rule usage | standing practice | principles 1 and 4 above; it has no deliverable of its own |
+| 5. Align sync and documentation | done | `scripts/sync.sh --project` and `templates/project-ai-workflows.md` follow the matrix |
 
 ## Recommended Default Going Forward
 
