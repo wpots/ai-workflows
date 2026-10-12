@@ -20,42 +20,7 @@ proposed automation whether this repo has it, partly has it, or does not.
 
 ## The pipeline
 
-```mermaid
-flowchart LR
-  design["Design<br/><small>design → code</small>"]
-  plan["Plan<br/><small>tickets</small>"]
-  build["Build<br/><small>implement</small>"]
-  qa["QA<br/><small>verify vs criteria</small>"]
-  review["Review<br/><small>MR vs ticket</small>"]
-  ship["Ship<br/><small>release</small>"]
-  operate["Operate<br/><small>run + observe</small>"]
-
-  design --> plan --> build --> qa --> review --> ship --> operate
-
-  g1(["Design readiness<br/><small>readiness · absent</small>"])
-  g2(["Definition of ready<br/><small>readiness · partial</small>"])
-  g3(["Build health<br/><small>done · automated</small>"])
-  g4(["Release readiness<br/><small>done · partial</small>"])
-  g5(["Deploy health<br/><small>done · out of scope</small>"])
-  g6(["Feedback triage<br/><small>gate on the loop · absent</small>"])
-
-  design -.- g1
-  plan -.- g2
-  build -.- g3
-  ship -.- g4
-  operate -.- g5
-
-  operate -. "Jira comment" .-> g6
-  g6 -. "reproduce → fix → draft MR" .-> build
-
-  classDef gate fill:#fff7ed,stroke:#c2751a,color:#7c3f04;
-  classDef gap fill:#fef2f2,stroke:#b91c1c,color:#7f1d1d;
-  classDef scope fill:#f8fafc,stroke:#64748b,color:#334155;
-  class g2,g3,g4 gate;
-  class g1,g6 gap;
-  class g5 scope;
-  class qa,review gate;
-```
+![The seven delivery phases from Design to Operate, each gate under the phase it guards and coloured by status, and the feedback loop from Operate through Feedback triage back to Build](diagrams/pipeline.drawio.svg)
 
 QA and Review are drawn as phases because they are also gates in their own right —
 everything reaching Ship has passed both, and an AI-authored change passes the same
@@ -108,23 +73,7 @@ The seven-phase picture describes how work flows through a *product* repo. It do
 not show how work re-enters *this* repo — which is the whole reason ai-workflows
 exists. That is the eighth lane:
 
-```mermaid
-flowchart LR
-  friction["Friction in any phase<br/><small>correction, retry, workaround</small>"]
-  learn["skills/improve-skill"]
-  upstream["skills/upstream-rules<br/>skills/upstream-to-unicore"]
-  gate{{"GitLab MR<br/>reviewer wieteke.pots"}}
-  ctx["Shared context layer<br/><small>rules · skills · commands · templates</small>"]
-
-  evals(["Skill-change health<br/><small>done · partial</small>"])
-
-  friction --> learn --> upstream --> gate --> ctx
-  ctx -. "loaded by every tool, in every phase" .-> friction
-  learn -.- evals
-
-  classDef gate fill:#fff7ed,stroke:#c2751a,color:#7c3f04;
-  class evals gate;
-```
+![The improve loop: friction in any phase goes through skills/improve-skill and the upstream skills to a GitLab MR, into the shared context layer that every tool loads again; the skill-change health gate hangs off improve-skill](diagrams/improve-loop.drawio.svg)
 
 The dotted gate is only half there. Every other phase closes on a check; a skill edit
 closes on a human reading the diff, plus whatever eval someone remembers to run.
@@ -576,8 +525,9 @@ four rows without building any of the four.
 - a tracked skill, command, or rule that appears nowhere in this file → **warning**
 
 So adding a skill without placing it in the process is a visible warning, not a
-silent omission. When a phase or gate itself changes, update the Mermaid diagram
-and the gate table by hand — that structure is deliberately not generated.
+silent omission. When a phase or gate itself changes, update
+`docs/diagrams/pipeline.drawio.svg` in draw.io and the gate table by hand — that
+structure is deliberately not generated.
 
 One step the validator cannot check: this file is also **published as a shareable
 rendered copy** (the link lives in `docs/how-it-works.md`, under "The Delivery
