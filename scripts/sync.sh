@@ -38,6 +38,7 @@ Project sync copies:
   rules/ and commands/              (shared baseline rules and runbooks)
   .github/prompts/*.prompt.md       (attachable via #file: in Copilot chat)
   .claude/skills/verify/SKILL.md    (pre-commit verification; only when missing)
+  .gitignore                        (appends .playwright-mcp/ once; rest untouched)
 
 Options:
   --dry-run     Show what would be synced without writing
@@ -398,6 +399,24 @@ if [[ -n "$PROJECT_DIR" ]]; then
       cp "$SRC_VERIFY_SKILL" "$PROJECT_DIR/.claude/skills/verify/SKILL.md"
       echo "  [ok] .claude/skills/verify/SKILL.md (pre-commit verification)"
     fi
+  fi
+
+  # Keep the Playwright MCP's default output folder out of git. The server
+  # writes screenshots, console logs and page snapshots to .playwright-mcp/ in
+  # the project on every navigation, and refuses paths outside the project and
+  # that folder, so the verify skill leaves its screenshots there. Append once;
+  # never rewrite the project's other lines.
+  GITIGNORE_FILE="$PROJECT_DIR/.gitignore"
+  if [[ -f "$GITIGNORE_FILE" ]] && grep -Eq '^/?\.playwright-mcp/?[[:space:]]*$' "$GITIGNORE_FILE"; then
+    echo "  [ok] .gitignore already ignores .playwright-mcp/"
+  elif [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] append .playwright-mcp/ to .gitignore"
+  else
+    if [[ -s "$GITIGNORE_FILE" && -n "$(tail -c 1 "$GITIGNORE_FILE")" ]]; then
+      echo >> "$GITIGNORE_FILE"
+    fi
+    printf '%s\n' "# Playwright MCP output: screenshots, console logs, page snapshots (ai-workflows sync)" ".playwright-mcp/" >> "$GITIGNORE_FILE"
+    echo "  [ok] .gitignore (appended .playwright-mcp/)"
   fi
 
   # Freshness stamp: a digest of the exact source set this run delivered, so
