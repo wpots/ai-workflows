@@ -29,8 +29,13 @@ step.
 2. Start the dev server with the project's dev script, open each affected
    route, and take one screenshot per route and per state the change touches
    (empty, error, loading, a narrow viewport when the diff affects layout).
-3. Save the screenshots outside the repository, in the system temp directory,
-   and list their paths in the report. Never commit them.
+3. Take each screenshot without a file name, so the tool saves it where it is
+   allowed to write: the Playwright MCP into `.playwright-mcp/` in the project,
+   which the sync gitignores; chrome-devtools and a built-in browser return it
+   inline (chrome-devtools puts a large one in the system temp directory). A
+   file name you pass yourself lands in the project root, or is refused outside
+   it. Report the path the tool printed, or `inline`. Never move, copy or stage
+   the files.
 
 No browser control available: say so in the report and mark the UI as
 unverified. Do not describe a screen you did not open.
@@ -38,7 +43,8 @@ unverified. Do not describe a screen you did not open.
 ## 3. Report
 
 - **Checks** — each command and its result.
-- **Screens** — each route, the state, what you observed, the screenshot path.
+- **Screens** — each route, the state, what you observed, the screenshot path
+  (or `inline`).
 - **Not verified** — anything you could not run or open, and why.
 
 Then commit.

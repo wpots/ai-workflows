@@ -297,6 +297,14 @@ it from then on. Claude Code runs a project skill named `verify` before each
 commit, except docs-only and tests-only ones. A skill shipped in the plugin does
 not count, which is why this one lives in the project.
 
+Add `.playwright-mcp/` to the project's `.gitignore` when no line ignores it
+yet (`scripts/sync.sh --project` appends it once). The Playwright MCP writes
+screenshots, console logs and page snapshots there on every navigation and
+refuses paths outside the project and that folder, so `verify` leaves its
+screenshots there. An `--output-dir` on the `.mcp.json` entry is not the
+answer: an existing `.mcp.json` is never rewritten, and a Playwright MCP added
+at user scope never reads it, while the ignore line covers every setup.
+
 ### 9. Summary
 
 Output a summary of what was created/synced:
@@ -315,6 +323,7 @@ Initialized <project-name> with ai-workflows:
   .github/prompts/      [synced]           — Copilot prompt files generated from commands/
   .mcp.json             [created/skipped]  — project MCP servers (env-var-based, checked in)
   .cursor/mcp.json      [created/skipped]  — Cursor mirror of the MCP config
+  .gitignore            [appended/ok]      — .playwright-mcp/ (browser MCP output)
 
   Stack: <detected stack>
   Deviations: <count> from global rules
