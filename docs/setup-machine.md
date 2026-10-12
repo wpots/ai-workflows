@@ -78,9 +78,10 @@ from `~/.claude` — installing first means you are never without skills.
 
 > **Org-managed settings.** When the Teams Owner has applied
 > [org-managed-plugin-settings.md](org-managed-plugin-settings.md), the
-> marketplace and the plugin arrive on your first launch with auto-update on:
-> do step 1, start Claude Code once, then check step 4. Steps 2 and 3 are the
-> fallback for when `/plugin` does not list `greenberry` at Managed scope.
+> marketplace arrives on your first launch with auto-update on: do step 1,
+> start Claude Code once, run only the `/plugin install` line of step 2, skip
+> step 3, then check step 4. If `/plugin` does not list the `ai-workflows`
+> marketplace, follow steps 2 and 3 in full.
 
 ### 1. Check GitLab access
 

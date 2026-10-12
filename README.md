@@ -86,7 +86,7 @@ Key scripts:
 | Doc | For |
 | --- | --- |
 | [docs/setup-machine.md](docs/setup-machine.md) | one-time developer setup: clone, plugin, sync targets, ambient layer, graphify |
-| [docs/org-managed-plugin-settings.md](docs/org-managed-plugin-settings.md) | for the Teams Owner: register the marketplace and force-enable the plugin for everyone from the claude.ai admin console |
+| [docs/org-managed-plugin-settings.md](docs/org-managed-plugin-settings.md) | for the Teams Owner: register the marketplace with auto-update for everyone from the claude.ai admin console (the plugin itself stays opt-in) |
 | [docs/adopt-new-project.md](docs/adopt-new-project.md) | new project, with or without a repo |
 | [docs/adopt-existing-project.md](docs/adopt-existing-project.md) | retrofit onto an existing codebase and its existing AI instructions |
 | [docs/keep-current.md](docs/keep-current.md) | keeping machine and projects up to date, and what a re-sync overwrites |

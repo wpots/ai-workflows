@@ -1,11 +1,13 @@
 # Org-Managed Plugin Settings
 
-Step-by-step for the **Teams Owner**: register the `ai-workflows` marketplace
-and turn on the `greenberry` plugin for every teammate from the claude.ai admin
-console. Once this is in place, a new teammate gets the plugin on the first
-launch of Claude Code, with auto-update on, instead of following
-[setup-machine.md](setup-machine.md#claude-code-install-the-plugin) by hand.
-The manual steps stay as the fallback.
+Step-by-step for the **Teams Owner**: register the `ai-workflows` marketplace,
+with auto-update on, for every teammate from the claude.ai admin console. Once
+this is in place, a new teammate finds the marketplace on the first launch of
+Claude Code and installs the `greenberry` plugin with one command, and nobody's
+install can freeze on an old version. The plugin itself is **not** forced: it
+stays enabled per project by the `.claude/settings.json` that sync writes into
+every Greenberry project, and a teammate can still disable it. Force-enabling
+is a later step, see [Later: force-enable the plugin](#later-force-enable-the-plugin).
 
 Statements marked **(unconfirmed)** are not in the official Claude Code docs or
 were not tested; everything else is sourced at the end.
@@ -36,20 +38,27 @@ on their machine. What `/plugin` shows them then is **unconfirmed**.
 
 ## What Changes On A Teammate's Machine
 
-The force-enabled plugin behaves exactly like a hand-installed one, with two
-differences: the teammate cannot disable or uninstall it, and cannot turn its
-auto-update off. Concretely, at session start the plugin:
+- The `ai-workflows` marketplace is registered, and its auto-update is on and
+  cannot be turned off. A teammate's own `ai-workflows` entry is replaced by the
+  managed one.
+- Nothing is installed. The `greenberry` plugin arrives the way it does today:
+  `/plugin install greenberry@ai-workflows`, or the project settings of a
+  synced Greenberry project, which enable it there. The teammate keeps control:
+  they can disable or uninstall it.
+- Once the plugin runs, it behaves as it does today: it adds the
+  `/greenberry:*` skills and runs its hooks from
+  [`hooks/hooks.json`](../hooks/hooks.json), including the `SessionStart` hook
+  that writes `~/.claude/CLAUDE.md` and the universal rules into
+  `~/.claude/rules/` (see
+  [setup-machine.md](setup-machine.md#the-ambient-layer-updates-itself)).
 
-- adds the `/greenberry:*` skills and command runbooks;
-- runs its hooks from [`hooks/hooks.json`](../hooks/hooks.json), including the
-  `SessionStart` hook that writes `~/.claude/CLAUDE.md` and the universal rules
-  into `~/.claude/rules/` (see
-  [setup-machine.md](setup-machine.md#the-ambient-layer-updates-itself)). A
-  teammate's own `~/.claude/CLAUDE.md` is replaced the first time the plugin
-  delivers different content.
-
-Decide with the maintainer whether every member of the Teams organization
-should get that, before saving.
+**Decided 2026-10-12 by the maintainer:** register the marketplace org-wide,
+but do not force-enable the plugin yet. A forced plugin runs its hooks in every
+session of every member with no off switch, replaces everyone's
+`~/.claude/CLAUDE.md`, and a bad release reaches everyone at once, while
+server-managed settings offer no early-access channel and the automated
+release train has not proven itself yet. Revisit after a few clean automated
+releases and a one-week pilot with one or two teammates.
 
 ## The JSON To Paste
 
@@ -63,9 +72,6 @@ should get that, before saving.
       },
       "autoUpdate": true
     }
-  },
-  "enabledPlugins": {
-    "greenberry@ai-workflows": true
   }
 }
 ```
@@ -78,7 +84,9 @@ should get that, before saving.
 | `source.source: "git"` | The marketplace is a git repository to clone. Not `"url"`: for a marketplace source, `url` means "download one `marketplace.json` file", and our plugin lives in the repo itself. |
 | `source.url` | The clone URL. SSH, the same URL as the manual install and the project template, so nobody's marketplace source changes. See [Choosing the URL](#choosing-the-url). |
 | `autoUpdate: true` | Refreshes the marketplace and its plugins in the background after a session starts. Set here, a teammate's `/plugin` toggle is refused. |
-| `enabledPlugins` | `"<plugin>@<marketplace>": true` installs and force-enables the plugin. `greenberry` is the entry `name` in `marketplace.json`. Managed `true` cannot be overridden by any other settings file. |
+
+There is deliberately no `enabledPlugins` key: that would install and
+force-enable the plugin (see [Later](#later-force-enable-the-plugin)).
 
 No key in this JSON triggers the security approval dialog that hooks, shell
 helpers, and some `env` variables in managed settings trigger, so teammates see
@@ -89,7 +97,7 @@ no prompt. (The plugin's own hooks are plugin components, not managed hooks.)
 There is one URL for everyone, because the managed entry replaces each
 teammate's own.
 
-- **SSH (recommended, used above).** Matches
+- **SSH (decided 2026-10-12 for the first rollout, used above).** Matches
   [setup-machine.md](setup-machine.md#2-install) and
   [`templates/project-claude-settings.json`](../templates/project-claude-settings.json).
   Requires the SSH key described above.
@@ -108,33 +116,34 @@ teammate's own.
 3. Find the managed settings JSON field. (The docs say the configuration is
    added "as JSON"; the field's exact label is **unconfirmed**.)
 4. If the field is **empty**, paste the JSON above as is.
-   If it **already contains settings**, do not replace them. Add the two keys
-   inside the existing outer `{ … }`, separated by commas. If
-   `extraKnownMarketplaces` or `enabledPlugins` already exist, add the
-   `"ai-workflows"` and `"greenberry@ai-workflows"` entries inside them instead
-   of adding the keys a second time.
+   If it **already contains settings**, do not replace them. Add the
+   `extraKnownMarketplaces` key inside the existing outer `{ … }`, separated by
+   a comma. If `extraKnownMarketplaces` already exists, add the
+   `"ai-workflows"` entry inside it instead of adding the key a second time.
 5. Save. (The save button's exact label is **unconfirmed**.)
 6. Tell the maintainer it is saved, so one teammate can verify right away (next
    section). There is no staged rollout: it applies to everyone at once.
 
 How fast it lands: Claude Code fetches server-managed settings at startup and
-polls hourly in a running session. The marketplace is registered and the plugin
-installed at the start of the next session, so the reliable path is for each
-teammate to quit and restart Claude Code once.
+polls hourly in a running session. The marketplace is registered at the start
+of the next session, so the reliable path is for each teammate to quit and
+restart Claude Code once.
 
 ## Verify On A Teammate's Machine
 
 1. Quit every running Claude Code session and start `claude` again.
 2. Run `/status`. The `Setting sources` line lists
    `Enterprise managed settings (remote)`.
-3. Run `/plugin`. The **Installed** tab lists `greenberry` at **Managed** scope,
-   and the **Marketplaces** tab lists `ai-workflows`.
-4. In a shell, `claude plugin list` shows `greenberry@ai-workflows` as enabled.
+3. Run `/plugin`. The **Marketplaces** tab lists `ai-workflows`, and its
+   auto-update toggle cannot be switched off.
+4. A teammate without the plugin runs `/plugin install greenberry@ai-workflows`;
+   one who already has it sees no change. In a shell,
+   `claude plugin list` then shows `greenberry@ai-workflows` as enabled.
 5. Type `/greenberry:`. The skills appear.
 
 The clone runs in the background after the session starts, so on the very first
-launch the plugin can arrive mid-session. Run `/reload-plugins` when Claude Code
-asks for it, or restart once more.
+launch the marketplace can arrive mid-session. Run `/reload-plugins` when
+Claude Code asks for it, or restart once more.
 
 If a step fails:
 
@@ -149,19 +158,18 @@ If a step fails:
 **A bad plugin release** is rolled back in this repo, not in the admin console:
 revert the MR on `main`, and auto-update carries the revert to everyone.
 
-**Stop forcing the plugin:**
+**Stop managing the marketplace:**
 
 1. The Teams Owner opens the same page, deletes the `"ai-workflows"` entry from
-   `extraKnownMarketplaces` and the `"greenberry@ai-workflows"` entry from
-   `enabledPlugins` (or the whole keys, if nothing else is in them), and saves.
+   `extraKnownMarketplaces` (or the whole key, if nothing else is in it), and
+   saves.
 2. Clients pick it up at their next start or within the hour. A machine keeps
    its cached copy of the settings until its next successful fetch.
 
-Whether Claude Code then uninstalls the plugin and unregisters the marketplace
-on each machine, or leaves them installed under the teammate's control, is
-**unconfirmed**. A teammate who wants them gone runs
-`claude plugin marketplace remove ai-workflows`, which also uninstalls the
-plugins from it.
+Whether Claude Code then unregisters the marketplace on each machine, or leaves
+it registered under the teammate's control, is **unconfirmed**. A teammate who
+wants it gone runs `claude plugin marketplace remove ai-workflows`, which also
+uninstalls the plugins from it.
 
 **Block the plugin everywhere** (for example an incident where waiting for a
 revert is too slow): set `"greenberry@ai-workflows": false` in the managed
@@ -227,9 +235,6 @@ what they need. The full opt-in JSON, merged with the base JSON:
     "claude-plugins-official": {
       "source": { "source": "github", "repo": "anthropics/claude-plugins-official" }
     }
-  },
-  "enabledPlugins": {
-    "greenberry@ai-workflows": true
   }
 }
 ```
@@ -245,6 +250,26 @@ wrong entry silently stops plugins from loading for the whole organization.
 
 Not recommended alongside it: `disableSideloadFlags`, which also rejects
 `--plugin-dir`, the flag for testing a local copy of a plugin.
+
+## Later: Force-Enable The Plugin
+
+Not now (see the decision above). When the conditions are met, the Teams Owner
+adds this key next to `extraKnownMarketplaces`:
+
+```json
+"enabledPlugins": {
+  "greenberry@ai-workflows": true
+}
+```
+
+`"<plugin>@<marketplace>": true` installs and force-enables the plugin;
+`greenberry` is the entry `name` in `marketplace.json`, and managed `true`
+cannot be overridden by any other settings file. From then on every member gets
+the plugin, its hooks and the ambient layer at session start, cannot disable or
+uninstall it, and finds their own `~/.claude/CLAUDE.md` replaced the first time
+the plugin delivers different content. Tell the team before saving.
+Verification then changes: `/plugin` lists `greenberry` at **Managed** scope.
+Rolling back means deleting this entry as well.
 
 ## Not Covered Here
 

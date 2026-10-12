@@ -57,9 +57,10 @@ chmod +x scripts/sync.sh scripts/validate-ai-instructions.sh
 Claude Code users: make sure the `greenberry` plugin is in place first, because
 sync removes old skill copies from `~/.claude`. Start `claude` once and run
 `/plugin`. With the org-managed settings in place
-(`docs/org-managed-plugin-settings.md`), it lists `greenberry` at Managed scope
-on first launch. If it does not, install the plugin by hand per
-`docs/setup-machine.md` ("Claude Code: Install The Plugin").
+(`docs/org-managed-plugin-settings.md`), it lists the `ai-workflows` marketplace
+on first launch; install the plugin with `/plugin install greenberry@ai-workflows`.
+Without the marketplace, install it by hand per `docs/setup-machine.md`
+("Claude Code: Install The Plugin").
 
 ```bash
 ./scripts/sync.sh
