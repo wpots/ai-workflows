@@ -182,8 +182,8 @@ Project-local conventions always win over the shared baseline.
 [pipeline-map.md](pipeline-map.md) is the canonical map of which rule, skill,
 command, hook, and loop fires in which delivery phase, and how each is invoked.
 
-A rendered copy — Mermaid diagrams and all — is published for people who do not
-read the repo:
+A rendered copy — diagrams and all — is published for people who do not read the
+repo:
 
 <https://claude.ai/code/artifact/7df7be86-8147-44c9-a1bb-748cd31f480f>
 
