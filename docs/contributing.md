@@ -106,7 +106,10 @@ Three rules keep process docs trustworthy:
 ## Add Or Update A Command
 
 1. Edit the runbook in `commands/`.
-2. Add or update the trigger mapping in `shared/command-mappings.md`.
+2. Add or update the trigger mapping in `shared/command-mappings.md`. When a
+   skill row names the command as its fallback, put any new trigger in that
+   skill row too; when none does, copy the command row verbatim into the
+   `## Command Mapping` section of `CLAUDE.md`. The validator checks both.
 3. Run `./scripts/generate-adapters.sh`.
 
 ## Add Or Update A Skill

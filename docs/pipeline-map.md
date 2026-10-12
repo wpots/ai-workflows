@@ -157,8 +157,10 @@ in one thing that matters: who decides to run it.
 either falls behind, so a runbook like `commands/refinement.md` can no longer sit
 in the repo without a trigger phrase. The counts are deliberately not written out
 here — the validator is the guarantee, and a number in prose only goes stale. Both fragments are injected into
-the generated adapters (`CLAUDE.md`, `AGENTS.md`), which is where a tool actually
-reads them; on Claude the skill descriptions route in parallel via the plugin.
+`AGENTS.md`, which is where a tool actually reads them. `CLAUDE.md`, which every
+Claude session loads, takes the skill fragment plus only the command rows no
+skill row covers (the validator holds the two in step); on Claude the skill
+descriptions route in parallel via the plugin.
 
 ### Hooks and loops
 

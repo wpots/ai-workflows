@@ -41,27 +41,12 @@ between an interactive browser check and reusable automated tests.
 
 ## Command Mapping
 
-When user intent matches one of these prompts, skills, or command requests, read and follow the corresponding prompt, skill, or runbook:
+When user intent matches one of these triggers, read and follow the corresponding
+runbook — the commands that have no skill. Every other runbook is the fallback
+named in its skill's row below.
 
-<!-- BEGIN SHARED:command-mappings -->
-- `create pr`, `open pr`, `submit pr` -> `commands/create-pr.md`
-- `commit message`, `write commit`, `git commit` -> `commands/commit-message.md`
-- `backlog item`, `user story`, `feature spec`, `bug item`, `bli` -> `commands/backlog.md`
-- `close sprint`, `sluit sprint af`, `sprint afsluiten`, `close support month`, `support maand afsluiten` -> `commands/close-sprint.md`
-- `compact sprint`, `compact old sprints`, `sprint compacten`, `oude sprints opruimen`, `compact support months` -> `commands/compact-sprint.md`
-- `refinement`, `prepare refinement`, `refine tickets`, `refinement vastleggen` -> `commands/refinement.md`
-- `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `commands/sprint-demo.md`
-- `release notes`, `releasenotes`, `release notes voor de klant`, `wat is er live` -> `commands/release-notes.md`
-- `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `commands/sprint-planning.md`
-- `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `commands/sustainable-review.md`
-- `run checks`, `run-checks`, `quality checks` -> `commands/run-checks.md`
-- `review code`, `code review`, `review changes` -> `commands/review-code.md`
 - `kill port`, `port 3000`, `eaddrinuse` -> `commands/safe-kill-port.md`
-- `new component`, `scaffold`, `create component` -> `commands/scaffold-component.md`
 - `new device`, `setup device`, `onboarding` -> `commands/new-device-setup.md`
-- `apply ai-workflows`, `setup ai-workflows`, `generate conventions`, `refresh project config` -> `commands/setup-ai-workflows.md`
-- `work backlog`, `work the backlog`, `next backlog item`, `autonomous delivery` -> `commands/work-backlog.md`
-<!-- END SHARED:command-mappings -->
 
 ### Skill Mapping
 
@@ -108,7 +93,7 @@ cross-reference, so it still needs its own line.
 - `sprint demo`, `demo voorbereiden`, `demo script`, `prepare demo` -> `skills/sprint-demo` (canonical), `commands/sprint-demo.md` (fallback)
 - `sprint planning`, `plan sprint`, `sprint start`, `start sprint`, `plan komende sprint` -> `skills/sprint-planning` (canonical), `commands/sprint-planning.md` (fallback)
 - `start project`, `new project`, `init project`, `setup project`, `initialize project`, `project kickoff`, `project brief`, `project spec`, `nieuw project`, `project opzetten` -> `skills/start-project` (skill only; the single kickoff entry — it runs `skills/setup-ai-workflows`, writes brief/spec/architecture, and hands the journeys to `skills/user-journeys`)
-- `sustainable review`, `sustainability review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `skills/sustainable-review` (canonical), `commands/sustainable-review.md` (fallback)
+- `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `skills/sustainable-review` (canonical), `commands/sustainable-review.md` (fallback)
 - `tdd`, `test-driven development`, `test first`, `test eerst`, `schrijf eerst een test` -> `skills/test-driven-development` (skill only)
 - `upstream rule`, `propose rule`, `share rule change` -> `skills/upstream-rules` (skill only)
 - `upstream to unicore`, `port to unicore`, `upstream to template`, `unicore-template` -> `skills/upstream-to-unicore` (skill only)
