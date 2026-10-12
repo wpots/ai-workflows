@@ -33,8 +33,9 @@ The go covers:
 - the version, changelog section, tag and GitLab Release, when the project's
   hotfix runbook asks for them;
 - Slack posts in `#merge_requests`: one parent message, then thread replies.
-- one subtask under the tracker's maintenance ticket of the current quarter,
-  for the hotfix MR. The parent ticket itself is never touched.
+- one Jira ticket for the critical: the project's open `maintenance:critical`
+  ticket when the scanner already filed one, otherwise a new Task with that
+  label. The quarter's maintenance ticket is never touched.
 
 Never: approve the hotfix MR yourself, merge past a red pipeline, force-push,
 push to the production branch directly, bump across a major, or resolve a
@@ -134,11 +135,12 @@ Read the project before planning:
   Greenberry-wide channel where every MR is announced for review. Do not ask
   and do not use a project channel: the thread is about an MR, and reviewers
   watch that one channel.
-- **Maintenance ticket**: the tracker's ticket for the current quarter, found
-  the way `skills/npm-maintenance/references/maintenance-ticket.md`
-  describes. The hotfix gets its own subtask under it. The regular
-  maintenance that follows is a separate MR and gets a separate subtask. No
-  ticket for the quarter → ask; never create the parent.
+- **Critical ticket**: the project's open `maintenance:critical` ticket, or a
+  new Task with that label, found or created the way
+  `skills/npm-maintenance/references/maintenance-ticket.md` describes. A
+  critical never hangs under the quarter's maintenance ticket. The regular
+  maintenance that follows is a separate MR that names the quarter's ticket
+  (`skills/npm-maintenance`).
 
 **Risk.** Run the analysis in `skills/npm-maintenance/references/risk-analysis.md`
 over the range from production's version to the target. A hotfix never waits
@@ -184,7 +186,7 @@ Version       1.1.3 + CHANGELOG [1.1.3] Security, tag v1.1.3, GitLab Release (pe
 Back-merge    acceptance: fast-forward push · development: merge commit push (squash_option always)
 Verified      type-check 0 · tests green · production build green (scratch DB, production schema)
 Slack         #merge_requests — parent message below, thread replies on merge, live, failure
-Jira          new subtask under RFW-319 (onderhoud Q4-2026); the parent stays untouched
+Jira          RFW-325, the open maintenance:critical ticket the scanner filed; Closes RFW-325 in the MR
 Not in scope  33 high / 16 moderate on development → npm-maintenance
 ```
 
@@ -241,19 +243,20 @@ Include the draft parent message. No go, nothing leaves the machine.
 
 ## Step 5 — Open the MR and arm auto-merge
 
-- Create the hotfix subtask under the quarter's maintenance ticket first, so
-  the MR carries its key from the start and the GitLab–Jira integration
-  closes it on merge (`skills/npm-maintenance/references/maintenance-ticket.md`).
+- Reuse the open critical ticket, or create it first, so the MR carries its
+  key from the start and the GitLab–Jira integration closes it on merge
+  (`skills/npm-maintenance/references/maintenance-ticket.md`).
 - Commit `fix(deps): bump <package> to <version>`, push, open the MR against
   the production branch with the mechanics of `skills/create-pr/SKILL.md`
   (conventional title, `ai:agent-authored` label, no `--reviewer`: a human
   picks the reviewer, and the Slack message asks for one). Title and
-  description follow the project's ticket convention with the subtask key —
-  in RefugeeWork `RFW-325: fix(deps): …` and `Closes RFW-325` on the first
-  line. Description: the advisories with links, versions before and after,
-  the scanner job, the risk-analysis block (Step 3), what was validated, the
+  description follow the project's ticket convention with the critical
+  ticket's key — in RefugeeWork `RFW-325: fix(deps): …` and `Closes RFW-325`
+  on the first line (`Refs` when the hotfix leaves criticals on the ticket).
+  Description: the advisories with links, versions before and after, the
+  scanner job, the risk-analysis block (Step 3), what was validated, the
   back-merge plan, deploy notes. Then add the MR as a remote link on the
-  subtask.
+  critical ticket.
 - Arm auto-merge on the reviewed head only:
 
   ```sh
@@ -401,7 +404,7 @@ production runs.
 | Version | tag and release links, or "no runbook — none" |
 | Back-merge | per branch: fast-forward / merge commit / MR link, ancestor check ✅ |
 | Slack | thread link, or drafts marked undelivered |
-| Jira | parent key (untouched), subtask key and status, plus any automation move of the parent |
+| Jira | critical ticket key, reused or created, and its status; criticals left on it, if any |
 | Cleanup | monitors, worktrees, branches |
 | Risk | verdict per package, measurement numbers or "not measured", the metric to watch and its first reading when available |
 | Not in scope | what remains for `skills/npm-maintenance`, with the development tier |
@@ -413,7 +416,7 @@ production runs.
   a hotfix.
 - The hotfix MR always gets a human approval; auto-merge only removes the
   wait after it.
-- In the tracker, only the hotfix's own subtask is created or updated. The
+- In the tracker, only the critical's own ticket is created or updated. The
   quarterly maintenance ticket stays under human control.
 - The back-merge push route exists because squash would break the ancestry;
   it is never used for new changes.
