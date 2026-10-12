@@ -16,9 +16,13 @@ Boundary, so the two documents cannot drift:
 Rules for filling it in:
 - Drop any section this project does not have. An empty section with
   placeholders is worse than no section.
-- Diagrams are mermaid, inline in this file: they render on GitLab and GitHub
-  and stay reviewable in a diff. At minimum a system-context diagram; add a
-  request-path diagram as soon as more than one surface shares the runtime.
+- Diagrams are draw.io: one `docs/diagrams/<name>.drawio.svg` per diagram,
+  embedded below with an image link. GitLab and GitHub render the SVG; draw.io
+  edits it, because the model travels inside the file. No Mermaid, and no inline
+  ```` ```drawio ```` block (GitLab shows it as raw XML). At minimum a
+  system-context diagram; add a request-path diagram as soon as more than one
+  surface shares the runtime. Each placeholder below says what its diagram
+  shows.
 - A decision belongs in the log only if it was actually made. A design someone
   is still weighing goes to "Open Questions" with the options, not to the log.
 - Every decision entry gets a date and a status; superseded entries stay, with
@@ -59,22 +63,11 @@ the rule wins.
 <One sentence on the runtime shape: how many processes serve which surfaces, and
 what is deliberately not a separate deployment.>
 
-```mermaid
-flowchart LR
-  user([<audience>])
+![<System context: audiences, the runtime on its hosting platform, and the stores and services it talks to>](diagrams/system-context.drawio.svg)
 
-  subgraph host["<hosting platform>"]
-    app["<runtime><br/>(<what it serves>)"]
-  end
-
-  db[("<database>")]
-  storage[["<object storage / CDN>"]]
-
-  user --> app
-  app --> db
-  app --> storage
-  app --> svc1["<third-party service><br/><what it is for>"]
-```
+<The diagram shows: each audience → the runtime inside its hosting platform
+(and what it serves) → the database, object storage / CDN, and every
+third-party service with what it is for.>
 
 <Where third-party coupling is allowed to live (the folder), and what that code
 is not allowed to know about.>
@@ -103,13 +96,11 @@ The topology facts that code has to honour, stated as constraints:
 
 ## Request Paths
 
-```mermaid
-flowchart TD
-  req([Request]) --> entry["<middleware / proxy><br/><what it decides>"]
-  entry -->|"<path pattern>"| surface1["<public pages>"]
-  entry -->|"<path pattern>"| surface2["<authenticated area>"]
-  req -->|"<bypassed patterns>"| api["<route handlers>"]
-```
+![<Request paths: how a request reaches each surface>](diagrams/request-paths.drawio.svg)
+
+<The diagram shows: request → middleware / proxy and what it decides → each
+surface by path pattern (public pages, authenticated area), plus the patterns
+that bypass it straight to the route handlers.>
 
 Notes — the exceptions a reader cannot guess from the diagram:
 
@@ -121,11 +112,10 @@ Notes — the exceptions a reader cannot guess from the diagram:
 
 <The contract every route follows, named once here and owned by a rule.>
 
-```mermaid
-flowchart LR
-  entry["<route entry>"] --> loader["<data loading step>"] --> query["<cached query layer>"]
-  loader --> view["<render step>"]
-```
+![<Read path: route entry, data loading, cached queries, render>](diagrams/read-path.drawio.svg)
+
+<The diagram shows: route entry → data loading step → cached query layer, and
+the loading step → render step.>
 
 - <what is cached cross-request, with the mechanism>
 - <what must never be cached cross-request: user-bound, request-bound, preview>
@@ -133,11 +123,10 @@ flowchart LR
 
 Invalidation is the mirror image, driven by the write side:
 
-```mermaid
-flowchart LR
-  write["<write action>"] --> hooks["<hooks / plugins>"] --> inval["<invalidation call>"]
-  inval --> fresh["<next read re-renders>"]
-```
+![<Invalidation: write action, hooks, invalidation call, fresh read>](diagrams/invalidation.drawio.svg)
+
+<The diagram shows: write action → hooks / plugins → invalidation call → the
+next read re-renders.>
 
 <Any cascade a reader would be surprised by: one save invalidating a tree, or
 one invalid child blocking a parent write.>
@@ -195,11 +184,9 @@ today gets a row too — that row is the honest one.>
 
 <Drop this section when there is no scheduled or queued work.>
 
-```mermaid
-flowchart LR
-  trigger["<scheduler><br/><guard>"] --> queue[["<queue>"]]
-  queue --> job1["<job>"]
-```
+![<Background jobs: scheduler and guard, queue, jobs>](diagrams/background-jobs.drawio.svg)
+
+<The diagram shows: scheduler and its guard → queue → each job.>
 
 - <what prevents duplicate runs across instances>
 - <how failure is noticed, separately for "ran but failed" and "never ran">
