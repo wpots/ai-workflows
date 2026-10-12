@@ -1,21 +1,55 @@
-# Maintenance ticket and subtasks
+# Maintenance tickets
 
-Every MR that comes out of maintenance work hangs under the Jira maintenance
-ticket of the quarter in which the work is done, as its own subtask. That
-covers a critical dependency hotfix, a regular dependency update and other
-periodic upkeep. The quarterly ticket is where a human tracks and checks the
-maintenance scope, so it stays theirs.
+Maintenance work gets one of two tickets, and never a subtask:
+
+| Work | Ticket | The MR |
+| --- | --- | --- |
+| A critical on production (`skills/dependency-hotfix`) | its own Task with label `maintenance:critical` | closes it: `Closes <KEY>` |
+| Everything else: highs within two weeks, moderate and low, other periodic upkeep | the quarter's maintenance ticket, label `maintenance:periodical` | names it and never closes it |
+
+A critical has its own deadline (24–72 hours), so it gets a ticket that is
+tracked and closed on its own. The quarter's ticket collects the rest of the
+quarter's maintenance, and a human closes it.
 
 ## Rules
 
-- **Only subtasks are created or updated.** The parent ticket stays under
-  human control: no edits, no comments, no links and no transitions on it.
-- **One subtask per MR.** A critical hotfix and the regular maintenance that
-  follows are separate MRs, so they are separate subtasks.
-- **No parent for the current quarter means stop and ask.** Never create the
-  parent.
-- **Create the subtask before the MR.** The MR then carries the key from the
-  start, and the GitLab–Jira integration closes the subtask on merge.
+- **The quarter's ticket stays under human control.** No edits, no comments,
+  no links and no transitions on it. An MR only names it.
+- **One open critical ticket per Jira project.** The dependency scanner files
+  one through gb-dashboard after a scheduled run, and skips the project while
+  one is still open. Reuse that ticket; create one only when none is open.
+- **Create the critical ticket before the MR.** The MR then carries the key
+  from the start, and the GitLab–Jira integration closes the ticket on merge.
+- **No ticket for the quarter means stop and ask** before a regular
+  maintenance MR. Never create the quarter's ticket. A critical does not need
+  it.
+
+## The critical ticket
+
+Look for an open one first:
+
+```sh
+jira issue list -p <KEY> -q 'labels = "maintenance:critical" AND statusCategory != Done' --order-by created --plain --columns key,status,summary,created
+```
+
+- One hit: use it. Read its description: the scanner lists one line per
+  package. When the hotfix fixes only part of that list, the MR says
+  `Refs <KEY>` instead of `Closes <KEY>`, and the recap names what remains.
+- Some Jira projects hold more than one GitLab project (IAMS, IDHM), so the
+  open ticket can belong to another one. When it does not show which GitLab
+  project it is for, ask.
+- No hit: create one.
+
+```sh
+jira issue create -p <KEY> -t Task -l maintenance:critical -s "<summary>" -T <body.md> -a <assignee email> --no-input
+```
+
+- Write the summary and body in the tracker's language; match the project's
+  recent tickets.
+- The body says what the scanner reported (advisory ids, severity), what the
+  MR changes, what stays open and why, and the MR link once it exists. Put it
+  in a file and pass `-T`, which avoids quoting trouble.
+- Assign it to the person who runs the work.
 
 ## Find the quarter's ticket
 
@@ -33,41 +67,30 @@ January to March). When none does, search the summaries for `onderhoud` or
 own project filter and ordering, so put the sort in `--order-by`; an
 `ORDER BY` inside the JQL fails with a 400.
 
-## Create the subtask
-
-```sh
-jira issue create -p <KEY> -t Sub-task -P <PARENT> -s "<summary>" -T <body.md> -a <assignee email> --no-input
-```
-
-- Read the subtask type's name from an existing one
-  (`-q 'issuetype in subTaskIssueTypes()'`); it is `Sub-task` in most
-  projects.
-- Write the summary and body in the tracker's language; match the project's
-  recent tickets.
-- The body says what the scanner or audit reported (advisory ids, severity),
-  what the MR changes, what stays open and why, and the MR link once it
-  exists. Put it in a file and pass `-T`, which avoids quoting trouble.
-- Assign it to the person who runs the work.
-
 ## Link the MR
 
-- Follow the project's ticket convention in the MR. In RefugeeWork the title
-  starts with the key (`RFW-326: chore(deps): …`) and the description starts
-  with `Closes RFW-326`. The integration reads that.
-- Add a remote link on the subtask:
-  `jira issue link remote <SUBTASK> <MR URL> "MR !<iid>: <title>"`.
-- The integration moves the subtask when the MR merges. It cannot close a
-  subtask created after its MR merged. Move that one yourself with
-  `jira issue move <SUBTASK> "Done"`, and only that one: this is the subtask
-  exception to leaving tracker status alone.
+Follow the project's ticket convention. In RefugeeWork the title starts with
+the key; the integration reads that.
+
+- **Critical:** `RFW-325: fix(deps): …`, and the description starts with
+  `Closes RFW-325`. Add a remote link on the ticket:
+  `jira issue link remote <KEY> <MR URL> "MR !<iid>: <title>"`. The
+  integration moves the ticket when the MR merges, but not a ticket created
+  after its MR merged. Move that one yourself with
+  `jira issue move <KEY> "Done"`, and only that one.
+- **Regular maintenance:** `RFW-319: chore(deps): …`, and the description
+  starts with `Part of RFW-319`. Never `Closes`, `Fixes` or `Resolves`: the
+  integration would close the quarter's ticket on merge. Add no remote link,
+  because that is a change to the quarter's ticket.
 
 ## Expected side effect
 
-Jira automation may move the parent from Open to In Progress when a subtask
-moves. On the first run, "Automation for Jira" did this, and the parent's
-changelog shows it. Report it and never undo it, because the parent is not
-yours to change.
+The GitLab–Jira integration can comment on the quarter's ticket when an MR
+names it. That comes from the integration, not from the run: report it and
+leave it.
 
 ## Recap line
 
-The parent key, untouched. Each subtask key with its status and its MR link.
+The critical ticket's key, reused or created, with its status and its MR
+link. For regular maintenance: the quarter's key, untouched, and the MRs that
+name it.

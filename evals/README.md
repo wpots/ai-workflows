@@ -108,7 +108,7 @@ hooks or other plugins.
 | `dependency-hotfix` | `dependency-hotfix-1` | the newest report.json lists next@16.3.0 on main with three critical advisories, fixedIn 16.3.3 and 16.3.6; development already runs next 16.3.8 and… |
 | `dependency-hotfix` | `dependency-hotfix-2` | names a repository, files or CLI state that the empty workspace lacks |
 | `dependency-hotfix` | `dependency-hotfix-3` | hotfix MR !88 merged and deployed; the push back-merge into acceptance succeeded; git merge-tree for development reports conflicts in… |
-| `dependency-hotfix` | `dependency-hotfix-4` | today is in October 2026; Jira project RFW has RFW-319 'Refugeework onderhoud Q4-2026', type Task, label maintenance:periodical, status Open, no… |
+| `dependency-hotfix` | `dependency-hotfix-4` | today is in October 2026; Jira project RFW has RFW-319 'Refugeework onderhoud Q4-2026', type Task, label maintenance:periodical, status Open; RFW… |
 | `mr-merged` | `mr-merged-1` | the target branch's pipeline for the squash commit has a deploy job that POSTs to a Vercel deploy hook; the job passed, but its log shows the hook… |
 | `mr-merged` | `mr-merged-2` | the target branch's pipeline for the merge commit is still running its test stage after fifteen minutes; the deploy job has not started. |
 | `mr-merged` | `mr-merged-3` | the shared checkout is on another session's branch, `feat/other-work`; the local source branch has no upstream and its head equals the merged MR's… |

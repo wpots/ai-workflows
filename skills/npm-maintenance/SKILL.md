@@ -159,10 +159,12 @@ When the update moves a code generator's engine (svgo for icons, a GraphQL or sc
 
 ## Maintenance ticket
 
-When the user asks for an MR from this work, it hangs under the tracker's
-maintenance ticket of the current quarter as its own subtask. Create the
-subtask before the MR, put its key in the MR, and never touch the parent
-ticket. The procedure, including how to find the quarter's ticket, is in
+When the user asks for an MR from this work, the MR names the tracker's
+maintenance ticket of the current quarter, without a closing keyword, so the
+merge leaves that ticket open. Create no ticket and no subtask, and never
+touch the quarter's ticket. A critical on production is not part of this: it
+gets its own ticket through `skills/dependency-hotfix`. The procedure,
+including how to find the quarter's ticket, is in
 `skills/npm-maintenance/references/maintenance-ticket.md`.
 
 ## Safety constraints
