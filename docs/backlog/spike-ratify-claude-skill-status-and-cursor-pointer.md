@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 Rewritten 2026-10-08 from the October 2026 stack review (task T3), after a
 premise check against `main`. Both decisions this item waited on are made, so
@@ -94,6 +94,7 @@ The two superseded spikes link to this file; do not rename it.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/179
 - [chore-retire-cursor-adapters.md](chore-retire-cursor-adapters.md)
 - [spike-decide-skills-first-strategy-and-tool-support-matrix.md](spike-decide-skills-first-strategy-and-tool-support-matrix.md)
 - [spike-decide-cursor-parity-for-ai-workflows-guide.md](spike-decide-cursor-parity-for-ai-workflows-guide.md)
