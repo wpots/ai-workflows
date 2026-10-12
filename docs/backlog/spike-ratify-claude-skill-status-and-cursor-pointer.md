@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Rewritten 2026-10-08 from the October 2026 stack review (task T3), after a
 premise check against `main`. Both decisions this item waited on are made, so
