@@ -77,6 +77,8 @@ Before changing a direct dependency across a major version:
 4. Obtain explicit approval for the target version and plan before modifying dependencies or application code.
 5. Apply the approved migration, then run validation. If checks fail, diagnose and report the failure; do not silently weaken tests, pins, or configuration to make the update pass.
 
+**The package manager's own major is a hosting decision, not a dependency update.** A new major in `packageManager` (`pnpm@10` → `pnpm@11`) can write a lockfile that a host running its own install (Vercel, Netlify, Exonet, Clever Cloud) cannot read: CI installs the pinned version and stays green, and the deploy fails. pnpm 11 and 12 are such a case; Vercel could not read their lockfile in October 2026 ([vercel/vercel#17434](https://github.com/vercel/vercel/issues/17434)). Maintenance never proposes it, and inventory mode reports it as held. Bump it only on an explicit request, after checking that every host the project deploys to builds with the new lockfile. A pin in the shared Renovate config or in the project's docs is the answer, not a gap to close.
+
 ## Risk analysis in every MR
 
 Lint, tests and the build say whether the code still works. They do not say
