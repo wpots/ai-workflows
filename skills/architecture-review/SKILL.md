@@ -1,6 +1,8 @@
 ---
 name: architecture-review
 description: Review a project's codebase for clean architecture violations. Probes the actual folder structure, maps it to CA layers, then checks principles against that mapping — works with any folder naming convention. Use when the user asks to review architecture, check clean arch, audit layer violations, or inspect project structure.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Architecture Review

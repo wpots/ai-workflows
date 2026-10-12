@@ -1,6 +1,8 @@
 ---
 name: improve-skill
 description: Post-run retrospective for any skill or command. Collects friction from the session (user interventions, corrections, failed commands, retries) and folds durable learnings back into the skill's canonical source so the next run needs less hand-holding, decides whether a recurring pattern deserves a new skill, an update, or a lighter surface, and authors the new skill when one is warranted. Runs automatically after any skill run that required user intervention. Use when a skill or command run needed correction, its canonical source should absorb the learnings, a new skill should be created, or the user asks to learn from sessions, spot workflow patterns, evaluate a skill opportunity, or decide whether something should be a skill.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Improve Workflow Skills
@@ -143,6 +145,8 @@ for: symptoms, error strings, synonyms, tool names.
 - [ ] Confirmed the no-guidance baseline actually fails (RED)
 - [ ] `name` is letters/numbers/hyphens only and matches the directory name
 - [ ] Frontmatter has `name` + `description`; description is triggers, not workflow
+- [ ] Frontmatter ends with `metadata:` and an indented `owner: <gitlab username>`
+      (`wieteke.pots` for now) — the validator errors without it
 - [ ] Overview states the core principle in 1-2 sentences
 - [ ] Guidance form matches the failure type (table above)
 - [ ] One excellent, real example — not multi-language, not a fill-in template

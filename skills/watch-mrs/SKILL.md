@@ -1,6 +1,8 @@
 ---
 name: watch-mrs
 description: Watch one or more of your open GitLab merge requests for new reviewer comments, merge-readiness (approval, pipeline, conflicts), and pipeline failures — naming the failing job and offering triage — optionally auto-merging once a MR becomes mergeable and handing off to the mr-merged closeout after a merge. Runs as a session-scoped background loop (Monitor + fallback heartbeat) built on `glab`. Use when the user asks to watch/monitor an MR, get notified on approval or new comments, or auto-merge when ready.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Watch MRs Skill

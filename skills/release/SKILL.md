@@ -1,6 +1,8 @@
 ---
 name: release
 description: Run a production release end to end around the project's own release runbook — pre-flight, a "release is starting" mail draft with a one-hour indication, the promotion, tag and GitLab Release the runbook prescribes, customer release notes, a "release is live" reply draft with the overview of changes, an optional post in the project's Slack channel, the shipped tracker tickets tagged with the version and moved to Done, and the housekeeping after it (sprint or support-month close and compaction, stale branches and worktrees). Asks who gets the mail and proposes sharing in Slack; drafts mail, never sends it. On a project without versions it proposes introducing them once and records the decision. Use when the user starts, runs or finishes a release ("release starten", "start the release", "naar productie", "release afronden", "promote acceptance to production"), or asks to version and close the tickets of a release ("versie op de tickets", "tickets van de release naar done").
+metadata:
+  owner: wieteke.pots
 ---
 
 # Release

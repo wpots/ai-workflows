@@ -110,7 +110,10 @@ Three rules keep process docs trustworthy:
 1. Edit or create `skills/<name>/SKILL.md`. Keep the body under ~500 lines:
    the procedure stays inline; deep-dive reference blocks move to files inside
    the skill directory behind a conditional pointer ("when X applies, read
-   `references/<topic>.md`") — the validator warns past the budget.
+   `references/<topic>.md`") — the validator warns past the budget. The
+   frontmatter carries `metadata:` with an indented `owner: <gitlab username>`
+   line (`wieteke.pots` for every skill for now); the validator errors without
+   it.
 2. Add the trigger mapping in `shared/skill-mappings.md` and run
    `./scripts/generate-adapters.sh` — a skill missing from that registry cannot
    be reached by intent at all, which the validator treats as an **error**.

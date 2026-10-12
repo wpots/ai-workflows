@@ -1,6 +1,8 @@
 ---
 name: datocms-migration
 description: Create a DatoCMS schema migration safely — fork the primary environment into a sandbox, let the user change the schema in the DatoCMS UI, then autogenerate the migration against that fork, review it for destructive and out-of-scope operations, and clean the sandbox up. Resumable across sessions, and aware of projects where several DatoCMS instances share one schema. Use when the user asks to create a DatoCMS migration, change the CMS schema, fork a CMS environment, or runs /datocms-migration.
+metadata:
+  owner: wieteke.pots
 ---
 
 # DatoCMS Migration Skill

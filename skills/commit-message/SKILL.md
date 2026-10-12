@@ -1,6 +1,8 @@
 ---
 name: commit-message
 description: Generate a conventional commit message from staged or unstaged diff. Use when the user asks to write a commit message, generate a commit, or format git commit text.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Commit Message Skill

@@ -1,6 +1,8 @@
 ---
 name: sprint-demo
 description: Prepare a stakeholder-ready sprint demo from the issue tracker — a presenter runsheet, a Marp deck with read-aloud notes, and, when the client gets a copy, a notes-free pptx in the client's own demo format. Covers the full sprint, the user's own stories, or one shared deck per person; the tracker is read-only. Use when the user asks to prepare a sprint demo, build a demo script, get ready for sprint review, make a shareable demo deck or pptx, or says "demo voorbereiden", "sprint review", "demo delen met de klant".
+metadata:
+  owner: wieteke.pots
 ---
 
 # Sprint Demo Skill

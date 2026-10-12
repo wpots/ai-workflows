@@ -1,6 +1,8 @@
 ---
 name: sustainable-review
 description: Audit a change or area for Sustainable IT — runtime efficiency and caching, bundle/client JS, assets (LCP images, fonts), dependencies, CI/CD cost, and accessibility-as-performance — and produce backlog-ready findings. Use when the user asks for a sustainability/performance/green/CI-cost/dependency review, a Lighthouse-oriented performance audit, or to assess the energy/compute/cost impact of a change. Read-only until findings are approved.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Sustainable IT Review

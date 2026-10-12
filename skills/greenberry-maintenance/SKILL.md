@@ -1,6 +1,8 @@
 ---
 name: greenberry-maintenance
 description: Inventariseer de actuele Greenberry-onderhoudssetup over GitLab, gedeelde CI, het bestaande Notion-register en dependency-meldingen in Slack. Gebruik wanneer een portfolio-maintenance-report, herhaalde inventaris, CI-adoptie/dekkingscontrole of refinement van Greenberry-repo-processen wordt gevraagd. Vergelijk met het vorige rapport en onderscheid configuratie, uitvoering en productie. Read-only; implementeert of publiceert niets.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Greenberry maintenance

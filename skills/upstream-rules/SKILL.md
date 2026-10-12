@@ -1,6 +1,8 @@
 ---
 name: upstream-rules
 description: When shared workflow assets are modified locally, ask the developer if the change should be upstreamed to ai-workflows. If yes, create a branch and a GitLab MR in the canonical Greenberry repository, then return the approval link. Use when the developer edits rules, skills, prompts, workflow adapters, or generic conventions — or explicitly asks to upstream, propose, or share a workflow change.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Upstream Shared Rules

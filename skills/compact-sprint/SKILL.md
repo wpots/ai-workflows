@@ -1,6 +1,8 @@
 ---
 name: compact-sprint
 description: Compact old sprint documentation — flag durable decisions from delivered BLIs as docs/todo/ follow-ups, rewrite the sprint changelog to the compact template, and remove the sprint folder behind a git-tag archive anchor. Only touches a sprint whose close is pushed; the last-closed one waits for the next planning. Support-mode archives (docs/support-<yyyy>-<mm>/) compact the same way with a month-based retention guard. Use when the user asks to compact sprints or support months, prune or clean up old sprint or support folders, or reduce sprint documentation noise ("sprint compacten", "oude sprints opruimen").
+metadata:
+  owner: wieteke.pots
 ---
 
 # Compact Sprint Skill

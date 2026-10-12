@@ -1,6 +1,8 @@
 ---
 name: refinement
 description: Prepare and record a backlog refinement by reading issue-tracker tickets, grounding them in the codebase, and producing a single decision-ready refinement document (grouping, story-point proposals, conflicts, per-ticket questions). Has a prep mode (before the session) and an outcome mode (after). The tracker is read-only. Use when the user asks to prepare a refinement, refine tickets, or record refinement outcomes.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Refinement Skill

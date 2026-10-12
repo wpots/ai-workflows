@@ -1,6 +1,8 @@
 ---
 name: maintenance
 description: Run a periodic project maintenance sweep — dependency and vulnerability status, runtime/platform EOL, credential and API-key currency (Prepr CMS content tokens, GitLab/deploy token expiry), quality baseline, repo and CI hygiene, migrations, backups, and doc drift — landing one prioritized report plus backlog-ready follow-ups. Read-only by default; fixes only after approval. Use when the user asks for project maintenance, onderhoud, a monthly or periodic health check, or to verify that API keys and env config are still current.
+metadata:
+  owner: wieteke.pots
 ---
 
 # Project Maintenance Sweep
