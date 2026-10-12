@@ -58,7 +58,8 @@ Treat these as shared workflow assets:
 
 When a task changes those files in a generally reusable way, proactively
 suggest creating a PR in `ai-workflows` so the change can be synced back into
-target repos.
+target repos. The `upstream-rules` skill does that, and carries the rule for
+landing it via a GitLab MR.
 
 ### Command Runbooks
 
@@ -68,11 +69,6 @@ When user intent matches a trigger phrase, read and follow the corresponding run
 <!-- END SHARED:command-mappings -->
 
 Do not assume command files auto-run. Select and execute them when intent matches.
-
-## Shared Workflow Assets Land via MR
-
-<!-- BEGIN SHARED:upstream-mr -->
-<!-- END SHARED:upstream-mr -->
 
 ## Safety
 

@@ -37,10 +37,8 @@ Treat these as the reusable shared workflow assets in a synced project:
 <!-- BEGIN SHARED:workflow-assets -->
 <!-- END SHARED:workflow-assets -->
 
-### Shared Workflow Assets Land via MR
-
-<!-- BEGIN SHARED:upstream-mr -->
-<!-- END SHARED:upstream-mr -->
+Sharing a change to one of these goes through the `upstream-rules` skill, which
+carries the rule for landing it in `ai-workflows` via a GitLab MR.
 
 ## Tool Support Matrix
 

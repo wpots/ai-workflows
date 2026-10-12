@@ -26,7 +26,8 @@ When project conventions conflict with the core baseline, project conventions wi
 When a change touches shared workflow assets in a reusable way, suggest
 upstreaming it to the
 [ai-workflows](https://gitlab.com/greenberrynl/config/ai-workflows) repo rather
-than keeping it only in this synced target repo.
+than keeping it only in this synced target repo. The `upstream-rules` skill
+does that, and carries the rule for landing it via a GitLab MR.
 
 Treat these as shared workflow assets:
 
@@ -41,11 +42,6 @@ When user intent matches one of these prompts, read and follow the corresponding
 <!-- END SHARED:command-mappings -->
 
 Do not assume command files auto-run. Select and execute them when intent matches.
-
-## Shared Workflow Assets Land via MR
-
-<!-- BEGIN SHARED:upstream-mr -->
-<!-- END SHARED:upstream-mr -->
 
 ## Safety
 

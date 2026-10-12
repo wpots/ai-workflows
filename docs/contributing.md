@@ -10,10 +10,12 @@ doc fix. The same rule applies to the `upstream-rules` and `upstream-to-unicore`
 skills when run from a project. The canonical wording lives in
 [`shared/upstream-mr.md`](../shared/upstream-mr.md). It is injected into this
 repo's `AGENTS.md`, Copilot adapter and repo-only Claude rule
-(`.claude/rules/upstream-mr.md`), into the project templates, and into
+(`.claude/rules/upstream-mr.md`), and into
 `skills/upstream-rules/references/upstream-mr.md` for the upstream skills — but
-not into the root `CLAUDE.md`, which loads in every session of every project and
-only carries a short pointer.
+not into the root `CLAUDE.md` or the project adapter templates, which load in
+every session (of every project, and of every synced project). The root
+`CLAUDE.md` carries a short pointer; the templates name the `upstream-rules`
+skill.
 
 ```bash
 git switch -c <type>/<slug>

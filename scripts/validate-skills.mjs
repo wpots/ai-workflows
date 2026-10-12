@@ -486,27 +486,42 @@ for (const [rel, markers] of Object.entries(REQUIRED_MARKERS)) {
 
 // ── The upstream-MR rule stays out of the ambient layer ──────────────────────
 // Root CLAUDE.md is synced to ~/.claude/CLAUDE.md and loads in every session of
-// every project. The rule loads from these copies instead: Codex in this repo,
-// Claude in this repo, and the upstream skills anywhere.
+// every project; the project templates become adapters that load in every
+// session of a synced project. The rule only matters while an upstream skill
+// runs, so it loads from these copies instead: Codex in this repo, Claude in
+// this repo, and the upstream skills anywhere.
 
 const UPSTREAM_MR_COPIES = [
   "AGENTS.md",
   ".claude/rules/upstream-mr.md",
   "skills/upstream-rules/references/upstream-mr.md",
 ];
+const UPSTREAM_MR_AMBIENT = [
+  "CLAUDE.md",
+  "templates/project-CLAUDE.md",
+  "templates/project-AGENTS.md",
+  "templates/project-ai-workflows.md",
+  "templates/project-copilot-instructions.md",
+];
 const UPSTREAM_MR_MARKER = "<!-- BEGIN SHARED:upstream-mr -->";
 
 for (const rel of UPSTREAM_MR_COPIES) {
   if (!tracked.has(rel) || !read(rel).includes(UPSTREAM_MR_MARKER)) {
-    err(rel, "must carry the `upstream-mr` fragment; CLAUDE.md no longer does");
+    err(
+      rel,
+      "must carry the `upstream-mr` fragment; CLAUDE.md and the project " +
+        "templates no longer do",
+    );
   }
 }
-if (tracked.has("CLAUDE.md") && read("CLAUDE.md").includes(UPSTREAM_MR_MARKER)) {
-  err(
-    "CLAUDE.md",
-    "carries the `upstream-mr` fragment, which loads in every project; it " +
-      `belongs in ${UPSTREAM_MR_COPIES.join(", ")}`,
-  );
+for (const rel of UPSTREAM_MR_AMBIENT) {
+  if (tracked.has(rel) && read(rel).includes(UPSTREAM_MR_MARKER)) {
+    err(
+      rel,
+      "carries the `upstream-mr` fragment, which then loads in every session; " +
+        `it belongs in ${UPSTREAM_MR_COPIES.join(", ")}`,
+    );
+  }
 }
 
 // ── Canonical-sources inventory is accurate and complete ─────────────────────

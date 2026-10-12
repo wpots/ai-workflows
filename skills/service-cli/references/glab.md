@@ -10,8 +10,8 @@ glab auth status
 
 The MR mechanics (branch carving, `-R` plus `-H`, the body via `glab api`,
 the reviewer rule for `ai-workflows`) live in
-`skills/create-pr/references/push-and-mr-mechanics.md` and the "Shared
-Workflow Assets Land via MR" section of `CLAUDE.md`. Two reminders that cost
+`skills/create-pr/references/push-and-mr-mechanics.md` and
+`skills/upstream-rules/references/upstream-mr.md`. Two reminders that cost
 the most time when forgotten:
 
 - `-R <group/project>` on every command (and `-H` on `mr create`) when the
