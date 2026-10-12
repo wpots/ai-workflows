@@ -8,7 +8,8 @@
 // registry, an adapter missing a shared marker, canonical-sources rows pointing
 // at missing files, pipeline-map paths that don't exist, FEATURES.md rows
 // naming untracked paths, MR-creation snippets missing the provenance label,
-// skills without a metadata.owner.
+// skills without a metadata.owner, frontmatter values a strict YAML parser
+// rejects or misreads.
 //
 // Warnings (exit 0): skills/commands missing from the canonical-sources
 // inventory, skills/commands/rules not placed in the pipeline map, pipeline-map
@@ -113,7 +114,68 @@ function parseFrontmatter(rel) {
       }
     }
   }
-  return { fm, body: text.slice(end + 5) };
+  // `raw` keeps the source text for the strict-YAML check; `fm` holds what a
+  // YAML parser hands a tool, so the length budget counts text, not quotes.
+  return { fm: unquoteValues(fm), raw: fm, body: text.slice(end + 5) };
+}
+
+function unquoteValues(fm) {
+  return Object.fromEntries(
+    Object.entries(fm).map(([key, value]) => [
+      key,
+      typeof value === "string" ? unquoteScalar(value) : value,
+    ]),
+  );
+}
+
+/** The text of a quoted YAML scalar; any other value comes back unchanged. */
+function unquoteScalar(value) {
+  if (/^"(?:[^"\\]|\\.)*"$/.test(value)) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value; // an escape JSON cannot read; frontmatterScalarProblem reports it
+    }
+  }
+  if (/^'(?:[^']|'')*'$/.test(value)) return value.slice(1, -1).replaceAll("''", "'");
+  return value;
+}
+
+/**
+ * Why a strict YAML parser would reject or misread a top-level frontmatter
+ * value, or null. Narrow on purpose (zero dependencies): quoted strings must
+ * close, and a plain value may not start with an indicator or carry `: ` / ` #`.
+ * Block (`|`, `>`) and flow (`[`, `{`) forms are valid YAML, but parseFrontmatter
+ * folds them as plain text, so the checks that read the value would be wrong.
+ */
+function frontmatterScalarProblem(value) {
+  if (value === "") return null; // a block map such as `metadata:`
+  if (value.startsWith('"')) {
+    if (!/^"(?:[^"\\]|\\.)*"$/.test(value)) {
+      return 'double-quoted value is unclosed or has an unescaped " inside — escape it as \\"';
+    }
+    try {
+      JSON.parse(value);
+    } catch {
+      return 'double-quoted value uses an escape this validator cannot read — keep to \\" and \\\\';
+    }
+    return null;
+  }
+  if (value.startsWith("'")) {
+    return /^'(?:[^']|'')*'$/.test(value)
+      ? null
+      : "single-quoted value is unclosed or has a lone ' inside — double it as ''";
+  }
+  if (/^[-?:,[\]{}#&*!|>%@`]/.test(value)) {
+    return `plain value starts with the YAML indicator '${value[0]}' — wrap it in double quotes`;
+  }
+  if (/:(\s|$)/.test(value)) {
+    return "plain value contains ': ', which strict YAML reads as a nested mapping — wrap it in double quotes";
+  }
+  if (/\s#/.test(value)) {
+    return "plain value contains ' #', which strict YAML reads as a comment and drops the rest — wrap it in double quotes";
+  }
+  return null;
 }
 
 // ── Skill frontmatter and naming ─────────────────────────────────────────────
@@ -213,6 +275,24 @@ for (const dir of skillDirs) {
       "frontmatter has no 'metadata.owner' — add `metadata:` with an indented " +
         "`owner: <gitlab username>` line",
     );
+  }
+}
+
+// ── Shipped frontmatter survives a strict YAML parser ────────────────────────
+// Claude Code reads frontmatter leniently, so a plain value such as
+// `description: … Read-only: never runs migrate …` loads there. A strict parser
+// rejects it ("mapping values are not allowed here"), and other tools that read
+// the same SKILL.md — Codex among them — may use one. Quote such values.
+
+const SHIPPED_FRONTMATTER =
+  /^(?:skills\/[^/]+\/SKILL|commands\/[^/]+|agents\/[^/]+|templates\/[^/]*SKILL[^/]*)\.md$/;
+
+for (const rel of [...tracked].filter((f) => SHIPPED_FRONTMATTER.test(f))) {
+  const { raw } = parseFrontmatter(rel);
+  for (const [key, value] of Object.entries(raw ?? {})) {
+    if (typeof value !== "string") continue;
+    const problem = frontmatterScalarProblem(value);
+    if (problem) err(rel, `frontmatter '${key}': ${problem}`);
   }
 }
 

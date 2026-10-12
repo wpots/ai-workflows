@@ -1,6 +1,6 @@
 ---
 name: jira-ticket
-description: Create a Jira issue (bug, story, or task) from a consistent, type-specific template — gather the facts, ground it in the codebase where relevant, then create the issue with assignee and sprint after confirmation, through the jira CLI. Writes to the tracker. Project-agnostic: discover the project key, sprint id and field keys at runtime. Use when the user asks to file, log, create, or open a Jira ticket / bug / story / task (e.g. "maak een jira ticket", "file a story", "meld een bug", "create a task").
+description: "Create a Jira issue (bug, story, or task) from a consistent, type-specific template — gather the facts, ground it in the codebase where relevant, then create the issue with assignee and sprint after confirmation, through the jira CLI. Writes to the tracker. Project-agnostic: discover the project key, sprint id and field keys at runtime. Use when the user asks to file, log, create, or open a Jira ticket / bug / story / task (e.g. \"maak een jira ticket\", \"file a story\", \"meld een bug\", \"create a task\")."
 metadata:
   owner: wieteke.pots
 ---

@@ -1,6 +1,6 @@
 ---
 name: release-notes
-description: Write release notes a customer can read — plain-language, value-first notes for a release range or a closed sprint, in the customer's language, stating on which environment each change is live. Draft only: it never posts, and the tracker is read-only. Use when the user asks for release notes ("releasenotes", "release notes voor de klant"), a customer update, "wat is er live", or when close-sprint or sprint-demo hands off after its review pause.
+description: "Write release notes a customer can read — plain-language, value-first notes for a release range or a closed sprint, in the customer's language, stating on which environment each change is live. Draft only: it never posts, and the tracker is read-only. Use when the user asks for release notes (\"releasenotes\", \"release notes voor de klant\"), a customer update, \"wat is er live\", or when close-sprint or sprint-demo hands off after its review pause."
 metadata:
   owner: wieteke.pots
 ---
