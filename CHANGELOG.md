@@ -16,6 +16,174 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-10-12
+
+### Added
+
+- A `Stop` hook (`scripts/improve_skill_retrospective.py`, registered in
+  `hooks/hooks.json`) that turns the "run `improve-skill` after a run that needed
+  intervention" rule into a prompt. After a Greenberry skill ran and the user
+  stepped in — an interrupt, an explicit tool rejection, or typing right after a
+  failed tool call that was the run's latest outcome — it blocks the stop once
+  per session and asks Claude to offer the retrospective. It never runs
+  `improve-skill` or edits a skill. It reads the transcript by entry structure,
+  so notes that quote those phrases do not trigger it, and fails open on any
+  error.
+- `docs/org-managed-plugin-settings.md`: step-by-step for the Teams Owner to
+  register the `ai-workflows` marketplace and force-enable
+  `greenberry@ai-workflows` for every teammate through server-managed settings
+  on claude.ai, with the JSON to paste, verification, rollback, and
+  `strictKnownMarketplaces` as a separate opt-in. The `new-device-setup` runbook
+  and `docs/setup-machine.md` now check for the org-managed plugin first and keep
+  the manual marketplace install as the fallback.
+- `scripts/validate-skills.mjs` reads a nested `metadata:` map in skill
+  frontmatter (the Agent Skills string-to-string map that Claude Code and Codex
+  load without acting on) instead of folding its lines into one string, and
+  accepts `metadata` as a known key. A skill without `metadata.owner` gets a
+  warning for now.
+
+### Changed
+
+- `CLAUDE.md` — the `## Command Mapping` block keeps only the two commands that
+  have no skill (`safe-kill-port`, `new-device-setup`); the 15 rows a skill row
+  already routes as its fallback are gone from the ambient layer (1.6 KB).
+  `AGENTS.md` and the Copilot adapter keep the full command block.
+- `shared/skill-mappings.md` — `sustainable-review` gains `performance review`,
+  the one trigger that only its command row carried.
+- `scripts/validate-skills.mjs` — a covered command row's triggers must all be in
+  its skill row, an uncovered one must be in `CLAUDE.md` verbatim, and
+  `CLAUDE.md` may not route a covered command in a command row.
+- `skills/improve-skill` — new trigger phrases go into the shared fragments, no
+  longer into "the `## Command Mapping` section of `CLAUDE.md`".
+- `CLAUDE.md` — the 4 KB "Shared Workflow Assets Land via MR" rule leaves the
+  ambient layer that loads in every session of every project; a four-line
+  pointer stays. The full rule now loads where it applies: inside
+  `ai-workflows` from the repo-only `.claude/rules/upstream-mr.md` (never
+  synced to `~/.claude/`), for Codex from `AGENTS.md` as before, and for the
+  upstream skills from `skills/upstream-rules/references/upstream-mr.md`. Both
+  new copies are generated from `shared/upstream-mr.md`.
+- `skills/upstream-rules`, `skills/upstream-to-unicore`, `skills/improve-skill`
+  — read that reference before they branch.
+- `scripts/validate-skills.mjs` — fails when `CLAUDE.md` carries the
+  `upstream-mr` fragment again, or when the repo-only rule, the skill reference
+  or `AGENTS.md` loses it.
+- `CLAUDE.md` — the "Worktrees: cheap by default" section (3 KB) leaves the
+  ambient layer. A four-line pointer keeps the non-negotiables in every
+  session: root `~/.worktrees/<repo>-<slug>` and never inside the repo, a
+  symlinked `node_modules` by default, `git worktree remove --force` right after
+  the push.
+- `skills/create-pr` — the full worktree rules now live in one reference,
+  `references/worktrees.md`: the `CLAUDE.md` section merged with the worktree
+  caveat that `references/push-and-mr-mechanics.md` carried (that file now
+  points at it). `address-review-comments`, `dependency-hotfix`, `wcag-audit`
+  and `start-project` point at it instead of at `CLAUDE.md`.
+- `scripts/validate-skills.mjs` — a repo path that `CLAUDE.md` points at must
+  be a tracked file, so a renamed reference cannot drop a moved rule silently.
+- Browser verification now chooses tools by purpose: available native
+  browser control for one-off UI checks, existing browser MCP as fallback,
+  and the project test runner for reusable regression and CI. The policy
+  lives in `rules/testing.md`; project adapters, the Copilot baseline and
+  the global Claude adapter load it before browser work. Installed
+  Playwright dependencies no longer imply a standalone script, and browser
+  spot-checks explicitly complement required automated checks.
+- `CLAUDE.md` — new "Git inside the sandbox" section under Shell Usage. Three
+  sandbox denials that read as something else: a blocked `.git/config` write
+  makes `git checkout -b <new> <remote>/<base>` exit 1 *after* creating the
+  branch and *without* switching to it (so the next commit lands on the old
+  branch — use `git switch -c … --no-track` and verify with
+  `git branch --show-current`); SSH `fetch`/`push` fail with GitLab's "correct
+  access rights" message because `~/.ssh` is unreadable; and a merge or rebase
+  that must rewrite a protected path such as `.vscode/` dies mid-checkout,
+  leaving `HEAD` in place over a half-written tree. Plus: don't pipe a command
+  whose failure matters through `head`/`tail` in an `&&` chain — the chain
+  reads the pager's exit status and continues.
+- `skills/create-pr` — the reference gains "Carving one MR out of a dirty
+  tree": stash by path, `git switch -c … --no-track` off the base, verify the
+  switch, stage by path, never `git add -A`. Step 3 points at it, and the
+  split-into-several-MRs recipe uses the same branch-creation form. The
+  file-based `glab api` MR call now carries `labels=ai:agent-authored` and
+  `remove_source_branch=true`, so the long-body route stops shipping MRs
+  without the one provenance signal that survives a squash merge; the skill
+  validator now fails on an MR-creation snippet that omits the label. Same two
+  changes, compactly, in `commands/create-pr.md`.
+- `skills/dependency-hotfix`, `skills/npm-maintenance` — maintenance work
+  no longer creates Jira subtasks. A critical on production gets its own
+  Task with label `maintenance:critical`: the hotfix reuses the open one the
+  dependency scanner filed through gb-dashboard, or creates it, and the MR
+  closes it. Everything else (highs within two weeks, moderate, low, other
+  upkeep) only names the quarter's maintenance ticket, as `Part of <KEY>`
+  and never with `Closes`, so the merge leaves that ticket open for a human.
+  `references/maintenance-ticket.md` holds both procedures. Eval
+  `dependency-hotfix-4` now checks the critical ticket instead of two
+  subtasks, and `dependency-hotfix-6` covers reusing the scanner's ticket.
+- `start-project` and the architecture template now prescribe draw.io instead
+  of Mermaid: one `docs/diagrams/<name>.drawio.svg` per diagram, embedded with
+  a Markdown image link, so GitLab renders it and draw.io edits it. Inline
+  ```` ```drawio ```` blocks are ruled out because GitLab shows them as raw XML.
+  The skill says how to write one without an editor (model in the SVG's
+  `content` attribute, render drawn from the same coordinates) and sets layout
+  rules: 10px grid, orthogonal edges, no crossings, one colour per role with a
+  legend.
+- `skills/npm-maintenance` — a major of the package manager itself
+  (`packageManager`, such as pnpm 10 → 11) is a hosting decision, not a
+  dependency update. Maintenance never proposes it and inventory mode reports
+  it as held; a requested bump first checks that every host the project deploys
+  to builds with the new lockfile. pnpm 11 and 12 are the current case: Vercel
+  could not read their lockfile in October 2026 (vercel/vercel#17434).
+- `skills/improve-skill`, `skills/setup-ai-workflows` and `skills/create-pr` no
+  longer send a developer to the maintainer's checkout path. They say
+  `<ai-workflows>`: `improve-skill` defines it as your local clone of the repo
+  (`~/Web/ai-workflows` by default, asking for the path when it is not there,
+  never the plugin cache), and `setup-ai-workflows` reads the shared rules and
+  templates from the installed plugin first and a local clone second.
+  `scripts/validate-skills.mjs` now rejects `~/Web/ai-workflows` in a skill
+  outside the five that document the default clone location.
+- Every skill names its owner in its frontmatter (`metadata:` /
+  `owner: wieteke.pots`), and `scripts/validate-skills.mjs` now errors on a
+  skill without `metadata.owner`. The `improve-skill` creation checklist and
+  `docs/contributing.md` tell authors of new skills to add it.
+- Project templates (`project-CLAUDE.md`, `project-AGENTS.md`,
+  `project-copilot-instructions.md`, `project-ai-workflows.md`) — the
+  "Shared Workflow Assets Land via MR" rule no longer lands in every synced
+  project. The generated `CLAUDE.md`, `AGENTS.md` and Copilot adapter each get
+  3,929 bytes smaller (`AI-WORKFLOWS.md` 3,873). One line in the shared-assets
+  section now says the `upstream-rules` skill shares a change and carries the
+  MR rule. The next project sync removes the old section, because sync
+  overwrites those four files.
+- `scripts/validate-skills.mjs` — fails when a project template carries the
+  `upstream-mr` fragment again, the same way it already did for `CLAUDE.md`.
+- `skills/service-cli/references/glab.md` — points at
+  `skills/upstream-rules/references/upstream-mr.md` for the MR rule instead of
+  a `CLAUDE.md` section that synced projects no longer carry.
+
+### Fixed
+
+- `skills/jira-ticket`, `skills/migration-check`, `skills/release-notes` — the
+  `description:` was a plain YAML value containing `: ` ("Project-agnostic:",
+  "Read-only:", "Draft only:"), which a strict YAML parser rejects with
+  "mapping values are not allowed here". Claude Code loaded the skills anyway;
+  a tool that parses the same SKILL.md strictly (Codex may) would not. Each
+  value is now double-quoted with its text unchanged.
+- `scripts/validate-skills.mjs` errors when shipped frontmatter (skill
+  `SKILL.md`, `commands/`, `agents/`, `templates/*SKILL*.md`) has a plain value
+  containing `: ` or ` #` or starting with a YAML indicator, or a quoted value
+  that does not close. The description-length check now counts the unquoted
+  text.
+- The project `verify` skill told Claude to save UI screenshots in the system
+  temp directory, which the Playwright MCP refuses: it writes only inside the
+  project and its own `.playwright-mcp/` folder. The live check of MR !165
+  ended in a `mv` out of the repository that only `auto` mode let through.
+  The template now takes screenshots without a file name and reports the path
+  the browser tool printed, or `inline`; `scripts/sync.sh --project` appends
+  `.playwright-mcp/` to the project's `.gitignore` once. A project that already
+  has `.claude/skills/verify/SKILL.md` keeps the old text: delete the file (or
+  replace step 2.3 by hand when the project edited it) and re-sync.
+- `commands/work-backlog.md` — the fallback runbook's WIP rule said an open MR
+  from a previous run means "stop and report", while the skill makes reworking
+  that MR's unresolved reviewer comments the run's work. The new
+  `work-backlog-3` eval case caught a run quoting the runbook and stopping
+  instead of reworking; rule 3 and the WIP-check step now match the skill.
+
 ## [2.6.0] - 2026-10-08
 
 ### Added
