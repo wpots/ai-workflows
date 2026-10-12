@@ -103,8 +103,10 @@ user approved it in Phase A** — never unprompted.
 >   (`git worktree remove --force <path>`; writing `.git/worktrees` may need the
 >   sandbox disabled). The branch and its commits survive removal.
 
-A fresh worktree has **no dependencies installed and no local env files**. Set
-it up the way this project requires before running anything:
+A fresh worktree has **no dependencies installed and no local env files**. The
+full setup, check and cleanup rules are in
+`skills/create-pr/references/worktrees.md`; set it up the way this project
+requires before running anything:
 
 - Copy whatever local env files the project needs (DB URL, secret-decryption
   keys) from the main worktree.

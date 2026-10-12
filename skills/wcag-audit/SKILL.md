@@ -71,7 +71,9 @@ Ask for whatever can't be inferred — never guess these:
 >   registered working directory for the install/build/scan commands below —
 >   avoids a per-command approval prompt for every `cd`.
 > - Copy local env files needed to build/run the app from the main worktree,
->   install dependencies, and run any codegen step the project requires.
+>   install dependencies, and run any codegen step the project requires —
+>   `skills/create-pr/references/worktrees.md` has the dependency and
+>   gitignored-artifact rules.
 > - **Remove the worktree** (`git worktree remove --force <path>`) once the
 >   report and backlog items are written to the main checkout — its only
 >   purpose is scan-tooling isolation; nothing should be left uncommitted

@@ -196,7 +196,7 @@ Include the draft parent message. No go, nothing leaves the machine.
   `git worktree add -b hotfix/deps-<package>-<version> ~/.worktrees/<repo>-hotfix-<slug> origin/<production>`.
   The change *is* the dependency tree, so a symlinked `node_modules` cannot
   work: clone the main checkout's tree copy-on-write (`cp -Rc`) and let the
-  package manager reconcile it, per the worktree rules in `CLAUDE.md`. Copy the
+  package manager reconcile it, per `skills/create-pr/references/worktrees.md`. Copy the
   env files the build needs; they leave with the worktree. Run the package
   manager through the Node version the project pins (see
   `skills/npm-maintenance/SKILL.md` §1). Inside the sandbox the user's npm
