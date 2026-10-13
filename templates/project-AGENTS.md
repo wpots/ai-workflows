@@ -1,7 +1,7 @@
 # AGENTS.md
 
-The adapter every coding agent in this project shares: Codex and Cursor read it
-directly, Claude Code through the `@AGENTS.md` import in `CLAUDE.md`.
+The adapter every coding agent in this project shares: Codex reads it directly,
+Claude Code through the `@AGENTS.md` import in `CLAUDE.md`.
 
 Read `AI-WORKFLOWS.md` for how this project's AI workflow files are intended to work together.
 Read `CONVENTIONS.md` for project-specific context, stack, structure, and conventions.
