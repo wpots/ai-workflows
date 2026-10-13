@@ -1,6 +1,6 @@
 ---
 name: backlog
-description: Draft or update a backlog item in docs/backlog by following the project's backlog rules, existing specs, and codebase context. Use when the user asks to create, write, refine, or update a backlog item, feature story, bug item, task, or local BLI.
+description: Draft or update a backlog item in docs/backlog by following the project's backlog rules, existing specs, and codebase context, and check items against the Definition of Ready before they go into the loop. Use when the user asks to create, write, refine, or update a backlog item, feature story, bug item, task, or local BLI, or asks whether an item or a sprint's items are ready.
 metadata:
   owner: wieteke.pots
 ---
@@ -8,7 +8,7 @@ metadata:
 # Backlog Skill
 
 Use this skill when the user asks to create, draft, refine, or update a
-backlog item.
+backlog item, or asks whether items are ready to build.
 
 This skill is the canonical workflow source for backlog work on skill-aware
 tools. The matching command runbook is a compatibility and fallback surface.
@@ -117,6 +117,17 @@ propose the new cut.
 11. If the request changes the reusable template, update `docs/backlog/_template.md`
     so it stays consistent with the current backlog rules.
 
+## Ready check
+
+When the user asks whether an item is ready — or a set: a sprint's items, every
+`draft` item ("is OBA-150 ready", "check readiness", "check de sprint") — follow
+`references/ready-check.md`. It holds each item against the Definition of Ready
+in `rules/backlog.md`, puts open product questions to the developer one at a
+time, writes `Blocked on:` and `Next step:` lines on every item that is not
+ready, and proposes the rest. The developer flips `ready`; the check never does,
+because that flip is the gate after which `skills/work-backlog` builds the item
+unattended.
+
 ## Constraints
 
 - Always persist backlog work to a file; do not leave it only in chat.
@@ -124,8 +135,9 @@ propose the new cut.
   exists.
 - Prefer the project's tracker key and filename conventions when they are stricter
   than the shared backlog rule.
-- Do not track implementation progress via a local `Status` section unless the
-  project-specific rules explicitly require it.
+- `## Status` holds the status value and the ready check's notes, not a progress
+  log: this skill writes `ready` only after the developer confirms it, and
+  `in-progress` and `done` belong to whoever delivers the item.
 - Do not move backlog files between folders; relocation belongs to the
   `close-sprint` workflow.
 
@@ -137,3 +149,5 @@ propose the new cut.
 - Which criteria were run against the tree and the exceptions they now name;
   for an item left `draft`, the criteria that clash.
 - Whether the local backlog template was also updated for consistency.
+- For a ready check: the verdict per item — ready, or its open points with the
+  next step — and which items the developer flipped to `ready`.

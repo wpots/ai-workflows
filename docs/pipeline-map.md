@@ -57,7 +57,7 @@ decision, recorded so it stops being re-proposed at every review. Both are liste
 | Gate | Kind | Guards | Enforced by | Status |
 | --- | --- | --- | --- | --- |
 | Design readiness | readiness | entry to Plan — design resolved, tokens and states settled, a11y decided | nothing | ❌ absent |
-| Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `skills/refinement` + `rules/backlog.md` + `rules/mr-sizing.md` | ⚠️ partial — encoded, never blocking |
+| Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `rules/backlog.md` (the list) + `rules/mr-sizing.md` + the ready check in `skills/backlog` | ⚠️ partial — the check proposes and the developer flips `ready`, but nothing runs it from planning yet |
 | Build health | done | exit from Build — compiles, types, lint, unit tests, no committed secrets | `skills/run-checks`, plus `skills/migration-check` when the diff touches migrations | ✅ automated, ⚠️ not derived from the CI job list |
 | QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review`, the project `verify` skill that `scripts/sync.sh` emits (checks and screenshots before a commit), plus the BLI's `How to verify` steps that `skills/work-backlog` fills from what it actually ran | ⚠️ partial — the steps are recorded per item, but the pass is a claim in prose: no artefact a reviewer can re-run to confirm it |
 | Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift check (doc freshness covered via `rules/documentation.md`) |
@@ -182,7 +182,7 @@ Turning intent into work items with acceptance criteria.
 | --- | --- | --- | --- |
 | `skills/refinement` | skill | `/refinement` · `"refine tickets"`, `"prepare refinement"` | Prep and record refinement: grouping, story points, conflicts, per-ticket questions — tracker read-only |
 | `skills/sprint-planning` | skill | `/sprint-planning` · `"plan sprint"`, `"start sprint"` | Sprint scope, spillover carry-in, dependency mapping, realism against velocity |
-| `skills/backlog` | skill | `/backlog` · `"backlog item"`, `"user story"`, `"bli"` | Draft or update a local backlog item in `docs/backlog/` |
+| `skills/backlog` | skill | `/backlog` · `"backlog item"`, `"user story"`, `"bli"`, `"is this item ready"` | Draft or update a local backlog item in `docs/backlog/`, and run the ready check: each item against the Definition of Ready, a next step per open point, `ready` only after the developer confirms |
 | `skills/jira-ticket` | skill | `/jira-ticket` · `"maak een jira ticket"`, `"file a story"` | Create a Jira bug/story/task from a type-specific template — the one sanctioned tracker **write** |
 | `commands/refinement.md`, `commands/sprint-planning.md`, `commands/backlog.md` | commands | trigger phrase → command; `refinement.md` has **no** mapping | Fallback runbooks for tools that cannot use skills |
 | `rules/backlog.md` | rule | loaded — user story, spec, backlog work | User story, spec, and backlog-item structure |
@@ -190,10 +190,15 @@ Turning intent into work items with acceptance criteria.
 | `rules/mr-sizing.md` | rule | loaded — whenever work is sized or sliced, and at MR time | One ticket to many items: size budget, sliceability test, split triggers. Blocking at planning, advisory at the MR |
 | `docs/backlog/` | context | read by `skills/work-backlog` at pickup | Local BLIs — the definition of done that `skills/work-backlog` consumes |
 
-**Gate — Definition of ready: partial.** `skills/refinement` and `rules/backlog.md`
-define readiness, and `rules/mr-sizing.md` adds the size half of it — an item too
-big for one reviewable MR is not ready, however clear its criteria are. Still
-nothing prevents an unready item from being picked up.
+**Gate — Definition of ready: partial.** `rules/backlog.md` holds the Definition
+of Ready, and `rules/mr-sizing.md` adds the size half of it — an item too big for
+one reviewable MR is not ready, however clear its criteria are. The ready check in
+`skills/backlog` holds items against that list, routes every open point to a next
+step, and proposes; the developer flips `ready`, and only then may
+`skills/work-backlog` build the item unattended. Still nothing runs the check from
+planning: sprint-planning overwrites the status with `Planned for Sprint <N>.`, and
+work-backlog reports a draft item without its route
+(`docs/backlog/feat-delivery-guidance-2-ready-check-in-the-path.md`).
 
 ### Build — implement
 

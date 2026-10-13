@@ -2,12 +2,13 @@
 
 ## Status
 
-ready
+in-progress
 
-Drafted and flipped to ready 2026-10-13 with the maintainer. Decisions taken the
-same day: the ready check is a mode of `skills/backlog` (no new skill), the
-developer confirms every flip to `ready`, and open product questions go to the
-developer first, one by one, because the right route differs per question.
+Drafted and flipped to ready 2026-10-13 with the maintainer, delivered in the same
+MR. Decisions taken that day: the ready check is a mode of `skills/backlog` (no new
+skill), the developer confirms every flip to `ready`, and open product questions go
+to the developer first, one by one, because the right route differs per question.
+Stays `in-progress` until the post-merge check in `How to verify` is ticked.
 
 ## Slice
 
@@ -55,6 +56,28 @@ and so that I know what to do with the ones that are not there yet.
   `in-progress`, `done`.
 - `commands/backlog.md` follows as the fallback wrapper, not a second implementation.
 
+## How to verify
+
+- [ ] **After merge, first:** in a session on the released plugin, ask "is
+  `feat-delivery-guidance-2-ready-check-in-the-path.md` ready?" — the report
+  is the table from `skills/backlog/references/ready-check.md`, and the item's
+  status is not touched without a confirmation. The branch's skill cannot be
+  loaded before release, so this is the one criterion not checked before merge.
+- [x] `node scripts/validate-skills.mjs` → `OK: 38 skills validated, 94 docs
+  link-checked, no errors.`
+- [x] Pre-commit hook (`scripts/validate-ai-instructions.sh`) green, including the
+  release test "every backlog item in the repo has a readable Status" — the
+  `Blocked on:` / `Next step:` lines sit below the value, which is what
+  `readStatus` in `scripts/backlog-archive.mjs` reads first.
+- [x] Routing: the `description` of `skills/backlog` changed;
+  `git grep -l -E '^tags:.*routing' -- 'evals/backlog/*/prompt.md'` prints
+  nothing, so the suite does not run (`evals/README.md`, "Before a skill MR").
+- [x] The check walked by hand over slices 2–4 with
+  `skills/backlog/references/ready-check.md`: all three hold. Slice 3 sits
+  between the file target and the split threshold of `rules/mr-sizing.md` (its
+  Technical Notes already say so); slice 2's parked-question format was
+  corrected to the `Blocked on: refinement —` line the check writes.
+
 ## Technical Notes
 
 **The checklist.** Put it in `rules/backlog.md` under a new `## Definition of Ready`
@@ -76,8 +99,8 @@ the item:
 | Route | Written into the item |
 | --- | --- |
 | Answered now | the answer, folded into the criterion or Technical Notes |
-| Ask the PO | `Blocked on: PO — <question>`; the skill offers to draft the message, and posts to the tracker only after confirmation through the `skills/service-cli` write recipes |
-| Next refinement | `Open question (refinement): <question>` — slice 2 makes refinement prep pick these up |
+| Ask the PO | `Blocked on: PO — <question>`; the skill offers to draft the message, which the developer sends — `skills/backlog` never writes to the tracker (its "Scope" section) |
+| Next refinement | `Blocked on: refinement — <question>` — slice 2 makes refinement prep pick these up |
 | Assumption | `Assumption: <statement>` in Technical Notes; does not block |
 
 **Approach unclear.** This is the only route where something plan-like gets written:
@@ -119,6 +142,7 @@ check.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/200
 - [../../rules/backlog.md](../../rules/backlog.md)
 - [../../rules/mr-sizing.md](../../rules/mr-sizing.md)
 - [../../skills/backlog/SKILL.md](../../skills/backlog/SKILL.md)

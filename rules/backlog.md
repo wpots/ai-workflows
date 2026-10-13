@@ -167,10 +167,44 @@ medium
   not a description of it. "Hard to reproduce" is an acceptable entry only
   together with what was tried; a bug item without either is not ready.
 
+## Definition of Ready
+
+An item is `ready` when someone who did not write it — a developer, or
+`skills/work-backlog` — can build it without coming back with a question. The
+ready check in `skills/backlog` holds items against this list and nothing else.
+
+| Point | Ready when |
+| --- | --- |
+| Criteria | every acceptance criterion is testable, the criteria can all hold together and with `Out of Scope`, and no open product question blocks one |
+| Size | no split trigger in `rules/mr-sizing.md` fires |
+| Approach | `Technical Notes` name the approach, the files or modules it touches, and the test level per criterion; where two approaches were viable, the choice and why |
+| Dependencies | every `Depends on:` item is named; what the work needs from outside — credentials, API access, client content, design — is available |
+| Bug | `## Reproduction` holds a path, or what was tried |
+
+- **A person flips it.** The developer sets `ready`, by hand or by confirming
+  the check's proposal. Nothing flips an item on its own: `ready` is the gate
+  after which `skills/work-backlog` may build the item unattended.
+- **A list to judge by, not a contract.** A point that does not apply passes. A
+  point nobody can judge from the item and the code is a question for the
+  developer, not a fail.
+- **Not ready says what comes next.** The first line under `## Status` stays the
+  value. Below it, a not-ready item carries one `Blocked on:` line per open
+  point and one `Next step:` line for what comes first:
+
+```markdown
+## Status
+
+draft
+
+Blocked on: PO — may an expired vacancy still be shared?
+Next step: developer asks the PO in the OBA-150 ticket
+```
+
 ## Updating Existing Items
 
 - When updating a backlog item, edit the existing file — do not create duplicates.
-- Update the `Status` field when work begins or completes.
+- Update the `Status` field when work begins or completes. Remove a
+  `Blocked on:` line once its point is resolved.
 - Append to `Technical Notes` rather than overwriting when adding context.
 
 ## Recent Rules Updates

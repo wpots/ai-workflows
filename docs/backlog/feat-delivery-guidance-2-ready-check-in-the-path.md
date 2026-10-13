@@ -57,8 +57,8 @@ that a question I parked for refinement actually reaches the next session.
   gains the ready-check output for `draft` items. It stays read-only here: the run
   reports and stops, it does not flip anything.
 - **refinement.** Phase 2 step 1 already locates `docs/backlog/<KEY>-*.md`; read its
-  `Open question (refinement):` lines there and carry them into Phase 3 "Questions per
-  ticket", marked as coming from the developer. In outcome mode, a decided question
+  `Blocked on: refinement —` lines there (the format slice 1's ready check writes) and
+  carry them into Phase 3 "Questions per ticket", marked as coming from the developer. In outcome mode, a decided question
   is reported so the developer can remove the line — refinement still never edits
   BLIs (`Phase 6` stays opt-in).
 - **Legacy status.** Synced client projects already hold BLIs with
