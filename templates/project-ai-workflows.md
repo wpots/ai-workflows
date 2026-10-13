@@ -16,7 +16,7 @@ When `CONVENTIONS.md` conflicts with synced baseline rules, `CONVENTIONS.md` win
 | ---- | ---------------------- | --------------------------- |
 | GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. `.github/prompts/*.prompt.md` are attachable helpers, not guaranteed auto-context. |
 | Claude Code | Global `~/.claude/CLAUDE.md` and `~/.claude/rules/*.md`, the `greenberry` plugin (auto-registered via `.claude/settings.json`), plus project files when present | Global Claude rules must stay universal. Skills/commands come from the plugin and auto-update. Project-specific context belongs in `CONVENTIONS.md`, this guide, and project adapters. |
-| Codex | `AGENTS.md` plus repo files it can inspect | `AGENTS.md` is the thin adapter; deeper project context lives in `CONVENTIONS.md`, `rules/`, and `commands/`. |
+| Codex | `AGENTS.md` plus repo files it can inspect | `AGENTS.md` is the shared adapter (Claude imports it too); deeper project context lives in `CONVENTIONS.md`, `rules/`, and `commands/`. |
 
 ## Workflow Surface Strategy
 
@@ -102,7 +102,7 @@ Examples:
 
 Per tool:
 
-- Claude Code: project `CLAUDE.md` points to `rules/`, but mentioning the specific rule in the prompt gives the strongest signal.
+- Claude Code: project `CLAUDE.md` imports `AGENTS.md`, which points to `rules/`, but mentioning the specific rule in the prompt gives the strongest signal.
 - Codex: `AGENTS.md` points to the local files, and explicitly naming a focused rule is still helpful for narrow tasks.
 - Copilot: assume only `.github/copilot-instructions.md` is ambient. If a focused rule matters, name it in the prompt or work from the matching prompt/runbook.
 
@@ -116,8 +116,8 @@ For workflows:
 
 - `CONVENTIONS.md`: project-specific stack, structure, scripts, and deviations from the shared baseline
 - `AI-WORKFLOWS.md`: this guide
-- `CLAUDE.md`: Claude-facing thin adapter
-- `AGENTS.md`: Codex-facing thin adapter
+- `AGENTS.md`: the adapter every agent shares; Codex reads it directly
+- `CLAUDE.md`: imports `AGENTS.md` and adds the Claude-specific lines
 - `.github/copilot-instructions.md`: Copilot-facing adapter with `CONVENTIONS.md` and condensed baseline rules inlined
 - `rules/`: synced shared coding standards
 - `commands/`: synced workflow runbooks

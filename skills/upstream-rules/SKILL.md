@@ -147,8 +147,8 @@ Three things about committing here, each of which costs a wasted cycle otherwise
 - **A new `rules/<file>.md` must land in every rule index in the same commit.**
   The validator warns on a rule missing from the `FEATURES.md` rules table and
   from a phase table in `docs/pipeline-map.md`, on top of the `rules/rules.md`
-  index and the focused-rules lists in `templates/project-CLAUDE.md` and
-  `templates/project-AGENTS.md`. And `docs/pipeline-map.md` is link-checked
+  index. Add it to the focused-rules list in `templates/project-AGENTS.md` as
+  well; no check catches that one. And `docs/pipeline-map.md` is link-checked
   against **this repo**: naming a project-relative path like `docs/adr/` there
   fails the commit with `names \`docs/…\`, which does not exist` — describe
   project paths in words ("the project's ADR folder") instead of path literals.

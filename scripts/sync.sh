@@ -259,7 +259,7 @@ if [[ -n "$PROJECT_DIR" ]]; then
         marker_name="$(basename "$fragment" .md)"
         inject_shared "$PROJECT_DIR/CLAUDE.md" "$marker_name"
       done
-      echo "  [ok] CLAUDE.md (thin adapter)"
+      echo "  [ok] CLAUDE.md (imports AGENTS.md)"
     fi
   fi
 
@@ -273,7 +273,7 @@ if [[ -n "$PROJECT_DIR" ]]; then
         marker_name="$(basename "$fragment" .md)"
         inject_shared "$PROJECT_DIR/AGENTS.md" "$marker_name"
       done
-      echo "  [ok] AGENTS.md (thin adapter)"
+      echo "  [ok] AGENTS.md (shared adapter)"
     fi
   fi
 

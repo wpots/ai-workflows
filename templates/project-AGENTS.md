@@ -1,5 +1,8 @@
 # AGENTS.md
 
+The adapter every coding agent in this project shares: Codex and Cursor read it
+directly, Claude Code through the `@AGENTS.md` import in `CLAUDE.md`.
+
 Read `AI-WORKFLOWS.md` for how this project's AI workflow files are intended to work together.
 Read `CONVENTIONS.md` for project-specific context, stack, structure, and conventions.
 Read `rules/` for baseline coding standards (shared across all projects).
@@ -13,8 +16,26 @@ Load only the relevant focused rule files for the task:
 - `rules/backlog.md` for user stories, specs, and backlog work
 - `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
 - `rules/payload.md` for Payload schema, generated-type, and integration work
+- `rules/project.md` for component and module work (prop-types in `types.ts`, named handlers, no `React.FC`, etc.)
 - `rules/sonarqube.md` when addressing a SonarQube/SonarLint finding or writing code that could trip an opted-in Sonar rule
 - the appropriate `rules/stacks/*` file after detecting the stack from `package.json`
+
+### Mandatory load triggers (by path)
+
+Load these **before** writing or editing the matching files — not after, and not
+only when it "feels architectural". The path is the trigger:
+
+- Touching a route/page/layout file or a page-level template → load the detected
+  `rules/stacks/*` rule for the route → data-access seam → template contract and
+  its Definition of Done.
+- Adding or changing a component or module → load `rules/project.md` (prop-types
+  in `types.ts`, named handlers, no `React.FC`, component design).
+- Writing or editing **any** source file → load `rules/documentation.md`, which
+  governs both the comments the change adds and the ones it makes stale. It is
+  mandatory rather than task-scoped because "when adding a comment" only becomes
+  true while the comment is being written — after the moment it had to be
+  loaded. Nearly every change adds or invalidates one, so a rule that waits for
+  that signal is a rule that never loads.
 
 ## Precedence
 
@@ -30,15 +51,8 @@ When CONVENTIONS.md conflicts with rules/, CONVENTIONS.md wins.
 
 Skills are the primary dispatch mechanism for repeatable workflows on
 skill-aware tools. Treat them as the canonical workflow source when available.
-
-| Skill            | Trigger phrases                          |
-| ---------------- | ---------------------------------------- |
-| `backlog`        | backlog item, user story, feature spec, bug item, bli |
-| `commit-message` | commit message, write commit, git commit |
-| `create-pr`      | create pr, open pr, submit pr            |
-| `close-sprint`   | close sprint, sluit sprint af, sprint afsluiten, close support month |
-| `sprint-demo`    | sprint demo, demo voorbereiden, demo script, prepare demo |
-| `sprint-planning` | sprint planning, plan sprint, sprint start, start sprint, plan komende sprint |
+Each skill's `description` carries its trigger phrases, so a request in plain
+language reaches the right one.
 
 ### Commands
 

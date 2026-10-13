@@ -63,6 +63,14 @@ EOF_PACKAGE
 assert_exists "$WITHOUT_CONVENTIONS/AI-WORKFLOWS.md"
 assert_exists "$WITHOUT_CONVENTIONS/CLAUDE.md"
 assert_exists "$WITHOUT_CONVENTIONS/AGENTS.md"
+# One adapter for every agent: CLAUDE.md imports it, AGENTS.md carries the content.
+grep -Fxq "@AGENTS.md" "$WITHOUT_CONVENTIONS/CLAUDE.md" ||
+  { echo "FAIL: CLAUDE.md does not import AGENTS.md" >&2; exit 1; }
+assert_contains "$WITHOUT_CONVENTIONS/AGENTS.md" "Mandatory load triggers"
+if grep -Fq "BEGIN SHARED:" "$WITHOUT_CONVENTIONS/CLAUDE.md"; then
+  echo "FAIL: CLAUDE.md carries a shared fragment that AGENTS.md already brings" >&2
+  exit 1
+fi
 assert_exists "$WITHOUT_CONVENTIONS/.github/copilot-instructions.md"
 assert_missing "$WITHOUT_CONVENTIONS/.cursor"
 assert_exists "$WITHOUT_CONVENTIONS/rules"

@@ -532,7 +532,6 @@ const REQUIRED_MARKERS = {
   "CLAUDE.md": ["skill-mappings", "safety", "graphify"],
   "AGENTS.md": ["command-mappings", "skill-mappings", "safety", "graphify"],
   ".github/copilot-instructions.md": ["core-rules", "command-mappings", "safety"],
-  "templates/project-CLAUDE.md": ["command-mappings", "safety", "graphify", "workflow-assets"],
   "templates/project-AGENTS.md": ["command-mappings", "safety", "graphify", "workflow-assets"],
   "templates/project-copilot-instructions.md": [
     "core-rules",
@@ -562,6 +561,28 @@ for (const [rel, markers] of Object.entries(REQUIRED_MARKERS)) {
       );
     }
   }
+}
+
+// ── The project CLAUDE.md imports AGENTS.md ──────────────────────────────────
+// Claude Code reads a project's CLAUDE.md in place of its AGENTS.md, so the
+// CLAUDE.md template pulls the shared adapter in with `@AGENTS.md` and holds
+// only Claude-specific lines. A shared fragment in it would reach Claude twice.
+
+const PROJECT_CLAUDE = "templates/project-CLAUDE.md";
+if (tracked.has(PROJECT_CLAUDE)) {
+  const text = read(PROJECT_CLAUDE);
+  if (!/^@AGENTS\.md$/m.test(text)) {
+    err(PROJECT_CLAUDE, "must import the shared adapter with an `@AGENTS.md` line");
+  }
+  if (text.includes("<!-- BEGIN SHARED:")) {
+    err(
+      PROJECT_CLAUDE,
+      "must not inject shared fragments; they belong in templates/project-AGENTS.md, " +
+        "which it imports",
+    );
+  }
+} else {
+  err(PROJECT_CLAUDE, "adapter file is missing");
 }
 
 // ── The upstream-MR rule stays out of the ambient layer ──────────────────────
