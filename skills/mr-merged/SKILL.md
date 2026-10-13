@@ -115,6 +115,12 @@ the recap that the connector was used. Report the ticket URL in the recap.
   to review/done) — as a suggestion in the recap, not an action. When Step 2
   found open items, propose nothing beyond what partial delivery justifies: the
   ticket is not done, and moving it there loses the remaining slices.
+- **Template-owned files.** In a project created from unicore-template
+  (`.unicore.json`, or `scripts/husky/readme-checks.js` for a v3 project),
+  intersect the MR's changed files with the template's `owned` globs —
+  `skills/upstream-to-unicore` Step 1 says where to read them. When any match,
+  name those files in the recap and propose `skills/upstream-to-unicore` as a
+  harvest of this MR. Propose only; the harvest runs on the user's go.
 - Ask once for cleanup approval, then treat the worktree and source branch as
   one batch. A cleanup is incomplete when the worktree is gone but the stale
   local branch remains:
@@ -166,8 +172,8 @@ failed steps needing a workaround). If it did, hand off to
 Report in one block: MR + merge commit, the ticket's standing (`3/3 items merged — ticket complete` or `2/3 — waiting on
 <item>`), comment posted (URL) / drafted-undelivered / deferred to the last
 slice, the deploy read-back (queued / refused, with the response / no deploy
-job), proposed ticket transition, branch/worktree cleanup, anything skipped and
-why.
+job), proposed ticket transition, template-owned files touched (with the
+upstream proposal), branch/worktree cleanup, anything skipped and why.
 
 ## Constraints
 

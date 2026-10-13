@@ -98,7 +98,7 @@ cross-reference, so it still needs its own line.
 - `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `skills/sustainable-review` (canonical), `commands/sustainable-review.md` (fallback)
 - `tdd`, `test-driven development`, `test first`, `test eerst`, `schrijf eerst een test` -> `skills/test-driven-development` (skill only)
 - `upstream rule`, `propose rule`, `share rule change` -> `skills/upstream-rules` (skill only)
-- `upstream to unicore`, `port to unicore`, `upstream to template`, `unicore-template` -> `skills/upstream-to-unicore` (skill only)
+- `upstream to unicore`, `port to unicore`, `upstream to template`, `unicore-template`, `template harvest`, `wat moet terug naar de template` -> `skills/upstream-to-unicore` (skill only; the target line, v3 `development` or v4 presets, is chosen per change, and `skills/mr-merged` and `skills/close-sprint` propose its harvest when template-owned files change)
 - `user journeys`, `spec the journeys`, `user flows`, `customer journey`, `journeys uitwerken` -> `skills/user-journeys` (skill only; writes `docs/journeys/`, then hands the slice candidates to `skills/backlog`)
 - `watch mr`, `monitor mr`, `notify on approval`, `auto-merge when ready` -> `skills/watch-mrs` (skill only)
 - `wcag audit`, `accessibility audit`, `wcag compliance audit`, `a11y audit` -> `skills/wcag-audit` (skill only)

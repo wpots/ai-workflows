@@ -126,6 +126,13 @@ The changelog is internal. Notes the customer reads are another separate,
 explicitly invoked lane: `skills/release-notes` takes the changelog's
 `Opgeleverd` rows as its first source, so name it in the wrap-up.
 
+In a project created from unicore-template (`.unicore.json`, or
+`scripts/husky/readme-checks.js` for a v3 project), check whether the sprint's
+merged changes touched the template's `owned` globs (`skills/upstream-to-unicore`
+Step 1 says where to read them). When they did, name the files in the wrap-up
+and propose `skills/upstream-to-unicore` as a harvest over the sprint's range.
+It is a proposal, like the release-notes hand-off.
+
 ## Cleanup safety
 
 Phase 8 only surfaces candidates. Never run `git branch -d`, `git branch -D`, or
