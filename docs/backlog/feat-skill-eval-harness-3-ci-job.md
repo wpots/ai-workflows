@@ -2,7 +2,16 @@
 
 ## Status
 
-draft
+superseded
+
+Superseded 2026-10-13 by
+[feat-routing-evals-before-mr.md](feat-routing-evals-before-mr.md), merged:
+the MR flow runs the routing suite on the maintainer's seat, so no CI key and no
+monthly cap are needed. Reopen as a new item when a routing failure reaches
+review despite that step, when routing cases cover more than the five risky
+skills, or when a few weeks of local runs give real `costUsd` figures to set a
+CI cap from (CI-spend decision, 2026-10-08). The criteria below stay as that
+item's starting point.
 
 Filed 2026-10-08 as slice 3 of the eval work. Blocked on a maintainer decision:
 evals in CI are real model calls on an API key, so someone has to supply the
