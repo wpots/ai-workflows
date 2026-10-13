@@ -137,6 +137,7 @@ again.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/188
 - [chore-retire-cursor-adapters-2-skill-wording.md](chore-retire-cursor-adapters-2-skill-wording.md)
 - [chore-retire-cursor-adapters-3-docs.md](chore-retire-cursor-adapters-3-docs.md)
 - [../skills-first-migration-plan.md](../skills-first-migration-plan.md) — the
