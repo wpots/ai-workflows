@@ -2,12 +2,33 @@
 
 ## Status
 
-draft
+in-progress
+
+**Pilot running on RFW (`greenberrynl/refugeework/website`) since 2026-10-13;
+the four weeks end on 2026-11-10.** The maintainer switched on automatic
+reviews. Checked through the API on 2026-10-13:
+- `auto_duo_code_review_enabled`, `duo_remote_flows_enabled`,
+  `duo_foundational_flows_enabled` and `shared_runners_enabled` are all `true`
+  on the project;
+- `duo_agent_platform_enabled` is `true` on the group.
+
+State on 2026-10-13:
+- **No instructions file yet.** RFW has no `.gitlab/duo/` folder, so reviews run
+  without our lenses until criterion 2 lands. Report comments from before and
+  after that date as two separate numbers.
+- **No review has run yet.** !527 and !528 were opened minutes before the switch
+  and have no Duo session. Automatic reviews start when a non-draft MR is
+  created or marked ready, and on a push. The first one is the smoke test:
+  check AI > Sessions, and record the Duo reviewer's username here, because the
+  count filters on it.
+- **A competing AI reviewer is waiting.** RFW !383 (sander.bruggeman,
+  2026-07-22, idle since) adds an AI review job through OpenRouter. Keep it
+  unmerged until 2026-11-10, so that only one AI reviewer comments.
+- **RFW is also the CI v4 canary** (`ci-components` DEV-659). Expect pipeline
+  changes during the pilot. Note them when judging the Fix pipeline flow.
 
 Filed 2026-10-08 from the October 2026 stack review (task T5, re-scoped from
-"build a CI agent lane" to "configure and measure the platform's own"). Not
-`ready`: it needs a client project chosen, and a GitLab setting only the
-maintainer can change.
+"build a CI agent lane" to "configure and measure the platform's own").
 
 ## Priority
 
@@ -27,26 +48,37 @@ place next to the local `code-review` skill, so that we do not build a second on
 
 ## Acceptance Criteria
 
-- [ ] One client project is named and the flow is enabled for it (a GitLab setting,
-      done by the maintainer).
-- [ ] `mr-review-instructions.yaml` in that project carries the review lenses copied
-      from `skills/code-review`, adapted to the flow's format.
-- [ ] The metric and the threshold are written down before the first MR: the share
-      of the flow's comments that lead to a change, counted from resolved threads,
-      not from thumbs up or down.
-- [ ] After four weeks a short report in `docs/` gives the count of comments, how
-      many led to a change, how many were dismissed and why, and a keep or drop
-      recommendation.
+- One client project is named and the flow is enabled for it (a GitLab setting,
+  done by the maintainer). Done 2026-10-13: RFW, with automatic reviews.
+- `.gitlab/duo/mr-review-instructions.yaml` in that project carries the review
+  lenses from `skills/code-review`, adapted to the flow's format.
+- The metric and the threshold are written down before the first review (below).
+  The metric counts resolved threads, not thumbs up or down.
+- After four weeks, a short report in `docs/` gives:
+  - the number of comments, before and after the instructions file;
+  - how many led to a change and how many were dismissed, and why;
+  - the credits used;
+  - what the Fix pipeline flow did on at least one failing MR pipeline;
+  - a keep or drop recommendation.
 
-## Open decisions
+## Metric and threshold
 
-1. Which client project. Runners are not a decision on GitLab.com (checked
-   2026-10-13, see Technical Notes); check that the project has instance runners
-   turned on and compute minutes left.
-2. The threshold for "worth keeping". For reference only: in a published study of
-   an AI review tool at Atlassian, 38.7% of its comments were resolved against
-   44.5% for human reviewers; another study of 31,000 CodeRabbit comments found 56%
-   rejected.
+**Metric.** The unit is one thread the Duo review opens on an RFW MR between
+2026-10-13 and 2026-11-10: a diff note or an MR note from the Duo reviewer.
+- **Led to a change:** a commit pushed to the MR after the comment changes the
+  lines (or, for a file-level comment, the file) it is about.
+- **Dismissed:** resolved without such a commit, or still open when the MR
+  merged. Record the reason when a reply gives one.
+- **Not counted:** threads on MRs that were closed without merging.
+
+**Threshold, proposed 2026-10-13, for the maintainer to confirm by merging this:**
+- **Keep** when at least 40% of counted threads led to a change, over at least 30
+  threads.
+- **Not enough data:** with fewer than 30 threads on 2026-11-10, extend the pilot
+  by two weeks instead of deciding.
+- **Basis:** 40% sits between the published resolution rates of an AI reviewer
+  (38.7%) and human reviewers (44.5%) in Atlassian's study. A study of 31,000
+  CodeRabbit comments found 56% rejected.
 
 ## Technical Notes
 
@@ -99,6 +131,9 @@ it is the platform's version of `feat-pipeline-triage.md`.
 
 ## Related
 
+- Pilot project: https://gitlab.com/greenberrynl/refugeework/website
+- The competing AI review job:
+  https://gitlab.com/greenberrynl/refugeework/website/-/merge_requests/383
 - [feat-pipeline-triage.md](feat-pipeline-triage.md)
 - [../../skills/code-review/SKILL.md](../../skills/code-review/SKILL.md)
 - https://docs.gitlab.com/user/duo_agent_platform/flows/foundational_flows/code_review/
