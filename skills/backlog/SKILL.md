@@ -96,7 +96,25 @@ propose the new cut.
    them in the filename, fill the `Slice` field, chain them with `Depends on:`,
    and say in the recap why the cut sits there. Leave `How to verify` empty —
    whoever delivers the item fills it before the MR opens.
-10. If the request changes the reusable template, update `docs/backlog/_template.md`
+10. **Check that the criteria can all hold before marking the item `ready`.**
+    Criteria that contradict each other surface mid-delivery, when whoever picks
+    the item up has to rewrite the definition of done. Read the criteria against
+    each other, `Out of Scope` and `Technical Notes`, and run what can be run:
+    - A criterion that searches the tree ("prints nothing", "lists only", "no
+      file names X") is run on the tree the item will be built on, and every
+      hit that stays is named in the criterion. For a later slice that tree does
+      not exist yet: read the preceding slice's criteria for what it leaves in
+      place, because a line it keeps on purpose is the usual hit.
+    - Two criteria that name the same file, string or section are read side by
+      side. One that needs it gone and one that needs it present cannot both
+      pass, and neither can a criterion that needs a file `Out of Scope`
+      excludes.
+
+    Fix the clash in the item when the intent is clear. When it is a real scope
+    question, leave the status at `draft` and put the question to the
+    maintainer. Same gate as the size check: an item that fails this may not be
+    marked `ready`.
+11. If the request changes the reusable template, update `docs/backlog/_template.md`
     so it stays consistent with the current backlog rules.
 
 ## Constraints
@@ -116,4 +134,6 @@ propose the new cut.
 - The backlog file path(s) that were created or updated — one line per slice when
   a ticket produced several, with the dependency order.
 - Any assumptions that still need PO or developer confirmation.
+- Which criteria were run against the tree and the exceptions they now name;
+  for an item left `draft`, the criteria that clash.
 - Whether the local backlog template was also updated for consistency.
