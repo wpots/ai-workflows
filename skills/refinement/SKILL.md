@@ -11,8 +11,8 @@ Use this skill when the user asks to prepare a refinement, refine a set of
 tickets, or record what was decided in a refinement session.
 
 The canonical step-by-step runbook lives at `commands/refinement.md`. This skill
-is a thin wrapper around that runbook so Codex, Cursor, and Claude Code share
-the same workflow; Copilot follows the runbook directly.
+is a thin wrapper around that runbook so Codex and Claude Code share the same
+workflow; Copilot follows the runbook directly.
 
 ## Workflow
 

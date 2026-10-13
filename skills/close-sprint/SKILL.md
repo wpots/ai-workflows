@@ -10,8 +10,8 @@ metadata:
 Use this skill when the user asks to close, finalize, or wrap up a sprint.
 
 The canonical step-by-step runbook lives at `commands/close-sprint.md`. This
-skill is a thin wrapper around that runbook so Codex, Cursor, and Claude Code
-share the same workflow; Copilot follows the runbook directly.
+skill is a thin wrapper around that runbook so Codex and Claude Code share the
+same workflow; Copilot follows the runbook directly.
 
 ## Workflow
 

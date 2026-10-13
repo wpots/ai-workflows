@@ -11,8 +11,8 @@ Use this skill when the user asks to prepare a sprint demo, write a demo script,
 or get ready for a stakeholder sprint review.
 
 The canonical step-by-step runbook lives at `commands/sprint-demo.md`. This skill
-is a thin wrapper around that runbook so Codex, Cursor, and Claude Code share the
-same workflow; Copilot follows the runbook directly.
+is a thin wrapper around that runbook so Codex and Claude Code share the same
+workflow; Copilot follows the runbook directly.
 
 ## Workflow
 

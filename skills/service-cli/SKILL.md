@@ -29,7 +29,7 @@ of carrying their own snippets.
   four fields the skill reads instead of the whole issue with its ADF
   description.
 - **The same string works in every agent.** `jira issue view RFW-12` means the
-  same in Claude Code, Cursor and Codex; `getJiraIssue` is one connector's name
+  same in Claude Code and Codex; `getJiraIssue` is one connector's name
   for it, and two Atlassian connectors do not even agree on that.
 
 ## Decision rule

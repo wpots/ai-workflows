@@ -4,9 +4,9 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+done
 
-Go given by the maintainer on 2026-10-13. Waits for slice 1 to merge.
+Go given by the maintainer on 2026-10-13. Slice 1 merged (!188).
 
 ## Ticket
 
@@ -40,19 +40,37 @@ that I do not wonder whether Cursor still needs to keep working.
 - The tool list in `skills/improve-skill/SKILL.md` ("shared across tools
   (Claude, Copilot, Cursor, Codex)") drops Cursor.
 - The connector-name sentence in `skills/service-cli/SKILL.md` drops Cursor.
-- `rg -n -i cursor skills/` prints nothing.
+- `rg -n -i cursor skills/` prints only the "Cursor is not supported" line that
+  slice 1 added to `skills/setup-ai-workflows/SKILL.md`.
 - `node scripts/validate-skills.mjs` passes.
 - A changelog fragment `changelog.d/changed.skills-drop-cursor.md` records the
   wording change.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `rg -n -F "Codex, Cursor, and Claude Code" skills/` and
+      `rg -n -F "Copilot, Cursor, Codex" skills/` print nothing (exit 1).
+- [x] `rg -n -i cursor skills/` lists only lines 229–230 of
+      `skills/setup-ai-workflows/SKILL.md`, the "Cursor is not supported" line.
+- [x] `node scripts/validate-skills.mjs` → "OK: 38 skills validated, 93 docs
+      link-checked, no errors."
+- [x] `scripts/project-sync-freshness.sh --digest` gives `3095625998 299288` on
+      `main` and on this branch: no digest change, so no re-sync prompt.
+- [x] `git diff -U0 gitlab/main -- skills` touches body lines only (13 and
+      later), never the frontmatter, so the routing-eval trigger test in
+      `evals/README.md` does not fire.
+- [x] `bash scripts/validate-ai-instructions.sh` (the pre-commit hook) passes.
 
 ## Technical Notes
 
 Wording only. No skill description in the frontmatter mentions Cursor once
 slice 1 has changed `setup-ai-workflows`, so routing is unaffected.
+
+Corrected on delivery: the criterion said `rg -n -i cursor skills/` prints
+nothing, but slice 1 deliberately left one "Cursor is not supported" line in
+`skills/setup-ai-workflows/SKILL.md` (it tells the agent to leave a project's
+own `.cursor/` files alone), and this slice's Out of Scope keeps that skill out
+of it. The criterion now names that line instead of asking for an empty result.
 
 Skills are not part of the freshness stamp, so this slice prompts no re-sync in
 synced projects.
@@ -70,5 +88,6 @@ changes them.
 
 Depends on: chore-retire-cursor-adapters-1-stop-emitting.md
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/193
 - [chore-retire-cursor-adapters-1-stop-emitting.md](chore-retire-cursor-adapters-1-stop-emitting.md)
 - [chore-retire-cursor-adapters-3-docs.md](chore-retire-cursor-adapters-3-docs.md)
