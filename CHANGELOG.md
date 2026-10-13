@@ -16,6 +16,137 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.8.0] - 2026-10-13
+
+### Added
+
+- `skills/create-pr` (and its fallback `commands/create-pr.md`) gets a routing-eval
+  step in the pre-flight, next to the migration check. When the repository has
+  routing eval cases and the branch adds a skill, changes a skill's `name`,
+  `description` or `when_to_use`, or changes a routing case, the suite runs
+  before the first push and the MR description carries one result line
+  (`Routing evals: 10/10 pass ($1.81, 2026-10-13)`). A failing case stops the MR
+  until it passes or the user accepts it; a run that cannot happen says
+  `not run — <reason>` instead of a pass. The trigger test, the command and the
+  result lines live in `evals/README.md` ("Before a skill MR"); the upstream MR
+  rule (`skills/upstream-rules/references/upstream-mr.md`, which
+  `skills/improve-skill` reads) points at the same section. In every other
+  repository the step does nothing.
+
+### Changed
+
+- One project adapter for every agent: the `AGENTS.md` that sync and
+  `setup-ai-workflows` write now carries the full adapter, including the
+  mandatory load triggers and the `rules/project.md` line that only the Claude
+  copy had, and the project `CLAUDE.md` shrinks to an `@AGENTS.md` import plus
+  the Claude-specific lines. Claude Code reads a `CLAUDE.md` in place of an
+  `AGENTS.md`, so the import gives Claude the same instructions as Codex
+  without loading them twice. The six-row skill table in `AGENTS.md` is gone:
+  each skill's description carries its triggers. The validator now requires
+  the import and keeps shared fragments out of the `CLAUDE.md` template.
+  The project `CLAUDE.md` also imports `CONVENTIONS.md`, so Claude has the
+  project's conventions from the start of every session instead of only
+  when it decides to open the file; Codex keeps the instruction in words,
+  because it does not expand imports.
+  Synced projects pick this up with their next sync.
+- `backlog` checks that an item's acceptance criteria can all hold before the
+  item is marked `ready`: it runs criteria that search the tree and names the
+  hits that stay, and reads criteria against each other and `Out of Scope`. An
+  item that fails the check stays `draft`. Skill body only: no description,
+  routing or digest change.
+- `skills/work-backlog` — a `Depends on:` link whose file is gone from
+  `docs/backlog/` on the default branch counts as satisfied when an archive
+  step took it: `skills/close-sprint` moving it into a sprint or support
+  folder, or a release cut removing it. The commit that took it is the
+  evidence; a link to a file that never existed stays unmet. Before, such a
+  dependency had no `Status` to read, so its dependents were never eligible.
+- `setup-ai-workflows` now detects the project's language (TypeScript,
+  JavaScript only, or mixed) and asks for every deviation from the global
+  rules whether it is **accepted** (the project stays this way) or
+  **migrating** (a target, a rule for new code, and how existing code follows).
+  `CONVENTIONS.md` records that status on each deviation line, so an agent in a
+  JavaScript project moving to TypeScript writes new files in TypeScript
+  instead of copying the files next to it. The rationale stays in the decision
+  log of `docs/architecture.md` when that exists.
+- `setup-ai-workflows` also writes `.claude/settings.json` from the project
+  template when the project has none, as `sync.sh --project` already did, so a
+  project set up through the skill gives teammates the plugin install prompt
+  too.
+- The setup docs no longer say a local clone is needed to set up a project:
+  on Claude Code the skills read the templates from the plugin. The clone is
+  for Codex, the `sync.sh --project` script and changes to the shared config.
+- `skills/create-pr` — the worktree reference names the git state every session
+  shares: base a worktree on `<remote>/<base>` with `--no-track`, never on
+  `FETCH_HEAD`, and drop a stash only after checking it is yours. A test that
+  creates a git repo first drops the `GIT_*` variables a hook exports, since a
+  pre-commit run that inherited them set `core.bare=true` in the shared config;
+  `validate-skills.mjs` errors on a `scripts/` test that does not. The
+  stacked-MR recipe adds the rebase and full re-check once the lower MR merges.
+  <!-- slack: Worktree vanaf `gitlab/main` in plaats van `FETCH_HEAD`; na merge van een gestapelde MR rebasen en hertesten -->
+- `templates/project-ai-workflows.md`, the `AI-WORKFLOWS.md` every synced project
+  gets, now says Cursor is not used by the Greenberry team and its adapters are
+  still generated but get no further work; the Claude, Codex and Copilot rows are
+  unchanged. The template is part of the project-sync freshness digest, so each
+  synced project is reported stale once, with the usual note naming
+  `sync.sh --project`, until its next re-sync.
+- `docs/org-managed-plugin-settings.md` — the org-managed settings now only
+  register the `ai-workflows` marketplace with auto-update for every teammate;
+  the `greenberry` plugin is no longer force-enabled (no `enabledPlugins`), so
+  it stays enabled per project by the synced `.claude/settings.json` and a
+  teammate can still disable it. Force-enabling moves to a "Later" section with
+  the conditions for revisiting it. The `new-device-setup` runbook and
+  `docs/setup-machine.md` follow: with the managed marketplace in place, run
+  `/plugin install greenberry@ai-workflows` and skip the auto-update step.
+- The plugin's `SessionStart` sync no longer writes `~/.claude/CLAUDE.md`: the
+  baseline (this repo's `CLAUDE.md`) now lands as
+  `~/.claude/rules/ai-workflows.md`, next to the universal rules, so
+  `~/.claude/CLAUDE.md` stays the developer's own. A copy an earlier version
+  wrote there is handled once: removed when nobody edited it, otherwise moved to
+  `~/.claude/CLAUDE.md.ai-workflows-backup`, and the session says which. A file
+  without the baseline's opening line is never touched. `./scripts/sync.sh`
+  behaves the same, and the docs, `improve-skill` and the smoke tests follow.
+- The `#development` release post is Block Kit now: an overview of what to do,
+  the update steps, a "Projecten syncen" block with the commands only when the
+  release changed a file a project sync delivers, an "Eenmalig" block, and one
+  table of the changes. A changelog entry gets a table row through a Dutch
+  `<!-- slack: … -->` continuation line under its bullet; entries without one
+  are counted under the table. `skills/upstream-rules` asks for that note when
+  it writes a fragment, and `validate-skills.mjs` errors on a note that is not
+  indented under its bullet.
+  <!-- slack: release-post | Releasepost met kopjes en een tabel; sync-instructies alleen als je projecten moet syncen -->
+- New fragment type `changelog.d/action.<slug>.md` for a step developers take
+  once after updating. It lands under `### Action required` and in the post's
+  "Eenmalig" block, and does not bump the version on its own.
+  <!-- slack: changelog | Nieuw fragmenttype `action` voor eenmalige stappen na een update -->
+- Project sync and `setup-ai-workflows` stop generating Cursor files: no more
+  `.cursor/rules/conventions.mdc`, `.cursor/rules/graphify.mdc` or
+  `.cursor/mcp.json`, and the global `sync.sh` no longer copies commands and
+  skills into `~/.cursor`. Files an earlier sync left in a project's `.cursor/` or
+  in `~/.cursor/` stay where they are; delete them by hand if you want them gone.
+  The shared rules, commands and project guide no longer name Cursor, so each
+  synced project is reported stale once, with the usual note naming
+  `sync.sh --project`, until its next re-sync.
+- Eight skills (`close-sprint`, `compact-sprint`, `refinement`, `release-notes`,
+  `sprint-demo`, `sprint-planning`, `improve-skill` and `service-cli`) no longer
+  name Cursor among the tools they are shared with. Wording only: no behaviour
+  or routing change, and synced projects are not reported stale.
+- `skills/upstream-to-unicore` targets the template's release lines instead of
+  the archived `experimental-new-setup`: v4 (`feat/declarative-cms-presets`)
+  or v3 (`development`), chosen per change with the user until the team
+  decides how the lines relate, and CMS code goes to `src/vendor/<cms>/` on
+  v4. It reads the target line's conventions (package
+  manager, env wrapper, agent instructions) at run time instead of carrying a
+  hardcoded dotenvx recipe, finds the project's base from `.unicore.json` (v4)
+  or estimates it (v3), and adds a harvest mode that lists the template-owned
+  changes a project made since that base. Every run starts with the open
+  template MR queue and ends by offering `skills/watch-mrs`, because the
+  finish line is a merged MR.
+- `skills/mr-merged` and `skills/close-sprint` propose that harvest when a
+  merged MR or a sprint touched template-owned files, so upstreaming no longer
+  waits for someone to ask; `skills/start-project` checks a project's template
+  lineage through `.unicore.json` rather than a merge-base the template's own
+  hook makes impossible.
+
 ## [2.7.0] - 2026-10-12
 
 ### Added
