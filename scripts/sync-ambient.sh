@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
-# Sync the Claude ambient layer: ~/.claude/CLAUDE.md plus the universal rules
-# subset. This is the one part of the Claude surface that cannot ship as a
-# plugin component -- plugins have no primitive for always-on context.
+# Sync the Claude ambient layer: this repo's CLAUDE.md, installed as
+# ~/.claude/rules/ai-workflows.md, plus the universal rules subset. This is the
+# one part of the Claude surface that cannot ship as a plugin component --
+# plugins have no primitive for always-on context.
+#
+# ~/.claude/CLAUDE.md belongs to the user and is never written. A copy of the
+# baseline that an earlier sync put there is moved aside once (see
+# move_legacy_claude_md); a file of the user's own is left alone.
 #
 # Two callers:
 #   scripts/sync.sh    full sync, passes --source explicitly
@@ -134,6 +139,16 @@ RETIRED_RULES=(
   stacks/react-native-expo.md
 )
 
+# Where the repo CLAUDE.md lands: its own file in rules/, which Claude Code
+# loads in every session, so ~/.claude/CLAUDE.md stays the user's.
+BASELINE_RULE="ai-workflows.md"
+
+# Every copy of the baseline that an earlier sync wrote to ~/.claude/CLAUDE.md
+# carries this line: the repo CLAUDE.md has opened with it since the first
+# import. A ~/.claude/CLAUDE.md without it is the user's own.
+LEGACY_SIGNATURE="Use this setup as a universal Claude Code baseline across projects."
+LEGACY_BACKUP_NAME="CLAUDE.md.ai-workflows-backup"
+
 # --- Freshness checks (advisory) ---
 #
 # A frozen plugin is the one failure this script cannot fix by syncing: the
@@ -187,7 +202,7 @@ plugin_cache_is_stale() {
 
 case "$(marketplace_autoupdate_state)" in
   off)
-    FRESHNESS_NOTE="the ai-workflows marketplace entry in $TARGET_CLAUDE/settings.json has no autoUpdate flag, so this install is pinned to the commit it was added on -- including the ambient CLAUDE.md and rules delivered here. Set autoUpdate to true on that entry, then run /plugin marketplace update ai-workflows."
+    FRESHNESS_NOTE="the ai-workflows marketplace entry in $TARGET_CLAUDE/settings.json has no autoUpdate flag, so this install is pinned to the commit it was added on -- including the baseline rules delivered here. Set autoUpdate to true on that entry, then run /plugin marketplace update ai-workflows."
     ;;
   *)
     if plugin_cache_is_stale; then
@@ -286,6 +301,23 @@ remove_if_present() {
   CHANGED="$CHANGED -$label"
 }
 
+# A ~/.claude/CLAUDE.md an earlier sync wrote: removed when it is byte-identical
+# to the baseline (nothing of the user's is in it), otherwise moved aside so a
+# local edit is not lost.
+move_legacy_claude_md() {
+  local legacy="$TARGET_CLAUDE/CLAUDE.md"
+  [[ -f "$legacy" ]] || return 0
+  grep -Fqx "$LEGACY_SIGNATURE" "$legacy" 2>/dev/null || return 0
+  if cmp -s "$SOURCE_DIR/CLAUDE.md" "$legacy"; then
+    remove_if_present "$legacy" "CLAUDE.md"
+    return 0
+  fi
+  if [[ "$DRY_RUN" -eq 0 ]]; then
+    mv -f "$legacy" "$TARGET_CLAUDE/$LEGACY_BACKUP_NAME" || return 0
+  fi
+  CHANGED="$CHANGED moved:CLAUDE.md"
+}
+
 # Record the source state we just reconciled, so the next session is a no-op
 # until the plugin delivers different content. Written even when nothing
 # changed. The retired version stamp is cleaned up on the way out.
@@ -297,7 +329,12 @@ write_stamp() {
   return 0
 }
 
-copy_if_changed "$SOURCE_DIR/CLAUDE.md" "$TARGET_CLAUDE/CLAUDE.md" "CLAUDE.md"
+copy_if_changed \
+  "$SOURCE_DIR/CLAUDE.md" \
+  "$TARGET_CLAUDE/rules/$BASELINE_RULE" \
+  "rules/$BASELINE_RULE"
+
+move_legacy_claude_md
 
 for rule in "${UNIVERSAL_RULES[@]}"; do
   copy_if_changed \
@@ -323,7 +360,10 @@ fi
 
 if [[ "$HOOK_MODE" -eq 1 ]]; then
   write_stamp
-  CONTEXT="The ai-workflows ambient layer was just refreshed from the greenberry plugin:$CHANGED (a leading - means removed). The global CLAUDE.md and rules now in context are current."
+  CONTEXT="The ai-workflows ambient layer was just refreshed from the greenberry plugin:$CHANGED (a leading - means removed). The global rules now in context are current."
+  if [[ "$CHANGED" == *moved:CLAUDE.md* ]]; then
+    CONTEXT="$CONTEXT Tell the user once: an earlier plugin version had written its baseline into ~/.claude/CLAUDE.md; that baseline now lives in ~/.claude/rules/$BASELINE_RULE, and the old file was moved to ~/.claude/$LEGACY_BACKUP_NAME. Anything personal in it can go back into ~/.claude/CLAUDE.md, which the plugin no longer writes."
+  fi
   if [[ "$FRESHNESS_DUE" -eq 1 ]]; then
     CONTEXT="$CONTEXT Also worth fixing: $FRESHNESS_NOTE"
   fi
@@ -339,6 +379,8 @@ prefix=""
 for label in $CHANGED; do
   if [[ "$label" == -* ]]; then
     echo "${prefix}Removed $TARGET_CLAUDE/${label#-}"
+  elif [[ "$label" == moved:* ]]; then
+    echo "${prefix}Moved $TARGET_CLAUDE/${label#moved:} to $TARGET_CLAUDE/$LEGACY_BACKUP_NAME (written by an earlier sync; the baseline now lives in rules/$BASELINE_RULE)"
   else
     echo "${prefix}Synced $SOURCE_DIR/$label -> $TARGET_CLAUDE/$label"
   fi

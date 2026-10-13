@@ -6,7 +6,9 @@ Use this setup as a universal Claude Code baseline across projects.
 
 ## Loading Model
 
-Claude Code loads this global file and every file in `~/.claude/rules/` into each conversation.
+The `greenberry` plugin installs this file as `~/.claude/rules/ai-workflows.md`,
+and Claude Code loads every file in `~/.claude/rules/` into each conversation.
+`~/.claude/CLAUDE.md` belongs to the user; the plugin never writes it.
 Keep the global rules universal, not stack-specific.
 
 Workflow surface strategy for Claude in this repo:

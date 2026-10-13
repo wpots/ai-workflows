@@ -18,7 +18,7 @@ role. Cloning is a one-time cost; only some roles pay a recurring one.
 | Editing the shared config itself | Per change — see [contributing.md](contributing.md). |
 
 What you give up by never cloning at all: the global ambient baseline in
-`~/.claude/CLAUDE.md` and `~/.claude/rules/`. Inside an already-synced project
+`~/.claude/rules/`. Inside an already-synced project
 that matters less than it sounds, because project sync writes `rules/`,
 `commands/`, and the tool adapters into the project itself — that context loads
 from the repo you are working in. The global layer is what covers work *outside*
@@ -43,9 +43,10 @@ cd ~/Web/ai-workflows
 - `~/.cursor/commands`
 - `~/.cursor/skills-cursor/ai-workflows`
 - `~/.codex/skills/custom`
-- `~/.claude/CLAUDE.md`
-- `~/.claude/rules` with the universal subset only
+- `~/.claude/rules`: this repo's `CLAUDE.md` as `ai-workflows.md`, plus the
+  universal rules subset
 
+`~/.claude/CLAUDE.md` is never written; it holds your own instructions.
 All commands, rules, and skills sync by default; there is no separate opt-in
 tier. Codex system skills are never touched (only `~/.codex/skills/custom`).
 Nothing MCP-related is written globally — project MCP config lives in each
@@ -164,8 +165,16 @@ universal rules cannot ship as plugin *components*. They no longer need a manual
 sync anyway: the plugin cache holds a full copy of this repo, so a `SessionStart`
 hook in [`hooks/hooks.json`](../hooks/hooks.json) runs
 [`scripts/sync-ambient.sh`](../scripts/sync-ambient.sh) from
-`$CLAUDE_PLUGIN_ROOT` and refreshes those files in `~/.claude`. The hook ships in
-the plugin, so nobody edits their own `settings.json` to get it.
+`$CLAUDE_PLUGIN_ROOT` and refreshes those files in `~/.claude/rules/`, where
+`CLAUDE.md` lands as `ai-workflows.md`. The hook ships in the plugin, so nobody
+edits their own `settings.json` to get it.
+
+`~/.claude/CLAUDE.md` stays yours. Plugin versions before this change wrote the
+baseline there; the first sync after the update deals with such a copy once. A
+copy nobody edited is removed, an edited copy is moved to
+`~/.claude/CLAUDE.md.ai-workflows-backup`, and the session says which happened.
+A `~/.claude/CLAUDE.md` without the baseline's opening line ("Use this setup as
+a universal Claude Code baseline across projects.") is never touched.
 
 It is gated on a digest of the files it delivers — `CLAUDE.md`, the universal
 rules, and the sync script itself — stamped in `$CLAUDE_PLUGIN_DATA`, which
@@ -178,9 +187,10 @@ reads that as "already applied" and skips the change forever — which is exactl
 the bug this replaced. Consequences worth knowing:
 
 - Sessions where the delivered files are byte-identical are a silent no-op.
-- A deliberate local edit to `~/.claude/CLAUDE.md` survives until the plugin
-  delivers different content, rather than being reverted at every session start —
-  a local edit does not change the source digest.
+- A deliberate local edit to `~/.claude/rules/ai-workflows.md` survives until
+  the plugin delivers different content, rather than being reverted at every
+  session start — a local edit does not change the source digest. Personal
+  instructions belong in `~/.claude/CLAUDE.md`, which no update overwrites.
 - When it does act, it says so in the session context — you are never silently
   running on refreshed rules.
 - A stale plugin still pins the ambient layer to older content. If `/plugin`

@@ -48,8 +48,8 @@ on their machine. What `/plugin` shows them then is **unconfirmed**.
 - Once the plugin runs, it behaves as it does today: it adds the
   `/greenberry:*` skills and runs its hooks from
   [`hooks/hooks.json`](../hooks/hooks.json), including the `SessionStart` hook
-  that writes `~/.claude/CLAUDE.md` and the universal rules into
-  `~/.claude/rules/` (see
+  that writes the baseline (`ai-workflows.md`) and the universal rules into
+  `~/.claude/rules/` and leaves `~/.claude/CLAUDE.md` alone (see
   [setup-machine.md](setup-machine.md#the-ambient-layer-updates-itself)).
 
 **Decided 2026-10-12 by the maintainer:** register the marketplace org-wide,
@@ -58,7 +58,8 @@ session of every member with no off switch, replaces everyone's
 `~/.claude/CLAUDE.md`, and a bad release reaches everyone at once, while
 server-managed settings offer no early-access channel and the automated
 release train has not proven itself yet. Revisit after a few clean automated
-releases and a one-week pilot with one or two teammates.
+releases and a one-week pilot with one or two teammates. (Since then the plugin
+no longer writes `~/.claude/CLAUDE.md`; the other reasons stand.)
 
 ## The JSON To Paste
 
@@ -266,8 +267,8 @@ adds this key next to `extraKnownMarketplaces`:
 `greenberry` is the entry `name` in `marketplace.json`, and managed `true`
 cannot be overridden by any other settings file. From then on every member gets
 the plugin, its hooks and the ambient layer at session start, cannot disable or
-uninstall it, and finds their own `~/.claude/CLAUDE.md` replaced the first time
-the plugin delivers different content. Tell the team before saving.
+uninstall it, and gets the baseline in `~/.claude/rules/ai-workflows.md`; their
+own `~/.claude/CLAUDE.md` stays theirs. Tell the team before saving.
 Verification then changes: `/plugin` lists `greenberry` at **Managed** scope.
 Rolling back means deleting this entry as well.
 

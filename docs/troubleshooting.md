@@ -12,12 +12,13 @@
 | The installed plugin lags `main` by many commits | Almost always a missing `"autoUpdate": true` on the marketplace entry in `~/.claude/settings.json` — `/plugin marketplace add` does not set it. Otherwise check the marketplace was added over SSH; HTTPS installs never auto-update. Until fixed, the ambient-layer hook is pinned to that stale version; `./scripts/sync.sh` overrides it in the meantime. |
 | `/greenberry:` shows nothing | Plugin not enabled — check `/plugin`, and `enabledPlugins` in the project's `.claude/settings.json`. |
 
-## Ambient Layer (`~/.claude/CLAUDE.md` And Rules)
+## Ambient Layer (`~/.claude/rules/`)
 
 | Symptom | Fix |
 | ------- | --- |
 | Rules look out of date and no hook message appeared | The hook is digest-gated: identical content is a silent no-op. If the content really should differ, the plugin is stale — see the row above, or run `./scripts/sync.sh` to apply immediately. |
-| A local edit to `~/.claude/CLAUDE.md` keeps surviving | Expected. Local edits persist until the plugin delivers *different* content, because the gate hashes the source, not the target. Run `./scripts/sync.sh` to force the repo version back. |
+| A local edit to `~/.claude/rules/ai-workflows.md` keeps surviving | Expected. Local edits persist until the plugin delivers *different* content, because the gate hashes the source, not the target. Run `./scripts/sync.sh` to force the repo version back. Personal instructions belong in `~/.claude/CLAUDE.md` instead. |
+| `~/.claude/CLAUDE.md.ai-workflows-backup` appeared | An earlier plugin version wrote its baseline into `~/.claude/CLAUDE.md`, and that copy had local edits, so the sync moved it aside instead of removing it. Copy anything personal back into `~/.claude/CLAUDE.md`, then delete the backup. |
 | A merged ambient change never arrives | The MR likely skipped the `plugin.json` version bump, so it landed in the previous version's cache directory. Check `/plugin`, then see [contributing.md](contributing.md#ship-a-plugin-release). |
 
 ## Project Sync

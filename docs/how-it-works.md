@@ -12,7 +12,7 @@ This is the main design constraint in the repo. Everything else follows from it.
 | Tool | What it reliably loads | Practical implication |
 | ---- | ---------------------- | --------------------- |
 | GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. Prompt files help, but are not guaranteed auto-context. |
-| Claude Code | `~/.claude/CLAUDE.md`, every file in `~/.claude/rules/`, and installed plugins | Global Claude rules must stay universal and slim. Skills and commands ship via the `greenberry` plugin. |
+| Claude Code | `~/.claude/CLAUDE.md`, every file in `~/.claude/rules/`, and installed plugins | Global Claude rules must stay universal and slim. The plugin delivers them to `~/.claude/rules/` (this repo's `CLAUDE.md` as `ai-workflows.md`) and leaves `~/.claude/CLAUDE.md` to the user. Skills and commands ship via the `greenberry` plugin. |
 | Codex | `AGENTS.md`, skills, and repo files it can inspect | `AGENTS.md` stays thin and points to the real project context. |
 | Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | Cursor follows project files well, and its rules folder can auto-apply a small adapter. |
 
