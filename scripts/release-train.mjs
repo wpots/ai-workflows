@@ -116,7 +116,19 @@ for (const name of ["CI_API_V4_URL", "CI_PROJECT_PATH", "CI_SERVER_HOST"]) {
   }
 }
 
-// 2. Cut the release on the release branch and push it.
+// 2. Commit as the token's own user. The project push rule "reject unverified
+// users" (commit_committer_check) refuses any committer email that is not a
+// verified email of the pusher, and a bot user's only verified address is the
+// one GitLab gave it — so the name and email come from the API, not from here.
+const me = await api("/user");
+
+if (!me.email) {
+  fail(
+    `the token's user '${me.username}' exposes no email; the push rule needs the ` +
+      "committer to be a verified email of that user",
+  );
+}
+
 run("git", ["checkout", "-q", "-B", BRANCH]);
 run(process.execPath, [ASSIGN, "--write"]);
 run("git", ["add", "CHANGELOG.md", ".claude-plugin/plugin.json"]);
@@ -129,9 +141,9 @@ for (const dir of ["changelog.d", BACKLOG_DIR]) {
 }
 run("git", [
   "-c",
-  "user.name=release-train",
+  `user.name=${me.name || me.username}`,
   "-c",
-  "user.email=release-train@ci.greenberry.nl",
+  `user.email=${me.email}`,
   "commit",
   "-q",
   "-m",
