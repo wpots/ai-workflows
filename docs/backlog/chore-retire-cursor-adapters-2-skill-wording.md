@@ -88,5 +88,6 @@ changes them.
 
 Depends on: chore-retire-cursor-adapters-1-stop-emitting.md
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/193
 - [chore-retire-cursor-adapters-1-stop-emitting.md](chore-retire-cursor-adapters-1-stop-emitting.md)
 - [chore-retire-cursor-adapters-3-docs.md](chore-retire-cursor-adapters-3-docs.md)
