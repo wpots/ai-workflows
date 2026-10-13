@@ -3,7 +3,7 @@
   routing eval cases and the branch adds a skill, changes a skill's `name`,
   `description` or `when_to_use`, or changes a routing case, the suite runs
   before the first push and the MR description carries one result line
-  (`Routing evals: 10/10 pass ($1.57, 2026-10-12)`). A failing case stops the MR
+  (`Routing evals: 10/10 pass ($1.81, 2026-10-13)`). A failing case stops the MR
   until it passes or the user accepts it; a run that cannot happen says
   `not run — <reason>` instead of a pass. The trigger test, the command and the
   result lines live in `evals/README.md` ("Before a skill MR"); the upstream MR

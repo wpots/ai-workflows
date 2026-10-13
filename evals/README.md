@@ -103,18 +103,19 @@ Anything else, such as a body edit, a reference file or a case without the
 
 **What it does.**
 
-1. A frontmatter edit to a skill with no routing cases does not run the suite
-   (the edit cannot affect it). The MR description gets
-   `Routing evals: <skill> has no routing cases`.
+1. A frontmatter edit to a skill with no routing cases does not run the suite,
+   because the suite has nothing to say about that skill. The MR description
+   gets `Routing evals: <skill> has no routing cases`, so the reviewer sees the
+   gap rather than a missing line.
 2. Otherwise it runs the routing suite from [Run](#run), without asking first.
-   `--max-cost-usd 3` is about twice what the ten cases cost ($1.57 on
-   2026-10-08), and about eight MRs a month trigger it. Run it once, on the
-   pre-flight before the first push; a later push that changes routing-relevant
-   files again runs it again, other pushes do not.
+   `--max-cost-usd 3` is about 1.7 times what the ten cases cost ($1.57 on
+   2026-10-08, $1.81 on 2026-10-13), and about eight MRs a month trigger it.
+   Run it once, on the pre-flight before the first push; a later push that
+   changes routing-relevant files again runs it again, other pushes do not.
 3. **All cases pass:** one line in the MR description, from the run's own
    numbers (`aggregates.casesPassed`, `aggregates.casesTotal` and `costUsd` in
    `evals/results/<run>/aggregate-result.json`):
-   `Routing evals: 10/10 pass ($1.57, 2026-10-12)`.
+   `Routing evals: 10/10 pass ($1.81, 2026-10-13)`.
 4. **A case fails:** stop before the push and name the case, the skill and the
    grader. Continue once the case passes, or once the user accepts the failure;
    an accepted failure goes into the MR description with the case name

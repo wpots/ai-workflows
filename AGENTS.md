@@ -197,11 +197,11 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
   with **no `--reviewer` flag** and let the human assign one. Never infer a
   reviewer from CODEOWNERS, repo members, or git history, and never assign the
   MR author; only pass `--reviewer` when the user named that person.
-- Before the MR opens, a branch that adds a skill, edits a skill's frontmatter or
-  edits a routing case runs the routing evals first: "Before a skill MR" in
-  `evals/README.md` of the `ai-workflows` checkout has the trigger test, the
-  command and the result line for the MR description. Other repos have no
-  routing cases, so this does nothing there.
+- Before the MR opens, a branch that adds a skill, changes a skill's `name`,
+  `description` or `when_to_use`, or changes a routing case runs the routing
+  evals first: "Before a skill MR" in `evals/README.md` of the `ai-workflows`
+  checkout has the trigger test, the command and the result line for the MR
+  description. Other repos have no routing cases, so this does nothing there.
 - Pass **both** `-R <canonical-repo>` and `-H <canonical-repo>` to
   `glab mr create`, and `-R` to every follow-up `glab mr update`/`view`. `-R`
   sets only the target; the head (source) project and the MR lookup still
