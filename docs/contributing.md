@@ -174,7 +174,20 @@ In a content MR:
    anywhere in it makes the release a MAJOR. Several MRs can each add their
    file without ever touching the same line; `validate-skills.mjs` rejects a
    misnamed or empty fragment.
-2. Leave [`CHANGELOG.md`](../CHANGELOG.md) and `.claude-plugin/plugin.json`
+2. When developers will notice the change, give its bullet a Slack note: one
+   continuation line `  <!-- slack: <Dutch one-liner> -->`, optionally
+   `<!-- slack: <onderdeel> | <one-liner> -->` when the bullet does not start
+   with the skill or file it changes. Only noted entries get a row in the
+   release post's table; the rest are counted under it, so leave internal
+   changes (validators, CI) without one. GitLab renders the comment
+   invisibly. Keep it under 120 characters; `validate-skills.mjs` errors on a
+   note that is not indented under its bullet.
+3. When developers must *do* something once after updating (delete a file,
+   re-run a skill), add a separate `changelog.d/action.<slug>.md` too. It
+   lands under `### Action required` and in its own "Eenmalig" block of the
+   post — full text, or its Slack note when it has one. It does not bump the
+   version on its own.
+4. Leave [`CHANGELOG.md`](../CHANGELOG.md) and `.claude-plugin/plugin.json`
    alone. (Entries that older MRs still wrote under `## [Unreleased]` are
    picked up by the next release too, so a half-migrated state is fine.)
 
@@ -194,11 +207,16 @@ that is always current, and merging it is the release decision.
   release MR?" has a standing answer: if there is something to release, the
   MR exists; merge it when you want the version out.
 - **`announce_release`** runs on the same pushes and posts only when the merge
-  changed the version in `.claude-plugin/plugin.json`: the `## [x.y.z]` section
-  as bullets (first sentence per entry, Dutch section labels) plus the update
-  reminder, to the `#development` Slack channel. `node
-  scripts/announce-release.mjs --dry-run --version x.y.z` shows the message a
-  version would get.
+  changed the version in `.claude-plugin/plugin.json`, to the `#development`
+  Slack channel, as Block Kit: an overview of what to do, the update steps,
+  a "Projecten syncen" block with the commands when the release changed a
+  file a project sync delivers (the set `project-sync-freshness.sh` digests,
+  diffed against the previous `release:` commit — hence `GIT_DEPTH 0` on this
+  job), the "Eenmalig" block from `action` fragments, and one table of the
+  noted changes (all entries by first sentence when none has a note). `node
+  scripts/announce-release.mjs --dry-run --version x.y.z` previews it as text,
+  `--json` prints the webhook payload, which [Block Kit
+  Builder](https://app.slack.com/block-kit-builder) renders.
 - **`publish_release`** acts on the same release merges: it tags the merge
   commit `vx.y.z` and creates the GitLab Release, whose notes are the
   `## [x.y.z]` section plus the backlog items the release archived. One call
@@ -266,8 +284,10 @@ the inference); commit `CHANGELOG.md`, `.claude-plugin/plugin.json`,
 train leaves an open hand-cut MR alone as long as its branch is not
 `release/next`, and goes quiet once it merges and `## [Unreleased]` is empty.
 
-The readers behind the three jobs (`scripts/changelog-sections.mjs`) and the
-backlog archive (`scripts/backlog-archive.mjs`) are covered by
+The readers behind the three jobs (`scripts/changelog-sections.mjs`), the
+backlog archive (`scripts/backlog-archive.mjs`), the Slack post
+(`scripts/release-announcement.mjs`) and its sync check
+(`scripts/project-sync-paths.mjs`) are covered by
 `scripts/test-release-automation.mjs`, which `validate-ai-instructions.sh` runs.
 
 ### The release archives the backlog
