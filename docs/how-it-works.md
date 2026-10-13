@@ -50,7 +50,7 @@ declared canonical source of each reusable workflow.
 | GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
 | Cursor | not supported; sync generates nothing for it | — |
 | Codex | `AGENTS.md` | skills first, commands as fallback |
-| Claude | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
+| Claude | `CLAUDE.md` (which imports `AGENTS.md` and `CONVENTIONS.md`) plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
 
 The repo is intentionally not “skills only.” Copilot still needs
 command-friendly runbooks. Claude is skills-first as of 2026-07 — the decision
@@ -167,7 +167,8 @@ setup with a clear split:
 
 - `CONVENTIONS.md` — project-owned source of truth
 - `AI-WORKFLOWS.md` — developer guide for how the setup works per tool
-- `CLAUDE.md`, `AGENTS.md` — thin adapters
+- `CLAUDE.md`, `AGENTS.md` — thin adapters; `AGENTS.md` is the one Codex and
+  Claude share, and `CLAUDE.md` imports it
 - `.github/copilot-instructions.md` — Copilot adapter with context inlined
 - `rules/`, `commands/` — shared baseline rules and runbooks
 - `.github/prompts/` — Copilot prompt wrappers generated from `commands/`

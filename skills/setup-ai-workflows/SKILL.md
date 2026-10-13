@@ -222,8 +222,8 @@ Use templates from `<ai-workflows>/templates/`:
 | File | Template | Strategy |
 |------|----------|----------|
 | `AI-WORKFLOWS.md` | `project-ai-workflows.md` | Reference guide — explains how each tool uses the synced files |
-| `CLAUDE.md` | `project-CLAUDE.md` | Reference — "read CONVENTIONS.md" |
-| `AGENTS.md` | `project-AGENTS.md` | Reference — "read CONVENTIONS.md" |
+| `AGENTS.md` | `project-AGENTS.md` | Reference — "read CONVENTIONS.md"; the one adapter every agent shares |
+| `CLAUDE.md` | `project-CLAUDE.md` | Import — `@AGENTS.md` and `@CONVENTIONS.md`, plus the Claude-specific lines |
 | `.github/copilot-instructions.md` | `project-copilot-instructions.md` | **Inline** — embed CONVENTIONS.md content plus condensed core rules (Copilot can't rely on file refs) |
 
 Cursor is not supported: generate nothing under `.cursor/`, and leave any
