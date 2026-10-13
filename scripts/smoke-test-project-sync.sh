@@ -16,6 +16,14 @@ assert_exists() {
   fi
 }
 
+assert_missing() {
+  local path="$1"
+  if [[ -e "$path" ]]; then
+    echo "Unexpected path: $path" >&2
+    exit 1
+  fi
+}
+
 assert_contains() {
   local path="$1"
   local pattern="$2"
@@ -56,7 +64,7 @@ assert_exists "$WITHOUT_CONVENTIONS/AI-WORKFLOWS.md"
 assert_exists "$WITHOUT_CONVENTIONS/CLAUDE.md"
 assert_exists "$WITHOUT_CONVENTIONS/AGENTS.md"
 assert_exists "$WITHOUT_CONVENTIONS/.github/copilot-instructions.md"
-assert_exists "$WITHOUT_CONVENTIONS/.cursor/rules/conventions.mdc"
+assert_missing "$WITHOUT_CONVENTIONS/.cursor"
 assert_exists "$WITHOUT_CONVENTIONS/rules"
 assert_exists "$WITHOUT_CONVENTIONS/commands"
 assert_exists "$WITHOUT_CONVENTIONS/.github/prompts"
@@ -94,7 +102,7 @@ assert_exists "$WITH_CONVENTIONS/AI-WORKFLOWS.md"
 assert_exists "$WITH_CONVENTIONS/CLAUDE.md"
 assert_exists "$WITH_CONVENTIONS/AGENTS.md"
 assert_exists "$WITH_CONVENTIONS/.github/copilot-instructions.md"
-assert_exists "$WITH_CONVENTIONS/.cursor/rules/conventions.mdc"
+assert_missing "$WITH_CONVENTIONS/.cursor"
 assert_exists "$WITH_CONVENTIONS/rules"
 assert_exists "$WITH_CONVENTIONS/commands"
 assert_exists "$WITH_CONVENTIONS/.github/prompts"
@@ -103,6 +111,15 @@ assert_exists "$WITH_CONVENTIONS/.github/prompts/scaffold-component.prompt.md"
 assert_contains "$WITH_CONVENTIONS/.github/copilot-instructions.md" "Smoke test project"
 assert_contains "$WITH_CONVENTIONS/AI-WORKFLOWS.md" "Shared Workflow Assets"
 assert_prompt_alignment "$WITH_CONVENTIONS"
+
+echo "Smoke test: .cursor/ files from an earlier sync are left alone"
+WITH_CURSOR="$TMP_DIR/with-cursor"
+mkdir -p "$WITH_CURSOR/.cursor/rules"
+echo '{ "name": "sync-smoke-with-cursor", "private": true }' > "$WITH_CURSOR/package.json"
+echo "earlier sync" > "$WITH_CURSOR/.cursor/rules/conventions.mdc"
+"$SYNC_SCRIPT" --project "$WITH_CURSOR" >/dev/null
+assert_contains "$WITH_CURSOR/.cursor/rules/conventions.mdc" "earlier sync"
+assert_missing "$WITH_CURSOR/.cursor/rules/graphify.mdc"
 
 # --- Freshness stamp + SessionStart hook ---
 

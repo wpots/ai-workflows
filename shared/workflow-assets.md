@@ -5,5 +5,4 @@
 - `AGENTS.md`
 - `CLAUDE.md`
 - `.github/copilot-instructions.md`
-- `.cursor/rules/**`
 - `.claude/settings.json`

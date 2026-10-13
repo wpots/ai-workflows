@@ -17,7 +17,6 @@ When `CONVENTIONS.md` conflicts with synced baseline rules, `CONVENTIONS.md` win
 | GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. `.github/prompts/*.prompt.md` are attachable helpers, not guaranteed auto-context. |
 | Claude Code | Global `~/.claude/CLAUDE.md` and `~/.claude/rules/*.md`, the `greenberry` plugin (auto-registered via `.claude/settings.json`), plus project files when present | Global Claude rules must stay universal. Skills/commands come from the plugin and auto-update. Project-specific context belongs in `CONVENTIONS.md`, this guide, and project adapters. |
 | Codex | `AGENTS.md` plus repo files it can inspect | `AGENTS.md` is the thin adapter; deeper project context lives in `CONVENTIONS.md`, `rules/`, and `commands/`. |
-| Cursor | `AGENTS.md` and `.cursor/rules/*.md` | Not used by the Greenberry team. `.cursor/rules/conventions.mdc` is still generated and points back to `CONVENTIONS.md` and `rules/`, but it gets no further work. |
 
 ## Workflow Surface Strategy
 
@@ -47,7 +46,7 @@ Use this as the intended model inside synced projects:
 | Tool | Preferred workflow surface |
 | ---- | -------------------------- |
 | GitHub Copilot | commands/runbooks |
-| Cursor | not used by the team; no workflow surface is maintained for it |
+| Cursor | not supported; sync generates nothing for it, and `.cursor/` files from earlier syncs are left as they are |
 | Codex | skills first, commands as fallback |
 | Claude Code | skills first (via the `greenberry` plugin, e.g. `/greenberry:create-pr`), commands as fallback |
 
@@ -103,7 +102,6 @@ Examples:
 
 Per tool:
 
-- Cursor: `.cursor/rules/conventions.mdc` always applies, but focused rule files are still topic-based.
 - Claude Code: project `CLAUDE.md` points to `rules/`, but mentioning the specific rule in the prompt gives the strongest signal.
 - Codex: `AGENTS.md` points to the local files, and explicitly naming a focused rule is still helpful for narrow tasks.
 - Copilot: assume only `.github/copilot-instructions.md` is ambient. If a focused rule matters, name it in the prompt or work from the matching prompt/runbook.
@@ -119,9 +117,8 @@ For workflows:
 - `CONVENTIONS.md`: project-specific stack, structure, scripts, and deviations from the shared baseline
 - `AI-WORKFLOWS.md`: this guide
 - `CLAUDE.md`: Claude-facing thin adapter
-- `AGENTS.md`: Codex/Cursor-facing thin adapter
+- `AGENTS.md`: Codex-facing thin adapter
 - `.github/copilot-instructions.md`: Copilot-facing adapter with `CONVENTIONS.md` and condensed baseline rules inlined
-- `.cursor/rules/conventions.mdc`: Cursor auto-applied conventions adapter
 - `rules/`: synced shared coding standards
 - `commands/`: synced workflow runbooks
 - `.github/prompts/`: Copilot prompt wrappers generated from `commands/`
@@ -160,9 +157,9 @@ shaped outside the list costs a human approval and blocks autonomous runs.
 - Machine-level CLIs (`glab`, `jira`, `dotenvx`) are installed and
   authenticated once per developer — `commands/new-device-setup.md` covers
   install + auth.
-- Project-level MCP servers live in `.mcp.json` (checked in, env-var-based)
-  with a `.cursor/mcp.json` mirror; `setup-ai-workflows` emits both and documents
-  them in the `## Tooling` section of `CONVENTIONS.md`.
+- Project-level MCP servers live in `.mcp.json` (checked in, env-var-based);
+  `setup-ai-workflows` emits it and documents the servers in the `## Tooling`
+  section of `CONVENTIONS.md`.
 - Doctrine — CLI for scriptable/headless work; available browser control
   for one-off UI checks (`rules/testing.md`); MCP for browser fallback,
   design context, and OAuth SaaS. Full table: `docs/tooling.md` in

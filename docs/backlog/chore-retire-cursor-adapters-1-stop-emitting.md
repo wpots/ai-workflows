@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+done
 
 Go given by the maintainer on 2026-10-13, with the safe default for files
 projects already hold: leave them. Background: the team uses Claude and Codex
@@ -73,7 +73,23 @@ setup and the templates touches one adapter fewer.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `bash scripts/smoke-test-project-sync.sh` → "Project sync smoke test
+      passed". Both fixture projects get no `.cursor/` directory, and the new
+      scenario ".cursor/ files from an earlier sync are left alone" keeps a
+      pre-existing `.cursor/rules/conventions.mdc` unchanged and writes no
+      `graphify.mdc` next to it.
+- [x] The same smoke test against `main`'s `sync.sh` fails:
+      `Unexpected path: …/no-conventions/.cursor`, exit 1.
+- [x] `rg -n "SRC_CURSOR|TARGET_CURSOR|\.cursor" scripts/sync.sh` prints
+      nothing (exit 1): no project or global Cursor target is left.
+- [x] `rg -n -i cursor rules commands shared templates scripts/sync.sh scripts/project-sync-freshness.sh`
+      (excluding the smoke test) lists only the three "not supported" lines in
+      `commands/setup-ai-workflows.md` and `templates/project-ai-workflows.md`.
+- [x] `scripts/project-sync-freshness.sh --digest` gives `246557818 303315` on
+      `main` and `3095625998 299288` on this branch: one digest change, so each
+      synced project gets one re-sync prompt for the whole retirement.
+- [x] `bash scripts/validate-ai-instructions.sh` (the pre-commit hook) passes:
+      38 skills, 93 docs link-checked, adapters regenerated with no drift.
 
 ## Technical Notes
 
@@ -121,6 +137,7 @@ again.
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/188
 - [chore-retire-cursor-adapters-2-skill-wording.md](chore-retire-cursor-adapters-2-skill-wording.md)
 - [chore-retire-cursor-adapters-3-docs.md](chore-retire-cursor-adapters-3-docs.md)
 - [../skills-first-migration-plan.md](../skills-first-migration-plan.md) — the
@@ -129,3 +146,6 @@ again.
 - [../../scripts/sync.sh](../../scripts/sync.sh)
 - [../../scripts/project-sync-freshness.sh](../../scripts/project-sync-freshness.sh)
 - [../../skills/setup-ai-workflows/SKILL.md](../../skills/setup-ai-workflows/SKILL.md)
+- Also changed: the Cursor row of the tool support matrix in
+  `docs/skills-first-migration-plan.md`, which stated as current fact that the
+  adapters are still generated.

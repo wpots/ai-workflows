@@ -6,7 +6,7 @@ description: "Refinement Runbook"
 # Refinement Runbook
 
 Canonical runbook for preparing and recording a backlog refinement. The
-`refinement` skill on skill-aware tools (Claude, Codex, Cursor) wraps this
+`refinement` skill on skill-aware tools (Claude, Codex) wraps this
 runbook; Copilot and other prompt-first tools should follow these steps
 directly.
 

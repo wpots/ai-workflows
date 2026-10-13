@@ -53,7 +53,7 @@ Tool support target:
 | Tool | Always-on entry point | Workflow strategy |
 | --- | --- | --- |
 | GitHub Copilot | `.github/copilot-instructions.md` | command/runbook-first, no skills dependency |
-| Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | not used by the team; adapters generated, no further work (2026-10-08) |
+| Cursor | none | not supported (2026-10-08); sync stopped generating its adapters (2026-10-13) |
 | Codex | `AGENTS.md` | skill-first where possible, commands as fallback |
 | Claude | `CLAUDE.md` plus global/project rules | skill-first via the `greenberry` plugin, commands as fallback (decided 2026-07-27) |
 
