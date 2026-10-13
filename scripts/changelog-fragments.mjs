@@ -6,25 +6,44 @@
 // 2026-10-07 alone. A file per change never conflicts (towncrier / changesets
 // pattern).
 //
-// File name: changelog.d/<section>.<slug>.md — section is one of SECTION_ORDER
-// in lowercase, slug is [a-z0-9-]. Content: one or more `- ` bullets, exactly
-// as they would read under the `### <Section>` heading, continuation lines
-// indented by two spaces. The word BREAKING anywhere makes the release a MAJOR.
+// File name: changelog.d/<section>.<slug>.md — section is a key of
+// FRAGMENT_SECTIONS, slug is [a-z0-9-]. Content: one or more `- ` bullets,
+// exactly as they would read under the `### <Section>` heading, continuation
+// lines indented by two spaces. The word BREAKING anywhere makes the release a
+// MAJOR.
+//
+// `action` is our one addition to Keep a Changelog: something a developer has
+// to do once after updating (delete a file, re-run a skill). It lands under
+// `### Action required` and gets its own block in the Slack announcement.
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-/** Keep a Changelog order; also the order sections are rendered in. */
-export const SECTION_ORDER = ["Added", "Changed", "Deprecated", "Removed", "Fixed", "Security"];
+/** Fragment file prefix -> `### <Section>` heading. */
+export const FRAGMENT_SECTIONS = {
+  action: "Action required",
+  added: "Added",
+  changed: "Changed",
+  deprecated: "Deprecated",
+  removed: "Removed",
+  fixed: "Fixed",
+  security: "Security",
+};
 
-export const FRAGMENT_FILE = /^(added|changed|deprecated|removed|fixed|security)\.([a-z0-9][a-z0-9-]*)\.md$/;
+/** Keep a Changelog order, actions first; also the order sections are rendered in. */
+export const SECTION_ORDER = Object.values(FRAGMENT_SECTIONS);
+
+export const FRAGMENT_FILE = new RegExp(
+  `^(${Object.keys(FRAGMENT_SECTIONS).join("|")})\\.([a-z0-9][a-z0-9-]*)\\.md$`,
+);
 
 export const FRAGMENT_HINT =
-  "name it changelog.d/<added|changed|deprecated|removed|fixed|security>.<slug>.md and start it with a '- ' bullet";
+  `name it changelog.d/<${Object.keys(FRAGMENT_SECTIONS).join("|")}>.<slug>.md ` +
+  "and start it with a '- ' bullet";
 
 function sectionFromFile(name) {
   const match = FRAGMENT_FILE.exec(name);
-  return match ? match[1][0].toUpperCase() + match[1].slice(1) : null;
+  return match ? FRAGMENT_SECTIONS[match[1]] : null;
 }
 
 /**

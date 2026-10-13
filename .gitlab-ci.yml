@@ -47,5 +47,9 @@ publish_release:
 # changed the plugin version, i.e. when a release MR merged.
 announce_release:
   extends: .release_job
+  # Full history: the post says whether projects need a re-sync, by diffing the
+  # synced files against the previous release (scripts/project-sync-paths.mjs).
+  variables:
+    GIT_DEPTH: "0"
   script:
     - node scripts/announce-release.mjs

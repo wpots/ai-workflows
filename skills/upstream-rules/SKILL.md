@@ -156,7 +156,12 @@ Three things about committing here, each of which costs a wasted cycle otherwise
 A change to a `shared/*.md` fragment or anything else the plugin ships also needs
 a changelog fragment `changelog.d/<section>.<slug>.md`, and must **not** touch
 `CHANGELOG.md` or the `version` in `.claude-plugin/plugin.json` — see
-[references/upstream-mr.md](references/upstream-mr.md).
+[references/upstream-mr.md](references/upstream-mr.md). When developers will
+notice the change, end its bullet with a continuation line
+`  <!-- slack: <Dutch one-liner> -->`: only noted entries get a row in the
+`#development` release post. When they must do something once after updating
+(delete a file, re-run a skill), add a `changelog.d/action.<slug>.md` as well.
+`docs/contributing.md` § Ship A Plugin Release has the details.
 
 ### 5. Create the GitLab MR and capture its approval link
 

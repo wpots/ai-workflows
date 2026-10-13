@@ -3,11 +3,15 @@
 // has merged. Runs in CI on every push to main (see .gitlab-ci.yml
 // `announce_release`): it posts only when the commit changed the version in
 // .claude-plugin/plugin.json against its first parent, so content merges stay
-// silent. Without SLACK_WEBHOOK_URL it prints the message and exits 0.
+// silent. Without SLACK_WEBHOOK_URL it prints the message and exits 0. The
+// message itself is built by scripts/release-announcement.mjs; whether it asks
+// for a project sync comes from scripts/project-sync-paths.mjs, which needs the
+// history back to the previous release (the CI job clones with GIT_DEPTH 0).
 //
 // Usage (local):
 //   node scripts/announce-release.mjs --dry-run                 # HEAD must be a release commit
 //   node scripts/announce-release.mjs --dry-run --version 2.5.0 # render any released version
+//   node scripts/announce-release.mjs --dry-run --json ...      # the webhook payload instead
 //
 // Environment:
 //   SLACK_WEBHOOK_URL  incoming webhook of the channel (#development)
@@ -17,7 +21,9 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { renderAnnouncement, sectionBody } from "./changelog-sections.mjs";
+import { sectionBody, sectionDate } from "./changelog-sections.mjs";
+import { changedSyncPaths, releaseRange } from "./project-sync-paths.mjs";
+import { buildAnnouncement, toPlainMrkdwn } from "./release-announcement.mjs";
 import { headIsRelease } from "./release-commit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -26,6 +32,7 @@ const MANIFEST = join(ROOT, ".claude-plugin", "plugin.json");
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
+const asJson = args.includes("--json");
 const versionFlag = args.includes("--version") ? args[args.indexOf("--version") + 1] : null;
 const env = process.env;
 const projectUrl = env.CI_PROJECT_URL || "https://gitlab.com/greenberrynl/config/ai-workflows";
@@ -50,16 +57,30 @@ if (!versionFlag) {
   }
 }
 
-const body = sectionBody(readFileSync(CHANGELOG, "utf8"), version);
+const changelog = readFileSync(CHANGELOG, "utf8");
+const body = sectionBody(changelog, version);
 
 if (body === null) {
   fail(`CHANGELOG.md has no '## [${version}]' section to announce`);
 }
 
-const message = renderAnnouncement({ version, body, projectUrl });
+const range = releaseRange(ROOT, version, { atHead: !versionFlag });
+const syncPaths = range ? changedSyncPaths(ROOT, range) : null;
+
+if (syncPaths === null) {
+  console.log("⚠ Previous release not in reach, so the post says nothing about a project sync.");
+}
+
+const payload = buildAnnouncement({
+  version,
+  date: sectionDate(changelog, version),
+  body,
+  projectUrl,
+  syncPaths,
+});
 
 if (dryRun) {
-  console.log(message);
+  console.log(asJson ? JSON.stringify(payload, null, 2) : toPlainMrkdwn(payload));
   process.exit(0);
 }
 
@@ -68,14 +89,14 @@ if (!env.SLACK_WEBHOOK_URL) {
     "SLACK_WEBHOOK_URL is not set, so nothing was posted. Add the #development incoming " +
       "webhook as a masked CI/CD variable, or paste this by hand:\n",
   );
-  console.log(message);
+  console.log(toPlainMrkdwn(payload));
   process.exit(0);
 }
 
 const response = await fetch(env.SLACK_WEBHOOK_URL, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ text: message }),
+  body: JSON.stringify(payload),
 });
 
 if (!response.ok) {

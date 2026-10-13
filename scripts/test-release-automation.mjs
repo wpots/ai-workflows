@@ -20,13 +20,22 @@ import {
   renderStatus,
 } from "./backlog-archive.mjs";
 import {
+  FRAGMENT_FILE,
   groupUnreleased,
   inferBump,
   mergeGroups,
   readFragments,
   renderSections,
 } from "./changelog-fragments.mjs";
-import { entries, firstSentence, renderAnnouncement, sectionBody } from "./changelog-sections.mjs";
+import { entries, firstSentence, sectionBody, sectionDate } from "./changelog-sections.mjs";
+import { changedSyncPaths, PROJECT_SYNC_PATHSPECS, releaseRange } from "./project-sync-paths.mjs";
+import {
+  buildAnnouncement,
+  changeRows,
+  splitLead,
+  syncLabels,
+  toPlainMrkdwn,
+} from "./release-announcement.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -105,19 +114,189 @@ test("firstSentence skips periods inside backticks and after abbreviations", () 
   assert.equal(firstSentence("no period at all"), "no period at all");
 });
 
-test("renderAnnouncement labels sections in Dutch, caps the bullets and links the docs", () => {
-  const message = renderAnnouncement({
-    version: "1.2.0",
-    body: sectionBody(FIXTURE, "Unreleased"),
-    projectUrl: "https://gitlab.example/p",
-    maxBullets: 1,
+const NOTED = `## [2.0.0] - 2026-10-12
+
+### Action required
+
+- Delete \`.claude/skills/verify/SKILL.md\` and re-sync, see [the doc](https://x.example/d).
+- Re-run setup.
+  <!-- slack: Draai \`setup-ai-workflows\` opnieuw voor de <Hosting>-sectie -->
+
+### Added
+
+- \`skills/one\`, \`skills/two\` — adds things. More.
+  <!-- slack: Doet nieuwe dingen -->
+- \`skills/quiet\` — internal only.
+
+### Fixed
+
+- Browser checks pick a tool by purpose.
+  <!-- slack: browserverificatie | Kiest de tool op doel -->
+`;
+
+const PROJECT = "https://gitlab.example/p";
+
+function blocksOf(type, payload) {
+  return payload.blocks.filter((block) => block.type === type);
+}
+
+function headers(payload) {
+  return blocksOf("header", payload).map((block) => block.text.text);
+}
+
+test("entries lifts the slack note out of the entry text", () => {
+  const found = entries(sectionBody(NOTED, "2.0.0"));
+  assert.equal(found[1].text, "Re-run setup.");
+  assert.equal(found[1].slack, "Draai `setup-ai-workflows` opnieuw voor de <Hosting>-sectie");
+  assert.equal(found[3].slack, null);
+
+  const quoted = entries("- Adds a `<!-- slack: x -->` line.\n  More prose.");
+  assert.deepEqual(quoted, [{ section: null, text: "Adds a `<!-- slack: x -->` line. More prose.", slack: null }]);
+
+  assert.equal(sectionDate(NOTED, "2.0.0"), "2026-10-12");
+  assert.equal(sectionDate(NOTED, "9.9.9"), null);
+});
+
+test("splitLead names the leading skill and command paths, nothing else", () => {
+  assert.deepEqual(splitLead("`skills/one`, `skills/two/references/x.md` — adds."), {
+    component: "one, two",
+    rest: "adds.",
   });
-  assert.ok(message.startsWith(":package: *greenberry plugin 1.2.0*"));
-  assert.ok(message.includes("• Nieuw: `skills/one` — does the first thing (e.g. this)."));
-  assert.ok(message.includes("_+ 1 meer in de changelog_"));
-  assert.ok(message.includes("/plugin marketplace update ai-workflows"));
-  assert.ok(message.includes("<https://gitlab.example/p/-/blob/main/CHANGELOG.md|CHANGELOG.md>"));
-  assert.ok(!message.includes("Fix: `scripts/two.mjs`"));
+  assert.deepEqual(splitLead("`commands/create-pr.md` and `CLAUDE.md` — changed."), {
+    component: "create-pr, CLAUDE.md",
+    rest: "changed.",
+  });
+  assert.deepEqual(splitLead("Browser checks — pick a tool."), { component: null, rest: "Browser checks — pick a tool." });
+  assert.equal(splitLead("`skills/one` adds things without a dash.").component, null);
+});
+
+test("changeRows shows only noted entries, counts the rest, and honours an explicit component", () => {
+  const { rows, rest } = changeRows(sectionBody(NOTED, "2.0.0"));
+  assert.deepEqual(rows, [
+    { type: "✨ Nieuw", component: "one, two", text: "Doet nieuwe dingen" },
+    { type: "🐛 Fix", component: "browserverificatie", text: "Kiest de tool op doel" },
+  ]);
+  assert.equal(rest, 1);
+});
+
+test("changeRows falls back to the first sentence of every entry when no entry has a note", () => {
+  const { rows, rest } = changeRows(sectionBody(FIXTURE, "Unreleased"), 15, 1);
+  assert.deepEqual(rows, [{ type: "✨ Nieuw", component: "one", text: "Does the first thing (e.g. this)." }]);
+  assert.equal(rest, 1);
+});
+
+test("syncLabels puts the adapters first, then rules, commands and the sync script", () => {
+  assert.deepEqual(
+    syncLabels(["commands/a.md", "rules/b.md", "scripts/sync.sh", "shared/c.md", "templates/project-CLAUDE.md"]),
+    [
+      "de project-adapters (`CLAUDE.md`, `AGENTS.md`, Copilot)",
+      "`rules/b.md`",
+      "`commands/a.md`",
+      "het sync-script",
+    ],
+  );
+  assert.deepEqual(syncLabels(["rules/a.md", "rules/b.md", "rules/c.md"], 2), ["`rules/a.md`", "`rules/b.md`", "+ 1 meer"]);
+});
+
+test("buildAnnouncement with a sync: sync block, escaped commands, actions, one table", () => {
+  const payload = buildAnnouncement({
+    version: "2.0.0",
+    date: "2026-10-12",
+    body: sectionBody(NOTED, "2.0.0"),
+    projectUrl: PROJECT,
+    syncPaths: ["rules/testing.md"],
+  });
+  const text = toPlainMrkdwn(payload);
+
+  assert.equal(payload.text, "📦 greenberry plugin 2.0.0 staat klaar: plugin updaten en projecten syncen.");
+  assert.deepEqual(headers(payload), [
+    "📦 greenberry plugin 2.0.0",
+    "🔄 Plugin updaten",
+    "🗂️ Projecten syncen",
+    "⚠️ Eenmalig",
+    "✨ Wat is er nieuw",
+  ]);
+  assert.equal(blocksOf("table", payload).length, 1);
+  assert.ok(text.includes("ai-workflows · 12 okt 2026"));
+  assert.ok(text.includes("*Projecten syncen*: ✅ Nodig, zie hieronder"));
+  assert.ok(text.includes("*Eenmalige actie*: ⚠️ 2 punten, zie hieronder"));
+  assert.ok(text.includes("Gewijzigd in wat een project krijgt: `rules/testing.md`."));
+  assert.ok(text.includes("git checkout main &amp;&amp; git pull --ff-only"));
+  assert.ok(text.includes("--project ~/Web/&lt;project&gt;"));
+  assert.ok(text.includes("• Delete `.claude/skills/verify/SKILL.md` and re-sync, see <https://x.example/d|the doc>."));
+  assert.ok(text.includes("• Draai `setup-ai-workflows` opnieuw voor de &lt;Hosting&gt;-sectie"));
+  assert.ok(text.includes("• ✨ Nieuw · `one, two` — Doet nieuwe dingen"));
+  assert.ok(text.includes(`+ 1 andere wijziging · <${PROJECT}/-/blob/main/CHANGELOG.md|Volledige changelog>`));
+});
+
+test("buildAnnouncement without a sync, and with an unknown one", () => {
+  const quiet = buildAnnouncement({ version: "1.2.0", body: sectionBody(FIXTURE, "1.2.0"), projectUrl: PROJECT, syncPaths: [] });
+  assert.ok(!headers(quiet).includes("🗂️ Projecten syncen"));
+  assert.ok(!headers(quiet).includes("⚠️ Eenmalig"));
+  assert.ok(toPlainMrkdwn(quiet).includes("*Projecten syncen*: ➖ Niet nodig deze keer"));
+  assert.ok(toPlainMrkdwn(quiet).includes("Deze keer: *de plugin updaten*."));
+
+  const unknown = buildAnnouncement({ version: "1.2.0", body: sectionBody(FIXTURE, "1.2.0"), projectUrl: PROJECT, syncPaths: null });
+  assert.ok(
+    toPlainMrkdwn(unknown).includes("*Projecten syncen*: ❔ Zeg ja als Claude meldt dat de project sync stale is"),
+  );
+});
+
+test("PROJECT_SYNC_PATHSPECS is the set project-sync-freshness.sh digests", () => {
+  const script = readFileSync(join(ROOT, "scripts", "project-sync-freshness.sh"), "utf8");
+  const templates = /ADAPTER_TEMPLATES=\(([^)]*)\)/.exec(script)[1].split(/\s+/).filter(Boolean);
+  const dirs = [...script.matchAll(/"\$SOURCE_DIR\/([a-z]+)"/g)].map((match) => match[1]);
+  const scripts = [...script.matchAll(/cat "\$SOURCE_DIR\/(scripts\/[^"]+)"/g)].map((match) => match[1]);
+
+  const byName = (a, b) => a.localeCompare(b);
+  assert.deepEqual(
+    [...PROJECT_SYNC_PATHSPECS].sort(byName),
+    [...dirs, ...templates.map((name) => `templates/${name}`), ...scripts].sort(byName),
+  );
+});
+
+test("releaseRange and changedSyncPaths diff the synced files between two releases", () => {
+  const repo = mkdtempSync(join(tmpdir(), "release-range-"));
+  const git = (...args) =>
+    execFileSync("git", ["-c", "user.name=t", "-c", "user.email=t@example.com", ...args], {
+      cwd: repo,
+      encoding: "utf8",
+    });
+  const commit = (file, message) => {
+    mkdirSync(dirname(join(repo, file)), { recursive: true });
+    writeFileSync(join(repo, file), `${message}\n`);
+    git("add", "-A");
+    git("commit", "-q", "-m", message);
+  };
+
+  git("init", "-q");
+  commit("rules/a.md", "release: 1.0.0");
+  commit("rules/a.md", "change a rule");
+  commit("skills/x/SKILL.md", "change a skill");
+  commit("templates/project-CLAUDE.md", "change an adapter");
+  commit("CHANGELOG.md", "release: 1.1.0");
+
+  const expected = ["rules/a.md", "templates/project-CLAUDE.md"];
+  assert.deepEqual(changedSyncPaths(repo, releaseRange(repo, "1.1.0", { atHead: true })), expected);
+
+  commit("skills/x/SKILL.md", "after the release");
+  assert.deepEqual(changedSyncPaths(repo, releaseRange(repo, "1.1.0")), expected);
+  assert.equal(releaseRange(repo, "1.0.0"), null);
+  rmSync(repo, { recursive: true });
+});
+
+test("an action fragment lands under Action required, first, and does not bump on its own", () => {
+  assert.ok(FRAGMENT_FILE.test("action.delete-verify.md"));
+  const dir = mkdtempSync(join(tmpdir(), "fragments-action-"));
+  writeFileSync(join(dir, "action.delete-verify.md"), "- delete it.\n");
+  writeFileSync(join(dir, "fixed.bug.md"), "- a fix.\n");
+
+  const { fragments, errors } = readFragments(dir);
+  assert.deepEqual(errors, []);
+  const groups = mergeGroups(new Map(), fragments);
+  assert.equal(inferBump(groups), "patch");
+  assert.equal(renderSections(groups), "### Action required\n\n- delete it.\n\n### Fixed\n\n- a fix.\n");
+  rmSync(dir, { recursive: true });
 });
 
 test("readFragments parses well-named bullet files, reports the rest, tolerates a missing dir", () => {
@@ -292,4 +471,7 @@ test("the real repo parses: 2.5.0 has entries, Unreleased is readable, fragments
   assert.ok(entries(released).length >= 5);
   assert.notEqual(sectionBody(changelog, "Unreleased"), null);
   assert.deepEqual(readFragments(join(ROOT, "changelog.d")).errors, []);
+
+  const announced = buildAnnouncement({ version: "2.5.0", body: released, projectUrl: PROJECT, syncPaths: null });
+  assert.equal(blocksOf("table", announced).length, 1);
 });

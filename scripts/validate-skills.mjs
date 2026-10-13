@@ -892,6 +892,17 @@ for (const rel of tracked) {
   if (!read(rel).trim().startsWith("- ")) {
     err(rel, `changelog fragment has no leading bullet: ${FRAGMENT_HINT}`);
   }
+  // The Slack announcement reads a note only as a continuation line of its
+  // bullet; anywhere else it is silently dropped from the post.
+  for (const [index, line] of read(rel).split("\n").entries()) {
+    if (!/^\s*<!-- ?slack:/.test(line)) continue;
+    const note = /^ {2,}<!-- ?slack: ?(.+?) ?-->$/.exec(line);
+    if (!note) {
+      err(rel, `line ${index + 1}: put a slack note on its own line under its bullet: '  <!-- slack: <one-liner> -->'`);
+    } else if (note[1].length > 120) {
+      warn(rel, `line ${index + 1}: slack note is ${note[1].length} chars; keep the table row under 120`);
+    }
+  }
 }
 
 // ── "Enforced by nothing" ratchet ────────────────────────────────────────────

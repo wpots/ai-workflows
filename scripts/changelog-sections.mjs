@@ -4,16 +4,13 @@
 //
 // The changelog follows Keep a Changelog: one `## [x.y.z] - date` heading per
 // release, `### Added` / `### Changed` / … underneath, one `- ` entry per
-// change, continuation lines indented by two spaces.
+// change, continuation lines indented by two spaces. An entry may carry one
+// `<!-- slack: … -->` continuation line: the Dutch one-liner the Slack
+// announcement shows for it (scripts/release-announcement.mjs). GitLab renders
+// the comment invisibly, so CHANGELOG.md reads the same with or without it.
 
-const SECTION_LABELS = {
-  Added: "Nieuw",
-  Changed: "Gewijzigd",
-  Fixed: "Fix",
-  Removed: "Verwijderd",
-  Deprecated: "Deprecated",
-  Security: "Security",
-};
+// A line of its own, so prose that quotes the syntax inline is not a note.
+const SLACK_NOTE = /^ +<!-- ?slack: ?(.+?) ?-->$/;
 
 const ABBREVIATIONS = /(?:^|[\s(])(?:e\.g|i\.e|vs|etc|cf|resp)$/i;
 
@@ -42,7 +39,11 @@ export function sectionBody(changelog, heading) {
   return changelog.slice(after, next === -1 ? changelog.length : next).trim();
 }
 
-/** `[{ section, text }]` — every `- ` entry of a section body, joined to one line. */
+/**
+ * `[{ section, text, slack }]` — every `- ` entry of a section body, joined to
+ * one line; `slack` is its `<!-- slack: … -->` note line (or null), which
+ * stays out of `text`.
+ */
 export function entries(body) {
   const out = [];
   let section = null;
@@ -50,7 +51,7 @@ export function entries(body) {
 
   const flush = () => {
     if (current) {
-      out.push({ section: current.section, text: current.lines.join(" ") });
+      out.push({ section: current.section, text: current.lines.join(" "), slack: current.slack });
       current = null;
     }
   };
@@ -66,7 +67,14 @@ export function entries(body) {
 
     if (line.startsWith("- ")) {
       flush();
-      current = { section, lines: [line.slice(2).trim()] };
+      current = { section, lines: [line.slice(2).trim()], slack: null };
+      continue;
+    }
+
+    const note = current && SLACK_NOTE.exec(line);
+
+    if (note) {
+      current.slack = note[1];
       continue;
     }
 
@@ -111,35 +119,12 @@ export function firstSentence(text) {
   return text;
 }
 
-/**
- * The Slack (mrkdwn) announcement for a released version: the update
- * reminder, then one bullet per changelog entry, capped.
- */
-export function renderAnnouncement({ version, body, projectUrl, maxBullets = 10 }) {
-  const all = entries(body);
-  const shown = all.slice(0, maxBullets);
-  const bullets = shown.map((entry) => {
-    const label = SECTION_LABELS[entry.section] ?? entry.section ?? "Wijziging";
-    return `• ${label}: ${firstSentence(entry.text)}`;
-  });
-  const rest = all.length - shown.length;
+/** The release date from `## [<version>] - <date>`, or null. */
+export function sectionDate(changelog, version) {
+  const match = new RegExp(
+    `^## \\[${escapeRegExp(version)}\\] - (\\d{4}-\\d{2}-\\d{2})\\s*$`,
+    "m",
+  ).exec(changelog);
 
-  if (rest > 0) {
-    bullets.push(`_+ ${rest} meer in de changelog_`);
-  }
-
-  return [
-    `:package: *greenberry plugin ${version}* staat klaar (ai-workflows). Even updaten, anders draai je op oude skills en rules.`,
-    "",
-    "*Updaten*",
-    "`/plugin marketplace update ai-workflows` en daarna `/reload-plugins`; check met `/plugin` dat greenberry op " +
-      `${version} staat. Loopt hij achter? Dan mist meestal \`"autoUpdate": true\` bij de marketplace-entry in ` +
-      "`~/.claude/settings.json` (auto-update werkt alleen via SSH). Projecten: zeg ja als Claude bij het " +
-      `opstarten meldt dat de project sync stale is. Meer: <${projectUrl}/-/blob/main/docs/keep-current.md|keep-current.md>`,
-    "",
-    "*Wat is er nieuw*",
-    ...bullets,
-    "",
-    `Changelog: <${projectUrl}/-/blob/main/CHANGELOG.md|CHANGELOG.md>`,
-  ].join("\n");
+  return match ? match[1] : null;
 }
