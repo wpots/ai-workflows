@@ -565,7 +565,7 @@ for (const [rel, markers] of Object.entries(REQUIRED_MARKERS)) {
 }
 
 // ── The upstream-MR rule stays out of the ambient layer ──────────────────────
-// Root CLAUDE.md is synced to ~/.claude/CLAUDE.md and loads in every session of
+// Root CLAUDE.md is synced to ~/.claude/rules/ai-workflows.md and loads in every session of
 // every project; the project templates become adapters that load in every
 // session of a synced project. The rule only matters while an upstream skill
 // runs, so it loads from these copies instead: Codex in this repo, Claude in

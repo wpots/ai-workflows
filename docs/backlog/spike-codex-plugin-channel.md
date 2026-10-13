@@ -87,8 +87,9 @@ release.
   - `improve_skill_retrospective.py` parses the Claude transcript at
     `transcript_path` and keeps state in `CLAUDE_PLUGIN_DATA`; likely
     Claude-only.
-  - `sync-ambient.sh` writes `~/.claude/CLAUDE.md` and `~/.claude/rules/`; the
-    Codex counterpart would be its global instructions file.
+  - `sync-ambient.sh` writes the baseline and the universal rules into
+    `~/.claude/rules/`; the Codex counterpart would be its global instructions
+    file.
 - Skills that name Claude Code-only tools (`AskUserQuestion`, `Monitor`,
   `ScheduleWakeup`, `EnterWorktree`, `TaskStop`, `SendMessage`): close-sprint,
   create-pr, datocms-migration, dependency-hotfix, mr-merged, release,

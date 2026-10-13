@@ -76,7 +76,8 @@ If a run had zero friction, skip silently — do not touch the skill.
    `shared/command-mappings.md` for a command without a skill (that row is also
    copied verbatim into the `## Command Mapping` section of `CLAUDE.md`).
    `scripts/generate-adapters.sh` injects the fragments into the adapters;
-   never edit the generated blocks or the synced `~/.claude/CLAUDE.md`.
+   never edit the generated blocks or the synced
+   `~/.claude/rules/ai-workflows.md`.
 7. **Report once**: which files changed and the learnings captured, one line
    per learning, including which compound artifacts (check/eval/solution
    note) each produced.
