@@ -1,5 +1,6 @@
 // Shared CHANGELOG.md readers for the release automation
-// (scripts/release-train.mjs, scripts/announce-release.mjs) and their tests.
+// (scripts/release-train.mjs, scripts/announce-release.mjs,
+// scripts/publish-release.mjs) and their tests.
 //
 // The changelog follows Keep a Changelog: one `## [x.y.z] - date` heading per
 // release, `### Added` / `### Changed` / … underneath, one `- ` entry per

@@ -7,7 +7,9 @@
 //   2. Otherwise run scripts/assign-plugin-version.mjs --write on a branch
 //      (`release/next`), commit "release: x.y.z", force-push it, and open the
 //      MR to main with the maintainer as reviewer — or update the open MR's
-//      title and description when it already exists.
+//      title and description when it already exists. The cut archives the
+//      delivered backlog items, so the description carries the backlog
+//      status next to the changelog section.
 //
 // Merging that MR is the release decision; the version stays assigned after
 // merge, exactly as the manual flow. Without RELEASE_BOT_TOKEN the job prints
@@ -27,6 +29,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { BACKLOG_DIR, planArchive, renderStatus } from "./backlog-archive.mjs";
 import { sectionBody } from "./changelog-sections.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -89,7 +92,11 @@ if (!version) {
 
 console.log(plan.split("\n").slice(0, 3).join("\n"));
 
+// Read before the cut removes the items; --write archives exactly this set.
+const backlog = renderStatus(planArchive(ROOT), version);
+
 if (dryRun) {
+  console.log(`\n${backlog}`);
   console.log(`\nDry run — would push ${BRANCH} and open or update the MR "release: ${version}".`);
   process.exit(0);
 }
@@ -115,8 +122,10 @@ run(process.execPath, [ASSIGN, "--write"]);
 run("git", ["add", "CHANGELOG.md", ".claude-plugin/plugin.json"]);
 // The fragments the script folded in are deleted from the tree; stage that
 // too. Only when the directory is tracked: a bare pathspec errors otherwise.
-if (run("git", ["ls-files", "changelog.d"])) {
-  run("git", ["add", "-A", "--", "changelog.d"]);
+for (const dir of ["changelog.d", BACKLOG_DIR]) {
+  if (run("git", ["ls-files", dir])) {
+    run("git", ["add", "-A", "--", dir]);
+  }
 }
 run("git", [
   "-c",
@@ -142,10 +151,13 @@ const title = `release: ${version}`;
 const description = [
   sectionBody(readFileSync(CHANGELOG, "utf8"), version) ?? "",
   "",
+  backlog,
+  "",
   "---",
   `Cut by the \`release_train\` CI job from \`${(env.CI_COMMIT_SHA ?? "").slice(0, 7)}\` on \`${TARGET}\`. ` +
-    "Merging this MR is the release: the version becomes visible in `/plugin`, and the " +
-    "`announce_release` job posts the notes in #development. Every later merge to " +
+    "Merging this MR is the release: the version becomes visible in `/plugin`, " +
+    `\`publish_release\` tags \`v${version}\` and creates the GitLab Release, and ` +
+    "`announce_release` posts the notes in #development. Every later merge to " +
     `\`${TARGET}\` re-cuts this branch until it is merged.`,
 ].join("\n");
 

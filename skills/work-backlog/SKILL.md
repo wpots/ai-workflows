@@ -102,8 +102,13 @@ Parse every `docs/backlog/*.md`:
   dependency is satisfied when that BLI's `Status` **on `origin/main`** is
   `done`, or `in-progress` with its MR (linked under `## Related`) merged and
   only a post-merge check left — the code a dependent builds on is there
-  either way. Unlinked prose like "rolling" means: eligible only when no other
-  item is.
+  either way. A dependency whose file is gone from `docs/backlog/` on
+  `origin/main` was archived as delivered — moved into a sprint or support
+  folder by `skills/close-sprint`, or removed by a release cut — and is
+  satisfied too; `git log origin/main -1 --diff-filter=DR --format='%h %s' --
+  docs/backlog/<file>` names the commit that took it. No such commit means a
+  broken link: report it as unmet. Unlinked prose like "rolling" means:
+  eligible only when no other item is.
 - **Order** — roadmap order if the Ticket field carries one (`roadmap item
   N`) or `docs/ROADMAP.md` defines a sequence; otherwise priority
   (`critical > high > medium > low`), then filename.
