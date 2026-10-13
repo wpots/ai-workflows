@@ -109,8 +109,6 @@ ADAPTER_TEMPLATES=(
   project-CLAUDE.md
   project-AGENTS.md
   project-copilot-instructions.md
-  project-cursor-conventions.mdc
-  project-cursor-graphify.mdc
   project-claude-settings.json
 )
 

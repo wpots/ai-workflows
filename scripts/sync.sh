@@ -9,15 +9,12 @@ SRC_SKILLS="$ROOT_DIR/skills"
 SRC_SHARED="$ROOT_DIR/shared"
 SRC_TEMPLATES="$ROOT_DIR/templates"
 SRC_AI_WORKFLOWS_TEMPLATE="$ROOT_DIR/templates/project-ai-workflows.md"
-SRC_CURSOR_GRAPHIFY="$ROOT_DIR/templates/project-cursor-graphify.mdc"
 SRC_CLAUDE_SETTINGS="$ROOT_DIR/templates/project-claude-settings.json"
 SRC_VERIFY_SKILL="$ROOT_DIR/templates/project-verify-SKILL.md"
 SRC_FRESHNESS="$ROOT_DIR/scripts/project-sync-freshness.sh"
 
-TARGET_CURSOR="$HOME/.cursor"
 TARGET_CODEX="$HOME/.codex"
 TARGET_CLAUDE="$HOME/.claude"
-TARGET_CURSOR_SKILLS_SUBPATH="skills-cursor/ai-workflows"
 
 DRY_RUN=0
 PROJECT_DIR=""
@@ -27,14 +24,13 @@ usage() {
 Usage: ./scripts/sync.sh [--dry-run] [--project <path>]
 
 Modes:
-  (no flags)          Sync to global agent folders (~/.cursor, ~/.claude, etc.)
+  (no flags)          Sync to global agent folders (~/.claude, ~/.codex)
   --project <path>    Sync project-level ai-workflows files into a project
 
 Project sync copies:
   AI-WORKFLOWS.md                   (developer guide for tool loading behavior)
-  CLAUDE.md / AGENTS.md             (thin adapters for Claude, Codex, Cursor)
+  CLAUDE.md / AGENTS.md             (thin adapters for Claude and Codex)
   .github/copilot-instructions.md   (Copilot adapter with conventions inlined)
-  .cursor/rules/conventions.mdc     (Cursor conventions adapter)
   rules/ and commands/              (shared baseline rules and runbooks)
   .github/prompts/*.prompt.md       (attachable via #file: in Copilot chat)
   .claude/skills/verify/SKILL.md    (pre-commit verification; only when missing)
@@ -307,17 +303,6 @@ if [[ -n "$PROJECT_DIR" ]]; then
     fi
   fi
 
-  # Generate Cursor conventions adapter pointing to rules/ and CONVENTIONS.md
-  if [[ -f "$SRC_TEMPLATES/project-cursor-conventions.mdc" ]]; then
-    if [[ "$DRY_RUN" -eq 1 ]]; then
-      echo "[dry-run] generate .cursor/rules/conventions.mdc"
-    else
-      ensure_dir "$PROJECT_DIR/.cursor/rules"
-      cp "$SRC_TEMPLATES/project-cursor-conventions.mdc" "$PROJECT_DIR/.cursor/rules/conventions.mdc"
-      echo "  [ok] .cursor/rules/conventions.mdc"
-    fi
-  fi
-
   # Sync commands/ to project root (single copy, all tools reference it)
   if [[ -d "$SRC_COMMANDS" ]]; then
     if [[ "$DRY_RUN" -eq 1 ]]; then
@@ -352,17 +337,6 @@ if [[ -n "$PROJECT_DIR" ]]; then
         } > "$_prompt_file"
       done
       echo "  [ok] .github/prompts/ (generated from commands/)"
-    fi
-  fi
-
-  # Generate Cursor graphify adapter (guarded rule; harmless without a graph)
-  if [[ -f "$SRC_CURSOR_GRAPHIFY" ]]; then
-    if [[ "$DRY_RUN" -eq 1 ]]; then
-      echo "[dry-run] generate .cursor/rules/graphify.mdc"
-    else
-      ensure_dir "$PROJECT_DIR/.cursor/rules"
-      cp "$SRC_CURSOR_GRAPHIFY" "$PROJECT_DIR/.cursor/rules/graphify.mdc"
-      echo "  [ok] .cursor/rules/graphify.mdc"
     fi
   fi
 
@@ -439,10 +413,6 @@ fi
 # --- Global sync mode ---
 echo "Syncing ai-workflows from: $ROOT_DIR (dry-run=$DRY_RUN)"
 
-if [[ -d "$SRC_COMMANDS" && -d "$TARGET_CURSOR" ]]; then
-  sync_dir "$SRC_COMMANDS" "$TARGET_CURSOR/commands"
-fi
-
 if [[ -d "$TARGET_CLAUDE" ]]; then
   # The ambient layer (CLAUDE.md + universal rules subset) is owned by
   # sync-ambient.sh, because the plugin's SessionStart hook delivers the same
@@ -473,10 +443,6 @@ if [[ -d "$TARGET_CLAUDE" ]]; then
   echo "which also refreshes the ambient layer above at every session start."
   echo "If it is not installed yet, run inside Claude Code:"
   echo "  /plugin marketplace add git@gitlab.com:greenberrynl/config/ai-workflows.git"
-fi
-
-if [[ -d "$SRC_SKILLS" && -d "$TARGET_CURSOR" ]]; then
-  sync_dir "$SRC_SKILLS" "$TARGET_CURSOR/$TARGET_CURSOR_SKILLS_SUBPATH"
 fi
 
 if [[ -d "$SRC_SKILLS" && -d "$TARGET_CODEX/skills" ]]; then

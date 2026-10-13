@@ -6,7 +6,7 @@ description: "Sprint Demo Runbook"
 # Sprint Demo Runbook
 
 Canonical runbook for preparing a sprint demo for **stakeholders**. The
-`sprint-demo` skill on skill-aware tools (Claude, Codex, Cursor) wraps this
+`sprint-demo` skill on skill-aware tools (Claude, Codex) wraps this
 runbook; Copilot and other prompt-first tools should follow these steps
 directly.
 

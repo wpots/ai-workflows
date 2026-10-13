@@ -1,6 +1,6 @@
 ---
 name: setup-ai-workflows
-description: Set up or refresh the AI-workflow configuration of a project — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot, Cursor), adds a developer-facing AI-WORKFLOWS.md guide, emits an env-var-based project .mcp.json for integration tooling, and detects deviations from global rules including type-safety and trust-boundary posture. This is the config lane, not the project kickoff — a whole new project starts with skills/start-project. Use when the user asks to apply ai-workflows to a project, (re)generate CONVENTIONS.md or the tool adapters, or refresh a project's synced workflow assets.
+description: Set up or refresh the AI-workflow configuration of a project — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot), adds a developer-facing AI-WORKFLOWS.md guide, emits an env-var-based project .mcp.json for integration tooling, and detects deviations from global rules including type-safety and trust-boundary posture. This is the config lane, not the project kickoff — a whole new project starts with skills/start-project. Use when the user asks to apply ai-workflows to a project, (re)generate CONVENTIONS.md or the tool adapters, or refresh a project's synced workflow assets.
 metadata:
   owner: wieteke.pots
 ---
@@ -63,7 +63,6 @@ Never edit a file under the plugin cache: an update replaces it.
 2. Check for existing files and ask before overwriting:
    - `CONVENTIONS.md` — the main output; never overwrite silently
    - `CLAUDE.md`, `AGENTS.md` — will be regenerated as thin adapters
-   - `.cursor/rules/conventions.mdc` — will be created/updated
 
 ### 2. Detect Stack
 
@@ -226,7 +225,9 @@ Use templates from `<ai-workflows>/templates/`:
 | `CLAUDE.md` | `project-CLAUDE.md` | Reference — "read CONVENTIONS.md" |
 | `AGENTS.md` | `project-AGENTS.md` | Reference — "read CONVENTIONS.md" |
 | `.github/copilot-instructions.md` | `project-copilot-instructions.md` | **Inline** — embed CONVENTIONS.md content plus condensed core rules (Copilot can't rely on file refs) |
-| `.cursor/rules/conventions.mdc` | `project-cursor-conventions.mdc` | Reference — "read CONVENTIONS.md" |
+
+Cursor is not supported: generate nothing under `.cursor/`, and leave any
+`.cursor/` files the project already has as they are.
 
 For the Copilot adapter, read the generated CONVENTIONS.md and inject its
 content between `<!-- BEGIN CONVENTIONS -->` and `<!-- END CONVENTIONS -->`
@@ -268,11 +269,10 @@ and OAuth SaaS) lives in `docs/tooling.md` in ai-workflows.
 | Payload/Prepr (or other CMS) in package.json | document the token env vars in `## Tooling` |
 | Other SaaS/tool needs | case by case, env-var-based |
 
-Write two files, then document them:
+Write the file, then document it:
 
 - `.mcp.json` at the project root — checked in; secrets only as `${ENV_VAR}`
   references, never literal values
-- `.cursor/mcp.json` — Cursor mirror of the same servers
 - record every server and its env vars in the `## Tooling` section of
   CONVENTIONS.md
 
@@ -287,7 +287,7 @@ Write two files, then document them:
 }
 ```
 
-If either file already exists, do not overwrite it — report what a manual
+If `.mcp.json` already exists, do not overwrite it — report what a manual
 merge should add instead.
 
 Also emit `.claude/skills/verify/SKILL.md` from
@@ -317,12 +317,10 @@ Initialized <project-name> with ai-workflows:
   CLAUDE.md             [created/updated]  — thin adapter (references CONVENTIONS.md)
   AGENTS.md             [created/updated]  — thin adapter (references CONVENTIONS.md)
   .github/copilot-instructions.md  [created/updated]  — Copilot adapter (CONVENTIONS.md + core rules inlined)
-  .cursor/rules/conventions.mdc    [created/updated]  — Cursor adapter (references CONVENTIONS.md)
   rules/                [synced]           — shared baseline coding rules
   commands/             [synced]           — shared workflow runbooks
   .github/prompts/      [synced]           — Copilot prompt files generated from commands/
   .mcp.json             [created/skipped]  — project MCP servers (env-var-based, checked in)
-  .cursor/mcp.json      [created/skipped]  — Cursor mirror of the MCP config
   .gitignore            [appended/ok]      — .playwright-mcp/ (browser MCP output)
 
   Stack: <detected stack>
@@ -341,5 +339,5 @@ If deviations were detected, list them briefly so the developer is aware.
 - Do not duplicate an architecture decision into CONVENTIONS.md. Link to it.
 - Tool adapters (CLAUDE.md, AGENTS.md, etc.) can be regenerated freely.
 - Keep CONVENTIONS.md concise — under 80 lines.
-- Never write a secret value into `.mcp.json` or `.cursor/mcp.json` —
-  env-var references (`${VAR}`) only.
+- Never write a secret value into `.mcp.json` — env-var references (`${VAR}`)
+  only.

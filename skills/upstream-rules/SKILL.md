@@ -21,7 +21,6 @@ This skill should activate when you detect or are told about:
 - New skills or modifications to existing skills
 - Changes to `AGENTS.md` or `CLAUDE.md` that are reusable across projects
 - Changes to `AI-WORKFLOWS.md` that improve the shared project guide
-- Changes to `.cursor/rules/` that are part of the shared workflow setup
 - Changes to `CONVENTIONS.md` that are generic rather than project-specific
 - The developer says "upstream this", "propose this rule", "share this with
   other projects", or similar
@@ -58,7 +57,6 @@ Common mappings:
 | `AGENTS.md` | `templates/project-AGENTS.md` |
 | `CLAUDE.md` | `templates/project-CLAUDE.md` |
 | `.github/copilot-instructions.md` | `templates/project-copilot-instructions.md` |
-| `.cursor/rules/conventions.mdc` | `templates/project-cursor-conventions.mdc` |
 
 Fetch the current upstream version of each mapped file from
 `<gitlab-remote>/main` and diff it against the local source material. If the

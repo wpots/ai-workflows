@@ -1,7 +1,7 @@
 # Sprint Planning Runbook
 
 Canonical runbook for planning the **upcoming** sprint. The `sprint-planning`
-skill on skill-aware tools (Claude, Codex, Cursor) wraps this runbook; Copilot
+skill on skill-aware tools (Claude, Codex) wraps this runbook; Copilot
 and other prompt-first tools should follow these steps directly.
 
 Goal: turn what the tracker has scheduled for the next sprint into a single,

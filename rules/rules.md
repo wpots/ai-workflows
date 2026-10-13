@@ -3,7 +3,7 @@
 This directory contains focused rule files. Load the relevant file(s) for the current context.
 
 The priority guidance below is conceptual, not a guarantee about how every tool loads files.
-Copilot, Claude Code, Codex, and Cursor each load instructions differently.
+Copilot, Claude Code, and Codex each load instructions differently.
 In synced projects, see `AI-WORKFLOWS.md` for the tool-specific loading model.
 
 In practice, treat this directory as a topic-based rule library:

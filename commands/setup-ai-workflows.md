@@ -20,7 +20,6 @@ Preferred path:
    - `CONVENTIONS.md`
    - `CLAUDE.md`
    - `AGENTS.md`
-   - `.cursor/rules/conventions.mdc`
 3. Read `package.json` when present and detect:
    - stack
    - scripts
@@ -47,12 +46,14 @@ Preferred path:
    - `CLAUDE.md`
    - `AGENTS.md`
    - `.github/copilot-instructions.md`
-   - `.cursor/rules/conventions.mdc`
    - `rules/`
    - `commands/`
    - `.github/prompts/`
+
+   Cursor is not supported: generate nothing under `.cursor/` and leave the
+   project's existing `.cursor/` files as they are.
 8. Emit project tooling: write a checked-in, env-var-based `.mcp.json`
-   (plus a `.cursor/mcp.json` mirror) for detected needs — Playwright in
+   for detected needs — Playwright in
    devDependencies → `playwright`, live-browser debugging →
    `chrome-devtools`. Also probe GitLab remote, ticket refs, Figma links,
    and CMS token needs (Payload/Prepr), and record everything — servers,
