@@ -23,11 +23,16 @@
 // -> MAJOR; an `added` fragment (or `### Added`) -> MINOR; anything else
 // (changed/fixed/deprecated/security) -> PATCH. Use --bump/--as when judgment
 // differs from that default.
+//
+// The cut also archives the delivered backlog items (scripts/backlog-archive.mjs):
+// this repo has no sprint close, so the release is where docs/backlog/ is
+// reconciled.
 
 import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { applyArchive, BACKLOG_DIR, planArchive } from "./backlog-archive.mjs";
 import {
   groupUnreleased,
   inferBump,
@@ -145,6 +150,15 @@ console.log(
   `fragments     ${fragments.length}${handWritten.size > 0 ? " + entries still under Unreleased" : ""}`,
 );
 
+const backlog = planArchive(ROOT);
+
+if (backlog.items.length > 0) {
+  console.log(
+    `backlog       ${backlog.archive.length} to archive (done/superseded)` +
+      (backlog.kept.length > 0 ? `, ${backlog.kept.length} kept (a living doc names it)` : ""),
+  );
+}
+
 if (!has("write")) {
   console.log("\nDry run — pass --write to apply.");
   process.exit(0);
@@ -174,7 +188,10 @@ for (const fragment of fragments) {
   unlinkSync(join(FRAGMENTS, fragment.file));
 }
 
+applyArchive(ROOT, backlog);
+
 console.log(
-  `\n✔ Assigned ${version}; ${fragments.length} fragment(s) folded in and removed. ` +
-    "Commit CHANGELOG.md, .claude-plugin/plugin.json and changelog.d/ in the release MR.",
+  `\n✔ Assigned ${version}; ${fragments.length} fragment(s) folded in and removed, ` +
+    `${backlog.archive.length} backlog item(s) archived. ` +
+    `Commit CHANGELOG.md, .claude-plugin/plugin.json, changelog.d/ and ${BACKLOG_DIR}/ in the release MR.`,
 );

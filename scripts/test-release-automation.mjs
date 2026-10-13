@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Regression tests for the changelog readers behind release-train and
-// announce-release, the fragment reader, and the version assignment itself.
+// Regression tests for the changelog readers behind release-train,
+// announce-release and publish-release, the fragment reader, the backlog
+// archive, and the version assignment itself.
 // Run: node --test scripts/test-release-automation.mjs
 
 import assert from "node:assert/strict";
@@ -12,6 +13,13 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
+  applyArchive,
+  describeItem,
+  planArchive,
+  renderArchived,
+  renderStatus,
+} from "./backlog-archive.mjs";
+import {
   groupUnreleased,
   inferBump,
   mergeGroups,
@@ -21,6 +29,17 @@ import {
 import { entries, firstSentence, renderAnnouncement, sectionBody } from "./changelog-sections.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+
+// The pre-commit hook runs this file with GIT_DIR, GIT_WORK_TREE and
+// GIT_INDEX_FILE exported. The fixtures below run git in temp directories, and
+// with those inherited every call lands in this repo instead: a hook run set
+// core.bare=true in its config and replaced the worktree's index with the
+// fixture's files. Without them each git call finds its repo from its cwd.
+for (const key of Object.keys(process.env)) {
+  if (key.startsWith("GIT_")) {
+    delete process.env[key];
+  }
+}
 
 const FIXTURE = `# Changelog
 
@@ -156,6 +175,11 @@ test("assign-plugin-version folds fragments and Unreleased entries into one rele
   );
   writeFileSync(join(root, "changelog.d", "added.feature.md"), "- a feature.\n  continued.\n");
   writeFileSync(join(root, "changelog.d", "fixed.bug.md"), "- a fix.\n");
+  mkdirSync(join(root, "docs", "backlog"), { recursive: true });
+  writeFileSync(join(root, "docs", "backlog", "feat-done.md"), "# Done\n\n## Status\n\ndone\n");
+  writeFileSync(join(root, "docs", "backlog", "feat-open.md"), "# Open\n\n## Status\n\ndraft\n");
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  execFileSync("git", ["add", "."], { cwd: root });
 
   const script = join(ROOT, "scripts", "assign-plugin-version.mjs");
   const run = (...extra) =>
@@ -166,8 +190,10 @@ test("assign-plugin-version folds fragments and Unreleased entries into one rele
   const plan = run();
   assert.match(plan, /1\.0\.0 -> 1\.1\.0 \(minor\)/);
   assert.match(plan, /fragments\s+2 \+ entries still under Unreleased/);
+  assert.match(plan, /backlog\s+1 to archive/);
   assert.match(plan, /Dry run/);
   assert.ok(existsSync(join(root, "changelog.d", "added.feature.md")));
+  assert.ok(existsSync(join(root, "docs", "backlog", "feat-done.md")));
 
   run("--write");
   const changelog = readFileSync(join(root, "CHANGELOG.md"), "utf8");
@@ -180,8 +206,83 @@ test("assign-plugin-version folds fragments and Unreleased entries into one rele
   assert.match(readFileSync(join(root, ".claude-plugin", "plugin.json"), "utf8"), /"version": "1\.1\.0"/);
   assert.ok(!existsSync(join(root, "changelog.d", "added.feature.md")));
   assert.ok(!existsSync(join(root, "changelog.d", "fixed.bug.md")));
+  assert.ok(!existsSync(join(root, "docs", "backlog", "feat-done.md")));
+  assert.ok(existsSync(join(root, "docs", "backlog", "feat-open.md")));
   assert.match(run(), /^Nothing to release/);
   rmSync(root, { recursive: true });
+});
+
+test("describeItem reads the Status past a template comment, the title and the MR", () => {
+  const text =
+    "# Feature: A\n\n## Status\n\n<!-- draft | ready | in-progress | done -->\n\n**Done**\n\n" +
+    "## Related\n\n- MR: https://gitlab.example/p/-/merge_requests/42\n";
+  assert.deepEqual(describeItem("docs/backlog/feat-a.md", text), {
+    path: "docs/backlog/feat-a.md",
+    file: "feat-a.md",
+    title: "Feature: A",
+    status: "done",
+    mr: "!42",
+  });
+  assert.equal(describeItem("docs/backlog/x.md", "# X\n\n## Status\n\n## Priority\n").status, null);
+});
+
+test("planArchive archives done and superseded items unless a living doc still names them", () => {
+  const root = mkdtempSync(join(tmpdir(), "backlog-root-"));
+  const item = (status, extra = "") => `# Item ${status}\n\n## Status\n\n${status}\n${extra}`;
+  mkdirSync(join(root, "docs", "backlog"), { recursive: true });
+  writeFileSync(join(root, "docs", "backlog", "feat-done.md"), item("done"));
+  writeFileSync(join(root, "docs", "backlog", "spike-old.md"), item("superseded"));
+  writeFileSync(join(root, "docs", "backlog", "feat-named.md"), item("done"));
+  writeFileSync(
+    join(root, "docs", "backlog", "feat-open.md"),
+    item("in-progress", "\nDepends on: [feat-done.md](feat-done.md)\n"),
+  );
+  writeFileSync(join(root, "docs", "backlog", "_template.md"), item("draft"));
+  writeFileSync(join(root, "docs", "map.md"), "filed: `docs/backlog/feat-named.md`; not x-feat-done.md\n");
+  writeFileSync(join(root, "CHANGELOG.md"), "- delivered `docs/backlog/spike-old.md`\n");
+  execFileSync("git", ["init", "-q"], { cwd: root });
+  execFileSync("git", ["add", "."], { cwd: root });
+
+  const plan = planArchive(root);
+  assert.equal(plan.items.length, 4);
+  assert.deepEqual(
+    plan.archive.map((entry) => entry.file),
+    ["feat-done.md", "spike-old.md"],
+  );
+  assert.deepEqual(
+    plan.kept.map((entry) => [entry.file, entry.namedIn]),
+    [["feat-named.md", ["docs/map.md"]]],
+  );
+
+  const status = renderStatus(plan, "1.1.0");
+  assert.ok(status.includes("`git show v1.1.0^1:docs/backlog/<file>`"), status);
+  assert.ok(status.includes("- `feat-done.md` — Item done"), status);
+  assert.ok(status.includes("- `feat-named.md` — named in `docs/map.md`"), status);
+  assert.ok(status.includes("Still open: in-progress 1 (`feat-open.md`)"), status);
+
+  applyArchive(root, plan);
+  assert.ok(!existsSync(join(root, "docs", "backlog", "feat-done.md")));
+  assert.ok(!existsSync(join(root, "docs", "backlog", "spike-old.md")));
+  assert.ok(existsSync(join(root, "docs", "backlog", "feat-named.md")));
+  rmSync(root, { recursive: true });
+});
+
+test("renderArchived links each item at the given commit", () => {
+  assert.equal(
+    renderArchived(
+      [{ path: "docs/backlog/feat-a.md", file: "feat-a.md", title: "Feature: A", mr: "!42" }],
+      "https://gitlab.example/p/-/blob/abc123",
+    ),
+    "### Backlog\n\nDelivered and archived with this release:\n\n" +
+      "- [Feature: A](https://gitlab.example/p/-/blob/abc123/docs/backlog/feat-a.md) (!42)",
+  );
+});
+
+test("every backlog item in the repo has a readable Status, so a release can archive it", () => {
+  const unreadable = planArchive(ROOT)
+    .items.filter((entry) => entry.status === null)
+    .map((entry) => entry.file);
+  assert.deepEqual(unreadable, []);
 });
 
 test("the real repo parses: 2.5.0 has entries, Unreleased is readable, fragments are well-formed", () => {

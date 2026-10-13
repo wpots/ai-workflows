@@ -11,11 +11,13 @@ validate_ai_workflows:
     - bash scripts/validate-ai-instructions.sh
 
 # Release automation on main (docs/contributing.md § Ship A Plugin Release).
-# Both jobs print what they would do and exit 0 while their CI/CD variable is
-# missing: RELEASE_BOT_TOKEN (project access token, scopes api +
-# write_repository) for release_train, SLACK_WEBHOOK_URL (#development incoming
-# webhook) for announce_release. GIT_DEPTH 2 keeps HEAD^1 available, which is
-# how announce_release tells a release merge from a content merge.
+# release_train and announce_release print what they would do and exit 0 while
+# their CI/CD variable is missing: RELEASE_BOT_TOKEN (project access token,
+# scopes api + write_repository) for release_train, SLACK_WEBHOOK_URL
+# (#development incoming webhook) for announce_release. publish_release needs
+# none: CI_JOB_TOKEN may create Releases. GIT_DEPTH 2 keeps HEAD^1 available,
+# which is how announce_release and publish_release tell a release merge from a
+# content merge.
 .release_job:
   stage: release
   image: alpine:3.20
@@ -33,6 +35,13 @@ release_train:
   extends: .release_job
   script:
     - node scripts/release-train.mjs
+
+# Tags the merged release v<x.y.z> and creates its GitLab Release, with the
+# changelog section and the backlog items the release archived as notes.
+publish_release:
+  extends: .release_job
+  script:
+    - node scripts/publish-release.mjs
 
 # Posts the release notes and the update reminder in Slack when the merge
 # changed the plugin version, i.e. when a release MR merged.

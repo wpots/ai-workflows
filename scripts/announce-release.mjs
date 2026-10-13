@@ -13,12 +13,12 @@
 //   SLACK_WEBHOOK_URL  incoming webhook of the channel (#development)
 //   CI_PROJECT_URL     for the links; defaults to the ai-workflows project
 
-import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { renderAnnouncement, sectionBody } from "./changelog-sections.mjs";
+import { headIsRelease } from "./release-commit.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CHANGELOG = join(ROOT, "CHANGELOG.md");
@@ -35,27 +35,19 @@ function fail(message) {
   process.exit(1);
 }
 
-function headIsRelease() {
-  try {
-    execFileSync("git", ["diff", "--quiet", "HEAD^1", "HEAD", "--", ".claude-plugin/plugin.json"], {
-      cwd: ROOT,
-      stdio: "ignore",
-    });
-    return false;
-  } catch (error) {
-    if (error.status === 1) {
-      return true;
-    }
-    fail("HEAD^1 is not available; the CI job needs GIT_DEPTH 2 or deeper");
-  }
-  return false;
-}
-
 const version = versionFlag ?? JSON.parse(readFileSync(MANIFEST, "utf8")).version;
 
-if (!versionFlag && !headIsRelease()) {
-  console.log(`Not a release commit (plugin.json still ${version}); nothing to announce.`);
-  process.exit(0);
+if (!versionFlag) {
+  const isRelease = headIsRelease(ROOT);
+
+  if (isRelease === null) {
+    fail("HEAD^1 is not available; the CI job needs GIT_DEPTH 2 or deeper");
+  }
+
+  if (!isRelease) {
+    console.log(`Not a release commit (plugin.json still ${version}); nothing to announce.`);
+    process.exit(0);
+  }
 }
 
 const body = sectionBody(readFileSync(CHANGELOG, "utf8"), version);

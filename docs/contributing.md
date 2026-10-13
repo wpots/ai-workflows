@@ -185,7 +185,9 @@ that is always current, and merging it is the release decision.
   fragments (or `## [Unreleased]` still has entries) it runs
   `scripts/assign-plugin-version.mjs --write` on the branch `release/next` —
   the fragments become the `## [x.y.z]` section, in Keep a Changelog order,
-  and are deleted — commits `release: x.y.z`, force-pushes, and opens the MR to
+  and are deleted, and the delivered backlog items are archived (see
+  [below](#the-release-archives-the-backlog)) — commits `release: x.y.z`,
+  force-pushes, and opens the MR to
   `main` with the maintainer as reviewer — or updates the open MR's title and
   body when a later content merge changes what the release carries. With an
   empty `## [Unreleased]` it does nothing. So the question "do we need a
@@ -197,9 +199,16 @@ that is always current, and merging it is the release decision.
   reminder, to the `#development` Slack channel. `node
   scripts/announce-release.mjs --dry-run --version x.y.z` shows the message a
   version would get.
+- **`publish_release`** acts on the same release merges: it tags the merge
+  commit `vx.y.z` and creates the GitLab Release, whose notes are the
+  `## [x.y.z]` section plus the backlog items the release archived. One call
+  to the Releases API does both, on `CI_JOB_TOKEN`; a Release that already
+  exists is left alone. `node scripts/publish-release.mjs --dry-run --version
+  x.y.z` shows the notes.
 
-Both jobs need a CI/CD variable (Settings → CI/CD → Variables, masked, protected)
-and print what they would do while it is missing, so the pipeline stays green:
+`release_train` and `announce_release` need a CI/CD variable (Settings → CI/CD
+→ Variables, masked, protected) and print what they would do while it is
+missing, so the pipeline stays green. `publish_release` needs none:
 
 | Variable | What | Used by |
 | --- | --- | --- |
@@ -238,7 +247,9 @@ and print what they would do while it is missing, so the pipeline stays green:
 Verify: the next push to `main` runs both jobs. The `release_train` log ends
 in `Opened !<n> (release: x.y.z)`, the `announce_release` log in `Not a
 release commit`. Merge that release MR, and the following `announce_release`
-log ends in `Announced x.y.z in Slack`, with the post in `#development`. To
+log ends in `Announced x.y.z in Slack`, with the post in `#development`, and
+the `publish_release` log in `Published vx.y.z`, with the Release under
+Deploy → Releases. To
 announce a version released before the webhook existed, run
 `SLACK_WEBHOOK_URL=<url> node scripts/announce-release.mjs --version x.y.z`
 from your own terminal; the URL never lands in the repo.
@@ -250,12 +261,36 @@ MINOR (new skills or commands, notable behaviour changes), anything else is
 PATCH (fixes and wording). When judgment differs from that default, cut the
 release by hand in its own small MR — `node scripts/assign-plugin-version.mjs`
 prints the plan, `--write` applies it (`--bump minor` or `--as 2.0.0` override
-the inference); commit `CHANGELOG.md` and `.claude-plugin/plugin.json`. The
+the inference); commit `CHANGELOG.md`, `.claude-plugin/plugin.json`,
+`changelog.d/` and `docs/backlog/`. The
 train leaves an open hand-cut MR alone as long as its branch is not
 `release/next`, and goes quiet once it merges and `## [Unreleased]` is empty.
 
-The readers behind both jobs (`scripts/changelog-sections.mjs`) are covered by
+The readers behind the three jobs (`scripts/changelog-sections.mjs`) and the
+backlog archive (`scripts/backlog-archive.mjs`) are covered by
 `scripts/test-release-automation.mjs`, which `validate-ai-instructions.sh` runs.
+
+### The release archives the backlog
+
+This repo has no sprints, so no sprint close archives delivered backlog items;
+the release does. Every cut — by `release_train` or by hand — removes the items
+in `docs/backlog/` whose `Status` is `done` or `superseded`, and the release
+MR's description carries the backlog status: what it archives, what it keeps,
+and what is still open. An item `in-progress` after its merge has a post-merge
+check left; tick the check and set it to `done`, and the next release takes it.
+
+- **Archive.** The tag is the anchor: `git show vx.y.z^1:docs/backlog/<file>`
+  reads a removed item back, and the GitLab Release links each one at that
+  commit.
+- **Kept.** An item that a living doc still names — tracked Markdown outside
+  `docs/backlog/`, `CHANGELOG.md` and `changelog.d/` — stays, because the
+  validator's link and pipeline-map checks would fail on its removal. Drop the
+  reference in a content MR and the next release archives it.
+- **Dependencies.** A `Depends on:` link whose file a release removed counts as
+  satisfied in `skills/work-backlog`.
+- **Status.** Every item needs a readable `Status`; the test suite fails on one
+  that has none, since the release could never archive it.
+- `node scripts/backlog-archive.mjs` prints the status without writing.
 
 Why not bump in the content MR: every MR would edit the same manifest line and
 insert at the same changelog position. Four concurrent MRs did exactly that on
