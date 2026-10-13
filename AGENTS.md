@@ -13,14 +13,14 @@ Use this surface model throughout the repo:
 | `rules/` | stable policy and coding standards |
 | `skills/` | repeatable multi-step workflows for skill-aware tools |
 | `commands/` | compatibility adapters and fallback runbooks |
-| adapters (`AGENTS.md`, `CLAUDE.md`, Copilot instructions, Cursor rules) | always-on routing, precedence, and local usage guidance |
+| adapters (`AGENTS.md`, `CLAUDE.md`, Copilot instructions) | always-on routing, precedence, and local usage guidance |
 
 ## Tool Support Matrix
 
 | Tool | Always-on entry point | Preferred workflow surface |
 | ---- | --------------------- | -------------------------- |
 | GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
-| Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | not used by the Greenberry team; adapters are still generated but get no further work |
+| Cursor | not supported; sync generates nothing for it | — |
 | Codex | `AGENTS.md` | skills first, commands as fallback |
 | Claude | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
 
@@ -174,7 +174,7 @@ in `skills/service-cli`.
 - Machine-level CLIs (`glab`, `jira`, `axiom`, `dotenvx`) install once per
   developer via `commands/new-device-setup.md`.
 - Project-level MCP servers are per project: a checked-in, env-var-based
-  `.mcp.json` (plus `.cursor/mcp.json`), emitted by `setup-ai-workflows`.
+  `.mcp.json`, emitted by `setup-ai-workflows`.
 - Prefer environment variables for secrets — never literal values in config.
 
 ## Shared Workflow Assets Land via MR

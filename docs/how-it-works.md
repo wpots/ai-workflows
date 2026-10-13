@@ -14,7 +14,6 @@ This is the main design constraint in the repo. Everything else follows from it.
 | GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. Prompt files help, but are not guaranteed auto-context. |
 | Claude Code | `~/.claude/CLAUDE.md`, every file in `~/.claude/rules/`, and installed plugins | Global Claude rules must stay universal and slim. The plugin delivers them to `~/.claude/rules/` (this repo's `CLAUDE.md` as `ai-workflows.md`) and leaves `~/.claude/CLAUDE.md` to the user. Skills and commands ship via the `greenberry` plugin. |
 | Codex | `AGENTS.md`, skills, and repo files it can inspect | `AGENTS.md` stays thin and points to the real project context. |
-| Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | Cursor follows project files well, and its rules folder can auto-apply a small adapter. |
 
 Because of that:
 
@@ -49,7 +48,7 @@ declared canonical source of each reusable workflow.
 | Tool | Always-on entry point | Preferred workflow surface |
 | ---- | --------------------- | -------------------------- |
 | GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
-| Cursor | `AGENTS.md` plus `.cursor/rules/*.md` | skills first, commands as fallback |
+| Cursor | not supported; sync generates nothing for it | — |
 | Codex | `AGENTS.md` | skills first, commands as fallback |
 | Claude | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
 
@@ -89,8 +88,8 @@ Treat the synced setup as two layers: the **ambient baseline** (tool adapter plu
   `rules/accessibility.md`, `rules/tailwind.md`.
 - For trust-boundary work, name `rules/type-safety.md` so the tool audits runtime
   validation and unsafe assertions, not just TypeScript syntax.
-- For repeatable multi-step workflows on Cursor or Codex, prefer the matching
-  skill when one exists.
+- For repeatable multi-step workflows on Codex, prefer the matching skill when
+  one exists.
 - For Copilot, rely on commands/runbooks rather than assuming skills exist, and
   assume only `.github/copilot-instructions.md` is ambient.
 - For reviews and audits, name the policy you want checked — e.g.
@@ -168,12 +167,12 @@ setup with a clear split:
 
 - `CONVENTIONS.md` — project-owned source of truth
 - `AI-WORKFLOWS.md` — developer guide for how the setup works per tool
-- `CLAUDE.md`, `AGENTS.md`, `.cursor/rules/conventions.mdc` — thin adapters
+- `CLAUDE.md`, `AGENTS.md` — thin adapters
 - `.github/copilot-instructions.md` — Copilot adapter with context inlined
 - `rules/`, `commands/` — shared baseline rules and runbooks
 - `.github/prompts/` — Copilot prompt wrappers generated from `commands/`
-- `.cursor/rules/graphify.mdc`, `.claude/settings.json` — graphify rule + hooks,
-  both guarded; settings only written when the project has none
+- `.claude/settings.json` — graphify hooks, only written when the project has
+  none
 
 Project-local conventions always win over the shared baseline.
 

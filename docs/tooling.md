@@ -53,7 +53,6 @@ Installed and authenticated during `commands/new-device-setup.md`:
 
 - `.mcp.json` at the project root: **checked in**, env-var-based, read by
   Claude Code and other MCP clients.
-- `.cursor/mcp.json`: Cursor mirror of the same servers.
 - Every server and the env vars it expects are recorded in the `## Tooling`
   section of that project's `CONVENTIONS.md`.
 
@@ -87,10 +86,10 @@ Example — safe to commit because secrets stay in env vars:
 
 ## What We Deliberately Don't Ship
 
-- **No global filesystem MCP server** — Claude Code, Codex, and Cursor have
-  native file tools; a filesystem server only added a machine-specific path.
+- **No global filesystem MCP server** — Claude Code and Codex have native file
+  tools; a filesystem server only added a machine-specific path.
 - **No global GitHub MCP server** — `gh`/`glab` CLIs cover the same API,
   allowlist-friendly and headless-capable.
-- **No synced `~/.cursor/mcp/ai-workflows` folder** — replaced by the
-  per-project `.mcp.json` convention (2026-07), so project needs travel with
-  the project instead of living in one developer's local config.
+- **No synced global MCP folder** — replaced by the per-project `.mcp.json`
+  convention (2026-07), so project needs travel with the project instead of
+  living in one developer's local config.
