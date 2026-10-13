@@ -905,6 +905,27 @@ for (const rel of tracked) {
   }
 }
 
+// ── Tests that create a git repo drop the hook's GIT_* variables ─────────────
+// The pre-commit hook runs the test scripts with GIT_DIR, GIT_WORK_TREE and
+// GIT_INDEX_FILE exported; a fixture's `git init` inherits them and acts on this
+// repository instead of its temp directory (one run set core.bare=true in the
+// shared config). See skills/create-pr/references/worktrees.md.
+
+const STRIPS_GIT_ENV = /startsWith\(\s*["']GIT_["']\s*\)|unset GIT_DIR|env -u GIT_DIR/;
+for (const rel of tracked) {
+  if (!rel.startsWith("scripts/") || !/test/i.test(rel)) continue;
+  const text = read(rel);
+  const initsRepo = /\bgit init\b/.test(text) || (/["']init["']/.test(text) && /["']git["']/.test(text));
+  if (initsRepo && !STRIPS_GIT_ENV.test(text)) {
+    err(
+      rel,
+      "creates a git repo without dropping GIT_DIR/GIT_WORK_TREE/GIT_INDEX_FILE first; " +
+        "under the pre-commit hook its git calls act on this repository " +
+        "(skills/create-pr/references/worktrees.md)",
+    );
+  }
+}
+
 // ── "Enforced by nothing" ratchet ────────────────────────────────────────────
 // docs/pipeline-map.md honestly marks policies that no hook, validator, or CI
 // job backs. That honesty only works while the pile stays bounded: a new

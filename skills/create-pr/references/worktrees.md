@@ -23,6 +23,16 @@ when the branch is pushed.
   files) and `git worktree list` before creating a file or branch, `git fetch`
   before every push, and when a branch was force-pushed under you, rebase your
   own commits onto the new tip and push fast-forward — never force back.
+- `FETCH_HEAD`, the stash list and `.git/config` belong to the repository, not
+  to a worktree, so every session writes them. Base a worktree on
+  `<remote>/<base>`, never on `FETCH_HEAD`: a parallel
+  `git fetch <remote> <feature-branch>` replaces it, and a worktree created from
+  it sits on that feature commit while it looks like main. Create the branch
+  with `git worktree add --no-track -b <branch> <path> <remote>/<base>`;
+  without `--no-track` git writes upstream tracking to `.git/config`, which a
+  sandbox refuses after the branch exists but before the worktree does. Drop a
+  stash only after `git stash list -1` shows it is yours — another session's
+  can be on top.
 - Inside an EnterWorktree session git refuses `git -C <other checkout>` — the
   main checkout included — and any compound command it cannot prove is not
   git. Repo-level operations (`worktree add`/`remove`, work on another branch)
@@ -86,6 +96,19 @@ when the branch is pushed.
   directory, so a verification run straight after it serves the baseline, not
   your change. Confirm `git log --oneline -1` in the worktree before trusting
   what you observe, and rebuild after switching back.
+- A test that runs git in a temp directory must drop the `GIT_*` variables
+  first. A hook runs with `GIT_DIR`, `GIT_WORK_TREE` and `GIT_INDEX_FILE`
+  exported, every child process inherits them, and the fixture's `git init` and
+  `git add` then act on the real repository. Seen in practice: one pre-commit
+  run set `core.bare=true` in the shared `.git/config` — after which every
+  checkout of the repo fails with `fatal: this operation must be run in a work
+  tree` — and replaced the worktree's index with the fixture's files. Delete the
+  variables at the top of the test (`for (const key of Object.keys(process.env))
+  if (key.startsWith("GIT_")) delete process.env[key];`, or `unset GIT_DIR
+  GIT_WORK_TREE GIT_INDEX_FILE` in shell). To recover:
+  `git --git-dir=<repo>/.git config core.bare false`, then `git reset` in the
+  affected worktree (index only, files untouched), and check `git log` for
+  fixture commits.
 
 The commit/push hooks usually do **not** run in a worktree unmodified, so verify
 by hand before pushing. Do **not** assume the hook only runs
