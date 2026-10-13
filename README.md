@@ -23,7 +23,7 @@ Adoption has two axes: **your machine** (once per developer) and **each project*
 | Do I even need a local clone of this repo? | [Do I need a local clone?](docs/setup-machine.md#do-i-need-a-local-clone) |
 | New project, **no repo yet** | [Start a new project → No repo yet](docs/adopt-new-project.md#no-repo-yet) |
 | New project, **repo exists** (empty or template clone) | [Start a new project → Repo exists](docs/adopt-new-project.md#repo-exists) |
-| Existing project with code and **its own AI setup** (hand-written `CLAUDE.md`, Cursor rules, Copilot instructions) | [Adopt in an existing project](docs/adopt-existing-project.md) |
+| Existing project with code and **its own AI setup** (hand-written `CLAUDE.md`, Copilot instructions) | [Adopt in an existing project](docs/adopt-existing-project.md) |
 | Existing project **already on ai-workflows** — keep it current | [Keep current](docs/keep-current.md) |
 | Something is broken | [Troubleshooting](docs/troubleshooting.md) |
 | I want to change a rule, skill, or command | [Contributing](docs/contributing.md) |
@@ -39,7 +39,7 @@ install the Claude plugin, and you are done —
 | `skills/` | multi-step workflows — kickoff, user journeys, backlog, sprint, review, audit, maintenance. Canonical surface on skill-aware tools. |
 | `rules/` | Coding and policy baseline, loaded per task rather than all at once. |
 | `commands/` | The same workflows as runbooks, for tools that cannot use skills (Copilot). |
-| tool adapters | `CLAUDE.md`, `AGENTS.md`, Copilot instructions, Cursor rules — thin, generated, always-on routing. |
+| tool adapters | `CLAUDE.md`, `AGENTS.md`, Copilot instructions — thin, generated, always-on routing. |
 | `mcp/` | Canonical MCP server definitions. |
 
 Full inventory of every skill, command, rule, and MCP server:
@@ -49,8 +49,8 @@ Two things worth knowing up front:
 
 - **Claude Code gets skills and commands from the `greenberry` plugin**, not from
   file copies, and its ambient layer refreshes itself through a `SessionStart`
-  hook. Codex is file-copy only, via `scripts/sync.sh`. Cursor files are still
-  copied, but Cursor is not used by the team and gets no further work.
+  hook. Codex is file-copy only, via `scripts/sync.sh`. Cursor is not supported:
+  sync generates nothing for it.
 - **`CONVENTIONS.md` in a project is project-owned** and never overwritten.
   Everything else sync writes is generated — edit it here, not there.
 

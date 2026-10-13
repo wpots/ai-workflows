@@ -39,7 +39,7 @@ existing-project path instead: [adopt-existing-project.md](adopt-existing-projec
 
 ## One Workflow: `start-project`
 
-Open the project in Claude, Cursor, or Codex and ask for the `start-project`
+Open the project in Claude or Codex and ask for the `start-project`
 workflow (Claude: `/greenberry:start-project`). It runs six lanes in order and
 stops for you where a person is needed.
 
@@ -74,7 +74,7 @@ regenerated (Claude: `/greenberry:setup-ai-workflows`):
 ## Sync The Shared Assets
 
 Claude Code gets skills and commands from the `greenberry` plugin, so this step is
-for **Cursor and Codex**, and for the generated project adapters. Run it from the
+for **Codex**, and for the generated project adapters. Run it from the
 `ai-workflows` checkout — the target directory must already exist. Preview first:
 
 ```bash
@@ -86,14 +86,13 @@ cd ~/Web/ai-workflows
 This installs or refreshes:
 
 - `AI-WORKFLOWS.md` — developer guide for how the setup works per tool
-- `CLAUDE.md`, `AGENTS.md`, `.cursor/rules/conventions.mdc` — thin adapters that
-  point back to project context
+- `CLAUDE.md`, `AGENTS.md` — thin adapters that point back to project context
 - `.github/copilot-instructions.md` — Copilot adapter, with context **inlined**
   because Copilot cannot follow references
 - `.github/prompts/*.prompt.md` — Copilot prompt wrappers generated from `commands/`
 - `rules/` and `commands/` — shared baseline rules and reusable runbooks
-- `.cursor/rules/graphify.mdc` and `.claude/settings.json` — graphify rule and
-  hooks, both guarded; settings only written when the project has none
+- `.claude/settings.json` — graphify hooks, only written when the project has
+  none
 
 `CONVENTIONS.md` is preserved — sync never overwrites it.
 

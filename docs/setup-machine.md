@@ -13,7 +13,7 @@ role. Cloning is a one-time cost; only some roles pay a recurring one.
 | You are… | How often you run `sync.sh` |
 | -------- | --------------------------- |
 | A Claude Code user working in already-synced projects | Never, in the normal case. Skills and commands arrive through the `greenberry` plugin, and the plugin's `SessionStart` hook refreshes the ambient layer on its own — see [The ambient layer updates itself](#the-ambient-layer-updates-itself). |
-| A Cursor or Codex user | After every update you want. Those tools have no plugin path, so `sync.sh` is their only delivery mechanism for skills and commands. |
+| A Codex user | After every update you want. Codex has no plugin path, so `sync.sh` is its only delivery mechanism for skills and commands. |
 | Onboarding a project, or refreshing one | Every time. `sync.sh --project <path>` renders adapters from `templates/` and `shared/` inside the checkout, so it cannot run without one. |
 | Editing the shared config itself | Per change — see [contributing.md](contributing.md). |
 
@@ -40,8 +40,6 @@ cd ~/Web/ai-workflows
 
 `sync.sh` with no flags writes the reusable assets into local agent folders:
 
-- `~/.cursor/commands`
-- `~/.cursor/skills-cursor/ai-workflows`
 - `~/.codex/skills/custom`
 - `~/.claude/rules`: this repo's `CLAUDE.md` as `ai-workflows.md`, plus the
   universal rules subset
@@ -55,6 +53,15 @@ project's `.mcp.json` (see [tooling.md](tooling.md)).
 Claude Code is the exception to file-copy sync: it gets skills and commands from
 the plugin, and sync *removes* copies left behind by earlier syncs (repo-owned
 names only — personal skills stay) so they cannot shadow the plugin.
+
+Cursor is not supported: sync writes nothing to `~/.cursor`. Earlier syncs left
+two copies there. They are stale and harmless, and removing them is optional:
+
+- `~/.cursor/skills-cursor/ai-workflows` was a dedicated folder, so delete it as
+  a whole.
+- `~/.cursor/commands` mirrored this repo's `commands/`. Delete it too, unless
+  you added commands of your own there; in that case remove only the files that
+  share a name with `commands/*.md`.
 
 ## Install And Authenticate The CLI Baseline
 
@@ -207,10 +214,9 @@ hand always applies, regardless of the stamp.
 [graphify](https://github.com/safishamsi/graphify) builds a queryable knowledge
 graph of a codebase so agents can ask scoped questions instead of grepping raw
 files. Adapter guidance lives in `shared/graphify.md` (injected into the
-CLAUDE/AGENTS/Copilot templates), and project sync writes
-`.cursor/rules/graphify.mdc` plus a graphify-hooked `.claude/settings.json` (only
-when the project has none). Everything is guarded on `graphify-out/graph.json`,
-so it no-ops in repos without a graph.
+CLAUDE/AGENTS/Copilot templates), and project sync writes a graphify-hooked
+`.claude/settings.json` (only when the project has none). Everything is guarded
+on `graphify-out/graph.json`, so it no-ops in repos without a graph.
 
 The graph data (`graphify-out/`) is gitignored, so each developer builds their
 own:

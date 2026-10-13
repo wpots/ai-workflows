@@ -1,8 +1,8 @@
 # Adopt In An Existing Project
 
 Use this when the project already has code — and usually already has *some* AI
-setup: a hand-written `CLAUDE.md`, a few `.cursor/rules/`, Copilot instructions
-someone wrote a year ago, or nothing but a long README that agents keep missing.
+setup: a hand-written `CLAUDE.md`, Copilot instructions someone wrote a year
+ago, or nothing but a long README that agents keep missing.
 
 This is the most common starting point, and the retrofit is cheaper than it
 looks: the repo already answers half the questions a new project has to answer by
@@ -19,7 +19,7 @@ Know this before you run anything.
 | --- | --- |
 | `CONVENTIONS.md` | Created if missing. **Never overwritten** by sync — it is project-owned. |
 | `CLAUDE.md`, `AGENTS.md` | Regenerated as thin adapters. Existing content is **replaced** — `setup-ai-workflows` asks first. |
-| `.cursor/rules/conventions.mdc` | Created or updated. Your other `.cursor/rules/*` files are left alone. |
+| `.cursor/rules/*` | Left alone. Cursor is not supported, so sync generates nothing for it, and files already there stay as they are. |
 | `.github/copilot-instructions.md` | Replaced by the generated adapter, with conventions inlined. |
 | `.claude/settings.json` | **Preserved** if present — nothing is merged for you. See [below](#merge-claudesettingsjson-by-hand). |
 | `.claude/skills/verify/SKILL.md` | Created if missing, **never overwritten** — project-owned. Claude Code runs it before each commit. |
@@ -89,7 +89,7 @@ Ask for the `setup-ai-workflows` workflow (Claude: `/greenberry:setup-ai-workflo
 On an existing codebase it:
 
 1. Confirms the target and asks before overwriting `CONVENTIONS.md`, `CLAUDE.md`,
-   `AGENTS.md`, or the Cursor adapter.
+   or `AGENTS.md`.
 2. Detects the stack (Next.js, Next.js + Payload, React Native + Expo, or
    generic), test runner, and linting.
 3. Probes the real folder structure rather than assuming canonical names.

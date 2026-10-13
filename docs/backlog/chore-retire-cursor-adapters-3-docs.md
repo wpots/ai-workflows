@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-in-progress
+done
 
 Go given by the maintainer on 2026-10-13. Slice 1 merged (!188), because these
 docs describe what sync generates.
@@ -51,12 +51,33 @@ actually writes, so that I do not look for Cursor files that no longer appear.
 - History stays as it is: `CHANGELOG.md`, `changelog.d/`,
   `docs/skills-first-migration-plan.md` and `docs/backlog/`.
 - `rg -n -i cursor README.md FEATURES.md AGENTS.md docs --glob '!docs/backlog/**' --glob '!docs/skills-first-migration-plan.md'`
-  lists only the "not supported" lines and the project-owned-files line in
-  `docs/adopt-existing-project.md`.
+  lists only the "not supported" lines, the project-owned-files line in
+  `docs/adopt-existing-project.md` and the optional-cleanup note in
+  `docs/setup-machine.md`.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `git grep -n -i cursor -- README.md FEATURES.md AGENTS.md docs ':!docs/backlog' ':!docs/skills-first-migration-plan.md'`
+      (the criterion's scope) lists 8 lines: the "not supported" line in
+      `README.md`, `AGENTS.md`, `FEATURES.md` and `docs/how-it-works.md`, the
+      `.cursor/rules/*` line in `docs/adopt-existing-project.md`, and the
+      cleanup note in `docs/setup-machine.md` (3 lines). Nothing else.
+- [x] Each tool or support table has at most one Cursor line: `AGENTS.md`,
+      `FEATURES.md` and the support matrix in `docs/how-it-works.md` keep one;
+      the "loads instructions" table in `docs/how-it-works.md` has none.
+- [x] `docs/adopt-existing-project.md`'s adapter table no longer says
+      `.cursor/rules/conventions.mdc` is created or updated.
+- [x] `docs/setup-machine.md` names `~/.cursor/commands` and
+      `~/.cursor/skills-cursor/ai-workflows`, says removing them is optional,
+      and keeps a user's own commands safe.
+- [x] No digested source differs from `main`: `git diff --stat gitlab/main --
+      rules commands shared templates scripts/sync.sh
+      scripts/project-sync-freshness.sh` prints nothing, and
+      `scripts/project-sync-freshness.sh --digest` gives `3095625998 299288` as
+      before. No re-sync prompt.
+- [x] `CHANGELOG.md`, `changelog.d/`, `docs/skills-first-migration-plan.md` and
+      `docs/backlog/` (apart from this item) are untouched.
+- [x] `bash scripts/validate-ai-instructions.sh` (the pre-commit hook) passes.
 
 ## Technical Notes
 
@@ -72,6 +93,19 @@ whichever lands first.
 
 None of these files is in the freshness stamp or shipped as plugin behaviour, so
 no changelog fragment and no re-sync prompt.
+
+Corrected on delivery: the last criterion allowed only the "not supported" lines
+and the project-owned-files line, but the `docs/setup-machine.md` criterion
+needs the two `~/.cursor` paths and the optional-cleanup note, which that `rg`
+also lists. The criterion now names that note too.
+
+Two details beyond the criteria. The `~/.cursor/commands` note is not a blanket
+`rm`: the old global sync mirrored `commands/` into it with `rsync --delete`, so
+it held only this repo's runbooks, but a user may have added commands of their
+own after the last sync; the note tells them to remove only the files named like
+`commands/*.md` in that case. And the "No synced `~/.cursor/mcp/ai-workflows`
+folder" bullet in `docs/tooling.md` stays as a decision, reworded to "No synced
+global MCP folder", instead of being deleted.
 
 ## Out of Scope
 
