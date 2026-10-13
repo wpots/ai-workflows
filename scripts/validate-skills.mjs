@@ -563,16 +563,21 @@ for (const [rel, markers] of Object.entries(REQUIRED_MARKERS)) {
   }
 }
 
-// ── The project CLAUDE.md imports AGENTS.md ──────────────────────────────────
+// ── The project CLAUDE.md imports AGENTS.md and CONVENTIONS.md ───────────────
 // Claude Code reads a project's CLAUDE.md in place of its AGENTS.md, so the
 // CLAUDE.md template pulls the shared adapter in with `@AGENTS.md` and holds
 // only Claude-specific lines. A shared fragment in it would reach Claude twice.
+// `@CONVENTIONS.md` loads the project's conventions at session start; a file
+// named only in words loads when Claude decides to open it.
 
 const PROJECT_CLAUDE = "templates/project-CLAUDE.md";
 if (tracked.has(PROJECT_CLAUDE)) {
   const text = read(PROJECT_CLAUDE);
-  if (!/^@AGENTS\.md$/m.test(text)) {
-    err(PROJECT_CLAUDE, "must import the shared adapter with an `@AGENTS.md` line");
+  const lines = new Set(text.split("\n"));
+  for (const file of ["AGENTS.md", "CONVENTIONS.md"]) {
+    if (!lines.has(`@${file}`)) {
+      err(PROJECT_CLAUDE, "must import " + file + " with an `@" + file + "` line");
+    }
   }
   if (text.includes("<!-- BEGIN SHARED:")) {
     err(

@@ -50,7 +50,7 @@ declared canonical source of each reusable workflow.
 | GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
 | Cursor | not supported; sync generates nothing for it | — |
 | Codex | `AGENTS.md` | skills first, commands as fallback |
-| Claude | `CLAUDE.md` (which imports `AGENTS.md`) plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
+| Claude | `CLAUDE.md` (which imports `AGENTS.md` and `CONVENTIONS.md`) plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
 
 The repo is intentionally not “skills only.” Copilot still needs
 command-friendly runbooks. Claude is skills-first as of 2026-07 — the decision

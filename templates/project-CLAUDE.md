@@ -2,10 +2,14 @@
 
 @AGENTS.md
 
+@CONVENTIONS.md
+
 ## Claude Code
 
-`AGENTS.md`, imported above, is the adapter every agent in this project
-shares. This file adds only what is specific to Claude Code:
+`AGENTS.md` and the project's `CONVENTIONS.md` are imported above, so both are
+in context from the start of every session. `AGENTS.md` is the adapter every
+agent in this project shares; this file adds only what is specific to Claude
+Code:
 
 - Skills come from the `greenberry` plugin: prefer the matching plugin skill
   for a repeatable workflow (for example `/greenberry:create-pr`);

@@ -102,7 +102,7 @@ Examples:
 
 Per tool:
 
-- Claude Code: project `CLAUDE.md` imports `AGENTS.md`, which points to `rules/`, but mentioning the specific rule in the prompt gives the strongest signal.
+- Claude Code: project `CLAUDE.md` imports `AGENTS.md` and `CONVENTIONS.md`; `AGENTS.md` points to `rules/`, but mentioning the specific rule in the prompt gives the strongest signal.
 - Codex: `AGENTS.md` points to the local files, and explicitly naming a focused rule is still helpful for narrow tasks.
 - Copilot: assume only `.github/copilot-instructions.md` is ambient. If a focused rule matters, name it in the prompt or work from the matching prompt/runbook.
 
@@ -117,7 +117,7 @@ For workflows:
 - `CONVENTIONS.md`: project-specific stack, structure, scripts, and deviations from the shared baseline
 - `AI-WORKFLOWS.md`: this guide
 - `AGENTS.md`: the adapter every agent shares; Codex reads it directly
-- `CLAUDE.md`: imports `AGENTS.md` and adds the Claude-specific lines
+- `CLAUDE.md`: imports `AGENTS.md` and `CONVENTIONS.md` and adds the Claude-specific lines
 - `.github/copilot-instructions.md`: Copilot-facing adapter with `CONVENTIONS.md` and condensed baseline rules inlined
 - `rules/`: synced shared coding standards
 - `commands/`: synced workflow runbooks
