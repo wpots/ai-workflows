@@ -77,6 +77,24 @@ Rules:
 If `docs/backlog/_template.md` exists and no longer matches `rules/backlog.md`,
 update it so future backlog work starts from the correct format.
 
+## Phase 5 — Ready check (on request)
+
+When asked whether an item, or a set of items, is ready:
+
+1. Hold each item against the Definition of Ready in `rules/backlog.md`.
+2. Put each open product question to the developer, one at a time: answer it
+   now, ask the PO, keep it for the next refinement, or record it as an
+   assumption. Write the chosen route into the item.
+3. Give every other open point its next step: slices, a recorded approach
+   choice, a spike item, back to design, an external request, a reproduction.
+4. On an item that is not ready, write `Blocked on:` and `Next step:` lines
+   under the status value.
+5. Propose the items that pass, and write `ready` only after the developer
+   confirms each one.
+
+The full procedure, with the routing tables, is
+`skills/backlog/references/ready-check.md`.
+
 ## Output
 
 End with:
@@ -85,3 +103,5 @@ End with:
 - Whether the item was new or updated
 - Any open assumptions that still need confirmation
 - Whether `docs/backlog/_template.md` was updated
+- For a ready check: the verdict per item and which items the developer flipped
+  to `ready`
