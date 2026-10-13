@@ -1,6 +1,6 @@
 ---
 name: upstream-to-unicore
-description: Upstream reusable work from a Greenberry project into the unicore-template via a GitLab MR on the right release line — v4 (the CMS-preset line) for anything new, v3 (development) for fixes only — adapting project-specific bits and reading the template's conventions from the target line itself. Also runs as a harvest, listing the template-owned changes a project made since the template commit it started from, so upstreaming does not wait for someone to remember. Use when the user asks to upstream, port or share something to unicore, the unicore-template or the project template, asks what should go back to the template ("template harvest", "wat moet terug naar de template"), or when mr-merged or close-sprint hands over changes to template-owned files.
+description: Upstream reusable work from a Greenberry project into the unicore-template via a GitLab MR on the release line or lines the change is needed on — v4 (the CMS-preset line) or v3 (development) — adapting project-specific bits and reading the template's conventions from the target line itself. Also runs as a harvest, listing the template-owned changes a project made since the template commit it started from, so upstreaming does not wait for someone to remember. Use when the user asks to upstream, port or share something to unicore, the unicore-template or the project template, asks what should go back to the template ("template harvest", "wat moet terug naar de template"), or when mr-merged or close-sprint hands over changes to template-owned files.
 metadata:
   owner: wieteke.pots
 ---
@@ -27,18 +27,23 @@ with the open queue (Step 0) and ends with a hand-off that keeps the MR moving
 The template has two release lines. Take the target from this table — never
 from the repository's default branch, and never from memory:
 
-| Line | Branch | Takes |
+| Line | Branch | Status |
 | --- | --- | --- |
-| v4 | `feat/declarative-cms-presets` | everything new: building blocks, tooling, CMS code as a preset |
-| v3 | `development` | fixes only, for projects created before v4: security, dependency and bug fixes — no new building blocks |
+| v4 | `feat/declarative-cms-presets` | the CMS-preset line, being prepared |
+| v3 | `development` | the current line, without presets or `.unicore.json` |
 
+- How the lines relate once v4 is ready — whether v4 replaces `development`,
+  and what v3 still takes — is not decided yet. So the target is a choice per
+  change: CMS code and changes to the preset setup exist on v4 only; for
+  anything else, ask the user whether it goes to v4, v3 or both. Never pick a
+  line by default.
 - Confirm the branch before you branch off it:
   `git ls-remote --heads origin <branch>`. When it is missing, the line was
   renamed: read the "Versions and lineage" table in the template README on the
   remaining candidate branches, ask the user which one it is, and update this
   table through `skills/upstream-rules` — the README table and this table change
   together.
-- A fix both lines need lands on v4 first, then as its own small MR on v3.
+- A change for both lines is two small MRs, one per line.
 - The template is CMS-agnostic. CMS-specific code goes to `src/vendor/<cms>/`
   on v4, with its dependencies, scripts and environment variables declared in
   `config/cms-presets.json`. There are no CMS variant branches to target;
@@ -50,7 +55,10 @@ setup: `template.version`, `template.commit` and the `preset`. The paths the
 template owns are the `owned` globs in `template.json` at that commit. A v3
 project has no record, and its history was replaced when it was created (the
 template's `readme-checks` hook demands it), so no merge-base can find its
-starting point; Step 1 estimates it.
+starting point; Step 1 estimates it. Projects are created from the copy
+`greenberrynl/project-templates/unicore-template`, which is updated by hand
+until DEV-694 publishes it from this repository; a commit that copy made on
+its own does not exist here, and Step 1 then falls back to the version tag.
 
 ## Step 0 — The open queue
 
@@ -222,7 +230,8 @@ MR body:
   Add the open queue from Step 0 with this MR included.
 - Offer `skills/watch-mrs` on the MR, so approval, review comments and pipeline
   failures come back into the session.
-- For a fix both lines need, name the v3 follow-up MR as an open action.
+- For a change that goes to both lines, name the second line's MR as an open
+  action until it exists.
 - Remove the worktree after the push. Never leave a branch half-pushed without
   saying what state it is in.
 
@@ -230,7 +239,8 @@ MR body:
 
 - Every change lands via an MR on a line branch from the table — never a direct
   push, and never on a branch that is missing from the table.
-- New building blocks go to v4 only; v3 takes fixes only.
+- The line is the user's choice per change until the team decides how v3 and
+  v4 relate; only CMS code and preset-setup changes are fixed to v4.
 - Keep the template client-agnostic and CMS-agnostic: no client naming, no
   tracker references, and CMS code only under `src/vendor/<cms>/` on v4.
 - Read the target line's conventions at run time; never carry a wrapper, path,

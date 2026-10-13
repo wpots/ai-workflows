@@ -1,7 +1,8 @@
 - `skills/upstream-to-unicore` targets the template's release lines instead of
   the archived `experimental-new-setup`: v4 (`feat/declarative-cms-presets`)
-  takes new work, v3 (`development`) takes fixes only, and CMS code goes to
-  `src/vendor/<cms>/` on v4. It reads the target line's conventions (package
+  or v3 (`development`), chosen per change with the user until the team
+  decides how the lines relate, and CMS code goes to `src/vendor/<cms>/` on
+  v4. It reads the target line's conventions (package
   manager, env wrapper, agent instructions) at run time instead of carrying a
   hardcoded dotenvx recipe, finds the project's base from `.unicore.json` (v4)
   or estimates it (v3), and adds a harvest mode that lists the template-owned
