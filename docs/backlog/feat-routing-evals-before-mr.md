@@ -182,8 +182,8 @@ Running it:
 ## Related
 
 - [feat-skill-eval-harness-2-routing-cases.md](feat-skill-eval-harness-2-routing-cases.md): the routing suite this runs
-- [feat-skill-eval-harness-3-ci-job.md](feat-skill-eval-harness-3-ci-job.md): the CI variant, parked
-- [chore-create-pr-preflight-and-monitor.md](chore-create-pr-preflight-and-monitor.md): other pre-flight additions to `skills/create-pr`; both edit § 3, so deliver one at a time
+- [feat-skill-eval-harness-3-ci-job.md](feat-skill-eval-harness-3-ci-job.md): the CI variant, superseded by this item
+- [chore-create-pr-self-review-preflight.md](chore-create-pr-self-review-preflight.md): the next pre-flight addition to `skills/create-pr`; both edit § 3, so deliver one at a time
 - [../../skills/create-pr/SKILL.md](../../skills/create-pr/SKILL.md)
 - [../../evals/README.md](../../evals/README.md)
 - [../pipeline-map.md](../pipeline-map.md)

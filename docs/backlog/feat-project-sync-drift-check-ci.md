@@ -6,6 +6,18 @@
 
 draft
 
+Readiness pass 2026-10-13 — waits for `spike-codex-plugin-channel.md`. The
+item was written for Cursor and Codex users, who get no `SessionStart` nudge.
+Cursor is out (2026-10-08). If the spike says go, Codex gets a plugin with its
+own hooks and this item is likely obsolete: delete it. On a no-go, fix criterion
+3 before marking it `ready`: the stamp is a `cksum` over files a project does
+not have (the adapter templates, `scripts/sync.sh`,
+`scripts/project-sync-freshness.sh`; see `source_digest()`), so the stamp plus
+the project's own files can never show drift. Every run needs the source. A
+client pipeline that fetches the private ai-workflows repo also needs its
+project on the CI/CD job token allowlist of ai-workflows, a GitLab setting the
+maintainer changes.
+
 ## Ticket
 
 <!-- no tracker ticket: this repo's own backlog -->
@@ -67,7 +79,11 @@ someone opened.
 
 ## Related
 
-- Depends on: the freshness stamp (slice 1/2) — delivered in 2.0.0 and merged
+Depends on: spike-codex-plugin-channel.md
+
+- [spike-codex-plugin-channel.md](spike-codex-plugin-channel.md) — decides
+  whether Codex gets hooks, which may make this item obsolete
+- The freshness stamp (slice 1/2) — delivered in 2.0.0 and merged
   via https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/93,
   so this slice is unblocked
 - Precedent: `scripts/install-hooks.sh` and the repo's own

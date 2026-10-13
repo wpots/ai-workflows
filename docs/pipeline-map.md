@@ -316,8 +316,8 @@ read. Revisit if a project ever gets one — not before.
 an automation: classify whether the comment is actionable at all, reproduce it as a
 failing test before fixing anything, stop and ask on the ticket when it cannot be
 reproduced, and open the fix as a **draft** MR that re-enters the pipeline at QA and
-Review like any other change. No surface owns any of that today — see
-`docs/backlog/feat-jira-feedback-loop.md`. The failure mode being designed against is
+Review like any other change. No surface owns any of that today, and building one
+is parked (gap 11 below). The failure mode being designed against is
 not a bad fix surviving review; it is an agent confidently "fixing" a misclassified
 comment, or a fix that passes its own narrow reproduction test while breaking what the
 test never covered. Both are caught by the full QA pass and the human merge gate,
@@ -372,9 +372,10 @@ requirements changed after work began. The discipline is that the snapshot is
 regenerated, never hand-edited: it is a cache of the contract, not a second copy of
 the ticket.
 
-**This repo has no snapshot mechanism today.** Every tracker-reading skill reads live,
-which is why `docs/backlog/feat-ticket-drift-check.md` is specified around the
-snapshot rather than around a live diff.
+**This repo has no snapshot mechanism today.** Every tracker-reading skill reads live.
+Building the snapshot is parked until a missed criterion has actually cost something
+(gap 2 below); when it is picked up, it is specified around the snapshot rather than
+around a live diff.
 
 The repo-owned half, in real paths:
 
@@ -429,8 +430,8 @@ actually stands against it — the alignment view, not a wish list.
 | Operate | incident triage: error spike → likely PRs | ⛔ | no per-project observability stack to reason over |
 | Operate | log/error summarisation, on-call assistant | ⛔ | same — and nobody is on call |
 | Operate | docs-in-sync: code changed, which docs/ADRs are stale | ✅ | per-MR: doc-freshness dimension in `skills/code-review` (`rules/documentation.md`); periodic sweep: `skills/maintenance` |
-| Loop | Jira comment → triage → reproduce → fix → draft MR | ❌ | filed: `docs/backlog/feat-jira-feedback-loop.md` |
-| Context | read-only snapshot pinned per branch | ❌ | filed: `docs/backlog/feat-ticket-drift-check.md` |
+| Loop | Jira comment → triage → reproduce → fix → draft MR | ❌ | parked: gap 11 |
+| Context | read-only snapshot pinned per branch | ❌ | parked: gap 2 |
 
 Read that column honestly: this repo is strong where the spec says the work is easy
 (generation — scaffolding, descriptions, tickets) and thin exactly where the spec says
@@ -450,8 +451,8 @@ Ordered by how often they bite. Each is filed as a backlog item.
 
 | # | Gap | What it costs today | Filed as |
 | --- | --- | --- | --- |
-| 1 | Nothing arms a monitor after the MR is opened; no review or ticket-drift pre-flight | A red pipeline sits unnoticed; a reviewer sees what a self-review would have caught | `docs/backlog/chore-create-pr-preflight-and-monitor.md` |
-| 2 | No requirements snapshot pinned per branch, so no check that the ticket still says what it said when work started | AC changed or a comment moved the scope, and the MR silently misses it — and a gate that reads live Jira is not reproducible | `docs/backlog/feat-ticket-drift-check.md` |
+| 1 | `skills/create-pr` runs no self-review before the push (the pipeline watch after opening is delivered: step 7 waits out the setup stage and offers `skills/watch-mrs`) | A reviewer sees what a self-review would have caught | `docs/backlog/chore-create-pr-self-review-preflight.md` |
+| 2 | No requirements snapshot pinned per branch, so no check that the ticket still says what it said when work started | AC changed or a comment moved the scope, and the MR silently misses it — and a gate that reads live Jira is not reproducible | parked, not filed: reopen on the first MR that missed a criterion changed after work started. The earlier spec, `feat-ticket-drift-check.md`, was removed on 2026-10-13 and is in git history |
 | 3 | No surface triages a failing pipeline | The same CI failure recurs because nobody reads the job trace | `docs/backlog/feat-pipeline-triage.md` |
 | 4 | ~~`skills/watch-mrs` reports merge status, not pipeline detail, and hands off to nothing~~ | Delivered 2026-07-29: the watcher tracks pipeline transitions, names the failing job/stage, offers triage, and hands merges to `skills/mr-merged` | delivered |
 | 5 | The local check sweep is not derived from the CI job list | Green locally, red in CI | `docs/backlog/chore-run-checks-ci-parity.md` |
@@ -460,8 +461,8 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 8 | ~~Project kickoff starts at stack detection, not at intent~~ | Delivered 2026-07-29: `skills/start-project` writes brief, release spec and architecture doc before `skills/setup-ai-workflows` detects anything, and both `setup-ai-workflows` and `skills/architecture-review` now defer to the intended layer mapping instead of re-deriving it | delivered |
 | 9 | ~~"Run `improve-skill` after a run that needed intervention" is prose, not a hook~~ | Delivered 2026-10-08: a plugin `Stop` hook blocks once per session after a Greenberry skill run the user stepped into, so Claude offers the retrospective | delivered |
 | 10 | QA reports what it ran, but the run leaves behind nothing a reviewer can re-run | "Done" stays an assertion: the report says the criteria are met, and checking that claim means redoing the work | `docs/backlog/feat-requirements-traceability.md` |
-| 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | `docs/backlog/feat-jira-feedback-loop.md` — filed, parked |
-| 12 | A changed skill has a partial regression net: the MR flow runs the routing suite on routing-relevant changes, but there is no CI job, routing cases exist for only the five riskiest skills, and 37 of 62 cases need a fixture before they run | `skills/improve-skill` rewrites the instructions that drive every other phase; the check that the rewrite still triggers is armed in the MR flow (model guidance, not a gate), the check that it still delivers is armed by nothing | `docs/backlog/feat-routing-evals-before-mr.md` (the MR-flow run); `docs/backlog/feat-skill-eval-harness-3-ci-job.md` (the CI job, parked) |
+| 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | parked, not filed: reopen once gap 2 exists and ticket feedback measurably waits on attention. The earlier spec, `feat-jira-feedback-loop.md`, was removed on 2026-10-13 and is in git history |
+| 12 | A changed skill has a partial regression net: the MR flow runs the routing suite on routing-relevant changes, but there is no CI job, routing cases exist for only the five riskiest skills, and 37 of 62 cases need a fixture before they run | `skills/improve-skill` rewrites the instructions that drive every other phase; the check that the rewrite still triggers is armed in the MR flow (model guidance, not a gate), the check that it still delivers is armed by nothing | `docs/backlog/feat-routing-evals-before-mr.md` (the MR-flow run); `docs/backlog/feat-skill-eval-harness-3-ci-job.md` (the CI job, superseded by the MR-flow run; reopen conditions in that item) |
 
 Everything else the spec proposes is in the coverage table above rather than filed —
 recording it beats twenty draft items nobody picks up.
