@@ -80,8 +80,9 @@ claude plugin eval . --tag runnable --runs 1 --ablation none --no-publish --trus
 
 `skills/create-pr` and the upstream MR flow (`shared/upstream-mr.md`, the path
 `skills/improve-skill` takes) run the routing suite before the MR opens, when
-the branch can break routing. They point here and do not copy the trigger or
-the command, so a change to either lands in one place.
+the branch can break routing. They say when the step applies and point here for
+the trigger test, the command and the result lines, so a change to those lands
+in one place.
 
 **When it fires.** Only in a checkout with routing cases, and only when the
 branch diff does at least one of these. List the candidates with

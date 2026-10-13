@@ -88,9 +88,10 @@ If the platform cannot be inferred, ask the user.
    the first push. If a case fails, stop and surface the case, the skill and the
    grader; continue only once it passes or the user accepts the failure, and
    never loosen or delete the case to get a pass. Put the result line the README
-   prescribes (including `not run — <reason>`) in the MR description's
-   verification section (step 6). Everywhere else, and for a branch that
-   changes only skill bodies, references or other cases, this step does nothing.
+   prescribes (including `not run — <reason>`) in the verification section of
+   the MR description (see Generate PR Content). Everywhere else, and for a
+   branch that changes only skill bodies, references or other cases, this step
+   does nothing.
 6. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
