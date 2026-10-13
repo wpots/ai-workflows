@@ -142,3 +142,14 @@ branches, and files whose hunks belong to different MRs.
 
    Cosmetic-only residue (a moved declaration) is fine; report it rather than
    silently accepting a non-empty diff. Delete `verify-union` afterwards.
+
+**When the lower MR of a stack merges** and deletes its branch, GitLab
+retargets the next MR to the base and marks its pipeline stale ("You should run
+a new pipeline, because the target branch has changed"; Merge then asks "Merge
+unverified changes?"). Rebase that branch onto `<remote>/<base>`, run the full
+checks again, and push with `--force-with-lease`; the push starts the fresh
+pipeline. Run the checks even when the rebase reports no conflict: a branch that
+mirrors something another merged MR changed — a path list, a fixture, a count —
+conflicts in meaning, not in text. Seen in practice: a merged MR dropped two
+templates from a digest list that the stacked branch's test compares against.
+Name this step in the upper MR's "Open items" when you open a stack.
