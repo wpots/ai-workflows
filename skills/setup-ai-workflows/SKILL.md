@@ -80,6 +80,11 @@ Also detect:
 - **Test runner**: vitest, jest, or neither
 - **Linting**: eslint, stylelint, biome
 - **Styling**: tailwindcss, css modules, styled-components
+- **Language**: TypeScript (a `tsconfig.json` and `.ts`/`.tsx` sources),
+  JavaScript only (no `tsconfig.json`; a `jsconfig.json` or `checkJs` still
+  counts as JavaScript), or mixed (`.js`/`.jsx` and `.ts`/`.tsx` side by side in
+  the source folders). Anything but TypeScript deviates from the baseline in
+  `rules/project.md`, so Step 4 asks where the project is heading.
 - **TypeScript posture**: whether `tsconfig` uses `strict`,
   `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`,
   `useUnknownInCatchVariables`, `noImplicitOverride`,
@@ -121,8 +126,12 @@ relevant stack rules table and record the mapping for use in CONVENTIONS.md.
 ### 4. Detect Deviations from Global Rules
 
 Compare the detected project config against global rules in
-`<ai-workflows>/rules/` (or `~/.claude/rules/`). Flag deviations such as:
+`<ai-workflows>/rules/` (or `~/.claude/rules/`). Our projects differ in stack and
+age, so deviations are normal; the baseline assumes a TypeScript Next.js
+project. Flag deviations such as:
 
+- JavaScript where the baseline expects TypeScript — JavaScript only, or a
+  mixed tree
 - Component libraries that differ from global rules
   (e.g., React Aria Components vs. the "no component libraries" rule)
 - Dual test runners (e.g., Jest + Vitest) vs. global testing rules
@@ -135,7 +144,26 @@ Compare the detected project config against global rules in
 - Any conventions in existing config files (prettier, eslint, tsconfig) that
   contradict global rules
 
-For each deviation, determine whether it's intentional and document why.
+For each deviation, ask the developer which of two it is. The code cannot tell
+you, and a guess becomes a rule every agent follows:
+
+- **accepted** — the project stays this way. Record the reason. The deviation
+  is the project's rule, and new code follows it.
+- **migrating** — the project is moving to the baseline or another target.
+  Record the target, the rule for new code (it follows the target, not the
+  files next to it — `rules/clean-architecture.md`, "Conform to the rule, not
+  the neighbour"), and how existing code follows: when a file is touched, or
+  through backlog items.
+
+A mixed JavaScript/TypeScript tree is the usual **migrating** case, but ask
+anyway: a few `.js` config files in a TypeScript project are no migration.
+
+The decision and its rationale have one home. When `docs/architecture.md`
+exists, they belong in its decision log and `CONVENTIONS.md` carries only the
+working rule plus a link. This skill does not write that log: when the entry is
+missing, list it in the summary as a follow-up for `start-project` or the
+developer. Without an architecture doc, the reason goes on the deviation line
+itself.
 
 ### 5. Generate CONVENTIONS.md
 
@@ -152,6 +180,7 @@ truth** for project-specific context. All tool adapters reference this file.
 ## Stack
 
 - <detected stack with versions>
+- <language: TypeScript | JavaScript | mixed (migrating to TypeScript)>
 - <styling>
 - <testing>
 - <other notable deps>
@@ -193,7 +222,10 @@ reasoning behind it: `docs/architecture.md`" — and no restated rationale>
 
 ## Deviations from Global Rules
 
-- <each deviation with rationale>
+- <deviation> — **accepted**: <reason, or a link to the decision>
+- <deviation> — **migrating** to <target>: new code <follows the target>;
+  existing code <converted when touched | via backlog items>.
+  <Why: `docs/architecture.md`, decision log — when that exists>
 - <omit this section if no deviations detected>
 
 ## Precedence
@@ -208,6 +240,8 @@ Guidelines:
   exist, link them once under `## Project` instead of summarizing them.
 - Pull the description from `package.json` or the first paragraph of `README.md`.
 - List only scripts that exist in `package.json`.
+- Every deviation carries its status. Without one, an agent cannot tell
+  whether to follow the existing code or the target.
 - Keep it under 80 lines — concise and scannable.
 - Distinguish between:
   - universal baseline rules from the adapters and `shared/core-rules.md`
@@ -297,6 +331,14 @@ it from then on. Claude Code runs a project skill named `verify` before each
 commit, except docs-only and tests-only ones. A skill shipped in the plugin does
 not count, which is why this one lives in the project.
 
+Also emit `.claude/settings.json` from `templates/project-claude-settings.json`
+when the project has none (`scripts/sync.sh --project` does the same copy). It
+registers the `ai-workflows` marketplace, which gives teammates the one-time
+plugin install prompt when they open the project, and adds the
+sync-freshness and graphify hooks. An existing one is never overwritten: report
+what a manual merge should add, per `docs/adopt-existing-project.md` in
+ai-workflows.
+
 Add `.playwright-mcp/` to the project's `.gitignore` when no line ignores it
 yet (`scripts/sync.sh --project` appends it once). The Playwright MCP writes
 screenshots, console logs and page snapshots there on every navigation and
@@ -321,13 +363,16 @@ Initialized <project-name> with ai-workflows:
   commands/             [synced]           — shared workflow runbooks
   .github/prompts/      [synced]           — Copilot prompt files generated from commands/
   .mcp.json             [created/skipped]  — project MCP servers (env-var-based, checked in)
+  .claude/settings.json [created/skipped]  — marketplace prompt + project hooks
   .gitignore            [appended/ok]      — .playwright-mcp/ (browser MCP output)
 
-  Stack: <detected stack>
-  Deviations: <count> from global rules
+  Stack: <detected stack>, <language>
+  Deviations: <count> from global rules (<n> accepted, <n> migrating)
 ```
 
-If deviations were detected, list them briefly so the developer is aware.
+If deviations were detected, list them briefly with their status so the
+developer is aware, plus any decision-log entry still missing from
+`docs/architecture.md`.
 
 ## Constraints
 

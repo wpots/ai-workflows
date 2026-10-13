@@ -83,8 +83,10 @@ written down, and the architecture doc is what makes later reviews
 
 Ask for the `setup-ai-workflows` workflow (Claude: `/greenberry:setup-ai-workflows`) — or let `start-project` run it as its config lane:
 
-> Set up this project with the `setup-ai-workflows` workflow. Use
-> `~/Web/ai-workflows` as the canonical source.
+> Set up this project with the `setup-ai-workflows` workflow.
+
+On Claude Code the skill reads the rules and templates from the plugin, so no
+local clone of this repo is needed.
 
 On an existing codebase it:
 
@@ -102,7 +104,33 @@ Step 4 is the one that matters on a retrofit. An existing project *will* deviate
 the point is that the deviations become visible and intentional instead of
 turning every future review into an argument.
 
+Our projects differ: one is a TypeScript Next.js site that matches the baseline,
+another is a JavaScript project that stays JavaScript, a third is halfway
+through a move to TypeScript. The global rules assume the first. So the skill
+asks for each deviation which of two it is, and `CONVENTIONS.md` records it:
+
+- **accepted** — the project stays this way, with the reason. New code follows
+  the project, not the baseline.
+- **migrating** — the project is moving to a target. New code follows the
+  target; existing code follows when a file is touched or through backlog
+  items.
+
+```markdown
+- JavaScript, no TypeScript — **migrating** to TypeScript (strict): new files
+  are `.ts`/`.tsx`; existing `.js` converts when a file is touched.
+  Why: `docs/architecture.md`, decision log
+```
+
+Without that status an agent cannot tell whether to copy the file next to it or
+write toward the target. The decision itself, and why, goes in the decision log
+of `docs/architecture.md` when the project has one; `CONVENTIONS.md` carries the
+working rule and links there.
+
 ## Step 3 — Preview And Apply The Sync
+
+On Claude Code, step 2 already wrote the shared files. Run the script from an
+`ai-workflows` checkout when you use Codex, or when you want the `--dry-run`
+preview of every file that changes:
 
 ```bash
 cd ~/Web/ai-workflows

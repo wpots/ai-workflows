@@ -68,14 +68,24 @@ Two things worth knowing about the split:
 `setup-ai-workflows` also runs on its own, any time you want the config
 regenerated (Claude: `/greenberry:setup-ai-workflows`):
 
-> Set up this project with the `setup-ai-workflows` workflow. Use
-> `~/Web/ai-workflows` as the canonical source.
+> Set up this project with the `setup-ai-workflows` workflow.
+
+On Claude Code both skills read the rules, templates and scripts from the
+plugin, so no local clone of this repo is needed.
+
+Projects differ, and the global rules assume a TypeScript Next.js project. When
+yours deviates — it is JavaScript, say, and stays that way, or it is moving to
+TypeScript — `setup-ai-workflows` asks whether each deviation is **accepted** or
+**migrating** and records that in `CONVENTIONS.md`. See
+[adopt-existing-project.md](adopt-existing-project.md#step-2--generate-the-project-context)
+for an example.
 
 ## Sync The Shared Assets
 
-Claude Code gets skills and commands from the `greenberry` plugin, so this step is
-for **Codex**, and for the generated project adapters. Run it from the
-`ai-workflows` checkout — the target directory must already exist. Preview first:
+On Claude Code, `setup-ai-workflows` writes these files itself. This step is
+for **Codex**, or for running the script instead of the skill. Run it from an
+`ai-workflows` checkout — the target directory must already exist. Preview
+first:
 
 ```bash
 cd ~/Web/ai-workflows

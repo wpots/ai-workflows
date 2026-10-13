@@ -7,22 +7,19 @@ use. Setting up a *project* is a separate thing — see
 
 ## Do I Need A Local Clone?
 
-Yes — but how often you run `sync.sh` depends entirely on your tool and your
-role. Cloning is a one-time cost; only some roles pay a recurring one.
+Not if you only use Claude Code. Whether you need one, and how often you run
+`sync.sh`, depends on your tool and your role.
 
 | You are… | How often you run `sync.sh` |
 | -------- | --------------------------- |
 | A Claude Code user working in already-synced projects | Never, in the normal case. Skills and commands arrive through the `greenberry` plugin, and the plugin's `SessionStart` hook refreshes the ambient layer on its own — see [The ambient layer updates itself](#the-ambient-layer-updates-itself). |
 | A Codex user | After every update you want. Codex has no plugin path, so `sync.sh` is its only delivery mechanism for skills and commands. |
-| Onboarding a project, or refreshing one | Every time. `sync.sh --project <path>` renders adapters from `templates/` and `shared/` inside the checkout, so it cannot run without one. |
+| Onboarding a project, or refreshing one | Never on Claude Code: `start-project` and `setup-ai-workflows` read the rules, templates and scripts from the plugin. With the script instead (`sync.sh --project <path>`, e.g. for Codex) every time — it renders adapters from `templates/` and `shared/` inside the checkout, so it cannot run without one. |
 | Editing the shared config itself | Per change — see [contributing.md](contributing.md). |
 
-What you give up by never cloning at all: the global ambient baseline in
-`~/.claude/rules/`. Inside an already-synced project
-that matters less than it sounds, because project sync writes `rules/`,
-`commands/`, and the tool adapters into the project itself — that context loads
-from the repo you are working in. The global layer is what covers work *outside*
-a synced project.
+What you give up on Claude Code by never cloning at all: nothing, in the normal
+case. The clone is for Codex, for the `sync.sh --project` script, and for
+changing the shared config.
 
 Why Claude is the odd one out: plugins have no primitive for always-on context,
 so the ambient layer stays a file copy into `~/.claude` by design. It is still
