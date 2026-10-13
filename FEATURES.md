@@ -156,6 +156,6 @@ Shows the intended support model for the main workflow surfaces.
 | Tool | Always-on entry point | Preferred workflow surface |
 |------|------------------------|----------------------------|
 | **GitHub Copilot** | `.github/copilot-instructions.md` | commands/runbooks |
-| **Cursor** | `AGENTS.md` plus `.cursor/rules/*.md` | skills first, commands as fallback |
+| **Cursor** | `AGENTS.md` plus `.cursor/rules/*.md` | not used by the Greenberry team; adapters are still generated but get no further work |
 | **Codex** | `AGENTS.md` | skills first, commands as fallback |
 | **Claude Code** | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |

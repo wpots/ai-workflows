@@ -17,7 +17,7 @@ When `CONVENTIONS.md` conflicts with synced baseline rules, `CONVENTIONS.md` win
 | GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. `.github/prompts/*.prompt.md` are attachable helpers, not guaranteed auto-context. |
 | Claude Code | Global `~/.claude/CLAUDE.md` and `~/.claude/rules/*.md`, the `greenberry` plugin (auto-registered via `.claude/settings.json`), plus project files when present | Global Claude rules must stay universal. Skills/commands come from the plugin and auto-update. Project-specific context belongs in `CONVENTIONS.md`, this guide, and project adapters. |
 | Codex | `AGENTS.md` plus repo files it can inspect | `AGENTS.md` is the thin adapter; deeper project context lives in `CONVENTIONS.md`, `rules/`, and `commands/`. |
-| Cursor | `AGENTS.md` and `.cursor/rules/*.md` | Cursor can follow project files well, and `.cursor/rules/conventions.mdc` points it back to `CONVENTIONS.md` and `rules/`. |
+| Cursor | `AGENTS.md` and `.cursor/rules/*.md` | Not used by the Greenberry team. `.cursor/rules/conventions.mdc` is still generated and points back to `CONVENTIONS.md` and `rules/`, but it gets no further work. |
 
 ## Workflow Surface Strategy
 
@@ -47,7 +47,7 @@ Use this as the intended model inside synced projects:
 | Tool | Preferred workflow surface |
 | ---- | -------------------------- |
 | GitHub Copilot | commands/runbooks |
-| Cursor | skills first, commands as fallback |
+| Cursor | not used by the team; no workflow surface is maintained for it |
 | Codex | skills first, commands as fallback |
 | Claude Code | skills first (via the `greenberry` plugin, e.g. `/greenberry:create-pr`), commands as fallback |
 
