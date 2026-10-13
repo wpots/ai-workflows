@@ -2,12 +2,18 @@
 
 ## Status
 
-draft
+ready
 
-Not blocked. Verifying it needs a Jira project with an open
+Readiness pass 2026-10-13: no decision open. The lookup it reuses is "The
+critical ticket" in `skills/npm-maintenance/references/maintenance-ticket.md`;
+neither maintenance skill calls it yet. The eval case in Technical Notes
+carries its facts in the prompt, so the automated check needs no live ticket.
+The live checks in `How to verify` need a Jira project with an open
 `maintenance:critical` ticket. Until the dependency scanner's ticket job is
 switched on (it waits for the gb-dashboard `CRON_SECRET` rotation), those
-tickets only come from `dependency-hotfix`.
+tickets only come from `dependency-hotfix` — when none is open at delivery,
+put the over-72-hour check first in `How to verify` and leave the item
+`in-progress`.
 
 ## Priority
 
@@ -31,28 +37,27 @@ without searching Jira.
 
 ## Acceptance Criteria
 
-- [ ] The dependency lane (A) of `maintenance` lists every open
-      `maintenance:critical` ticket in the project's Jira project: key,
-      summary, status, assignee and age.
-- [ ] Age runs from the ticket's creation to the moment of the run. A ticket
-      open longer than 72 hours is flagged, and lane A's verdict is `urgent`
-      while one is.
-- [ ] With no open critical ticket, lane A says so in one line ("no open
-      critical tickets"). The check is never left out silently.
-- [ ] In a Jira project that holds several GitLab projects (IAMS, IDHM), the
-      lane lists the open tickets with the note "shared Jira project", because
-      the ticket may belong to another GitLab project.
-- [ ] `greenberry-maintenance` reports the open `maintenance:critical`
-      tickets per Jira key of the Live projects in the Notion register, with
-      key, age and the 72-hour flag, and names every GitLab project that
-      shares that key.
-- [ ] A Live project without a Jira key in Notion is listed as "no Jira key,
-      not checked", never as "no open tickets".
-- [ ] When Jira cannot be read (no `jira` CLI, no authentication, an error),
-      the report says the check did not run. It never reports "no open
-      tickets" in that case.
-- [ ] Both skills only read Jira. They create, comment on, link or
-      transition no ticket, and they never call the gb-dashboard endpoint.
+- The dependency lane (A) of `maintenance` lists every open
+  `maintenance:critical` ticket in the project's Jira project: key, summary,
+  status, assignee and age.
+- Age runs from the ticket's creation to the moment of the run. A ticket open
+  longer than 72 hours is flagged, and lane A's verdict is `urgent` while one
+  is.
+- With no open critical ticket, lane A says so in one line ("no open critical
+  tickets"). The check is never left out silently.
+- In a Jira project that holds several GitLab projects (IAMS, IDHM), the lane
+  lists the open tickets with the note "shared Jira project", because the
+  ticket may belong to another GitLab project.
+- `greenberry-maintenance` reports the open `maintenance:critical` tickets per
+  Jira key of the Live projects in the Notion register, with key, age and the
+  72-hour flag, and names every GitLab project that shares that key.
+- A Live project without a Jira key in Notion is listed as "no Jira key, not
+  checked", never as "no open tickets".
+- When Jira cannot be read (no `jira` CLI, no authentication, an error), the
+  report says the check did not run. It never reports "no open tickets" in
+  that case.
+- Both skills only read Jira. They create, comment on, link or transition no
+  ticket, and they never call the gb-dashboard endpoint.
 
 ## How to verify
 

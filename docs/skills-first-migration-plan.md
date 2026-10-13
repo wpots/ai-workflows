@@ -21,9 +21,10 @@ Phase 1 is decided:
 
 - **Cursor is out.** The team uses Claude and Codex. Cursor no longer counts as
   a supported tool: its adapters (`.cursor/rules/*.mdc`, `.cursor/mcp.json`) are
-  still generated and get no further work. Removing them from sync is
-  [`chore-retire-cursor-adapters.md`](backlog/chore-retire-cursor-adapters.md)
-  and waits for a go, because it changes what synced projects already have.
+  still generated and get no further work. Removing them from sync got its go
+  on 2026-10-13, in three slices starting with
+  [`chore-retire-cursor-adapters-1-stop-emitting.md`](backlog/chore-retire-cursor-adapters-1-stop-emitting.md).
+  `.cursor/` files that synced projects already hold are left alone.
 - Nothing else in the 2026-07-27 record changes.
 
 ## Goal

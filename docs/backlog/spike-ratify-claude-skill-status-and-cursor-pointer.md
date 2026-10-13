@@ -95,7 +95,8 @@ The two superseded spikes link to this file; do not rename it.
 ## Related
 
 - MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/179
-- [chore-retire-cursor-adapters.md](chore-retire-cursor-adapters.md)
+- [chore-retire-cursor-adapters-1-stop-emitting.md](chore-retire-cursor-adapters-1-stop-emitting.md)
+  (the item was split into three slices on 2026-10-13)
 - [spike-decide-skills-first-strategy-and-tool-support-matrix.md](spike-decide-skills-first-strategy-and-tool-support-matrix.md)
 - [spike-decide-cursor-parity-for-ai-workflows-guide.md](spike-decide-cursor-parity-for-ai-workflows-guide.md)
 - [../skills-first-migration-plan.md](../skills-first-migration-plan.md)
