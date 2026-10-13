@@ -116,5 +116,6 @@ global MCP folder", instead of being deleted.
 
 Depends on: chore-retire-cursor-adapters-1-stop-emitting.md
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/194
 - [chore-retire-cursor-adapters-1-stop-emitting.md](chore-retire-cursor-adapters-1-stop-emitting.md)
 - [chore-retire-cursor-adapters-2-skill-wording.md](chore-retire-cursor-adapters-2-skill-wording.md)
