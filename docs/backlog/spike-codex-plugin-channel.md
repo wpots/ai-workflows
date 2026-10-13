@@ -1,0 +1,135 @@
+# Spike: Ship ai-workflows As A Codex Plugin Too
+
+## Status
+
+ready
+
+Filed 2026-10-13 while preparing the developer demo of the plugin. Time-box:
+one day, confirmed by the maintainer on 2026-10-13.
+
+## Priority
+
+medium
+
+## Summary
+
+Find out whether this repo can also be installed as a Codex plugin, next to the
+`greenberry` Claude plugin, so Codex users get the skills, the hooks and updates
+without running `scripts/sync.sh` by hand — and record the decision.
+
+## User Story
+
+As a developer who works in Codex, I want the Greenberry skills and guardrails
+through a Codex plugin that keeps itself current, so that I work with the same
+workflows and hooks as a Claude Code user without re-syncing after every
+release.
+
+## Acceptance Criteria
+
+- A decision record answers each question below with yes, no or partly, and
+  with its evidence: a doc link or the output of a command actually run, the
+  date, and the Codex version.
+  1. Can a Codex marketplace be added from our private GitLab repo, over SSH or
+     HTTPS? If not, which source works, and who would own it.
+  2. Can the repo root serve both plugins at once without the two manifests
+     getting in each other's way? Which files does that add?
+  3. Which of the 38 skills work in Codex unchanged, and how the 11 that name
+     Claude Code-only tools behave there.
+  4. Which of the five plugin hooks can run under Codex, and what each one
+     needs changed.
+  5. How an update reaches a Codex user: automatically, by a command, or by a
+     workspace admin.
+  6. How the always-on layer (the global instructions that `sync-ambient.sh`
+     delivers to Claude) reaches a Codex user when a plugin cannot carry it.
+- A prototype: a local Codex install adds the marketplace from a branch, lists
+  at least three skills, runs one of them end to end, and fires at least one
+  hook — or the record names the step that failed and why.
+- A recommendation: go, go for skills only, or no-go (stay on `sync.sh`), with
+  the reason. On go, follow-up items are filed in `docs/backlog/`, each sized
+  per `rules/mr-sizing.md`.
+- `docs/setup-machine.md` stops saying Codex has "no plugin path": it says that
+  Codex has a plugin system and that we deliver to Codex through `sync.sh` until
+  this decision says otherwise. (`README.md` and `docs/keep-current.md` describe
+  our current delivery, not Codex, and stay correct until a go.)
+
+## Technical Notes
+
+### What Codex offers (read 2026-10-13, not yet tested)
+
+- Plugins since 2026-03-27, in the Codex app, the CLI and the VS Code
+  extension. A plugin bundles skills, MCP servers and lifecycle hooks
+  (`hooks/hooks.json`); OpenAI's user docs also list browser extensions.
+- Manifest: `plugin.json` at the plugin root (portable schema
+  `https://agent-plugins.org/schemas/1.0.0/plugin.schema.json`), or the legacy
+  `.codex-plugin/plugin.json`. Skills in `skills/`, MCP config in `mcp.json`.
+- Marketplace: `.agents/plugins/marketplace.json` in a repo, or
+  `~/.agents/plugins/marketplace.json`; added with
+  `codex plugin marketplace add owner/repo`; the plugin browser is
+  `codex /plugins`. Workspace admins can import and sync a GitHub marketplace
+  for their team.
+- Not in the docs read: non-GitHub marketplace sources, automatic updates, the
+  environment variable that points a hook at the plugin root, and always-on
+  instructions as a plugin component. Questions 1, 4, 5 and 6 exist because of
+  these gaps.
+
+### What our side assumes Claude
+
+- `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` make the
+  repo root the plugin. A Codex manifest would sit next to them; check that the
+  `skills/` layout is read the same way by both.
+- `hooks/hooks.json` runs every hook through `${CLAUDE_PLUGIN_ROOT}`. Per script:
+  - `require_process_termination_approval.py` reads `tool_input.command`;
+    probably portable if Codex's shell tool sends the same field.
+  - `prefer_service_cli.py` splits Claude's `mcp__<server>__<tool>` names; Codex
+    names MCP tools its own way.
+  - `check_added_comments.py` matches Claude's `Write` and `Edit` tools and
+    their `content` and `new_string` fields.
+  - `improve_skill_retrospective.py` parses the Claude transcript at
+    `transcript_path` and keeps state in `CLAUDE_PLUGIN_DATA`; likely
+    Claude-only.
+  - `sync-ambient.sh` writes `~/.claude/CLAUDE.md` and `~/.claude/rules/`; the
+    Codex counterpart would be its global instructions file.
+- Skills that name Claude Code-only tools (`AskUserQuestion`, `Monitor`,
+  `ScheduleWakeup`, `EnterWorktree`, `TaskStop`, `SendMessage`): close-sprint,
+  create-pr, datocms-migration, dependency-hotfix, mr-merged, release,
+  service-cli, start-project, test-driven-development, watch-mrs, wcag-audit.
+  `watch-mrs` is built on `Monitor` and is the likeliest to need a Codex path
+  of its own.
+- Today Codex gets the skills from `scripts/sync.sh` into
+  `~/.codex/skills/custom`, and `AGENTS.md` from project sync. If a Codex plugin
+  ships, sync must stop copying skills for Codex, or the copies shadow the
+  plugin — the same step the Claude migration took.
+- The only GitHub copy of this repo today is a personal mirror. If Codex needs a
+  GitHub source, an organisation-owned one is part of the answer to question 1.
+
+### Shape of the spike
+
+One day, then stop and record what is known. Work on a branch; never point a
+team marketplace at it. The decision goes into
+`docs/skills-first-migration-plan.md` as a new amendment, the way the
+2026-10-08 Cursor amendment was recorded; the evidence per question can sit in
+that amendment or in a short appendix it links to.
+
+## Out of Scope
+
+- Building the Codex plugin itself; that becomes follow-up items on go.
+- Rewriting skills to drop Claude Code-only tools.
+- A Codex counterpart of `claude plugin eval`.
+- Cursor (being retired) and Copilot.
+- An organisation-wide Codex rollout.
+
+## Related
+
+- [../skills-first-migration-plan.md](../skills-first-migration-plan.md) — the
+  tool support matrix this would change
+- [../setup-machine.md](../setup-machine.md) — the "no plugin path" sentence
+  to correct; [../how-it-works.md](../how-it-works.md) and
+  [../keep-current.md](../keep-current.md) change only on a go
+- [../org-managed-plugin-settings.md](../org-managed-plugin-settings.md) — the
+  Claude counterpart for team-wide marketplace registration
+- [chore-retire-cursor-adapters.md](chore-retire-cursor-adapters.md)
+- [feat-skill-eval-harness.md](feat-skill-eval-harness.md)
+- OpenAI, "Package your plugin": <https://developers.openai.com/codex/plugins/build>
+- OpenAI, plugins overview: <https://learn.chatgpt.com/docs/plugins>
+- The New Stack, "OpenAI's Codex gets plugins":
+  <https://thenewstack.io/openais-codex-gets-plugins/>
