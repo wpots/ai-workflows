@@ -80,11 +80,23 @@ If the platform cannot be inferred, ask the user.
    regressed baseline snapshot, stop and surface it — a migration that fails
    `migrate` must not land in the PR/MR. Continue only once it passes or the user
    accepts the finding.
-5. Check whether the diff is primarily a shared AI workflow change.
+5. **Routing evals.** If the repository has eval cases tagged `routing` under
+   `evals/` and the branch diff adds a skill, changes a skill's `name`,
+   `description` or `when_to_use`, or changes a routing case, follow "Before a
+   skill MR" in `evals/README.md`: it holds the exact trigger test, the command
+   and the result line. It runs the routing suite without asking, once, before
+   the first push. If a case fails, stop and surface the case, the skill and the
+   grader; continue only once it passes or the user accepts the failure, and
+   never loosen or delete the case to get a pass. Put the result line the README
+   prescribes (including `not run — <reason>`) in the verification section of
+   the MR description (see Generate PR Content). Everywhere else, and for a
+   branch that changes only skill bodies, references or other cases, this step
+   does nothing.
+6. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
      `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
-6. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the ai-workflows repo. Ask whether to:
+7. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the ai-workflows repo. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead
    - do both

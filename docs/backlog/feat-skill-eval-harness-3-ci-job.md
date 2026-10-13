@@ -9,6 +9,13 @@ evals in CI are real model calls on an API key, so someone has to supply the
 key and set a monthly cap. Becomes `ready` when that is decided and slice 2 is
 `done` on `main`.
 
+Parked (2026-10-12) in favour of
+[feat-routing-evals-before-mr.md](feat-routing-evals-before-mr.md): eval spend
+stays manual on the maintainer's seat, and the MR flow runs the routing suite
+before a skill MR opens. Revisit when a routing failure reaches review in
+practice despite that step, or when routing cases cover more than the five
+risky skills.
+
 ## Slice
 
 3/3 — run the suite in CI on skill changes

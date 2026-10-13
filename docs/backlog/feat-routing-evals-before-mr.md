@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Filed 2026-10-12 as the alternative to slice 3 of the skill evals (task T4 of
 the AI stack reviews). Slice 3 runs the routing suite in GitLab CI, which needs
@@ -70,7 +70,37 @@ monthly CI bill.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [ ] After merge, on the next MR that adds a skill or edits a skill's
+      `description`: open it through `skills/create-pr` and confirm the
+      pre-flight runs the routing suite (the sandbox-bypass prompt appears) and
+      the MR description carries a `Routing evals: …` line. Not checked before
+      merge: the installed plugin is still the old copy, so no real `create-pr`
+      run could load the new step. Set this item to `done` when it is ticked.
+- [x] `claude plugin eval <worktree> --tag routing --runs 1 --ablation none
+      --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 3` (the
+      command in `evals/README.md`, with sandbox bypass) → 10 case(s), 10/10
+      pass, 192 s, $1.81. `aggregates.casesPassed`, `aggregates.casesTotal` and
+      `costUsd` in `evals/results/<run>/aggregate-result.json` hold the numbers
+      the result line uses.
+- [x] Trigger test on this branch: `git diff --name-status gitlab/main...HEAD
+      -- 'skills/*/SKILL.md' 'evals/**'` → `M evals/README.md`, `M
+      skills/create-pr/SKILL.md`. The `create-pr` hunks start at line 83, below
+      the frontmatter, so this MR itself does not trigger the step.
+- [x] Trigger test on a skill-adding commit: `git diff --name-status 0ca7b5b^
+      0ca7b5b -- 'skills/*/SKILL.md' 'evals/**'` → `A
+      skills/greenberry-maintenance/SKILL.md`.
+- [x] `git grep -l -E '^tags:.*routing' -- 'evals/*/*/prompt.md'` → the ten
+      routing cases of the five risky skills.
+- [x] `node scripts/validate-skills.mjs` → 38 skills, 93 docs link-checked, no
+      errors; `claude plugin validate .` passes (warnings about commands without
+      frontmatter and the root `CLAUDE.md` were there before).
+- [x] `bash scripts/generate-adapters.sh` → no drift after the generator wrote
+      `AGENTS.md`, `.claude/rules/upstream-mr.md`,
+      `.github/copilot-instructions.md`, `skills/upstream-rules/references/upstream-mr.md`
+      and `.github/prompts/create-pr.prompt.md`; the pre-commit hook passes.
+- Not run: the failure path (a case that fails) and the cannot-run path. Both
+  are instructions to the model in `evals/README.md`; no case fails today, and
+  breaking one on purpose would spend another run to prove prose.
 
 ## Technical Notes
 
@@ -157,3 +187,4 @@ Running it:
 - [../../skills/create-pr/SKILL.md](../../skills/create-pr/SKILL.md)
 - [../../evals/README.md](../../evals/README.md)
 - [../pipeline-map.md](../pipeline-map.md)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/183
