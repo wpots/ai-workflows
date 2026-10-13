@@ -74,7 +74,7 @@ check:
 | # | Check | How |
 | --- | --- | --- |
 | 1 | repo exists and sits at `greenberrynl/<client>/<project>` | `git remote -v`, `glab repo view <path>` |
-| 2 | created from the template — shared history with it | `git fetch https://gitlab.com/greenberrynl/the-greenhouse/unicore-template.git` then `git merge-base HEAD FETCH_HEAD`. No common ancestor → fall back to a file fingerprint (CI config, tooling config, `.nvmrc`, folder skeleton) and record that lineage could not be proven — usually because history was squashed on import |
+| 2 | created from the template — its lineage is recorded | `.unicore.json` exists (written by the template's setup, v4) and its `template.commit` exists in the template: `glab api "projects/greenberrynl%2Fthe-greenhouse%2Funicore-template/repository/commits/<commit>"`. No record → a v3 project or a skipped setup: fall back to a file fingerprint (`scripts/husky/readme-checks.js`, CI config, tooling config, `.nvmrc`, folder skeleton) and record that lineage could not be proven. A merge-base finds nothing: the template's `readme-checks` hook makes every project replace the template history before its first commit |
 | 3 | default branch and visibility match the Greenberry defaults | `glab api "projects/<url-encoded-path>"` |
 | 3b | merge settings match `rules/git-flow.md` | `node <ai-workflows>/scripts/gitlab-merge-settings.mjs --project <path>` — read-only; reports `ff` + squash-always, the squash commit template, delete-source-branch, and the pipeline/discussion gates. Paste its table into the lane report. Resolving `<ai-workflows>`: see below |
 | 4 | protected branches and approval rules exist | `glab api "projects/<path>/protected_branches"`, `.../approval_rules` |
