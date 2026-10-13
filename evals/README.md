@@ -76,6 +76,62 @@ claude plugin eval . --tag runnable --runs 1 --ablation none --no-publish --trus
 - Results land in `evals/results/` (gitignored). Every run is a real model call
   on your account: keep `--max-cost-usd` set.
 
+## Before a skill MR
+
+`skills/create-pr` and the upstream MR flow (`shared/upstream-mr.md`, the path
+`skills/improve-skill` takes) run the routing suite before the MR opens, when
+the branch can break routing. They point here and do not copy the trigger or
+the command, so a change to either lands in one place.
+
+**When it fires.** Only in a checkout with routing cases, and only when the
+branch diff does at least one of these. List the candidates with
+`git diff --name-status <base>...HEAD -- 'skills/*/SKILL.md' 'evals/**'`:
+
+- A `skills/<name>/SKILL.md` is added (`A`): a new `description` can take over
+  another skill's requests.
+- A modified `SKILL.md` has a different `name`, `description` or `when_to_use`.
+  Compare the frontmatter (between the first two `---` lines) of
+  `git show <base>:<path>` with the branch version; a body edit or a
+  `metadata:` edit does not count.
+- A routing case is added or changed: its `prompt.md` or one of its
+  `graders/*.md` is in the diff.
+
+A skill "has routing cases" when some `evals/<skill>/*/prompt.md` lists
+`routing` in `tags` (`git grep -l -E '^tags:.*routing' -- 'evals/*/*/prompt.md'`).
+Anything else, such as a body edit, a reference file or a case without the
+`routing` tag, does nothing and costs nothing.
+
+**What it does.**
+
+1. A frontmatter edit to a skill with no routing cases does not run the suite
+   (the edit cannot affect it). The MR description gets
+   `Routing evals: <skill> has no routing cases`.
+2. Otherwise it runs the routing suite from [Run](#run), without asking first.
+   `--max-cost-usd 3` is about twice what the ten cases cost ($1.57 on
+   2026-10-08), and about eight MRs a month trigger it. Run it once, on the
+   pre-flight before the first push; a later push that changes routing-relevant
+   files again runs it again, other pushes do not.
+3. **All cases pass:** one line in the MR description, from the run's own
+   numbers (`aggregates.casesPassed`, `aggregates.casesTotal` and `costUsd` in
+   `evals/results/<run>/aggregate-result.json`):
+   `Routing evals: 10/10 pass ($1.57, 2026-10-12)`.
+4. **A case fails:** stop before the push and name the case, the skill and the
+   grader. Continue once the case passes, or once the user accepts the failure;
+   an accepted failure goes into the MR description with the case name
+   (`Routing evals: 9/10 pass, accepted failure: create-pr-3`). Never loosen or
+   delete the case to get a pass. A should-fire failure on a fresh prompt is a
+   finding about the `description` (see [Routing cases](#routing-cases)).
+5. **The run cannot happen** (no network, no auth, a refused permission prompt,
+   or exit code 2 because the cost ceiling stopped it): the MR description says
+   `Routing evals: not run — <reason>` followed by the command to run. Never
+   write a pass that the run did not report.
+
+Inside the Claude Code sandbox the run needs the sandbox bypass, because
+`claude plugin eval` reaches api.anthropic.com and writes to `/tmp`. The
+permission prompt that brings up is expected; refusing it is case 5. `--runs 1`
+is the documented setting and no case has flaked yet; if one does, raise
+`--runs` in the commands above instead of adding a retry to a skill.
+
 ## Runnable and needs-scaffold
 
 A run starts in an empty directory with none of your `CLAUDE.md`, settings,
