@@ -16,8 +16,9 @@ State on 2026-10-13:
 - **No instructions file yet.** RFW has no `.gitlab/duo/` folder, so reviews run
   without our lenses until criterion 2 lands. Report comments from before and
   after that date as two separate numbers. Since 2026-10-13 the lenses live in
-  one group-level file, `.gitlab/duo/mr-review-instructions.yaml` in this
-  repository. They count from the day the maintainer selects it in the group
+  one group-level file, `.gitlab/duo/mr-review-instructions.yaml` in
+  [`greenberrynl/duo-review-instructions`](https://gitlab.com/greenberrynl/duo-review-instructions).
+  They count from the day the maintainer selects that project in the group
   settings. Record that date here.
 - **No review has run yet.** !527 and !528 were opened minutes before the switch
   and have no Duo session. Automatic reviews start when a non-draft MR is
@@ -55,16 +56,17 @@ place next to the local `code-review` skill, so that we do not build a second on
   done by the maintainer). Done 2026-10-13: RFW, with automatic reviews.
 - The review lenses from `skills/code-review` reach the flow through
   group-level review instructions: `.gitlab/duo/mr-review-instructions.yaml` in
-  this repository, selected as the template project under `greenberrynl` >
-  Settings > GitLab Duo > Change configuration > **Customize code review** (Owner
-  of the top-level group). The file is in place since 2026-10-13; the group
-  setting is done by the maintainer. A project adds its own
-  `.gitlab/duo/mr-review-instructions.yaml` only for what is specific to it.
+  [`greenberrynl/duo-review-instructions`](https://gitlab.com/greenberrynl/duo-review-instructions),
+  selected as the template project under `greenberrynl` > Settings > GitLab Duo
+  > Change configuration > **Customize code review** (Owner of the top-level
+  group). The file is in place since 2026-10-13; the group setting is done by
+  the maintainer. A project adds its own `.gitlab/duo/mr-review-instructions.yaml`
+  only for what is specific to it.
 - On the first review after the group setting is on, check that Duo used the
-  linked rules. Each entry links its rule file in this private repository with
-  a `/-/blob/main/` URL, and the docs do not say whether a review of another
-  project in the group can read it. If it cannot, move the essentials inline
-  and drop the links.
+  linked rules. Each entry links its rule file in `config/ai-workflows`, a
+  private repository, with a `/-/blob/main/` URL, and the docs do not say
+  whether a review of another project in the group can read it. If it cannot,
+  drop the links; the entries already carry the review-critical points.
 - The metric and the threshold are written down before the first review (below).
   The metric counts resolved threads, not thumbs up or down.
 - After four weeks, a short report in `docs/` gives:
@@ -126,7 +128,11 @@ pipeline page):
   2026-10-13 (https://docs.gitlab.com/user/duo_agent_platform/customize/review_instructions/):
   - **Group level** since GitLab 19.0 (Premium): the top-level group names a
     template project, and its instructions apply to every project in the group
-    and its subgroups, combined with the project's own file.
+    and its subgroups, combined with the project's own file. The template
+    selector only offers projects directly under the top-level group, so
+    `config/ai-workflows` could not be selected (2026-10-13; the docs do not
+    say so, gitlab-org/gitlab#600695 does). Hence the separate project
+    `greenberrynl/duo-review-instructions`.
   - **References** to other files go inside the `instructions` text: a
     repository-relative path for the same project, or a full
     `/-/blob/<ref>/<path>` URL on the same instance. Resolution is best effort,
