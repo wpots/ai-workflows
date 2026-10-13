@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Filed 2026-10-12 as the alternative to slice 3 of the skill evals (task T4 of
 the AI stack reviews). Slice 3 runs the routing suite in GitLab CI, which needs
