@@ -43,6 +43,11 @@ the per-service recipes in `skills/service-cli`.
 
 ### 1. Clone the repo
 
+Only Claude Code, and not changing the shared config? Skip the clone: install
+the plugin (the first paragraph of step 3) and continue at step 7. Skills,
+commands, project templates and the ambient layer all come with the plugin.
+Clone when you use Codex, run `sync.sh --project`, or change the shared config.
+
 ```bash
 git clone git@gitlab.com:greenberrynl/config/ai-workflows.git ~/Web/ai-workflows
 cd ~/Web/ai-workflows

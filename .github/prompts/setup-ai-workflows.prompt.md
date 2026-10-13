@@ -29,6 +29,7 @@ Preferred path:
    - stack
    - scripts
    - lint/test/styling tooling
+   - language: TypeScript, JavaScript only, or mixed
    - TypeScript strictness posture and unsafe-type linting
    - boundary-validation approach for API, env, JSON, database, file, and queue inputs
    - notable dependencies
@@ -37,15 +38,20 @@ Preferred path:
      with a baseline from the developer (never a guess) — dependency MRs read
      it for their risk analysis
 4. Probe the project structure and map folders to clean-architecture layers.
-5. Detect deviations from the shared baseline, including weaker `tsconfig`
-   posture, missing unsafe-type lint rules, or missing trust-boundary
-   validation patterns.
+5. Detect deviations from the shared baseline, including JavaScript where the
+   baseline expects TypeScript, weaker `tsconfig` posture, missing unsafe-type
+   lint rules, or missing trust-boundary validation patterns. Ask the
+   developer for each one whether it is **accepted** (stays; record the
+   reason) or **migrating** (record the target, the rule for new code, and how
+   existing code follows). The rationale lives in the decision log of
+   `docs/architecture.md` when that exists; `CONVENTIONS.md` links to it.
 6. Create or update `CONVENTIONS.md` as the project-specific source of truth.
    When relevant, surface:
    - TypeScript strictness posture
    - unsafe-type lint posture
    - boundary validation conventions
-   - rationale for intentional deviations from `rules/type-safety.md`
+   - each deviation from the global rules with its status (accepted or
+     migrating)
 7. Sync the project-facing workflow files:
    - `AI-WORKFLOWS.md`
    - `CLAUDE.md`
@@ -64,11 +70,12 @@ Preferred path:
    and CMS token needs (Payload/Prepr), and record everything — servers,
    CLIs, connectors, env vars — in the `## Tooling` section of
    `CONVENTIONS.md`. Skip existing files; merge manually. Doctrine:
-   `docs/tooling.md` in ai-workflows.
+   `docs/tooling.md` in ai-workflows. Write `.claude/settings.json` from
+   `templates/project-claude-settings.json` when the project has none.
 9. Summarize:
-   - detected stack
+   - detected stack and language
    - created or updated files
-   - deviations from global rules
+   - deviations from global rules, with their status
    - notable type-safety posture or trust-boundary gaps
 
 ## Constraints
