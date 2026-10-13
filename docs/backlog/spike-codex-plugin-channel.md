@@ -127,7 +127,8 @@ that amendment or in a short appendix it links to.
   [../keep-current.md](../keep-current.md) change only on a go
 - [../org-managed-plugin-settings.md](../org-managed-plugin-settings.md) — the
   Claude counterpart for team-wide marketplace registration
-- [chore-retire-cursor-adapters.md](chore-retire-cursor-adapters.md)
+- [chore-retire-cursor-adapters-1-stop-emitting.md](chore-retire-cursor-adapters-1-stop-emitting.md)
+  — slice 1 of the Cursor retirement; it also edits `scripts/sync.sh`
 - [feat-skill-eval-harness.md](feat-skill-eval-harness.md)
 - OpenAI, "Package your plugin": <https://developers.openai.com/codex/plugins/build>
 - OpenAI, plugins overview: <https://learn.chatgpt.com/docs/plugins>
