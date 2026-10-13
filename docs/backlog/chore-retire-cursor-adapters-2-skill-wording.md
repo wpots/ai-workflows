@@ -4,9 +4,9 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+in-progress
 
-Go given by the maintainer on 2026-10-13. Waits for slice 1 to merge.
+Go given by the maintainer on 2026-10-13. Slice 1 merged (!188).
 
 ## Ticket
 
