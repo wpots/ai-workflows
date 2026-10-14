@@ -12,19 +12,21 @@ reviews. Checked through the API on 2026-10-13:
   on the project;
 - `duo_agent_platform_enabled` is `true` on the group.
 
-State on 2026-10-13:
-- **No instructions file yet.** RFW has no `.gitlab/duo/` folder, so reviews run
-  without our lenses until criterion 2 lands. Report comments from before and
-  after that date as two separate numbers. Since 2026-10-13 the lenses live in
-  one group-level file, `.gitlab/duo/mr-review-instructions.yaml` in
-  [`greenberrynl/duo-review-instructions`](https://gitlab.com/greenberrynl/duo-review-instructions).
-  They count from the day the maintainer selects that project in the group
-  settings. Record that date here.
-- **No review has run yet.** !527 and !528 were opened minutes before the switch
-  and have no Duo session. Automatic reviews start when a non-draft MR is
-  created or marked ready, and on a push. The first one is the smoke test:
-  check AI > Sessions, and record the Duo reviewer's username here, because the
-  count filters on it.
+State on 2026-10-14:
+- **Instructions on since 2026-10-14, 05:31 UTC.** The maintainer selected
+  [`greenberrynl/duo-review-instructions`](https://gitlab.com/greenberrynl/duo-review-instructions)
+  as the group's review-instructions project. The group audit log shows the
+  Duo settings save by wieteke.pots at that time, the only one after the
+  project existed. Count threads opened before this moment as "without
+  instructions", and later ones as "with instructions".
+- **Duo reviewer username: `GitLabDuo`.** The count filters on it. The smoke
+  test passed on RFW !529 (2026-10-13, 14:46 UTC, without instructions). The
+  review left one summary note, which is not resolvable and not counted, and
+  one diff thread (`as const` for `COVER_IMAGE_MIME_TYPES`), which is the first
+  counted thread. !527 and !528 got no Duo review.
+- **Fix pipeline flow on since 2026-10-13, 16:26 UTC.** It is enabled at group
+  level, and GitLab auto-provisioned the service account
+  `duo-fix-ci-cd-pipeline-greenberry`.
 - **A competing AI reviewer is waiting.** RFW !383 (sander.bruggeman,
   2026-07-22, idle since) adds an AI review job through OpenRouter. Keep it
   unmerged until 2026-11-10, so that only one AI reviewer comments.
@@ -59,9 +61,9 @@ place next to the local `code-review` skill, so that we do not build a second on
   [`greenberrynl/duo-review-instructions`](https://gitlab.com/greenberrynl/duo-review-instructions),
   selected as the template project under `greenberrynl` > Settings > GitLab Duo
   > Change configuration > **Customize code review** (Owner of the top-level
-  group). The file is in place since 2026-10-13; the group setting is done by
-  the maintainer. A project adds its own `.gitlab/duo/mr-review-instructions.yaml`
-  only for what is specific to it.
+  group). Done: the file has been in place since 2026-10-13, and the group setting
+  since 2026-10-14. A project adds its own
+  `.gitlab/duo/mr-review-instructions.yaml` only for what is specific to it.
 - On the first review after the group setting is on, check that Duo used the
   linked rules. Each entry links its rule file in `config/ai-workflows`, a
   private repository, with a `/-/blob/main/` URL, and the docs do not say
@@ -78,8 +80,9 @@ place next to the local `code-review` skill, so that we do not build a second on
 
 ## Metric and threshold
 
-**Metric.** The unit is one thread the Duo review opens on an RFW MR between
-2026-10-13 and 2026-11-10: a diff note or an MR note from the Duo reviewer.
+**Metric.** The unit is one resolvable thread that `GitLabDuo` opens on an RFW
+MR between 2026-10-13 and 2026-11-10. The review's summary note is not
+resolvable and does not count.
 - **Led to a change:** a commit pushed to the MR after the comment changes the
   lines (or, for a file-level comment, the file) it is about.
 - **Dismissed:** resolved without such a commit, or still open when the MR
