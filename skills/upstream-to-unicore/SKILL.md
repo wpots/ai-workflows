@@ -1,6 +1,6 @@
 ---
 name: upstream-to-unicore
-description: Upstream reusable work from a Greenberry project into the unicore-template via a GitLab MR on the release line or lines the change is needed on — v4 (the CMS-preset line) or v3 (development) — adapting project-specific bits and reading the template's conventions from the target line itself. Also runs as a harvest, listing the template-owned changes a project made since the template commit it started from, so upstreaming does not wait for someone to remember. Use when the user asks to upstream, port or share something to unicore, the unicore-template or the project template, asks what should go back to the template ("template harvest", "wat moet terug naar de template"), or when mr-merged or close-sprint hands over changes to template-owned files.
+description: Upstream reusable work from a Greenberry project into the unicore-template via a GitLab MR on its current line — v4, the CMS-preset line on `development` (v3 is frozen as the tag `v3.0.0`) — adapting project-specific bits and reading the template's conventions from the target line itself. Also runs as a harvest, listing the template-owned changes a project made since the template commit it started from, so upstreaming does not wait for someone to remember. Use when the user asks to upstream, port or share something to unicore, the unicore-template or the project template, asks what should go back to the template ("template harvest", "wat moet terug naar de template"), or when mr-merged or close-sprint hands over changes to template-owned files.
 metadata:
   owner: wieteke.pots
 ---
@@ -25,30 +25,27 @@ with the open queue (Step 0) and ends with a hand-off that keeps the MR moving
 | Local clone | `~/Web/unicore-template` — `git fetch origin` first; writes to its `.git` and every network call need the sandbox bypass |
 
 The template has two release lines. Take the target from this table — never
-from the repository's default branch, and never from memory:
+from memory:
 
-| Line | Branch | Status |
+| Line | Where | Status |
 | --- | --- | --- |
-| v4 | `feat/declarative-cms-presets` | the CMS-preset line, being prepared |
-| v3 | `development` | the current line, without presets or `.unicore.json` |
+| v4 | `development` | the current line, with CMS presets and `.unicore.json` |
+| v3 | tag `v3.0.0` (`df6c02f`) | frozen: no presets or `.unicore.json`, CMS variants on branches |
 
-- How the lines relate once v4 is ready — whether v4 replaces `development`,
-  and what v3 still takes — is not decided yet. So the target is a choice per
-  change: CMS code and changes to the preset setup exist on v4 only; for
-  anything else, ask the user whether it goes to v4, v3 or both. Never pick a
-  line by default.
+- The target is `development`. v3 takes no new work: a fix that v3 projects
+  need is made in those projects. Only when the user asks for a shared v3 fix
+  does it go to a `v3` branch cut from the tag; that branch is new, so it joins
+  this table and the README table first.
 - Confirm the branch before you branch off it:
-  `git ls-remote --heads origin <branch>`. When it is missing, the line was
-  renamed: read the "Versions and lineage" table in the template README on the
-  remaining candidate branches, ask the user which one it is, and update this
-  table through `skills/upstream-rules` — the README table and this table change
-  together.
-- A change for both lines is two small MRs, one per line.
+  `git ls-remote --heads origin <branch>`. When it is missing, the line moved:
+  read the "Versions and lineage" table in the template README on `development`,
+  ask the user, and update this table through `skills/upstream-rules` — the
+  README table and this table change together.
 - The template is CMS-agnostic. CMS-specific code goes to `src/vendor/<cms>/`
   on v4, with its dependencies, scripts and environment variables declared in
   `config/cms-presets.json`. There are no CMS variant branches to target;
-  `development-payloadcms` is a porting source until the Payload preset is
-  complete, never a target.
+  `development-payloadcms` and `development-prepr` are porting sources, never
+  targets.
 
 **Lineage.** A v4 project carries `.unicore.json`, written by the template's
 setup: `template.version`, `template.commit` and the `preset`. The paths the
@@ -87,7 +84,7 @@ Run against the source project's checkout (`<project>`).
 - **v3 project** (no `.unicore.json`, but `scripts/husky/readme-checks.js`
   exists — that hook only ships with the template): estimate the base. Fetch
   the v3 line into the project
-  (`git -C <project> fetch --no-tags https://gitlab.com/greenberrynl/the-greenhouse/unicore-template.git development`),
+  (`git -C <project> fetch --no-tags https://gitlab.com/greenberrynl/the-greenhouse/unicore-template.git refs/tags/v3.0.0`),
   take the 30 most recent first-parent commits before the project's first
   commit
   (`git -C <project> rev-list --first-parent --before=<first-commit-date> -n 30 FETCH_HEAD`),
@@ -178,11 +175,14 @@ Read the target line's `.gitlab-ci.yml` and `.husky/` and run what they run:
   the preset the change touches, when that preset is `available`). Then run the
   line's `lint:check`, `type-check` and `test`; use `jest --runInBand` when
   workers fail to load native bindings.
-- **v3** — the `package.json` scripts that the CI file and the hooks call.
-- The template's own pre-commit hook cannot pass inside the template repository
-  (it treats the template as a project and demands a clean history), so
-  commits there use `--no-verify`. Say so, and list the commands you ran by
-  hand instead.
+- **v3** (a `v3` branch only) — the `package.json` scripts that the CI file
+  and the hooks call.
+- In the worktree from Step 4 the template's git hooks do not run: husky's
+  hooks path, `.husky/_`, is gitignored and so missing there. Run what they run
+  by hand and list it in the MR. On v4 the pre-commit type-checks each
+  generated preset with `node scripts/check-presets.js type-check` (Node from
+  `.nvmrc`, pnpm on `PATH`), which covers the setup-and-check above for
+  `type-check`.
 - Anything that could not run (no package manager, missing dependencies) is
   reported as not run. Never report a pass you did not see.
 
@@ -218,11 +218,11 @@ MR body:
 
 - what changed and why
 - **Origin**: project and commit, or "harvest of `<project>` since `<base>`"
-- **Line**: v3 or v4, and why this line
+- **Line**: v4 (`development`), or the `v3` branch and why
 - **Adaptation notes**: what was rewritten or dropped for the template
 - **Verification**: the commands from Step 5 and their results, including what
   did not run
-- follow-ups, such as the v3 counterpart of a fix
+- follow-ups, such as the v3 projects that need the same fix
 
 ## Step 7 — Keep it moving
 
@@ -230,8 +230,7 @@ MR body:
   Add the open queue from Step 0 with this MR included.
 - Offer `skills/watch-mrs` on the MR, so approval, review comments and pipeline
   failures come back into the session.
-- For a change that goes to both lines, name the second line's MR as an open
-  action until it exists.
+- For a fix that v3 projects also need, name those projects as an open action.
 - Remove the worktree after the push. Never leave a branch half-pushed without
   saying what state it is in.
 
@@ -239,8 +238,8 @@ MR body:
 
 - Every change lands via an MR on a line branch from the table — never a direct
   push, and never on a branch that is missing from the table.
-- The line is the user's choice per change until the team decides how v3 and
-  v4 relate; only CMS code and preset-setup changes are fixed to v4.
+- The target is `development` (v4); a `v3` branch only on the user's explicit
+  ask.
 - Keep the template client-agnostic and CMS-agnostic: no client naming, no
   tracker references, and CMS code only under `src/vendor/<cms>/` on v4.
 - Read the target line's conventions at run time; never carry a wrapper, path,
