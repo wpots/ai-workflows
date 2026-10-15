@@ -430,7 +430,7 @@ actually stands against it — the alignment view, not a wish list.
 | Review | auto-generated MR description from diff + ticket | ✅ | `skills/create-pr` |
 | Review | semantic first-pass review beyond linting | ✅ | `skills/code-review`, eight explicit lenses merged into one severity-ordered list |
 | Review | breaking-change / API-contract detection | ⛔ | these projects publish no versioned API; intra-repo signature breakage is what the type-check and the correctness lens are for |
-| Ship | CI failure triage in plain language | ❌ | filed: `docs/backlog/feat-pipeline-triage.md` |
+| Ship | CI failure triage in plain language | ⚠️ | GitLab's Fix pipeline flow (on for the group since 2026-10-13, judged in `docs/backlog/spike-pilot-gitlab-code-review-flow.md`); `skills/watch-mrs` names the failing job and points at it and at `skills/run-checks`. Our own skill is superseded (gap 3) |
 | Ship | release notes / changelog + semver suggestion | ⚠️ | `skills/release-notes` writes the notes the customer reads per release or sprint, `skills/close-sprint` the internal changelog; no semver suggestion — per-release semver applies to this repo's plugin, a client project's version comes from its own release process |
 | Operate | incident triage: error spike → likely PRs | ⛔ | no per-project observability stack to reason over |
 | Operate | log/error summarisation, on-call assistant | ⛔ | same — and nobody is on call |
@@ -458,7 +458,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | --- | --- | --- | --- |
 | 1 | `skills/create-pr` runs no self-review before the push (the pipeline watch after opening is delivered: step 7 waits out the setup stage and offers `skills/watch-mrs`) | A reviewer sees what a self-review would have caught | `docs/backlog/chore-create-pr-self-review-preflight.md` |
 | 2 | No requirements snapshot pinned per branch, so no check that the ticket still says what it said when work started | AC changed or a comment moved the scope, and the MR silently misses it — and a gate that reads live Jira is not reproducible | parked, not filed: reopen on the first MR that missed a criterion changed after work started. The earlier spec, `feat-ticket-drift-check.md`, was removed on 2026-10-13 and is in git history |
-| 3 | No surface triages a failing pipeline | The same CI failure recurs because nobody reads the job trace | `docs/backlog/feat-pipeline-triage.md` |
+| 3 | ~~No surface triages a failing pipeline~~ | Covered since 2026-10-15 by the platform: GitLab's Fix pipeline flow, with prevention in `docs/backlog/chore-run-checks-ci-parity.md`. On RFW 2 of 99 MR pipelines failed in a month, and no failure was seen to recur | Our own triage skill is superseded, not filed. Reopen it as a new item when the review-flow pilot finds the Fix pipeline flow not worth using **and** failed MR pipelines run above about 10% a month or one failure is shown to recur. Its earlier spec, the pipeline-triage backlog item, is in git history once the release archives it |
 | 4 | ~~`skills/watch-mrs` reports merge status, not pipeline detail, and hands off to nothing~~ | Delivered 2026-07-29: the watcher tracks pipeline transitions, names the failing job/stage, offers triage, and hands merges to `skills/mr-merged` | delivered |
 | 5 | The local check sweep is not derived from the CI job list | Green locally, red in CI | `docs/backlog/chore-run-checks-ci-parity.md` |
 | 6 | ~~Nothing happens after merge~~ | Delivered 2026-07-29: `skills/mr-merged` closes out board, PO handoff, ticket proposal, and cleanup | delivered |
@@ -480,8 +480,9 @@ recorded here instead of filed as a feature.
 
 **Build order.** Cheapest-first applies to closing gaps too, not only to running gates.
 The items that bite weekly are the ones where a human has to remember a mechanism:
-1, 3, 5 and 9, plus the scheduling gap — each is a hook or a CI job rather than a new
-concept. Item 12 comes with them, because every later change to a skill is unprotected
+1, 5 and 9, plus the scheduling gap — each is a hook or a CI job rather than a new
+concept. Item 3 turned out not to bite (2 failed MR pipelines in a month on RFW), and
+the platform covers it. Item 12 comes with them, because every later change to a skill is unprotected
 until it exists. Item 10 follows in its evidence form.
 
 Items 2 and 11 are deliberately *not* next, which reverses what the spec's own

@@ -2,7 +2,31 @@
 
 ## Status
 
-draft
+superseded
+
+Superseded 2026-10-15 by what already covers a failing pipeline. No skill gets
+built.
+- **The platform.** GitLab's Fix pipeline flow is on for `greenberrynl` since
+  2026-10-13. It starts from **Fix pipeline with Duo** on a failing pipeline,
+  reads the job log, and proposes a fix or opens an MR.
+  `spike-pilot-gitlab-code-review-flow.md` judges it on at least one failing
+  MR pipeline.
+- **Reporting.** `skills/create-pr` (step 7) names a failed job with the last
+  lines of its log. `skills/watch-mrs` names the failing job and stage, and
+  points at local reproduction and the Fix pipeline flow.
+- **Prevention.** `chore-run-checks-ci-parity.md` makes the local sweep run what
+  CI runs, which stops the failure before the push.
+- **Frequency.** On RFW, 2 of 99 MR pipelines failed between 2026-09-15 and
+  2026-10-15: `unit_test` on !509 and `storybook_test` on !510. Both were
+  script failures a local test run reproduces. Nothing showed the same failure
+  coming back, which is the premise of this item. Only RFW was measured.
+
+**Reopen** as a new item when both hold:
+- the pilot (ends 2026-11-10) finds the Fix pipeline flow not worth using;
+- and failed MR pipelines run above about 10% a month, or one failure is shown
+  to recur.
+
+The criteria below stay as that item's starting point.
 
 Readiness pass 2026-07-29 — not autonomously runnable yet: AC5's
 reproduce-locally step needs the CI-job→local-command mapping owned by
@@ -23,7 +47,7 @@ be for, and it still waits on `chore-run-checks-ci-parity.md`.
 
 ## Priority
 
-high
+low
 
 ## Summary
 
