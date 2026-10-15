@@ -2,12 +2,12 @@
 
 ## Status
 
-in-progress
+done
 
 Filed 2026-10-13, found while recording the plugin demo video. Found again
 2026-10-14 by the post-merge check of `feat-delivery-guidance-1-ready-check.md`,
-and fixed in !207 (merged 2026-10-15, ships in 2.9.1). Stays `in-progress` until
-the post-release check in `How to verify` is ticked.
+fixed in !207 (merged 2026-10-15) and released in 2.9.1 (!208). Post-release
+check passed 2026-10-15.
 
 ## Priority
 
@@ -67,10 +67,10 @@ both returned their runbook.
 
 ## How to verify
 
-- [ ] **After the 2.9.1 release, first:** `/plugin` shows `greenberry` on 2.9.1;
-  typing `/greenberry:` lists `backlog` and `create-pr` once each and no
-  `review-code`; picking `/greenberry:backlog` opens with "# Backlog Skill". The
-  `/` menu cannot be read from a headless run, so this is the one check left.
+- [x] **After the 2.9.1 release:** after `/reload-plugins`, picking
+  `/greenberry:backlog` loaded from `greenberry/2.9.1/skills/backlog` and opened
+  with "# Backlog Skill" (on 2.9.0 the same pick gave "# Backlog Runbook"). The
+  `/greenberry:` menu was checked by the maintainer in the same session.
 - [x] Skill tool, all fourteen names plus two controls, on `main` after !207
   (`claude -p … --plugin-dir <worktree of 543e376>`): every colliding name loads
   its `SKILL.md` — backlog, close-sprint, commit-message, compact-sprint,
