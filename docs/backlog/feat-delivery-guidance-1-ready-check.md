@@ -2,13 +2,13 @@
 
 ## Status
 
-in-progress
+done
 
-Drafted and flipped to ready 2026-10-13 with the maintainer, delivered in the same
-MR. Decisions taken that day: the ready check is a mode of `skills/backlog` (no new
+Drafted and flipped to ready 2026-10-13 with the maintainer, delivered in !200.
+Decisions taken that day: the ready check is a mode of `skills/backlog` (no new
 skill), the developer confirms every flip to `ready`, and open product questions go
 to the developer first, one by one, because the right route differs per question.
-Stays `in-progress` until the post-merge check in `How to verify` is ticked.
+Post-merge check passed 2026-10-14 on plugin 2.9.0.
 
 ## Slice
 
@@ -58,11 +58,14 @@ and so that I know what to do with the ones that are not there yet.
 
 ## How to verify
 
-- [ ] **After merge, first:** in a session on the released plugin, ask "is
-  `feat-delivery-guidance-2-ready-check-in-the-path.md` ready?" — the report
-  is the table from `skills/backlog/references/ready-check.md`, and the item's
-  status is not touched without a confirmation. The branch's skill cannot be
-  loaded before release, so this is the one criterion not checked before merge.
+- [x] **After merge:** a fresh headless session on plugin 2.9.0 (`claude -p`, edit
+  rights, a throwaway worktree of `main`) asked "Is
+  `feat-delivery-guidance-2-ready-check-in-the-path.md` ready?" answered with the
+  ready-check table and four proposed corrections, asked before folding them in,
+  and left the status at `ready` — `git status` was empty afterwards. It also
+  showed `greenberry:backlog` loading `commands/backlog.md` instead of
+  `SKILL.md`; fixed in !207 (`bug-plugin-commands-shadow-skills.md`). A branch's
+  skills can be tried before merge with `claude -p … --plugin-dir <worktree>`.
 - [x] `node scripts/validate-skills.mjs` → `OK: 38 skills validated, 94 docs
   link-checked, no errors.`
 - [x] Pre-commit hook (`scripts/validate-ai-instructions.sh`) green, including the
