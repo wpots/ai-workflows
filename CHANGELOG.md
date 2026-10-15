@@ -16,6 +16,28 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.9.1] - 2026-10-15
+
+### Changed
+
+- `watch-mrs`: on a failed pipeline it no longer offers a `pipeline-triage`
+  skill that was never built. It now offers two next steps: reproduce the
+  failure locally with `run-checks`, or use **Fix pipeline with Duo** on the
+  failing pipeline.
+
+### Fixed
+
+- `greenberry:<skill>` loads the skill again for the 14 skills that also have a
+  runbook in `commands/` (backlog, create-pr, work-backlog, sprint-planning,
+  refinement, close-sprint and eight more). Claude Code registered every runbook
+  as a plugin command, and a command named like a skill shadowed it: the Skill
+  tool handed out the fallback runbook instead of `SKILL.md`, so whatever only
+  the skill says never loaded. The plugin now registers only the runbooks no
+  skill covers (`new-device-setup`, `safe-kill-port`); `/greenberry:review-code`
+  is gone, `/greenberry:code-review` is the skill. `validate-skills.mjs` errors
+  when a registered command shares a skill's name.
+  <!-- slack: Skills zoals backlog, create-pr en work-backlog laden weer hun eigen instructies in plaats van de fallback-runbook -->
+
 ## [2.9.0] - 2026-10-13
 
 ### Added
