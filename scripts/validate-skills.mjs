@@ -896,6 +896,52 @@ if (tracked.has(PLUGIN)) {
         );
       }
     }
+
+    // A command that shares a skill's name shadows it: `greenberry:backlog`
+    // loaded commands/backlog.md instead of skills/backlog/SKILL.md (2.9.0).
+    // Without a `commands` key Claude Code registers all of commands/, so the
+    // manifest lists only the runbooks no skill covers.
+    const commandEntries = manifest.commands ?? ["./commands/"];
+    const registered = [];
+
+    for (const entry of [commandEntries].flat()) {
+      if (typeof entry !== "string") {
+        err(PLUGIN, `'commands' entry ${JSON.stringify(entry)} is not a path`);
+        continue;
+      }
+
+      const rel = path.posix.normalize(entry.replace(/^\.\//, ""));
+      if (rel.endsWith(".md")) {
+        if (tracked.has(rel)) {
+          registered.push(rel);
+        } else {
+          err(PLUGIN, `'commands' lists ${entry}, which is not a tracked file`);
+        }
+        continue;
+      }
+
+      const dir = rel.endsWith("/") ? rel : `${rel}/`;
+      registered.push(
+        ...[...tracked].filter(
+          (f) =>
+            f.startsWith(dir) &&
+            f.endsWith(".md") &&
+            !f.slice(dir.length).includes("/"),
+        ),
+      );
+    }
+
+    for (const rel of registered) {
+      const name = path.posix.basename(rel, ".md");
+      if (skillDirs.includes(name)) {
+        err(
+          PLUGIN,
+          `registers ${rel} as a command named like skills/${name} — ` +
+            `greenberry:${name} then loads the runbook, not the skill; list ` +
+            "only runbooks without a skill in 'commands'",
+        );
+      }
+    }
   }
 } else {
   warn(PLUGIN, "file not found; plugin version check skipped");

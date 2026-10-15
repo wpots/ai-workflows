@@ -2,7 +2,8 @@
   "name": "greenberry",
   "version": "2.9.0",
   "displayName": "Greenberry AI Workflows",
-  "description": "Greenberry's shared skills and command runbooks: PR and commit flows, sprint workflows, reviews, scaffolding, and backlog delivery. Skills live in skills/, fallback runbooks in commands/.",
+  "description": "Greenberry's shared skills and command runbooks: PR and commit flows, sprint workflows, reviews, scaffolding, and backlog delivery. Skills live in skills/; only the runbooks without a skill are registered as commands, the rest of commands/ is the fallback for tools without skills.",
+  "commands": ["./commands/new-device-setup.md", "./commands/safe-kill-port.md"],
   "author": {
     "name": "Greenberry",
     "url": "https://gitlab.com/greenberrynl/config/ai-workflows"
