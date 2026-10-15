@@ -142,7 +142,9 @@ Three rules keep process docs trustworthy:
    the `runnable`, `needs-scaffold` and `routing` tags, the judge choice, and
    why `--no-publish` is not optional are in
    [`evals/README.md`](../evals/README.md). Each run is a real model call on your
-   account.
+   account. For a one-off check no case covers yet,
+   `claude -p "<prompt>" --plugin-dir .` loads this checkout's plugin over the
+   installed one, so a skill change is never "only testable after the release".
 6. Run `./scripts/validate-ai-instructions.sh`; steps 2–4 are checked, so a
    missing entry surfaces instead of staying invisible.
 7. Republish the pipeline map so the shared copy matches the repo — see
