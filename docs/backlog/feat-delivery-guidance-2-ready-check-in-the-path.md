@@ -4,7 +4,10 @@
 
 ready
 
-Drafted and flipped to ready 2026-10-13 with the maintainer.
+Drafted and flipped to ready 2026-10-13 with the maintainer. Ready check of
+2026-10-14 (slice 1's post-merge check) folded in on the maintainer's go: the
+backlog skill's own change, the fallback runbook, the missing sprint-planning and
+pipeline-map places, and a precise criterion for the legacy status.
 
 ## Slice
 
@@ -41,18 +44,23 @@ that a question I parked for refinement actually reaches the next session.
 - Refinement prep adds the questions a developer parked for refinement to that
   ticket's question list.
 - An item whose status still reads `Planned for Sprint <N>.` from before this change
-  is read as `draft` with that note, and rewritten in the new format when the
-  developer next confirms it.
-- The fallback runbooks (`commands/sprint-planning.md`, `commands/work-backlog.md`,
-  `commands/refinement.md`) follow their skills.
+  is read as `draft` with that note, and rewritten as the status value with
+  `Planned for Sprint <N>.` as a note below it, the next time the ready check writes
+  that item's status.
+- The fallback runbooks (`commands/backlog.md`, `commands/sprint-planning.md`,
+  `commands/work-backlog.md`, `commands/refinement.md`) follow their skills.
 
 ## Technical Notes
 
-- **sprint-planning.** The rule sits in `skills/sprint-planning/SKILL.md` (Constraints
-  and Output) and `commands/sprint-planning.md` Phase 6 ("set the BLI's `## Status` →
-  `Planned for Sprint <N>.`"). Change both to a note line below the value. The ready
-  check runs after the Phase 7 review pause, as an offer — planning stays a planning
-  document first.
+- **backlog.** A closing step in the Workflow of `skills/backlog/SKILL.md`, after the
+  size and criteria checks: run the ready check on the item just written. In
+  `commands/backlog.md`, Phase 5 drops "(on request)" and Phase 3 ends with it.
+- **sprint-planning.** The rule sits in five places; change each to a note line below
+  the value: `skills/sprint-planning/SKILL.md:43` (Constraints, "a **doc status** …
+  mirroring close-sprint") and `:65` (Output), `commands/sprint-planning.md:28`
+  (Safety), `:260` (Phase 6) and `:279` (Output). The planning template only lists
+  BLIs and stays. The ready check runs after the Phase 7 review pause, as an offer —
+  planning stays a planning document first.
 - **work-backlog.** Step 3, "If none is eligible, report per item what blocks it",
   gains the ready-check output for `draft` items. It stays read-only here: the run
   reports and stops, it does not flip anything.
@@ -62,10 +70,15 @@ that a question I parked for refinement actually reaches the next session.
   is reported so the developer can remove the line — refinement still never edits
   BLIs (`Phase 6` stays opt-in).
 - **Legacy status.** Synced client projects already hold BLIs with
-  `Planned for Sprint <N>.` as their status. The ready check and work-backlog's pick
+  `Planned for Sprint <N>.` as their status. The ready check
+  (`skills/backlog/references/ready-check.md`, "Per item") and work-backlog's pick
   step treat that string as `draft` + note; no bulk migration.
+- **pipeline-map.** The "Definition of ready" gate row and its gate paragraph in
+  `docs/pipeline-map.md` name this item as what keeps the gate partial; update both
+  when it lands.
 - Changelog fragment `changelog.d/changed.ready-check-in-the-path.md`. If a skill's
-  `description` changes, run the routing evals first (`evals/README.md`).
+  `description` changes, run the routing evals first (`evals/README.md`). Try the
+  branch's skills before merge with `claude -p … --plugin-dir <worktree>`.
 
 ## Out of Scope
 
@@ -76,6 +89,10 @@ that a question I parked for refinement actually reaches the next session.
 ## Related
 
 - Depends on: feat-delivery-guidance-1-ready-check.md
+- [../../skills/backlog/SKILL.md](../../skills/backlog/SKILL.md)
+- [../../commands/backlog.md](../../commands/backlog.md)
+- [../../skills/backlog/references/ready-check.md](../../skills/backlog/references/ready-check.md)
+- [../pipeline-map.md](../pipeline-map.md)
 - [../../skills/sprint-planning/SKILL.md](../../skills/sprint-planning/SKILL.md)
 - [../../commands/sprint-planning.md](../../commands/sprint-planning.md)
 - [../../skills/work-backlog/SKILL.md](../../skills/work-backlog/SKILL.md)

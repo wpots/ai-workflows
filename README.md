@@ -47,9 +47,9 @@ Full inventory of every skill, command, rule, and MCP server:
 
 Two things worth knowing up front:
 
-- **Claude Code gets skills and commands from the `greenberry` plugin**, not from
-  file copies, and its ambient layer refreshes itself through a `SessionStart`
-  hook. Codex is file-copy only, via `scripts/sync.sh`. Cursor is not supported:
+- **Claude Code gets its skills from the `greenberry` plugin**, not from file
+  copies, plus the two runbooks no skill covers as `/greenberry:` commands; its
+  ambient layer refreshes itself through a `SessionStart` hook. Codex is file-copy only, via `scripts/sync.sh`. Cursor is not supported:
   sync generates nothing for it.
 - **`CONVENTIONS.md` in a project is project-owned** and never overwritten.
   Everything else sync writes is generated — edit it here, not there.
