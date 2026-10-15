@@ -112,7 +112,11 @@ Three rules keep process docs trustworthy:
    skill row names the command as its fallback, put any new trigger in that
    skill row too; when none does, copy the command row verbatim into the
    `## Command Mapping` section of `CLAUDE.md`. The validator checks both.
-3. Run `./scripts/generate-adapters.sh`.
+3. When no skill covers the runbook, list it under `commands` in
+   `.claude-plugin/plugin.json` — that is what makes it `/greenberry:<name>`. A
+   runbook that shares a skill's name stays out: Claude Code would load it in
+   place of the skill, and the validator rejects it.
+4. Run `./scripts/generate-adapters.sh`.
 
 ## Add Or Update A Skill
 
