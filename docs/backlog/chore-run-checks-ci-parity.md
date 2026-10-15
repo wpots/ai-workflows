@@ -133,6 +133,6 @@ it is on v4.
 
 - [../../skills/run-checks/SKILL.md](../../skills/run-checks/SKILL.md)
 - [../../commands/run-checks.md](../../commands/run-checks.md)
-- [feat-pipeline-triage.md](feat-pipeline-triage.md): its reproduce-locally step
-  waits on this item
+- `docs/pipeline-map.md` gap 3: the pipeline-triage skill that waited on this
+  item is superseded (2026-10-15). This item is the prevention side.
 - https://gitlab.com/greenberrynl/config/ci-components — CI v4, DEV-650

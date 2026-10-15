@@ -94,10 +94,10 @@ Hand-offs are **proposals surfaced to the user, not silent autonomous fixes**:
 the loop detects, the skills act — and only after the user (or the invocation's
 explicit configuration) says go.
 
-- **Failed pipeline** → report the failing job and stage, and offer
-  `skills/pipeline-triage` for that MR. Until that skill exists, the
-  notification plus the failing job/stage and a suggested next step is the
-  behaviour.
+- **Failed pipeline** → report the failing job and stage, and offer two next
+  steps. One is reproducing the failure locally with `skills/run-checks`. The
+  other, on GitLab with Duo, is the **Fix pipeline with Duo** button on the
+  failing pipeline, which proposes a fix or opens an MR.
 - **Merged** (auto-merge or observed external merge) → offer the post-merge
   closeout via `skills/mr-merged` (board to done, "How to test this" comment,
   branch/worktree cleanup), then drop the MR from the active watch list either

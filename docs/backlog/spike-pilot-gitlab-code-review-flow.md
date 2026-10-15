@@ -153,8 +153,9 @@ pipeline page):
 - **Health check.** Project Settings > General > GitLab Duo, the **CI/CD
   runner** row. AI > Sessions shows each flow session.
 
-Check, in the same pilot, what the Fix pipeline flow does on a failing MR pipeline:
-it is the platform's version of `feat-pipeline-triage.md`.
+Check, in the same pilot, what the Fix pipeline flow does on a failing MR pipeline.
+It replaced our own pipeline-triage skill, superseded on 2026-10-15. The verdict
+here is half of that skill's reopen condition (`docs/pipeline-map.md`, gap 3).
 
 ## Out of Scope
 
@@ -166,6 +167,5 @@ it is the platform's version of `feat-pipeline-triage.md`.
 - Pilot project: https://gitlab.com/greenberrynl/refugeework/website
 - The competing AI review job:
   https://gitlab.com/greenberrynl/refugeework/website/-/merge_requests/383
-- [feat-pipeline-triage.md](feat-pipeline-triage.md)
 - [../../skills/code-review/SKILL.md](../../skills/code-review/SKILL.md)
 - https://docs.gitlab.com/user/duo_agent_platform/flows/foundational_flows/code_review/
