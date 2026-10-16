@@ -82,18 +82,22 @@ Run against the source project's checkout (`<project>`).
   When `commit` is `null` or the template does not have it, use the tag
   `v<template.version>` instead and say so.
 - **v3 project** (no `.unicore.json`, but `scripts/husky/readme-checks.js`
-  exists — that hook only ships with the template): estimate the base. Fetch
-  the v3 line into the project
-  (`git -C <project> fetch --no-tags https://gitlab.com/greenberrynl/the-greenhouse/unicore-template.git refs/tags/v3.0.0`),
-  take the 30 most recent first-parent commits before the project's first
+  exists — that hook only ships with the template): estimate the base. A v3
+  project started from the tag's line or from a CMS variant branch, whose
+  commits are not on the tag, so look at all three: `refs/tags/v3.0.0`,
+  `development-payloadcms` and `development-prepr`. For each, fetch it into the
+  project
+  (`git -C <project> fetch --no-tags https://gitlab.com/greenberrynl/the-greenhouse/unicore-template.git <ref>`)
+  and take the 30 most recent first-parent commits before the project's first
   commit
-  (`git -C <project> rev-list --first-parent --before=<first-commit-date> -n 30 FETCH_HEAD`),
-  and pick the one with the smallest
-  `git -C <project> diff --shortstat <commit> HEAD -- <owned globs>`. For v3,
-  the owned globs are the v4 `template.json` list without `agents/**` and
-  `src/vendor/**`. Report the base as **estimated**, and offer the project a
-  one-file MR that writes `.unicore.json` with that commit, `"version": null`
-  and `"estimated": true`, so the next run starts exact.
+  (`git -C <project> rev-list --first-parent --before=<first-commit-date> -n 30 FETCH_HEAD`).
+  Across all of them, pick the one with the smallest
+  `git -C <project> diff --shortstat <commit> HEAD -- <owned globs>`, and name
+  the ref it came from. For v3, the owned globs are the v4 `template.json` list
+  without `agents/**` and `src/vendor/**`. Report the base as **estimated**,
+  and offer the project a one-file MR that writes `.unicore.json` with that
+  commit, `"version": null` and `"estimated": true`, so the next run starts
+  exact.
 - **Neither marker**: the project was not created from the template. Stop.
 
 ## Step 2 — Pick what goes up
