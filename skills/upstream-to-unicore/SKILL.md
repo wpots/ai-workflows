@@ -177,12 +177,19 @@ Read the target line's `.gitlab-ci.yml` and `.husky/` and run what they run:
   workers fail to load native bindings.
 - **v3** (a `v3` branch only) — the `package.json` scripts that the CI file
   and the hooks call.
-- In the worktree from Step 4 the template's git hooks do not run: husky's
-  hooks path, `.husky/_`, is gitignored and so missing there. Run what they run
-  by hand and list it in the MR. On v4 the pre-commit type-checks each
-  generated preset with `node scripts/check-presets.js type-check` (Node from
-  `.nvmrc`, pnpm on `PATH`), which covers the setup-and-check above for
-  `type-check`.
+- In the worktree from Step 4 the template's git hooks do not run: husky
+  creates its hooks path, `.husky/_`, at install, so a fresh worktree has none.
+  Run the hooks' checks by hand with the line's package manager before
+  committing, and list them in the MR:
+  - pre-commit: `lint` and `lint:styles`, both with `--fix`, so commit their
+    fixes. Then the type-check: on v4 `node scripts/check-presets.js
+    type-check` (Node from `.nvmrc`, pnpm on `PATH`), which type-checks every
+    generated preset and replaces the scratchpad `type-check` above; on a `v3`
+    branch `type-check`.
+  - pre-push: `test`.
+  - Skip `node scripts/husky/index.js`, the pre-commit's first line. Its checks
+    (a clean git history, a filled-in README) are for projects generated from
+    the template and fail inside the template itself.
 - Anything that could not run (no package manager, missing dependencies) is
   reported as not run. Never report a pass you did not see.
 
