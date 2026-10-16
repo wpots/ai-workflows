@@ -126,7 +126,10 @@ anything enforceable with a lint/validation rule (automate it instead).
 **Iron law: no skill without watching it fail first.** Before writing, confirm the
 baseline actually fails — an agent (or you) handling the situation *without* the skill
 does the wrong thing. If the no-guidance baseline already does the right thing, there's
-nothing to write. This applies to edits too, not just new skills.
+nothing to write. This applies to edits too, not just new skills. Watch it before
+merge, not after a release: run the situation as a prompt with
+`claude -p "<prompt>" --plugin-dir <ai-workflows checkout>`, once on the base and
+once on your branch — the checkout's plugin loads over the installed one.
 
 **Match the form to the failure** — the wrong form measurably backfires:
 
