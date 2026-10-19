@@ -30,7 +30,9 @@ implement → verify → merge request. Stop after one MR; humans review and mer
    MR author → rework that MR as this run's unit of work (the
    `skills/address-review-comments/SKILL.md` flow, no approval pause), resolve
    each thread you addressed, report, stop. No actionable comments → stop and
-   report. Flag orphaned work-backlog branches.
+   report; when the MR reports `need_rebase` on a fast-forward project, rebase
+   it server-side first (`PUT .../merge_requests/<iid>/rebase`) and wait for
+   its pipeline. Flag orphaned work-backlog branches.
 3. **Pick** — first `docs/backlog/*.md` with `Status: ready` whose
    `Depends on:` BLIs are `done` on `origin/main` (or `in-progress` with their
    MR merged and only a post-merge check left); order by roadmap number, then
@@ -43,18 +45,27 @@ implement → verify → merge request. Stop after one MR; humans review and mer
    follow `CONVENTIONS.md` + `rules/`; write the tests the BLI names; keep the
    diff scoped to this item.
 6. **Verify** — full check suite (lint, typecheck, tests, build, a11y/E2E
-   where configured). Never weaken checks to get green.
+   where configured). Never weaken checks to get green. Checks that only run
+   in CI: open the MR as a draft with the close-out pushed, block in the
+   foreground on its pipeline (poll the pipeline API; rerun the wait when the
+   10-minute Bash cap expires), mark it ready only when green. Never hand back
+   while a pipeline runs, and never wait with a background task — it dies with
+   a subagent's run. A one-off transient job failure gets one
+   `glab ci retry <job-id>`, not retry code.
 7. **Self-review** — review the branch diff, fix findings, re-run checks if
    needed.
 8. **Close out** — flip the BLI to `done`, or keep it `in-progress` when a
    criterion can only be checked after merge (name that check first in
-   `How to verify`); after the MR exists, append its URL to the BLI's
+   `How to verify`); a criterion left unticked in the MR keeps it
+   `in-progress`. After the MR exists, append its URL to the BLI's
    `## Related` and push.
 9. **MR** — follow `commands/create-pr.md` (rebase onto base, MR template);
    title conventional; description fills the resolved template's sections
    (`## Backlog`: BLI link + checked acceptance criteria; `## How to verify`:
    the BLI's steps; `## Scope`: slice status) — no invented headings; draft +
-   "Blocked on" section when rule 5/6 applies. Autonomous run: skip the
+   "Blocked on" section when rule 5/6 applies. An MR created through
+   `glab api` ignores a `draft` field: prefix the title with `Draft: `;
+   `glab mr update <iid> --ready` drops it. Autonomous run: skip the
    interactive approval pause.
 10. **Notify** — rely on the repo's GitLab→Slack integration if configured;
     else post the MR link to the merge-request channel if a Slack tool is
