@@ -16,6 +16,29 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.9.3] - 2026-10-16
+
+### Changed
+
+- `upstream-to-unicore`: v4 replaced v3 on the template's `development`
+  (unicore-template!77), so `development` is the target and v3 is the frozen
+  tag `v3.0.0`. A v3 project's base is estimated against that tag instead of
+  `development`, and Step 5 says the template's hooks do not run in the
+  worktree and names the per-preset type-check to run by hand.
+
+### Fixed
+
+- `upstream-to-unicore`: Step 5 names the hook checks to run by hand in the
+  template worktree (`lint` and `lint:styles` with their fixes, the preset
+  type-check, `test` from pre-push) and says to skip
+  `scripts/husky/index.js`, whose clean-history and README checks fail
+  inside the template itself.
+- `upstream-to-unicore`: the base estimate for a v3 project also looks at the
+  CMS variant branches `development-payloadcms` and `development-prepr`, next
+  to the tag `v3.0.0`, and names the ref the base came from. A Payload project
+  started from its variant branch, whose commits are not on the tag, so the
+  estimate against the tag alone picked the wrong base.
+
 ## [2.9.2] - 2026-10-16
 
 ### Changed
