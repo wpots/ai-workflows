@@ -20,6 +20,9 @@ Two things that follow from it:
 - It is a UI flow. Creating the project from the CLI gives you an empty repo
   without the template, so do not shortcut it.
 - If the client has no group yet, create the group first.
+- The template must hold no MRs and no issues. The flow copies both into the
+  new project, and the copied MRs take the first MR numbers. `start-project`
+  has the check to run before you start.
 
 Then clone your new project (not the template) and continue below.
 
