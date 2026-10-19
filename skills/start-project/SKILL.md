@@ -68,6 +68,22 @@ live in Notion: <https://app.notion.com/p/0682fe5062b84b5d9f5e5c1e049d06f7>.
 That is a UI flow, so **never create a production project from the CLI**: it
 skips the template, and the lineage below can then never be proven.
 
+**Before the flow, the template must hold no MRs and no issues.** Create from
+template runs GitLab Import/Export, which copies every MR and issue of the
+template into the new project. Those copies also advance the project's number
+counter: a template with 49 MRs makes the first real MR `!50`. Deleting the copies
+afterwards does not lower the counter. So check the template first. Both counts
+must be `0`:
+
+```bash
+glab api "projects/greenberrynl%2Fproject-templates%2Funicore-template/merge_requests?state=all" | jq length
+glab api "projects/greenberrynl%2Fproject-templates%2Funicore-template/issues?state=all" | jq length
+```
+
+If either count is above `0`, stop and propose deleting those items from the
+template. Deleting cannot be undone, so the user approves it first. Only then
+create the project.
+
 Resolve the GitLab remote **by URL, not by remote name** (`git remote -v`), then
 check:
 
@@ -76,6 +92,7 @@ check:
 | 1 | repo exists and sits at `greenberrynl/<client>/<project>` | `git remote -v`, `glab repo view <path>` |
 | 2 | created from the template — its lineage is recorded | `.unicore.json` exists (written by the template's setup, v4) and its `template.commit` exists in the template: `glab api "projects/greenberrynl%2Fthe-greenhouse%2Funicore-template/repository/commits/<commit>"`. No record → a v3 project or a skipped setup: fall back to a file fingerprint (`scripts/husky/readme-checks.js`, CI config, tooling config, `.nvmrc`, folder skeleton) and record that lineage could not be proven. A merge-base finds nothing: the template's `readme-checks` hook makes every project replace the template history before its first commit |
 | 3 | default branch and visibility match the Greenberry defaults | `glab api "projects/<url-encoded-path>"` |
+| 3a | no MRs or issues copied from the template | `glab api "projects/<path>/merge_requests?state=all"` and `.../issues?state=all`, compare each `created_at` with the project's own `created_at`. Anything older than the project was imported from the template. Report it as a **deviation**: the first real MR number is already taken and cannot be reset. The fix belongs in the template (delete the items there after approval), so the next project starts at `!1` |
 | 3b | merge settings match `rules/git-flow.md` | `node <ai-workflows>/scripts/gitlab-merge-settings.mjs --project <path>` — read-only; reports `ff` + squash-always, the squash commit template, delete-source-branch, and the pipeline/discussion gates. Paste its table into the lane report. Resolving `<ai-workflows>`: see below |
 | 4 | protected branches and approval rules exist | `glab api "projects/<path>/protected_branches"`, `.../approval_rules` |
 | 5 | the CI/CD variables the pipeline needs are present | `glab api "projects/<path>/variables"` — **names only, never print values** |

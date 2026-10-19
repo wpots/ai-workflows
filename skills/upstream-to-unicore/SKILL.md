@@ -56,6 +56,10 @@ starting point; Step 1 estimates it. Projects are created from the copy
 `greenberrynl/project-templates/unicore-template`, which is updated by hand
 until DEV-694 publishes it from this repository; a commit that copy made on
 its own does not exist here, and Step 1 then falls back to the version tag.
+**Never open an MR or an issue in that copy.** Create from template copies
+both into every new project, and the copied MRs take the first MR numbers:
+one project's first MR became `!50` that way. Work that belongs in the copy
+lands here first and reaches the copy by a push, never by an MR.
 
 ## Step 0 — The open queue
 
