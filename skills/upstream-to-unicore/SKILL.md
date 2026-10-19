@@ -52,14 +52,20 @@ setup: `template.version`, `template.commit` and the `preset`. The paths the
 template owns are the `owned` globs in `template.json` at that commit. A v3
 project has no record, and its history was replaced when it was created (the
 template's `readme-checks` hook demands it), so no merge-base can find its
-starting point; Step 1 estimates it. Projects are created from the copy
-`greenberrynl/project-templates/unicore-template`, which is updated by hand
-until DEV-694 publishes it from this repository; a commit that copy made on
-its own does not exist here, and Step 1 then falls back to the version tag.
-**Never open an MR or an issue in that copy.** Create from template copies
-both into every new project, and the copied MRs take the first MR numbers:
-one project's first MR became `!50` that way. Work that belongs in the copy
-lands here first and reaches the copy by a push, never by an MR.
+starting point; Step 1 estimates it.
+
+**The copy in Project templates.** A project is made in two steps. First,
+GitLab's Create from template on `greenberrynl/project-templates/unicore-template`
+gives the new project its settings: merge method, protected branches, and force
+push on `main` so the history can be replaced. The code itself is a clone of
+**this** repository: README step 1 clones it under its old path
+`greenberrynl/unicore/typescript-template`, which redirects here. The setup runs
+on that clone and the result is force-pushed over the copy's content. So
+`.unicore.json` always names a commit in this repository, and the copy's code is
+never used. Never maintain code in that copy, and never open an MR or an issue
+there. Create from template copies every MR and issue into each new project, and
+the copied MRs use up the first MR numbers: one project's first MR became `!50`
+that way.
 
 ## Step 0 — The open queue
 
