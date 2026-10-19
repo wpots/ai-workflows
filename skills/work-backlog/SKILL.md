@@ -88,7 +88,11 @@ WIP — do **not** pick a new item. Decide its state and act:
 
 3. **No actionable comments (awaiting review / blocked on a human) → stop and
    report** the MR URL: suggest merging it, or that it waits on a reviewer.
-   Never open a second MR.
+   Never open a second MR. One exception keeps it mergeable: when a
+   fast-forward project's base moved and the MR reports
+   `detailed_merge_status: need_rebase`, rebase it server-side
+   (`glab api -X PUT "projects/<id>/merge_requests/<iid>/rebase"`), wait for
+   the new pipeline, then stop and report.
 
 Also flag any local work-backlog branch that has no MR (a crashed previous run)
 and ask whether to resume it rather than starting fresh.
@@ -156,6 +160,26 @@ build, plus Storybook/Playwright where configured). Everything green is a
 precondition for a non-draft MR (Contract #5). Fix failures; do not weaken
 checks, skip tests, or add lint suppressions to get green.
 
+**Checks that only run in CI** (they need a CI token, install globally, or run
+on the pipeline's own image) are verified on the MR pipeline instead:
+
+1. Open the MR as a draft (step 9) and push the BLI close-out (step 8, MR link
+   included), so the pipeline you wait for runs on the final head.
+2. **Block in the foreground** until that pipeline reaches a terminal status:
+   a small script that polls
+   `glab api "projects/<id>/pipelines/<pipeline-id>"` and prints each job's
+   status and the log tail of a failed one. A foreground Bash call is capped
+   (10 minutes); when it expires on a slow runner queue, run the same wait
+   again.
+3. Green → mark the MR ready. Red → fix within scope, push, wait again.
+
+Never hand back while a pipeline is still running, and never wait on it with
+a background task: a monitor or `run_in_background` command dies when a
+subagent's run ends, so the report says "running" and nobody watches. A job
+that fails once on a transient platform error (`connection reset by peer`, an
+API timeout) gets one `glab ci retry <job-id>`; one occurrence does not justify
+retry code.
+
 ### 7. Self-review
 
 Review the full branch diff against `origin/main` (use the code-review skill
@@ -196,9 +220,11 @@ Then on the branch, set the final `Status` and commit:
 
 - every criterion verified before merge → `done`;
 - a criterion that can only be checked after merge (a deploy, a human browser
-  check, a credential rotation) → keep `in-progress`, and put that check first
-  in `How to verify`. The item goes to `done` when the check is ticked, not
-  when the MR merges.
+  check, a credential rotation, a cache hit or log line only a consumer's job
+  shows) → keep `in-progress`, and put that check first in `How to verify`.
+  The item goes to `done` when the check is ticked, not when the MR merges. A
+  criterion you leave unticked in the MR description is such a check: the item
+  is not `done`.
 
 After step 9 produces the MR URL, append it to the BLI's `## Related` section,
 commit (`docs: link MR for <bli-name>`), and push — the MR picks up the new
@@ -225,7 +251,10 @@ Use the create-pr skill (it handles rebase onto base, MR templates, push, and
     know that will read the diff as an incomplete feature.
   When the project ships its own MR template, map the same content into its
   closest headings instead.
-- Draft MR + a **Blocked on** section when Contract #5 or #6 applies.
+- Draft MR + a **Blocked on** section when Contract #5 or #6 applies. An MR
+  created through `glab api` ignores a `draft` field: start the title with
+  `Draft: `, and `glab mr update <iid> --ready` drops the prefix once the
+  pipeline is green.
 - This is an autonomous run: skip create-pr's interactive approval pause —
   the MR itself is the review surface.
 - In the canonical config repos (`ai-workflows`, `unicore-template`) never push

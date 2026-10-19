@@ -19,6 +19,10 @@ the most time when forgotten:
   cwd's remote.
 - Inside the sandbox, SSH remotes fail with GitLab's "correct access rights"
   message. Use the https remote.
+- Inside the sandbox, `glab` may print `ERROR: open …/glab-cli/.config.yml…:
+  operation not permitted` when it tries to rewrite its own config. The
+  command's output is still valid; rerun without the sandbox only when the
+  call itself fails on auth.
 
 ## Read
 

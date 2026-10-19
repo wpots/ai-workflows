@@ -239,7 +239,8 @@ them:
   commit then lands on the branch you were leaving. Use
   `git switch -c <branch> --no-track <start-point>` (writes no config) and
   confirm with `git branch --show-current` before staging. `git branch -d` warns
-  the same way but does delete.
+  the same way but does delete. `git push -u` pushes, then fails on recording
+  the upstream: push with `git push <remote> <branch>`.
 - **Anything over SSH** (`git fetch`, `git push`): `~/.ssh` is unreadable, so
   git reports `Please make sure you have the correct access rights and the
   repository exists` — which reads as a revoked GitLab token, not a sandbox

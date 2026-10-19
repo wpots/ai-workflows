@@ -78,7 +78,11 @@ Only ask what isn't already given in the user's request.
      silently if used as a variable name; this bit us once, use `merge_status`
      instead.
 5. Start the script with the `Monitor` tool: `persistent: true`, a specific
-   `description` (repo + MR ids), no `timeout_ms` override needed.
+   `description` (repo + MR ids), no `timeout_ms` override needed. Where
+   `Monitor` has no `persistent` option it expires after at most 30 minutes:
+   re-arm it on the expiry notice. When only one event matters (the merge), a
+   `run_in_background` Bash script that polls and exits on that event has no
+   such cap and wakes the session once.
 6. Arm a `ScheduleWakeup` fallback heartbeat (1200–1800s) with `prompt` set to
    re-invoke this skill with the same resolved args (repo, MR ids, interval,
    auto-merge config) — this is a safety net only; the Monitor is the real
