@@ -82,8 +82,10 @@ jira sprint add 1545 RFW-324
 # Comment — body from a file, no editor
 jira issue comment add RFW-324 -T /path/to/comment.md --no-input
 
-# Transition, edit, link, worklog
+# Transition — only after the user's go on this ticket (SKILL.md § Ticket status)
 jira issue move RFW-324 "In Review"
+
+# Edit, link, worklog
 jira issue edit RFW-324 -s "<new summary>" --no-input
 jira issue link RFW-324 RFW-100 "Blocks"
 jira issue worklog add RFW-324 "1h 30m"

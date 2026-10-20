@@ -80,9 +80,24 @@ Bash(axiom query *)   Bash(axiom dataset list) Bash(axiom auth status)
 ```
 
 Add the write commands (`jira issue create`, `jira issue comment add`,
-`jira issue move`, `axiom ingest`) only in projects where a skill is allowed to
-write, and keep them out of a wildcard: `Bash(jira *)` reopens every write the
-read-only skills promise not to make.
+`axiom ingest`) only in projects where a skill is allowed to write, and keep
+them out of a wildcard: `Bash(jira *)` reopens every write the read-only skills
+promise not to make. `jira issue move` is never allowlisted: where `Bash(jira *)`
+is allowed, put `Bash(jira issue move *)` under `ask`. Ask rules win over allow
+rules, so the harness asks every time.
+
+## Ticket status
+
+A status change is a human decision. Jira's own automation moves tickets from
+the pipeline, so a skill that moves one as well either repeats that move or
+overrides the status the automation chose.
+
+- No skill transitions a ticket as part of its plan, a batch approval for other
+  writes, or a recap proposal. It reads the status back and reports the tickets
+  the automation did not move, with their current status.
+- `jira issue move` (or the connector's `transitionJiraIssue`) runs only when
+  the user asks for it in this session and gives a go on the exact list: key,
+  current status and target status per ticket.
 
 ## Constraints
 

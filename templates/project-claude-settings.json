@@ -42,6 +42,7 @@
       "Bash(command -v *)"
     ],
     "ask": [
+      "Bash(jira issue move *)",
       "Bash(kill *)",
       "Bash(pkill *)",
       "Bash(killall *)",

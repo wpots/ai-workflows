@@ -76,8 +76,9 @@ the key; the integration reads that.
   `Closes RFW-325`. Add a remote link on the ticket:
   `jira issue link remote <KEY> <MR URL> "MR !<iid>: <title>"`. The
   integration moves the ticket when the MR merges, but not a ticket created
-  after its MR merged. Move that one yourself with
-  `jira issue move <KEY> "Done"`, and only that one.
+  after its MR merged. Report that one in the recap with its status; move it
+  only when the user asks and gives a go on that key
+  (`skills/service-cli` § Ticket status).
 - **Regular maintenance:** `RFW-319: chore(deps): …`, and the description
   starts with `Part of RFW-319`. Never `Closes`, `Fixes` or `Resolves`: the
   integration would close the quarter's ticket on merge. Add no remote link,
