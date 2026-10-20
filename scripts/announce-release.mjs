@@ -14,7 +14,7 @@
 //   node scripts/announce-release.mjs --dry-run --json ...      # the webhook payload instead
 //
 // Environment:
-//   SLACK_WEBHOOK_URL  incoming webhook of the channel (#development)
+//   SLACK_WEBHOOK_URL  incoming webhook of the channel (#ai-workflows)
 //   CI_PROJECT_URL     for the links; defaults to the ai-workflows project
 
 import { readFileSync } from "node:fs";
@@ -86,7 +86,7 @@ if (dryRun) {
 
 if (!env.SLACK_WEBHOOK_URL) {
   console.log(
-    "SLACK_WEBHOOK_URL is not set, so nothing was posted. Add the #development incoming " +
+    "SLACK_WEBHOOK_URL is not set, so nothing was posted. Add the #ai-workflows incoming " +
       "webhook as a masked CI/CD variable, or paste this by hand:\n",
   );
   console.log(toPlainMrkdwn(payload));

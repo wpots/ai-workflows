@@ -159,7 +159,7 @@ a changelog fragment `changelog.d/<section>.<slug>.md`, and must **not** touch
 [references/upstream-mr.md](references/upstream-mr.md). When developers will
 notice the change, end its bullet with a continuation line
 `  <!-- slack: <Dutch one-liner> -->`: only noted entries get a row in the
-`#development` release post. When they must do something once after updating
+`#ai-workflows` release post. When they must do something once after updating
 (delete a file, re-run a skill), add a `changelog.d/action.<slug>.md` as well.
 `docs/contributing.md` § Ship A Plugin Release has the details.
 
