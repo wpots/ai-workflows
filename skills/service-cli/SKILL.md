@@ -82,9 +82,7 @@ Bash(axiom query *)   Bash(axiom dataset list) Bash(axiom auth status)
 Add the write commands (`jira issue create`, `jira issue comment add`,
 `axiom ingest`) only in projects where a skill is allowed to write, and keep
 them out of a wildcard: `Bash(jira *)` reopens every write the read-only skills
-promise not to make. `jira issue move` is never allowlisted: where `Bash(jira *)`
-is allowed, put `Bash(jira issue move *)` under `ask`. Ask rules win over allow
-rules, so the harness asks every time.
+promise not to make. `jira issue move` is never allowlisted (§ Ticket status).
 
 ## Ticket status
 
@@ -98,6 +96,11 @@ overrides the status the automation chose.
 - `jira issue move` (or the connector's `transitionJiraIssue`) runs only when
   the user asks for it in this session and gives a go on the exact list: key,
   current status and target status per ticket.
+- The plugin enforces the go with a PreToolUse hook
+  (`scripts/require_ticket_transition_approval.py`): it asks the user before
+  every `jira issue move` (also `transition` and `mv`) and every connector
+  `transitionJiraIssue`, even where `Bash(jira *)` is allowed. A headless run
+  has nobody to answer, so the transition is denied there.
 
 ## Constraints
 
