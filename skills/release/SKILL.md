@@ -1,6 +1,6 @@
 ---
 name: release
-description: Run a production release end to end around the project's own release runbook — pre-flight, a "release is starting" mail draft with a one-hour indication, the promotion, tag and GitLab Release the runbook prescribes, customer release notes, a "release is live" reply draft with the overview of changes, an optional post in the project's Slack channel, the shipped tracker tickets tagged with the version and moved to Done, and the housekeeping after it (sprint or support-month close and compaction, stale branches and worktrees). Asks who gets the mail and proposes sharing in Slack; drafts mail, never sends it. On a project without versions it proposes introducing them once and records the decision. Use when the user starts, runs or finishes a release ("release starten", "start the release", "naar productie", "release afronden", "promote acceptance to production"), or asks to version and close the tickets of a release ("versie op de tickets", "tickets van de release naar done").
+description: Run a production release end to end around the project's own release runbook — pre-flight, a "release is starting" mail draft with a one-hour indication, the promotion, tag and GitLab Release the runbook prescribes, customer release notes, a "release is live" reply draft with the overview of changes, an optional post in the project's Slack channel, the shipped tracker tickets tagged with the version and their status read back, and the housekeeping after it (sprint or support-month close and compaction, stale branches and worktrees). Asks who gets the mail and proposes sharing in Slack; drafts mail, never sends it. On a project without versions it proposes introducing them once and records the decision. Use when the user starts, runs or finishes a release ("release starten", "start the release", "naar productie", "release afronden", "promote acceptance to production"), or asks to version and close the tickets of a release ("versie op de tickets", "tickets van de release naar done").
 metadata:
   owner: wieteke.pots
 ---
@@ -30,7 +30,8 @@ Everything outward-facing is listed in the Step 3 plan and approved there in
   user sends them. This skill never sends mail;
 - Slack posts in the project channel, only when the user chose to share;
 - tracker writes for the tickets the plan lists: a version (or the label
-  fallback) and the transition to Done;
+  fallback). No status change: Jira's automation moves tickets from the
+  pipeline, and Step 7 reads the status back;
 - when the user chose to introduce versioning: the setup MR through
   `skills/create-pr`, and the baseline tag on the current production
   commit. When they chose "no versions", the one line in `CONVENTIONS.md`
@@ -38,7 +39,7 @@ Everything outward-facing is listed in the Step 3 plan and approved there in
 
 Branch and worktree deletion is approved separately at the end, per item
 (Step 8). Never: send a mail, post to Slack without that yes, transition a
-ticket the plan does not list, force-push, skip a runbook check, or run
+ticket without the user's go on that ticket (Step 7), force-push, skip a runbook check, or run
 `skills/close-sprint` or `skills/compact-sprint` inline — they are separate
 lanes with their own review pause.
 
@@ -70,7 +71,7 @@ the recent tags with their ticket counts and say which tag you took.
   `version` in `package.json`, `CHANGELOG.md` with `## [Unreleased]`. No
   versions, and no "Versioning" decision in `CONVENTIONS.md`: Step 2 proposes
   introducing them once. A recorded "no versions" decision is respected: the
-  mails name the release by date and the tracker step only offers Done.
+  mails name the release by date and the tracker step writes no version.
 - **Scope.** `<last tag>..<pre-production ref>` as the runbook defines it;
   for an unversioned project, `<production ref>..<pre-production ref>`.
   Collect ticket keys from commit subjects and bodies, and from the merged
@@ -119,8 +120,7 @@ already answers, and ask a second call only for what remains.
    says when versions pay off, what the setup MR contains, and how to record
    the decision.
 4. **Tracker without versions**: "label `vX.Y.Z`" (recommended) /
-   "create a Jira version" (needs project-admin rights) / "Done only, no
-   version".
+   "create a Jira version" (needs project-admin rights) / "no version".
 
 When a migration is in scope and the runbook does not say whether editors
 can keep working, ask that too.
@@ -138,7 +138,7 @@ Release       cut on acceptance → acc rehearsal → ff-push to main → deploy
 Notes         skills/release-notes, v1.1.2..v1.2.0, product owner, Dutch
 Live mail     reply in the same thread, overview from the notes
 Slack         #<channel>: start message, live reply in the thread
-Tracker       fixVersion v1.2.0 on 9 tickets · Done: 7 · kept open: RFW-295 (MR still open), RFW-292 (open PO question)
+Tracker       fixVersion v1.2.0 on 9 tickets · status read back after the deploy, no transitions · partial: RFW-295 (MR still open), RFW-292 (open PO question)
 Housekeeping  support-2026-09 not closed yet → close-sprint after this run · stale branches listed at the end
 ```
 
@@ -192,8 +192,7 @@ Classify every key from the scope before writing anything:
 
 | Evidence | Class | Write |
 | --- | --- | --- |
-| key in a commit subject or squash commit, or in a merged MR's title or source branch in the range | shipped | version, transition to Done |
-| shipped, ticket already Done | shipped | version only |
+| key in a commit subject or squash commit, or in a merged MR's title or source branch in the range | shipped | version |
 | key only in an MR description, as context ("anonymisation is RFW-218") | context | nothing |
 | an open MR still carries the key, or the PO reported it still reproducible after the merge, or a PO question in the comments is unanswered | partial | nothing — report it with the reason |
 
@@ -213,12 +212,24 @@ the Atlassian connector.
 jira issue edit <KEY> --fix-version vX.Y.Z --no-input
 jira issue edit <KEY> --label vX.Y.Z --no-input
 
-# Transition to the project's done state
-jira issue move <KEY> "Done"
-
-# Verify
+# Verify, and read the status back
 jira issue list --jql 'project = <KEY> AND labels = "vX.Y.Z"' --plain --columns key,status,summary
 ```
+
+- **Status.** Jira's automation moves tickets from the pipeline; this step
+  does not (`skills/service-cli` § Ticket status). After the deploy, report
+  every shipped ticket that is not in the project's done category yet, with
+  its current status. A partial ticket the automation already moved to done
+  is reported too: the work on it is not finished.
+- **Moving on request.** Only when the user asks for it ("zet ze op done"):
+  list the shipped tickets that are not done, each with its current and
+  target status, and wait for the go on that list. Then run
+  `jira issue move <KEY> "<status>"` for exactly those keys. Partial and
+  context tickets never go on the list. Take the target from the project's
+  own done-category status, as used by tickets that are already done;
+  workflows differ per project. When `jira issue move` refuses, list that
+  ticket's transitions with the connector (`listJiraIssueTransitions`) and
+  use the one whose target is in the done category.
 
 - **Version.** When the project works with versions and `jira release list`
   does not show this one yet, create it with the connector's
@@ -230,11 +241,6 @@ jira issue list --jql 'project = <KEY> AND labels = "vX.Y.Z"' --plain --columns 
   for both the key and the numeric id means the user lacks project-admin
   rights. Fall back to the label `vX.Y.Z`, and say that a project admin can
   create the version later.
-- **Done state.** Take its name from the project's own done-category status,
-  as used by tickets that are already done. Workflows differ per project.
-  When `jira issue move` refuses, list that ticket's transitions with the
-  connector (`listJiraIssueTransitions`) and use the one whose target is in
-  the done category.
 - **Connector fallback** (no `jira` CLI installed): `editJiraIssue` sets
   labels and fixVersions instead of appending, so read the current values
   and send them along. Say in the recap that the connector was used.
@@ -281,7 +287,7 @@ the user approves. Verify that each approved item is gone.
 | Mails | draft links, whether the start mail was sent, the signature reminder |
 | Slack | thread link, or "not shared" |
 | Notes | `docs/releases/<key>.md` |
-| Tracker | version or label, tickets moved to Done, tickets kept open with the reason |
+| Tracker | version or label, shipped tickets not yet done with their status, tickets moved on the user's go, partial tickets with the reason |
 | Housekeeping | close and compact hand-offs, branches and worktrees removed or kept |
 | Not done | each skipped step and why |
 
@@ -296,5 +302,7 @@ to `skills/improve-skill/SKILL.md` before closing out.
 - No promotion before the user confirms the start mail is out or skips it.
 - Tracker writes only for the tickets in the approved plan; partial tickets
   stay where they are.
+- No status change without the user's go on that ticket; the plan's go does
+  not cover it.
 - Branch and worktree deletion only per approved item, never protected
   branches, never a dirty worktree.

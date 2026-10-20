@@ -86,11 +86,11 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `wcag-audit` | WCAG 2 compliance audit combining static code review with an axe-core/Playwright scan of the live site | No (skill only) |
 | `npm-maintenance` | Inspect and update Node.js dependencies, npm audit remediation, and major-version migrations | No (skill only) |
 | `dependency-hotfix` | Ship a critical from the dependency-scanner report as a hotfix: MR to production with auto-merge, deploy read-back, back-merge into acceptance and development, Slack thread, cleanup | No (skill only) |
-| `release` | Run a production release around the project's runbook: start and live mail drafts, optional Slack thread, release notes, shipped tickets versioned and moved to Done, close-sprint check and stale-branch cleanup | No (skill only) |
+| `release` | Run a production release around the project's runbook: start and live mail drafts, optional Slack thread, release notes, shipped tickets versioned and their status read back (moved only on the user's go), close-sprint check and stale-branch cleanup | No (skill only) |
 | `maintenance` | Periodic project maintenance sweep — deps, runtime EOL, credential/API-key currency (incl. Prepr tokens), quality baseline, CI, data, doc drift | No (skill only) |
 | `greenberry-maintenance` | Read-only Greenberry portfolio inventory: shared CI adoption, Notion code metrics, scanner/updater coverage and Slack reporting; compare dated evidence without starting scans or fixes | No (skill only) |
 | `upstream-to-unicore` | Upstream reusable project work into the unicore-template via a GitLab MR on the release line chosen per change (v3 or v4), by name or as a harvest of template-owned changes since the project's recorded template commit | No (skill only) |
-| `mr-merged` | Post-merge closeout: board to done, "How to test this" comment for the PO (posted after approval), proposed ticket transition, branch/worktree cleanup | No (skill only) |
+| `mr-merged` | Post-merge closeout: "How to test this" comment for the PO (posted after approval), deploy and ticket status read back, branch/worktree cleanup | No (skill only) |
 | `user-journeys` | Spec each user journey into `docs/journeys/` — walked path, branches, states, permissions, keyboard route, and the slice candidates the backlog is cut from | No (skill only) |
 | `service-cli` | CLI-first access to GitLab, Jira and Axiom — install/auth checks, read-only recipes with jq projections, write commands, and the connector-only remainder per service; backed by the `prefer_service_cli.py` hook | No (skill only) |
 

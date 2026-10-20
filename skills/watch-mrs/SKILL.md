@@ -109,7 +109,7 @@ explicit configuration) says go.
   other, on GitLab with Duo, is the **Fix pipeline with Duo** button on the
   failing pipeline, which proposes a fix or opens an MR.
 - **Merged** (auto-merge or observed external merge) → offer the post-merge
-  closeout via `skills/mr-merged` (board to done, "How to test this" comment,
+  closeout via `skills/mr-merged` (ticket status read-back, "How to test this" comment,
   branch/worktree cleanup), then drop the MR from the active watch list either
   way.
 

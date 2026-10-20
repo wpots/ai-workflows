@@ -1,6 +1,6 @@
 ---
 name: mr-merged
-description: Post-merge closeout for a merged MR/PR — check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, confirm the post-merge deploy went out, propose the ticket transition, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change or whether it is live yet ("staat het live").
+description: Post-merge closeout for a merged MR/PR — check whether the ticket is actually complete (every backlog item carrying its key merged on the default branch), draft a "How to test this" comment for the product owner covering the whole capability and post it after approval, confirm the post-merge deploy went out, read the ticket status back, and clean up the branch and worktree. Use when an MR/PR has just merged ("MR merged", "post-merge", "afgerond na merge"), when watch-mrs reports a merge, or when the user asks to close out a merged change or whether it is live yet ("staat het live").
 metadata:
   owner: wieteke.pots
 ---
@@ -21,8 +21,10 @@ This skill contains the repo's second sanctioned tracker write (after
 
 - **Show the comment for approval and only post after an explicit go.** Never
   post silently.
-- Ticket transitions are proposed, never executed, unless the user explicitly
-  says otherwise in this session.
+- Ticket status is Jira's automation's job: this skill reads it back and
+  neither proposes nor makes a transition. It moves a ticket only when the
+  user asks in this session and gives a go on the key and target status
+  (`skills/service-cli` § Ticket status).
 - Everything else in this skill is tracker-read-only.
 
 ## Step 1 — Resolve the merged MR
@@ -95,7 +97,7 @@ Only when `jira` is not installed and cannot be installed now: resolve the
 at runtime, never hardcode) and post with `addCommentToJiraIssue`, and say in
 the recap that the connector was used. Report the ticket URL in the recap.
 
-## Step 5 — Propose the transition and clean up
+## Step 5 — Read back deploy and ticket status, then clean up
 
 - **Read the deploy back.** Find the target branch's pipeline for the merge or
   squash commit (`glab api "projects/<path>/pipelines?sha=<sha>"`), wait for
@@ -111,10 +113,10 @@ the recap that the connector was used. Report the ticket URL in the recap.
   gitlabCommitSha=<sha>`). A refused or missing deploy is a ⚠️ in the recap
   with the response quoted; retrying the job is the user's call, since this
   skill never deploys.
-- Look up the ticket's current status and propose the next transition (e.g.
-  to review/done) — as a suggestion in the recap, not an action. When Step 2
-  found open items, propose nothing beyond what partial delivery justifies: the
-  ticket is not done, and moving it there loses the remaining slices.
+- **Read the ticket status back** and report it. Jira's automation moves the
+  ticket from the pipeline; this step does not, and proposes no transition.
+  When Step 2 found open items and the automation moved the ticket to done
+  anyway, flag it in the recap: the remaining slices are still open.
 - **Template-owned files.** In a project created from unicore-template
   (`.unicore.json`, or `scripts/husky/readme-checks.js` for a v3 project),
   intersect the MR's changed files with the template's `owned` globs —
@@ -172,7 +174,7 @@ failed steps needing a workaround). If it did, hand off to
 Report in one block: MR + merge commit, the ticket's standing (`3/3 items merged — ticket complete` or `2/3 — waiting on
 <item>`), comment posted (URL) / drafted-undelivered / deferred to the last
 slice, the deploy read-back (queued / refused, with the response / no deploy
-job), proposed ticket transition, template-owned files touched (with the
+job), ticket status as read back, template-owned files touched (with the
 upstream proposal), branch/worktree cleanup, anything skipped and why.
 
 ## Constraints
@@ -183,7 +185,8 @@ upstream proposal), branch/worktree cleanup, anything skipped and why.
   trust than a late comment.
 - Never deploy, trigger releases, or generate release notes
   (`skills/close-sprint` owns the sprint level).
-- Never transition tickets or post comments without the approval described
+- Never transition a ticket unless the user asked for it and gave a go on the
+  key and target status; never post comments without the approval described
   above.
 - The deploy read-back in Step 5 reads what the deploy job and the platform
   report; it does not test the deployed site. Keep the structure open for a
