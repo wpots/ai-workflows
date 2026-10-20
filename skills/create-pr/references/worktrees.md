@@ -102,10 +102,23 @@ when the branch is pushed.
   `git add` then act on the real repository. Seen in practice: one pre-commit
   run set `core.bare=true` in the shared `.git/config` — after which every
   checkout of the repo fails with `fatal: this operation must be run in a work
-  tree` — and replaced the worktree's index with the fixture's files. Delete the
-  variables at the top of the test (`for (const key of Object.keys(process.env))
-  if (key.startsWith("GIT_")) delete process.env[key];`, or `unset GIT_DIR
-  GIT_WORK_TREE GIT_INDEX_FILE` in shell). To recover:
+  tree` — and replaced the worktree's index with the fixture's files. In a
+  linked worktree git also gives the **pre-push** an absolute `GIT_DIR`. From a
+  main checkout it gives none, which is why the damage tends to show up only
+  from a worktree. Where to drop the variables depends on the runner:
+  - Plain Node or `node --test`: at the top of the test file
+    (`for (const key of Object.keys(process.env)) if (key.startsWith("GIT_"))
+    delete process.env[key];`), or `unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE`
+    in shell.
+  - **Jest: not in the test file.** Jest gives each test file its own copy of
+    `process.env`, while `child_process` hands a child the real environment,
+    so the child still sees `GIT_DIR`. Delete them in a `globalSetup`, which
+    runs once in the parent process before the workers start, or pass an
+    explicit `env` without them to every git call. Verified in
+    the-greenhouse/unicore-template !85, where the per-file delete left
+    `core.bare` flipping.
+
+  To recover:
   `git --git-dir=<repo>/.git config core.bare false`, then `git reset` in the
   affected worktree (index only, files untouched), and check `git log` for
   fixture commits.
