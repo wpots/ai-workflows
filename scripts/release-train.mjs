@@ -170,7 +170,8 @@ const description = [
     "Merging this MR is the release: the version becomes visible in `/plugin`, " +
     `\`publish_release\` tags \`v${version}\` and creates the GitLab Release, and ` +
     "`announce_release` posts the notes in #ai-workflows. Every later merge to " +
-    `\`${TARGET}\` re-cuts this branch until it is merged.`,
+    `\`${TARGET}\` re-cuts this branch until it is merged. Merge it on Monday ` +
+    "morning, or right away for a fix someone is waiting on.",
 ].join("\n");
 
 // 3. One open MR for the branch: update it, or open it with the reviewer.
