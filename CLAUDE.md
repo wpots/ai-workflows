@@ -169,7 +169,7 @@ These return a scoped subgraph, usually much smaller than raw grep output or `GR
 
 - Use the Read, Grep, and Glob tools for reading and searching files, not
   `cat`/`grep`/`find` via Bash.
-- Bash is meant for: git, glab, jira, axiom, npm/npx, and project scripts.
+- Bash is meant for: git, glab, jira, axiom, npm/pnpm/npx, and project scripts.
 
 ### Service access: CLI first, connector for the remainder
 
@@ -218,8 +218,11 @@ that doesn't match costs a human approval and blocks autonomous runs.
   directory — nothing prompts after that. Manually `cd`-ing per command keeps
   asking for approval every time.
 - Start every segment with a tool that's on the allowlist (git, glab, npm,
-  npx, node, rg, jq, head/tail/cat/ls/echo). Unsure whether a prefix will
+  pnpm, npx, node, rg, jq, head/tail/cat/ls/echo). Unsure whether a prefix will
   match: split the command so the known prefix comes first.
+- Use the package manager the lockfile names (`pnpm-lock.yaml` → pnpm), and
+  spell its commands out in full: `pnpm run <script>`, `pnpm exec <bin>`. The
+  shorthand `pnpm <script>` matches no allow rule.
 - Exception — secrets: NEVER paste a secret literally into a command (it
   stays in transcripts). Use `$(npx dotenvx get …)` or a variable for that,
   and run the command sandboxed (host must be on the sandbox network

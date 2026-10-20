@@ -135,11 +135,12 @@ All shared command and rule workflows are included in project sync by default.
 ## Permissions Baseline
 
 Synced projects ship a Bash allowlist in `.claude/settings.json` that matches
-the Shell Usage doctrine: git, glab (mr/ci/api/auth), jira, npm/npx runners,
-`node scripts/*`, and read-only utilities (`rg`, `jq`, `sed -n`, `head`,
-`tail`, `cat`, `ls`, `echo`, `wc`) run without a prompt, while destructive git
-(`push --force`, `reset --hard`, `clean`) and process termination (`kill`,
-`pkill`, `killall`, `taskkill`) always ask first. The plugin also carries a
+the Shell Usage doctrine: git, glab (mr/ci/api/auth), jira, npm/pnpm/npx
+runners, `node scripts/*`, and read-only utilities (`rg`, `jq`, `sed -n`,
+`head`, `tail`, `cat`, `ls`, `echo`, `wc`) run without a prompt, while
+destructive git (`push --force`, `reset --hard`, `clean`) and process
+termination (`kill`, `pkill`, `killall`, `taskkill`) always ask first. The
+plugin also carries a
 `PreToolUse(Bash)` gate for termination commands, so a broader local allow rule
 cannot silently bypass the approval prompt. This is why agents are told to
 phrase commands so each segment starts with an allowlisted tool — a command

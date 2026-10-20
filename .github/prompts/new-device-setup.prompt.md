@@ -13,7 +13,10 @@ Before starting, verify these are installed:
 
 1. `git` — `git --version`
 2. `node` / `npm` — `node --version && npm --version`
-3. `rsync` — `rsync --version`
+3. `pnpm` — `pnpm --version` (`brew install pnpm`); needed for unicore-template
+   v4 and every project created from it. pnpm runs the version a project pins
+   in `packageManager`.
+4. `rsync` — `rsync --version`
 4. `glab` — `glab --version` (`brew install glab`)
 5. `jira` — `jira version` (`brew install ankitpokhrel/jira-cli/jira-cli`)
 6. `axiom` — `axiom version` (`brew install --cask axiomhq/tap/axiom`); only
