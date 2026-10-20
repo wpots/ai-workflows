@@ -16,6 +16,26 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.9.8] - 2026-10-20
+
+### Action required
+
+- In a Next.js 16.4+ project, add `agentRules: false` to `next.config.ts` and
+  remove the block between `<!-- BEGIN:nextjs-agent-rules -->` and
+  `<!-- END:nextjs-agent-rules -->` from `AGENTS.md` if it is there.
+  unicore-template sets the option for new projects.
+  <!-- slack: next.config.ts | zet `agentRules: false` en haal het nextjs-agent-rules blok uit AGENTS.md -->
+
+### Changed
+
+- `rules/stacks/nextjs-payload.md` sends agents to the docs that ship with the
+  installed Next.js (`node_modules/next/dist/docs/`, Next 16.4 and later) for
+  an API they are not sure of, and asks projects to set `agentRules: false` in
+  `next.config.ts`, so `next dev` started by an agent no longer writes its own
+  `nextjs-agent-rules` block into the synced `AGENTS.md`. Reviews flag that
+  block.
+  <!-- slack: Next.js stack rule | agents lezen de Next-docs uit node_modules; `agentRules: false` houdt AGENTS.md schoon -->
+
 ## [2.9.7] - 2026-10-20
 
 ### Changed
