@@ -63,6 +63,20 @@ src/
 
 ## Stack-Specific Rules
 
+### Version-matched Next.js docs
+
+Next 15 and 16 changed APIs that may postdate your training data: async
+`params`, `proxy.ts`, Cache Components. Before using a Next API you are not
+sure of in the installed version, read its guide in
+`node_modules/next/dist/docs/` — the docs that ship with exactly that version
+(Next 16.4 and later). They beat memory and a web search, which may describe
+another version.
+
+Projects set `agentRules: false` in `next.config.ts`. Without it, `next dev`
+started by an agent writes its own `nextjs-agent-rules` block into
+`AGENTS.md` and rewrites it whenever the text differs: a second writer on a
+file the ai-workflows sync owns.
+
 ### App Router files (`app/` directory)
 
 - Route files (`page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`) are
@@ -294,3 +308,5 @@ in the ESLint config once the codebase is clean enough to flip it from `warn` to
   transformation
 - A feature-named folder under `utils/` or `lib/` (`utils/<feature>/…`) —
   feature-specific code parked in a shared layer with a single consumer
+- A `<!-- BEGIN:nextjs-agent-rules -->` block in `AGENTS.md`: remove it and
+  set `agentRules: false` in `next.config.ts`
