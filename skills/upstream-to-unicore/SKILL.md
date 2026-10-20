@@ -22,7 +22,7 @@ with the open queue (Step 0) and ends with a hand-off that keeps the MR moving
 |---|---|
 | Repo | `greenberrynl/the-greenhouse/unicore-template` (GitLab) |
 | URL | https://gitlab.com/greenberrynl/the-greenhouse/unicore-template |
-| Local clone | `~/Web/unicore-template` — `git fetch origin` first; writes to its `.git` and every network call need the sandbox bypass |
+| Local clone | `~/Web/unicore-template` — `git fetch --prune origin` first (without `--prune`, a deleted branch stays readable as `origin/<branch>`); writes to its `.git` and every network call need the sandbox bypass |
 
 The template has two release lines. Take the target from this table — never
 from memory:
@@ -129,6 +129,12 @@ For each file decide one of:
 - **already upstream** — the target line made the same change since the base
   (`git -C ~/Web/unicore-template diff <base> origin/<line-branch> -- <path>`).
 
+When a change exists only because the project has something the template
+lacks — a `next.config.ts` flag, a route layout such as the Payload API path, a
+dependency — ask whether that is the team's direction before you drop it. If it
+is, the missing piece is an upstream of its own, and the changes that depend on
+it go into that MR or after it.
+
 When the template moved and the project did not, that is a **downstream**
 update for the project. List those separately; never mix them into a template
 MR. Present one table, let the user pick, and group the picks by theme into MRs
@@ -170,7 +176,7 @@ Work in a worktree of the clone
 branched off the latest target line, with a descriptive English branch name:
 
 ```bash
-git -C ~/Web/unicore-template fetch origin
+git -C ~/Web/unicore-template fetch --prune origin
 git -C ~/Web/unicore-template worktree add --no-track -b <type>/<short-description> \
   ~/.worktrees/unicore-template-<slug> origin/<line-branch>
 ```
@@ -189,21 +195,39 @@ Read the target line's `.gitlab-ci.yml` and `.husky/` and run what they run:
   the preset the change touches, when that preset is `available`). Then run the
   line's `lint:check`, `type-check` and `test`; use `jest --runInBand` when
   workers fail to load native bindings.
+  `node scripts/check-presets.js lint:check type-check test` runs all three
+  for every available preset at once, from the git index, so `git add` first.
+  The Payload preset's `test` loads `next.config.ts` and aborts with
+  `Invalid environment variables` unless `PAYLOAD_DB_URL` and `PAYLOAD_SECRET`
+  are set; dummy values do.
+- **A change to `next.config.ts`, a layout, a route handler or route segment
+  config** also gets a build and a request: CI never runs `next build`, and
+  lint, type-check and tests stay green while the build fails or a route
+  answers with the wrong status. Generate the project in the scratchpad, clone
+  `node_modules` into it with `cp -Rc` (Turbopack rejects a symlink), run
+  `next build`, then `next start` and `curl -w "%{http_code}"` the routes the
+  change touches. The Payload preset needs a database: a throwaway
+  `docker run -d --name <slug> -e POSTGRES_PASSWORD=<pw> -p <free port>:5432 postgres:17`
+  (5432 is usually a project's own), then `payload migrate` with `NODE_ENV`,
+  `PAYLOAD_DB_URL` and `PAYLOAD_SECRET` set. Remove the container afterwards.
 - **v3** (a `v3` branch only) — the `package.json` scripts that the CI file
   and the hooks call.
 - In the worktree from Step 4 the template's git hooks do not run: husky
   creates its hooks path, `.husky/_`, at install, so a fresh worktree has none.
-  Run the hooks' checks by hand with the line's package manager before
-  committing, and list them in the MR:
+  `pnpm install` in the worktree takes seconds from the pnpm store and creates
+  it, after which a commit runs the pre-commit as is; symlink that
+  `node_modules` into further worktrees. A worktree without its own install
+  runs the hooks' checks by hand with the line's package manager before
+  committing, and lists them in the MR:
   - pre-commit: `lint` and `lint:styles`, both with `--fix`, so commit their
     fixes. Then the type-check: on v4 `node scripts/check-presets.js
     type-check` (Node from `.nvmrc`, pnpm on `PATH`), which type-checks every
     generated preset and replaces the scratchpad `type-check` above; on a `v3`
     branch `type-check`.
   - pre-push: `test`.
-  - Skip `node scripts/husky/index.js`, the pre-commit's first line. Its checks
-    (a clean git history, a filled-in README) are for projects generated from
-    the template and fail inside the template itself.
+  - `node scripts/husky/index.js`, the pre-commit's first line, recognises the
+    template repository by its remote and passes there too, so run it with the
+    rest.
 - Anything that could not run (no package manager, missing dependencies) is
   reported as not run. Never report a pass you did not see.
 
