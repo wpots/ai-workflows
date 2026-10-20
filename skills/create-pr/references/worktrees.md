@@ -75,6 +75,18 @@ when the branch is pushed.
   outlive the worktree — and run `git status` afterwards: some env files are
   committed (encrypted at rest), so removing a copy stages a **deletion** you
   would otherwise push.
+- **A missing hooks directory prints nothing at all.** Husky (and hook managers
+  like it) generates its wrapper directory, `.husky/_`, in the install's
+  `prepare` step, and the shared config points `core.hooksPath` at it with a
+  relative path that git resolves per worktree. When that step did not run or
+  failed (inside the sandbox it dies on `could not lock config file
+  .git/config: Operation not permitted`), the worktree has no such directory,
+  and git commits and pushes without running a single hook and without a
+  warning. Check `git -C <worktree> config core.hooksPath` and that the
+  directory exists in the worktree. Copying it from the main checkout
+  (`cp -R <main-checkout>/.husky/_ <worktree>/.husky/_`) makes the hooks run,
+  but read the hook files first (see "Before you let a worktree's hooks run"
+  below).
 
 ## Running tests, builds and hooks
 
@@ -124,10 +136,15 @@ when the branch is pushed.
     type check, because Next declares `NODE_ENV` required on `ProcessEnv`
     and the filtered object no longer has it.
 
-  To recover:
-  `git --git-dir=<repo>/.git config core.bare false`, then `git reset` in the
-  affected worktree (index only, files untouched), and check `git log` for
-  fixture commits.
+  **After any hook run in which a test that calls git failed** (typically
+  `Received: <the real HEAD sha>`), run `git config core.bare` and
+  `git -C <worktree> status` before anything else: a staged file you never
+  touched (`MM .env.production`) is a fixture's. To recover:
+  `git --git-dir=<repo>/.git config core.bare false` (with the sandbox bypass:
+  the sandbox protects `.git/config`), then `git reset` in the affected
+  worktree (index only, files untouched), or
+  `git restore --staged --worktree --source=HEAD <path>` for a tracked file
+  the fixture also overwrote, and check `git log` for fixture commits.
 
 The commit/push hooks usually do **not** run in a worktree unmodified, so verify
 by hand before pushing. Do **not** assume the hook only runs
@@ -142,6 +159,16 @@ exact commit being pushed (a later commit added after "looks green" is
 unverified). If any command fails, stop and fix it — `--no-verify` skips only
 the hook process that cannot execute in a worktree, never the checks it would
 have run.
+
+**Before you let a worktree's hooks run** (after copying the hooks directory
+in, and on every push with the sandbox bypass, where nothing protects
+`.git/config`), read the hook files and check whether a step runs tests that
+shell out to git (e.g. `rg -l 'git init|"git"' -g '*.test.*'`) and whether
+each hit, or the runner's `globalSetup`, drops the `GIT_*` variables (see
+above). If one does not, do not let the hook run it: run that hook's commands
+by hand from the worktree, outside any hook, and skip the hook with
+`--no-verify` under the justification rule below. The test gets its fix in its
+own MR.
 
 **Read the hook's own output before believing its verdict.** A hook step that
 wraps a project binary usually turns any non-zero exit into its own

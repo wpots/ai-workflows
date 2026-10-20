@@ -204,7 +204,9 @@ push must use `--force-with-lease`.
 > (`git worktree list` shows it under e.g. `.worktrees/<name>`), hooks and
 > test runners usually do **not** work there unmodified. Before step 2, read
 > `references/worktrees.md` in this skill's directory and follow it — it
-> covers node_modules provisioning, ignored test paths, running every hook
+> covers node_modules provisioning, a hooks directory the install never
+> generated (git then skips every hook, silently), ignored test paths, hooks
+> whose git-calling tests rewrite the shared `.git/config`, running every hook
 > command verbatim on the exact commit, and removing the worktree after the
 > push.
 
