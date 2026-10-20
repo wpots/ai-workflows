@@ -18,6 +18,15 @@
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/prefer_service_cli.py\""
           }
         ]
+      },
+      {
+        "matcher": "Bash|mcp__.*__transitionJiraIssue",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/require_ticket_transition_approval.py\""
+          }
+        ]
       }
     ],
     "PostToolUse": [

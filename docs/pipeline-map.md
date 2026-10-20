@@ -115,7 +115,7 @@ descriptions route in parallel via the plugin.
 ### Hooks and loops
 
 Automation that runs without being asked is thin but real, and it is not evenly
-distributed. Two plugin-wide hard gates and a retrospective prompt ship through
+distributed. Three plugin-wide hard gates and a retrospective prompt ship through
 `hooks/hooks.json`; four project harness hooks ship through
 `templates/project-claude-settings.json`:
 
@@ -123,6 +123,7 @@ distributed. Two plugin-wide hard gates and a retrospective prompt ship through
 | --- | --- | --- |
 | Process-termination approval | `PreToolUse(Bash)` | **Always asks** before `kill`, `pkill`, `killall`, or `taskkill`, even when a local allowlist would otherwise permit the command; the shared safety rule separately forbids terminating VS Code without approval for the exact PID and command |
 | CLI-first connector gate | `PreToolUse(mcp__.*)` | **Denies** an Atlassian or Axiom connector call that has a CLI equivalent while that CLI is installed, naming the `jira`/`axiom` command to run instead (`scripts/prefer_service_cli.py`); connector-only tools, other servers, a missing CLI and `AIW_ALLOW_MCP=1` pass through |
+| Ticket-transition approval | `PreToolUse(Bash\|mcp__.*__transitionJiraIssue)` | **Always asks** before `jira issue move` (aliases `transition`, `mv`) or a connector `transitionJiraIssue`, even when `Bash(jira *)` is allowed: Jira's automation moves tickets from the pipeline, so a status change needs the user's go; a headless run is denied (`scripts/require_ticket_transition_approval.py`) |
 | Improve-skill retrospective prompt | `Stop` | **Asks once per session**, by blocking the stop once, whether to run `skills/improve-skill` — only after a Greenberry skill ran and the user then stepped in: an interrupt, an explicit tool rejection, or typing right after a failed tool call that was the run's latest outcome. Never runs it or edits a skill itself (`scripts/improve_skill_retrospective.py`) |
 | Migration guard | `PreToolUse(Bash)` | **Denies** `migrate:fresh` and `migrate:create` — the only mechanically blocking gate in the whole pipeline |
 | Graphify-before-grep | `PreToolUse(Bash)` | Requires a graph query before raw grep/find, when `graphify-out/graph.json` exists |
@@ -406,7 +407,7 @@ tracker-reading skill treats it as **read-only**; only `skills/jira-ticket` and
 sanctioned write is the mr-merged "how to test this" comment for the product owner.
 No skill changes a ticket's status on its own: Jira's automation moves tickets
 from the pipeline, and a transition runs only on the user's go per ticket
-(`skills/service-cli` § Ticket status).
+(`skills/service-cli` § Ticket status), which the ticket-transition hook asks for.
 
 ## Coverage against the pipeline spec
 

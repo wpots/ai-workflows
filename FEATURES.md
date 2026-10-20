@@ -92,7 +92,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `upstream-to-unicore` | Upstream reusable project work into the unicore-template via a GitLab MR on the release line chosen per change (v3 or v4), by name or as a harvest of template-owned changes since the project's recorded template commit | No (skill only) |
 | `mr-merged` | Post-merge closeout: "How to test this" comment for the PO (posted after approval), deploy and ticket status read back, branch/worktree cleanup | No (skill only) |
 | `user-journeys` | Spec each user journey into `docs/journeys/` — walked path, branches, states, permissions, keyboard route, and the slice candidates the backlog is cut from | No (skill only) |
-| `service-cli` | CLI-first access to GitLab, Jira and Axiom — install/auth checks, read-only recipes with jq projections, write commands, and the connector-only remainder per service; backed by the `prefer_service_cli.py` hook | No (skill only) |
+| `service-cli` | CLI-first access to GitLab, Jira and Axiom — install/auth checks, read-only recipes with jq projections, write commands, and the connector-only remainder per service; backed by the `prefer_service_cli.py` hook, and by `require_ticket_transition_approval.py`, which asks before every Jira status change | No (skill only) |
 
 ## Integration Tooling
 
