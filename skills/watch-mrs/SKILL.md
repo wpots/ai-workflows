@@ -43,7 +43,11 @@ Only ask what isn't already given in the user's request.
    scratchpad** — `~/.claude/state/mr-watch/<repo-slug>/watch.sh` — so state
    (which comments were already seen, last known merge status) survives
    across sessions and re-invocations don't re-notify old items. Keep one
-   state subdirectory per MR id.
+   state subdirectory per MR id. Under a Claude Code sandbox, a `Monitor`
+   command has no bypass, and `~/.claude/state` fails with
+   `Operation not permitted`. Probe it with `touch` first, and fall back to
+   `/tmp/claude/mr-watch/<repo-slug>/`. The sandbox can write there, and the
+   state survives sessions until a reboot.
 4. Script logic, per poll cycle, per watched MR:
    - Fetch notes: `glab api projects/<enc-repo>/merge_requests/<id>/notes`;
      diff non-system note ids against `seen_notes.txt`; echo one line per new
@@ -78,7 +82,9 @@ Only ask what isn't already given in the user's request.
      silently if used as a variable name; this bit us once, use `merge_status`
      instead.
 5. Start the script with the `Monitor` tool: `persistent: true`, a specific
-   `description` (repo + MR ids), no `timeout_ms` override needed. Where
+   `description` (repo + MR ids), no `timeout_ms` override needed. Under a
+   sandbox, list `gitlab.com` in the Monitor's `allowed_domains`: `glab` runs
+   there without a bypass once its host is declared. Where
    `Monitor` has no `persistent` option it expires after at most 30 minutes:
    re-arm it on the expiry notice. When only one event matters (the merge), a
    `run_in_background` Bash script that polls and exits on that event has no
