@@ -16,6 +16,41 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.10.0] - 2026-10-20
+
+### Action required
+
+- In a pnpm project whose `.claude/settings.json` already exists, add
+  `"Bash(pnpm run *)"`, `"Bash(pnpm test *)"`, `"Bash(pnpm exec *)"` and
+  `"Bash(pnpm install --frozen-lockfile*)"` to `permissions.allow`. The sync
+  never overwrites an existing settings file, so only new projects get the
+  rules from the template.
+  <!-- slack: .claude/settings.json | zet de vier pnpm-regels onder permissions.allow als je pnpm-project al een settings.json heeft -->
+
+### Added
+
+- The plugin asks before every Jira status change. A PreToolUse hook
+  (`scripts/require_ticket_transition_approval.py`) puts up a permission
+  prompt for `jira issue move` (also `transition` and `mv`) and for a
+  connector `transitionJiraIssue`, even where `Bash(jira *)` is allowed; a
+  headless run is denied. This enforces `skills/service-cli` § Ticket status
+  in every project with the plugin, so the manual `permissions.ask` edit per
+  project is no longer needed.
+  <!-- slack: Jira-status | de plugin vraagt nu altijd om een go voordat een ticket van status wisselt -->
+
+### Changed
+
+- pnpm projects run without permission prompts.
+  `templates/project-claude-settings.json` allows `pnpm run`, `pnpm test`,
+  `pnpm exec` and `pnpm install --frozen-lockfile`, next to the npm rules.
+  `pnpm dlx` and a bare `pnpm *` stay off the list: `add`, `remove`, `update`
+  and `publish` keep asking. `CLAUDE.md` and `skills/run-checks` take the
+  package manager from the lockfile and spell its commands out in full
+  (`pnpm run lint`, not `pnpm lint`), because the shorthand matches no allow
+  rule. `commands/new-device-setup` checks for pnpm, which unicore-template v4
+  and every project created from it use.
+  <!-- slack: pnpm | pnpm run/test/exec staan in de project-allowlist; agents schrijven `pnpm run <script>` voluit -->
+
 ## [2.9.8] - 2026-10-20
 
 ### Action required
