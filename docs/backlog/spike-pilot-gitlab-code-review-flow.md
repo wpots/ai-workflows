@@ -33,6 +33,46 @@ State on 2026-10-14:
 - **RFW is also the CI v4 canary** (`ci-components` DEV-659). Expect pipeline
   changes during the pilot. Note them when judging the Fix pipeline flow.
 
+State on 2026-10-20:
+- **The model was pinned to Claude Sonnet 4.5 until 2026-10-20, 12:36 UTC.**
+  The group's model selection for `review_merge_request_dap` (the Code Review
+  Flow) held Claude Sonnet 4.5 (Anthropic), so every review before this moment
+  ran on that model, not on GitLab's default. The audit log has no event for
+  that feature. The maintainer pinned the classic `review_merge_request` to
+  Sonnet 4.5 on 2026-01-30, and that pin most likely carried over (unverified).
+  The pin is now reset to GitLab's default, Claude Sonnet 5.5 (Gemini
+  Enterprise Agent Platform); the audit log records the reset.
+  `duo_agent_platform` and `duo_developer` stay pinned to GPT-5.2 since
+  2026-01-30. Which feature drives the Fix pipeline flow is not checked.
+- **Instructions v2 since 2026-10-20, 12:39 UTC**
+  ([`cf38999f`](https://gitlab.com/greenberrynl/duo-review-instructions/-/commit/cf38999f9d4dce4c56d87f7edb6115ecea44bfc6)).
+  "How to review" sets the bar before the checklist, from the first week's
+  misses: zero findings is normal, comment only with a concrete failing input
+  or a broken rule line, never report a file as missing, ask instead of
+  asserting how a language behaves, skip the wording of an accurate comment and
+  annotation preferences, do not propose hardening, and answer a clean MR with
+  "No findings." only.
+- **Interim count on RFW, 2026-10-13 to 2026-10-20** (all MRs labelled
+  `ai:agent-authored` except !537, so most had a local review first):
+  4 threads. 2 led to a change: !529 (`as const`, a nit) and !535 (indexing
+  after `isObject`). 2 are open on !483: a try/catch that logs and continues,
+  proposed under the "errors swallowed silently" rule, and a comment-wording
+  nit that Duo itself calls accurate. 9 reviews on 8 MRs found nothing and
+  posted "Nice work! :tada:" with praise bullets plus an approval. The
+  follow-up notes on !529 contradict each other on whether `as const` was
+  applied.
+- **iAmsterdam, outside this spike, for reference.** Automatic reviews are on
+  for `amsterdam-en-partners/iamsterdam-website` and `webflow/klimaatweek-api`.
+  On iAmsterdam (MRs written by people, so without a local review), 8 threads
+  from 2026-10-14 to 2026-10-20: 2 led to a change, both on !1701 (`months:
+  null` broke the free-months label, a bug that predates the MR; missing story
+  tests). 2 were wrong: !1702 reported `package-lock.json` missing from the
+  diff and requested changes on a critical update, and !1700 called `0` falsy
+  in Sass. 4 were resolved without a change (!1699 ×3, the !1701 locale nit).
+- **Settings drift, unexplained.** `auto_duo_code_review_enabled` reads `false`
+  on RFW and on the group, yet the RFW audit log shows a Duo Code Review session
+  on every MR through 2026-10-20 and no settings event since 2026-10-13.
+
 Filed 2026-10-08 from the October 2026 stack review (task T5, re-scoped from
 "build a CI agent lane" to "configure and measure the platform's own").
 
@@ -43,7 +83,8 @@ medium
 ## Summary
 
 GitLab's Code Review Flow reviews merge requests with an agent, is configured from
-files in the repo, and runs on Claude Sonnet 5.5 since 2026-10-05. Switch it on for
+files in the repo, and has defaulted to Claude Sonnet 5.5 since 2026-10-05 (a
+group's model pin overrides that, see Status). Switch it on for
 one client project for four weeks, give it the lenses of `skills/code-review`, and
 measure whether its comments get acted on, before building any review lane of our own.
 
@@ -88,6 +129,10 @@ resolvable and does not count.
 - **Dismissed:** resolved without such a commit, or still open when the MR
   merged. Record the reason when a reply gives one.
 - **Not counted:** threads on MRs that were closed without merging.
+- **Periods:** report three periods separately: without instructions (until
+  2026-10-14, 05:31 UTC), instructions v1 on Claude Sonnet 4.5 (until
+  2026-10-20, 12:36 UTC), and instructions v2 on GitLab's default model (from
+  2026-10-20, 12:39 UTC).
 
 **Threshold, proposed 2026-10-13, for the maintainer to confirm by merging this:**
 - **Keep** when at least 40% of counted threads led to a change, over at least 30
@@ -142,6 +187,14 @@ pipeline page):
     and the Code Review Flow reads a summary, not the original file.
   - **Code Review Flow does not read `AGENTS.md`**; Chat and the other flows do
     (https://docs.gitlab.com/user/duo_agent_platform/customize/agents_md/).
+- **Model selection.** An Owner of the top-level group can pin a model per
+  feature, and a pin does not follow GitLab's model updates. The Code Review
+  Flow is the feature `review_merge_request_dap` ("Agentic Code Review" in the
+  UI). Read it with
+  `glab api graphql -f query='{ aiModelSelectionNamespaceSettings(groupId: "gid://gitlab/Group/4848933") { nodes { feature selectedModel { ref name } defaultModel { ref name } } } }'`;
+  a `selectedModel` that is `null` or has an empty `ref` means GitLab's default.
+  Reset a pin with the mutation `aiModelSelectionNamespaceUpdate`
+  (`features: [REVIEW_MERGE_REQUEST_DAP], offeredModelRef: ""`).
 - **Billing.** Code Review costs 4 reviews per GitLab Credit, charged to whoever
   starts the review (the MR author for automatic reviews). Premium includes
   $12 of credits per user per month, a limited-time promotion per the pricing
