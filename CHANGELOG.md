@@ -16,6 +16,34 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.9.7] - 2026-10-20
+
+### Changed
+
+- `skills/watch-mrs` no longer reports GitLab's `unchecked`/`checking`
+  merge-status recomputes, which fired for every watched MR each time the
+  target branch moved. It also reports a reviewer's `requested_changes` that
+  outlives its resolved thread as the remaining merge blocker, and notes that
+  a running watcher script must be stopped before it is edited and that macOS
+  bash 3.2 has no `mapfile`.
+  <!-- slack: watch-mrs | geen ruis meer als de target-branch verschuift; meldt blijvende "requested changes" -->
+
+### Fixed
+
+- `start-project`: Deleting the MRs a new project copied from the template
+  before its first own MR does give the number back. On trimbos-website the
+  first own MR got `!1` after the copied `!1` was deleted. Lane 0 and row 3a no
+  longer say the number is lost. Row 3a now proposes deleting the copies while
+  the project has no own MR yet.
+- `create-pr` worktrees reference: Under Jest, deleting the `GIT_*`
+  variables at the top of a test file does not protect the real repository.
+  Jest gives each test file its own copy of `process.env`, and child processes
+  get the real environment. The reference now says to drop them in a
+  `globalSetup` or to pass an explicit `env`, as the-greenhouse/unicore-template
+  !85 does. It also notes that a linked worktree passes an absolute `GIT_DIR`
+  to the pre-push, which is why the damage tends to appear only from a worktree.
+  <!-- slack: create-pr | Jest-tests met git: haal GIT_* weg in een globalSetup, niet bovenaan het testbestand -->
+
 ## [2.9.6] - 2026-10-20
 
 ### Action required
