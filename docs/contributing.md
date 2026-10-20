@@ -198,7 +198,11 @@ In a content MR:
    picked up by the next release too, so a half-migrated state is fine.)
 
 The release itself is cut by CI, in the release-please pattern: one release MR
-that is always current, and merging it is the release decision.
+that is always current, and merging it is the release decision. The maintainer
+merges it **once a week, on Monday morning**, so a week of merges reaches
+developers as one version and one Slack post instead of one per merge. Only a
+fix someone is waiting on (a broken skill, a hook that blocks work) goes out
+the same day: merge the release MR right after that fix lands.
 
 - **`release_train`** runs on every push to `main`. When `changelog.d/` holds
   fragments (or `## [Unreleased]` still has entries) it runs
@@ -211,7 +215,7 @@ that is always current, and merging it is the release decision.
   body when a later content merge changes what the release carries. With an
   empty `## [Unreleased]` it does nothing. So the question "do we need a
   release MR?" has a standing answer: if there is something to release, the
-  MR exists; merge it when you want the version out.
+  MR exists, and it merges on the next Monday.
 - **`announce_release`** runs on the same pushes and posts only when the merge
   changed the version in `.claude-plugin/plugin.json`, to the `#ai-workflows`
   Slack channel (its own channel, so `#development` stays free of release
