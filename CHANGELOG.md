@@ -16,6 +16,54 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.9.5] - 2026-10-20
+
+### Changed
+
+- Release announcements: `announce_release` posts in the dedicated Slack
+  channel `#ai-workflows` instead of `#development`, which was getting several
+  release posts a week. The channel is set by the `SLACK_WEBHOOK_URL` CI/CD
+  variable; the docs, the `upstream-rules` skill and the script messages now
+  name the new channel, and `keep-current.md` tells developers to join it.
+  <!-- slack: Release-posts | Staan voortaan hier in #ai-workflows in plaats van in #development -->
+- `start-project`: Lane 0 now checks the template for MRs and issues before
+  Create from template. GitLab Import/Export copies them into the new project
+  and advances its MR counter, which is how one project's first real MR became
+  `!50`. A new row, 3a, reports MRs and issues that were already copied into an
+  existing project.
+  <!-- slack: start-project | Checkt vóór Create from template dat de template 0 MR's/issues heeft, zodat je eerste MR !1 is -->
+- `upstream-to-unicore`: The lineage note now says what
+  `project-templates/unicore-template` actually supplies: only the GitLab
+  settings. The code is a clone of `the-greenhouse/unicore-template`, so
+  `.unicore.json` always names a commit there. The note also forbids code
+  maintenance, MRs and issues in the copy.
+- `upstream-to-unicore`: A harvest no longer drops a change as
+  project-specific only because the template lacks what it depends on (a
+  `next.config.ts` flag, the Payload API path, a dependency): it asks first
+  whether that is the team's direction, and if so upstreams the missing piece
+  with the changes that depend on it. Step 5 adds the checks that caught what
+  CI misses: `check-presets.js lint:check type-check test`, and a `next build`
+  plus requests on a generated project for changes to `next.config.ts`,
+  layouts, route handlers and segment config. The hook list matches the
+  template's current hooks (gitleaks, `scripts/husky/index.js`, the per-preset
+  pre-push), a worktree with its own `pnpm install` runs them, the push goes
+  from the worktree, and the clone is fetched with `--prune`.
+  <!-- slack: upstream-to-unicore | Vraagt eerst of iets teamrichting is, en bouwt de template bij config- en routewijzigingen -->
+- Release cadence: the release MR merges once a week, on Monday morning, so a
+  week of merges ships as one version with one post. A fix someone is waiting
+  on still goes out the same day. `docs/contributing.md` and the release MR
+  body say so.
+  <!-- slack: Releases | Eén keer per week, op maandagochtend; een fix waar je op wacht komt direct -->
+
+### Fixed
+
+- `watch-mrs`: under a Claude Code sandbox, the watcher keeps its state in
+  `/tmp/claude/mr-watch/` when `~/.claude/state` is not writable. A `Monitor`
+  command has no sandbox bypass, so the prescribed path failed with
+  `Operation not permitted`. The Monitor also declares `gitlab.com` in
+  `allowed_domains`, so `glab` reaches the API without a bypass.
+  <!-- slack: watch-mrs | Werkt nu ook in de sandbox: state in /tmp/claude/mr-watch en gitlab.com in allowed_domains -->
+
 ## [2.9.4] - 2026-10-19
 
 ### Changed
