@@ -213,8 +213,9 @@ that is always current, and merging it is the release decision.
   release MR?" has a standing answer: if there is something to release, the
   MR exists; merge it when you want the version out.
 - **`announce_release`** runs on the same pushes and posts only when the merge
-  changed the version in `.claude-plugin/plugin.json`, to the `#development`
-  Slack channel, as Block Kit: an overview of what to do, the update steps,
+  changed the version in `.claude-plugin/plugin.json`, to the `#ai-workflows`
+  Slack channel (its own channel, so `#development` stays free of release
+  noise), as Block Kit: an overview of what to do, the update steps,
   a "Projecten syncen" block with the commands when the release changed a
   file a project sync delivers (the set `project-sync-freshness.sh` digests,
   diffed against the previous `release:` commit — hence `GIT_DEPTH 0` on this
@@ -237,7 +238,7 @@ missing, so the pipeline stays green. `publish_release` needs none:
 | Variable | What | Used by |
 | --- | --- | --- |
 | `RELEASE_BOT_TOKEN` | project access token, role Developer, scopes `api` + `write_repository`; pushes `release/next` and opens the MR | `release_train` |
-| `SLACK_WEBHOOK_URL` | Slack incoming webhook for `#development` | `announce_release` |
+| `SLACK_WEBHOOK_URL` | Slack incoming webhook for `#ai-workflows` | `announce_release` |
 
 ### Setting up the two variables (once)
 
@@ -260,7 +261,7 @@ missing, so the pipeline stays green. `publish_release` needs none:
    `ai-workflows releases`, workspace Greenberry → Create. An existing app
    that already has incoming webhooks works too.
 2. Features → **Incoming Webhooks** → switch *Activate Incoming Webhooks* on →
-   **Add New Webhook to Workspace** → channel `#development` → Allow. Copy the
+   **Add New Webhook to Workspace** → channel `#ai-workflows` → Allow. Copy the
    webhook URL (`https://hooks.slack.com/services/…`).
 3. Optional: Settings → Basic Information → *Display Information* sets the
    name and icon the posts appear under.
@@ -271,7 +272,7 @@ missing, so the pipeline stays green. `publish_release` needs none:
 Verify: the next push to `main` runs both jobs. The `release_train` log ends
 in `Opened !<n> (release: x.y.z)`, the `announce_release` log in `Not a
 release commit`. Merge that release MR, and the following `announce_release`
-log ends in `Announced x.y.z in Slack`, with the post in `#development`, and
+log ends in `Announced x.y.z in Slack`, with the post in `#ai-workflows`, and
 the `publish_release` log in `Published vx.y.z`, with the Release under
 Deploy → Releases. To
 announce a version released before the webhook existed, run

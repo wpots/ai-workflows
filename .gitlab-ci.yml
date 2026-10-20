@@ -14,7 +14,7 @@ validate_ai_workflows:
 # release_train and announce_release print what they would do and exit 0 while
 # their CI/CD variable is missing: RELEASE_BOT_TOKEN (project access token,
 # scopes api + write_repository) for release_train, SLACK_WEBHOOK_URL
-# (#development incoming webhook) for announce_release. publish_release needs
+# (#ai-workflows incoming webhook) for announce_release. publish_release needs
 # none: CI_JOB_TOKEN may create Releases. GIT_DEPTH 2 keeps HEAD^1 available,
 # which is how announce_release and publish_release tell a release merge from a
 # content merge.

@@ -1,7 +1,9 @@
 # Keep A Project And Machine Current
 
 For projects already on ai-workflows. Two things drift independently: the assets
-on **your machine** and the assets **committed in each project**.
+on **your machine** and the assets **committed in each project**. Every plugin
+release is posted in Slack `#ai-workflows`, with what changed and whether you
+need to do something; join it to know when that is the case.
 
 ## Your Machine
 

@@ -169,7 +169,7 @@ const description = [
   `Cut by the \`release_train\` CI job from \`${(env.CI_COMMIT_SHA ?? "").slice(0, 7)}\` on \`${TARGET}\`. ` +
     "Merging this MR is the release: the version becomes visible in `/plugin`, " +
     `\`publish_release\` tags \`v${version}\` and creates the GitLab Release, and ` +
-    "`announce_release` posts the notes in #development. Every later merge to " +
+    "`announce_release` posts the notes in #ai-workflows. Every later merge to " +
     `\`${TARGET}\` re-cuts this branch until it is merged.`,
 ].join("\n");
 
