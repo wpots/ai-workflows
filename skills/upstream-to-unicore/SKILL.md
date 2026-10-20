@@ -197,9 +197,6 @@ Read the target line's `.gitlab-ci.yml` and `.husky/` and run what they run:
   workers fail to load native bindings.
   `node scripts/check-presets.js lint:check type-check test` runs all three
   for every available preset at once, from the git index, so `git add` first.
-  The Payload preset's `test` loads `next.config.ts` and aborts with
-  `Invalid environment variables` unless `PAYLOAD_DB_URL` and `PAYLOAD_SECRET`
-  are set; dummy values do.
 - **A change to `next.config.ts`, a layout, a route handler or route segment
   config** also gets a build and a request: CI never runs `next build`, and
   lint, type-check and tests stay green while the build fails or a route
@@ -218,23 +215,25 @@ Read the target line's `.gitlab-ci.yml` and `.husky/` and run what they run:
   it, after which a commit runs the pre-commit as is; symlink that
   `node_modules` into further worktrees. A worktree without its own install
   runs the hooks' checks by hand with the line's package manager before
-  committing, and lists them in the MR:
-  - pre-commit: `lint` and `lint:styles`, both with `--fix`, so commit their
-    fixes. Then the type-check: on v4 `node scripts/check-presets.js
-    type-check` (Node from `.nvmrc`, pnpm on `PATH`), which type-checks every
-    generated preset and replaces the scratchpad `type-check` above; on a `v3`
-    branch `type-check`.
-  - pre-push: `test`.
-  - `node scripts/husky/index.js`, the pre-commit's first line, recognises the
-    template repository by its remote and passes there too, so run it with the
-    rest.
+  committing, and lists them in the MR. Read the hook files for the current
+  list; on 2026-10-19 they ran:
+  - pre-commit: `gitleaks` on the staged change (when installed), then
+    `node scripts/husky/index.js`, which recognises the template repository by
+    its remote and passes there. Then `lint` and `lint:styles`, both with
+    `--fix`, so commit their fixes, and the type-check: on v4
+    `node scripts/check-presets.js type-check` (Node from `.nvmrc`, pnpm on
+    `PATH`); on a `v3` branch `type-check`.
+  - pre-push: on v4 `node scripts/check-presets.js lint:check type-check test`,
+    the scratchpad run above; on a `v3` branch `test`.
+  - Push from the worktree, not from the clone: the clone's hooks run against
+    the clone's own checkout and `node_modules`, not the branch you push.
 - Anything that could not run (no package manager, missing dependencies) is
   reported as not run. Never report a pass you did not see.
 
 ## Step 6 — Push and open the MR
 
 Ask before pushing, unless the user gave a blanket go-ahead. Push from the
-clone, then create the MR. A body with backticks or tables goes through the API
+worktree (`git -C <worktree> push origin <branch>`), then create the MR. A body with backticks or tables goes through the API
 with `--input <file>`, as the upstream MR rule describes; a plain body can use:
 
 ```bash
