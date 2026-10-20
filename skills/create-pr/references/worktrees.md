@@ -108,15 +108,21 @@ when the branch is pushed.
   from a worktree. Where to drop the variables depends on the runner:
   - Plain Node or `node --test`: at the top of the test file
     (`for (const key of Object.keys(process.env)) if (key.startsWith("GIT_"))
-    delete process.env[key];`), or `unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE`
-    in shell.
+    Reflect.deleteProperty(process.env, key);`), or
+    `unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE` in shell. Not
+    `delete process.env[key]`: `@greenberry/linting-config` rejects it
+    (`@typescript-eslint/no-dynamic-delete`).
   - **Jest: not in the test file.** Jest gives each test file its own copy of
     `process.env`, while `child_process` hands a child the real environment,
     so the child still sees `GIT_DIR`. Delete them in a `globalSetup`, which
     runs once in the parent process before the workers start, or pass an
     explicit `env` without them to every git call. Verified in
     the-greenhouse/unicore-template !85, where the per-file delete left
-    `core.bare` flipping.
+    `core.bare` flipping. Build that `env` as a copy, `{ ...process.env }`,
+    and `Reflect.deleteProperty` the `GIT_*` keys from it: in a Next project
+    `Object.fromEntries(Object.entries(process.env).filter(…))` fails the
+    type check, because Next declares `NODE_ENV` required on `ProcessEnv`
+    and the filtered object no longer has it.
 
   To recover:
   `git --git-dir=<repo>/.git config core.bare false`, then `git reset` in the
