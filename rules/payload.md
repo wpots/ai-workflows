@@ -49,6 +49,25 @@ the frontend transform layer and expose it to the rendered block component.
 - keep schema definitions, hooks, and admin concerns within Payload areas rather
   than spreading them through unrelated frontend folders
 
+## Auth
+
+Applies to every project whose auth collection signs users in outside the
+admin panel (verified with Payload 3.90).
+
+- a session issued outside `payload.login()` — auto-login after e-mail
+  activation, a magic link, an invite redemption — is built from Payload's
+  helpers (`jwtSign`, `getFieldsToSign`, `generatePayloadCookie`,
+  `addSessionToUser`) and bypasses the login operation, so no `beforeLogin` or
+  `afterLogin` hook runs. Run the auth collection's login hooks from that
+  helper the way the login operation does, or whatever they maintain (a
+  last-login stamp, an audit trail) silently stops for that path
+- `resetPassword` runs the same login hooks without the `_verified` check that
+  `login` applies, so a reset counts as a login for an account that cannot log
+  in. A hook that records a login guards on `_verified === true` itself
+- before trusting a hook-maintained timestamp as an "active user" or dormancy
+  signal (stats, automatic anonymisation), list every path that signs a user
+  in and confirm each one runs the hook exactly as a real login does
+
 ## Jobs Queue
 
 Applies to every project that registers Payload `tasks` or `workflows`. The
