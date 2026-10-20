@@ -175,6 +175,10 @@ for why `"source": "url"` fails with `invalid url`.
 
 Merge the generated graphify hooks the same way if this project should use them.
 
+On a pnpm project (`pnpm-lock.yaml`), also merge the four `Bash(pnpm …)` rules
+from `permissions.allow` in `templates/project-claude-settings.json`. Without
+them every `pnpm run` and `pnpm exec` stops on a permission prompt.
+
 ## Step 4 — Review And Commit
 
 1. `git status --short` and review every generated change.

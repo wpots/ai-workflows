@@ -14,8 +14,11 @@ tools. The matching command runbook is a compatibility and fallback surface.
 
 ## Workflow
 
-1. Read `package.json` and detect available scripts.
-2. Run checks in order: `lint`, `type-check`, `stylelint`, `test`, `build`.
+1. Read `package.json` and detect available scripts. Take the package manager
+   from the lockfile (`pnpm-lock.yaml` → pnpm, `package-lock.json` → npm).
+2. Run checks in order: `lint`, `type-check`, `stylelint`, `test`, `build`,
+   each as `<pm> run <script>`. Not the shorthand `pnpm lint`: it matches no
+   allow rule, so every check stops on a permission prompt.
 3. Skip missing scripts and report skipped items.
 4. If a check fails:
 - Show error output and failing command.

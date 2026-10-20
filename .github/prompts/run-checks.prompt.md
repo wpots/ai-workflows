@@ -19,11 +19,15 @@ Run project quality checks in sequence with review prompts between failures.
 
 ## Checks to Run (in order)
 
-1. **lint** - `npm run lint`
-2. **type-check** - `npm run type-check`
-3. **stylelint** - `npm run stylelint`
-4. **test** - `npm run test`
-5. **build** - `npm run build`
+`<pm>` is the package manager the lockfile names (`pnpm-lock.yaml` → `pnpm`,
+`package-lock.json` → `npm`). Keep the `run`: the shorthand `pnpm lint` matches
+no allow rule.
+
+1. **lint** - `<pm> run lint`
+2. **type-check** - `<pm> run type-check`
+3. **stylelint** - `<pm> run stylelint`
+4. **test** - `<pm> run test`
+5. **build** - `<pm> run build`
 
 ## Fallback Rules
 
