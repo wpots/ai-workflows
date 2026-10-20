@@ -56,6 +56,10 @@ Only ask what isn't already given in the user's request.
    - Fetch the MR: `glab api projects/<enc-repo>/merge_requests/<id>`; read
      `.detailed_merge_status`; echo on transition (`prev -> new`) — this field
      alone captures approval, pipeline result, conflicts and draft state.
+     Skip `unchecked` and `checking`: GitLab sets them on every open MR each
+     time the target branch moves and settles back on the old value minutes
+     later. Neither store nor report them — only a settled status is a
+     transition.
    - **Pipeline state, tracked separately**: keep `pipeline.txt` (last seen
      pipeline id + status) in the MR's state subdirectory, alongside
      `seen_notes.txt` — do not overload the merge-status file. Only when
@@ -80,7 +84,13 @@ Only ask what isn't already given in the user's request.
      `bash path/to/watch.sh` from Monitor) — never assume the default shell.
      `status` is a reserved read-only variable in zsh and crashes the script
      silently if used as a variable name; this bit us once, use `merge_status`
-     instead.
+     instead. macOS ships bash 3.2: no `mapfile`/`readarray` and no
+     associative arrays — read the id list with `ids="$(cat active.txt)"` and
+     `for iid in $ids`.
+   - **Never edit the script while it runs**: bash reads a script as it
+     executes, so a mid-run edit makes it run half-old, half-new lines. Stop
+     the task, edit, start it again — the state files keep it from
+     re-notifying.
 5. Start the script with the `Monitor` tool: `persistent: true`, a specific
    `description` (repo + MR ids), no `timeout_ms` override needed. Under a
    sandbox, list `gitlab.com` in the Monitor's `allowed_domains`: `glab` runs
@@ -108,6 +118,11 @@ explicit configuration) says go.
   steps. One is reproducing the failure locally with `skills/run-checks`. The
   other, on GitLab with Duo, is the **Fix pipeline with Duo** button on the
   failing pipeline, which proposes a fix or opens an MR.
+- **`requested_changes` that outlives its thread** → GitLab keeps a reviewer's
+  "requested changes" until that reviewer approves or someone bypasses it,
+  also after the thread is resolved and the reviewer (GitLab Duo included)
+  reports the finding fixed. Report it as the remaining merge blocker and
+  offer to re-request that review; bypassing stays the user's call.
 - **Merged** (auto-merge or observed external merge) → offer the post-merge
   closeout via `skills/mr-merged` (ticket status read-back, "How to test this" comment,
   branch/worktree cleanup), then drop the MR from the active watch list either
