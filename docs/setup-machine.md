@@ -70,6 +70,10 @@ glab auth login   # Personal Access Token, scopes: api + write_repository
 jira init         # Jira API token
 ```
 
+Add `export JIRA_LOGIN=<Atlassian email>` to your shell profile as well: a
+project's checked-in `.jira.yml` carries no login, and the CLI finds your token
+by it.
+
 Verify the auth actually works: `glab auth status` and `jira me` must both
 succeed. `dotenvx` needs no install or auth — commands run it via
 `npx dotenvx`. claude.ai connectors (Atlassian, Figma) are authorized per user

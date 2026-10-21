@@ -86,8 +86,10 @@ If the type is ambiguous, ask. The type drives the template (below) and the
    label it — never invent. Offload heavy reading to a subagent to keep context
    clean.
 3. **Resolve the Jira context:**
-   - Project key → from "Context to load"; pass it as `-p <KEY>` whenever it
-     is not the CLI's configured default.
+   - Project key → from "Context to load". When the repo has a `.jira.yml`,
+     pass `-c .jira.yml` after the subcommand on every command instead (it also
+     sets the board `sprint list` reads); otherwise `-p <KEY>` whenever it is
+     not the CLI's configured default.
    - Issue type → `-t Bug` / `-t Story` / `-t Task` by name. When the instance
      names its types differently and the create is rejected, ask the user which
      name the project uses.
@@ -196,7 +198,7 @@ Set only these — keep it minimal:
 
 | Field      | Value                                                       |
 | ---------- | ----------------------------------------------------------- |
-| project    | `-p <KEY>` from project config (e.g. `RFW`)                 |
+| project    | `-c .jira.yml` when the repo has one, else `-p <KEY>`       |
 | issue type | `-t Bug` / `-t Story` / `-t Task`                           |
 | assignee   | `-a "<email>"` (confirm the person first)                   |
 | sprint     | `jira sprint add <id> <KEY>` after creation (optional)      |
@@ -217,8 +219,10 @@ No priority, labels, components, or reporter overrides unless the user asks
   custom fields carry values on this instance:
   `jira issue view <KEY-in-sprint> --raw | jq '.fields | to_entries[] | select(.key | startswith("customfield")) | select(.value != null) | .key'`
   — keys differ per Jira site, so discover, never assume.
-- **Another project or board** than the configured default: `-p <KEY>` on
-  every command; a different board needs its own config (`JIRA_CONFIG_FILE`).
+- **Another project or board** than the machine default: the repo's
+  `.jira.yml`, with `-c .jira.yml` after the subcommand on every command and
+  `JIRA_LOGIN` set (`skills/service-cli/references/jira.md` § A project's own
+  config). Without one, `-p <KEY>` reaches another project but not its board.
 
 ## Connector fallback
 
