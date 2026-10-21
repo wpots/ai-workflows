@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+done
 
 **The gate is met.** This item waited for DEV-655 slice 1 to merge in
 `greenberrynl/config/ci-components`. Read 2026-10-21:
@@ -96,7 +96,54 @@ signal and a missing script fails here instead of in the pipeline.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `node --test scripts/test-run-checks-ci-parity.mjs`: 10 tests pass. They
+      cover each case:
+      - no `.gitlab-ci.yml`;
+      - `node-npm` with a flow `scripts` list;
+      - `node-pnpm` with a quoted block list and the `@{sha}` pin;
+      - the default list when the input is absent;
+      - a missing script;
+      - pre-push drift (`npm run -s build`, `npm test`);
+      - a `scripts` input that is a variable;
+      - a `config/ci` include with its ref and project jobs, including a
+        multi-line command and a hidden `.only-mr` template;
+      - a `local:`-only include;
+      - a lockfile that disagrees with the component.
+      `scripts/validate-ai-instructions.sh` now runs this file, so the
+      pre-commit hook and the CI job do too.
+- [x] **The extractor on real files.** Run from the skill directory:
+      `node skills/run-checks/scripts/ci-parity.mjs <dir>`.
+      - **v4.** A scratch directory with ci-components'
+        `tests/fixtures/consumers/npm-clever-storybook/.gitlab-ci.yml`, plus
+        RFW's `package.json` and `.husky/pre-push` from `development`, gives:
+        - `parity: "exact"` and `CI parity: exact (ci-components {sha})`;
+        - `scripts` `lint:check, type-check, test` (`scriptsSource: "default"`);
+        - no missing scripts, and empty pre-push drift on both sides.
+      - **v3.** RFW's real `.gitlab-ci.yml` gives
+        `CI parity: approximate (config/ci version/3.1.1)`, with `type_check`
+        (3 script lines) and `storybook_test` as project jobs, both
+        `extends: .only-mr`.
+      - **This repo** gives `CI parity: approximate (no ci-components or
+        config/ci include)` and its five jobs.
+- [x] **Eval case `run-checks-1`, base against branch.**
+      Command: `claude plugin eval <checkout> --case run-checks-1 --runs 2
+      --ablation none --no-publish --trust-plugin --judge-model sonnet`.
+      - **On this branch:** 2/2 pass, $0.37. The response plans
+        `npm run lint:check` then `npm run test`, says why nothing else runs,
+        and gives `CI parity: exact (ci-components 4.0.0-rc.1)`.
+      - **On `main` with the case copied in:** 0/2.
+        - The old skill plans `lint:check`, `type-check`, `stylelint`, `test`
+          and `build`.
+        - It gives a free-form parity sentence instead of the line.
+      - **Grader change.** A first branch run failed `a1` because the judge
+        counted `node ci-parity.mjs` and `git rev-parse` as extra checks.
+        `a1` now says read-only helper commands do not count.
+- [x] `node scripts/validate-skills.mjs`: no errors.
+      `bash scripts/generate-adapters.sh` regenerated
+      `.github/prompts/run-checks.prompt.md` from `commands/run-checks.md`.
+- **Not checked on a project that really uses v4.** None does yet: RFW is still
+  on `config/ci` 3.1.1, and the Trimbos pilot on `4.0.0-rc.1` has not merged its
+  include. The first run of `run-checks` there is the live proof.
 
 ## Technical Notes
 
@@ -167,3 +214,4 @@ Re-read 2026-10-21, after the gate was met:
 - `docs/pipeline-map.md` gap 3: the pipeline-triage skill that waited on this
   item is superseded (2026-10-15). This item is the prevention side.
 - https://gitlab.com/greenberrynl/config/ci-components — CI v4, DEV-650
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/262

@@ -54,6 +54,9 @@ fi
 echo "Running release automation tests..."
 node --test "$ROOT_DIR/scripts/test-release-automation.mjs"
 
+echo "Running run-checks CI parity tests..."
+node --test "$ROOT_DIR/scripts/test-run-checks-ci-parity.mjs"
+
 # ── Run generation ───────────────────────────────────────────────────────────
 
 echo "Running generate-adapters.sh..."
