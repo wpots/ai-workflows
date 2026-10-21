@@ -340,6 +340,35 @@ but they still break, and differently:
 - Open MRs older than a sprint, and long-lived drafts (`glab mr list`).
 - Default-branch pipeline status and failing scheduled pipelines
   (`glab ci list`, `glab schedule list`).
+- **Declared checks CI never runs.** List the checks `package.json` declares,
+  by the selection rule in `skills/npm-maintenance/SKILL.md` § Validation, and
+  per check `CI: <job name>` or `not in CI`. Read the CI with
+  `node <ai-workflows>/skills/run-checks/scripts/ci-parity.mjs .`
+  (`<ai-workflows>` resolved as for the merge-settings check below), never with
+  a parser of your own:
+  - `parity: "exact"` (a CI v4 `node-npm` or `node-pnpm` include): the names in
+    `scripts` run in the `verify` job.
+  - Each job under `projectJobs` runs a check when one of its `script` lines
+    calls it: `npm run <name>`, `pnpm run <name>`, or `npm test` / `npm t` for
+    `test`. So does every script that called script runs itself: a job running
+    `npm run ci`, where `"ci": "npm run lint && npm test"`, covers `lint` and
+    `test`. A line that calls a shell script (`./scripts/x.sh`) is reported as
+    "calls a script, not read"; do not open it.
+  - Other `include:` entries (`greenberrynl/config/ci`, a `local:` file) are
+    not resolved. Say so once, from the `parityLine`, and never assume what
+    they run.
+
+  `build` not in CI is `high` when the host builds on deploy (step 0's
+  hosting): the host's build is then the first build. Any other declared check
+  not in CI is `medium`. The fix names the project follow-up: on v4, add the
+  script to the `verify` job's `scripts` input (its default
+  `lint:check, type-check, test` has no `build`); on `config/ci` v2 or v3, add
+  a job. Storybook checks are opt-in: when CI runs none, report nothing about
+  Storybook, whether or not the repository has it. When a job runs one without
+  `allow_failure: true` (read that one key of that job in `.gitlab-ci.yml`),
+  note that it should be non-blocking; it never belongs in `verify`, which
+  gates the merge. The check only reads: it edits no CI file and starts no
+  pipeline.
 - Working-tree cruft: untracked files that should be ignored, large files in
   history, `.gitignore` gaps, secrets committed by accident.
 - Merge-settings drift against `rules/git-flow.md`:
@@ -403,7 +432,9 @@ Write `docs/maintenance/maintenance-<YYYY-MM-DD>.md`:
 - **Credential matrix** — variable × environment × status × verified-on.
   Fingerprints only, never values.
 - **Findings**, ranked urgent → high → medium → low. Per finding: lane,
-  evidence (command output, `file:line`, status code), impact, fix, owner.
+  evidence (command output, `file:line`, status code), impact, fix, owner. A
+  declared check that CI never runs (lane E) is `high` for `build` when the
+  host builds on deploy and `medium` otherwise; Storybook is never one.
 - **Verified current** — what was probed and found healthy, with dates. This
   is what makes the next sweep a delta instead of a rerun.
 - **Delivery metrics** — the lane H table plus the delta against the previous
