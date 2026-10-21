@@ -64,7 +64,7 @@ For a requested minor or patch update:
    Install a direct dependency at its **exact** target version (`<pkg>@1.2.3`), not a range. A range resolves to the newest matching release: `next@^16.3.8` once installed a 16.4.0 published that week, a framework minor nobody had tested. npm still saves the caret in `package.json`.
 2. Reinstall or update the lockfile using the selected package manager; never hand-edit a lockfile.
 3. Inspect `package.json` and the lockfile diff. Call out unexpected added, removed, or major-version transitive changes.
-4. Run the relevant checks in [Validation](#validation).
+4. Run the checks in [Validation](#validation).
 5. Summarize updated packages, version transitions, risk verdicts ([Risk analysis](#risk-analysis-in-every-mr)), audit status, changed files, and validation results.
 
 ## 3. Handle major updates
@@ -144,14 +144,23 @@ An external scanner (OSV-Scanner or a similar service) need not agree with the p
 
 ## Validation
 
-Run only scripts present in `package.json`, preferring the project's documented validation command. Otherwise, use the smallest relevant set:
+Run every check the project declares in `package.json`, not a fixed list and not the subset that looks relevant to the bump. A framework minor can break tooling that depends on the framework's internals while lint, tests and the build stay green: Next 16.4 broke every Storybook story in one project, and nobody saw it for six days.
 
-1. lint and type checks;
-2. focused tests for affected packages, then the normal test suite where practical;
-3. production build;
-4. Storybook build or tests when Storybook is configured and the update can affect UI tooling.
+**The list.** Every script whose name is, or starts with, `lint`, `type-check`, `typecheck`, `ts-check`, `test` or `build`. A validation command the project documents (`CONVENTIONS.md`) replaces the scripts it runs, not the others. Leave out:
 
-For Next.js projects, include the production build. State any skipped check and why. Never claim validation passed when a required command was not run.
+- watch mode, and baseline or snapshot updates (`*:update`);
+- scripts that open a UI or a browser window;
+- per-environment variants of a script already in the list (`build:local:ghz` when `build` runs);
+- a script that another script in the list already calls (`test:shell` when `test` is `jest && npm run test:shell`);
+- Storybook checks, unless the project opted in (below).
+
+A script that rewrites files (`--fix`, `--write`) does not run as declared. Run its check-only form when the project declares one (`lint:check`); otherwise list it as skipped, reason "writes files".
+
+**Storybook checks are opt-in and never block.** They are `build-storybook`, `test-storybook`, and a `vitest` script that runs the Storybook project (`vitest.config.*` loads `@storybook/addon-vitest`, and the script selects that project or the config has no other). Storybook being in the repository is not the opt-in. They run when a job in the project's CI runs one of them, or when the user asks for them. A failing Storybook check goes into the summary and the MR description, with the failing stories. It does not stop the run, and it does not keep the MR in Draft.
+
+Run each script in the list once, on its own. A script that cannot run on this machine (it needs a database, browsers or secrets that are not here) is listed as skipped, with that reason; "not relevant to this bump" is not a reason. The summary lists every check with its result, skipped ones included. Never claim validation passed when a required command was not run.
+
+**Before you blame the bump**, run the failing tests or stories once more without it: on the target branch, with that branch's lockfile installed. A failure that also happens there is pre-existing; report it as such, with its cause when known.
 
 Capture exit codes, not excerpts: run each validation command on its own and read its status. `npm run build | tail` returns `tail`'s status, so a failed build prints as a green line.
 

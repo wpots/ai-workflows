@@ -184,7 +184,7 @@ Branch        hotfix/deps-next-16.3.8 in ~/.worktrees/<repo>-hotfix-next
 MR            fix(deps): bump next to 16.3.8 for three critical RCE advisories → main, auto-merge armed
 Version       1.1.3 + CHANGELOG [1.1.3] Security, tag v1.1.3, GitLab Release (per docs/release-process.md)
 Back-merge    acceptance: fast-forward push · development: merge commit push (squash_option always)
-Verified      type-check 0 · tests green · production build green (scratch DB, production schema)
+Verified      lint:check 0 · type-check 0 · tests green · production build green (scratch DB, production schema) · Storybook not opted in
 Slack         #merge_requests — parent message below, thread replies on merge, live, failure
 Jira          RFW-325, the open maintenance:critical ticket the scanner filed; Closes RFW-325 in the MR
 Not in scope  33 high / 16 moderate on development → npm-maintenance
@@ -221,9 +221,12 @@ Include the draft parent message. No go, nothing leaves the machine.
 - Version, changelog, tag preparation as the runbook says. The changelog line
   states the outcome for a reader who did not see the MR: "Next.js 16.3.0 →
   16.3.8: closes three remote-code-execution advisories".
-- Validate with the project's own scripts, each on its own, reading exit
-  codes: lint, type-check, tests, and the **production build** — this goes
-  straight to production. Then `npm ls <package>` shows only fixed versions;
+- Validate with the list in `skills/npm-maintenance/SKILL.md` § Validation,
+  each script on its own, reading exit codes. The **production build** is
+  required — this goes straight to production — and a failing build stops the
+  run. A Storybook check runs only when the project opted in, and its failure
+  goes into the plan and the MR description, never into a stop. Then
+  `npm ls <package>` shows only fixed versions;
   when `osv-scanner` is installed (the scanner's engine), scan the lockfile
   with it and expect no critical.
 - **The build prerenders against the local database.** That database usually
