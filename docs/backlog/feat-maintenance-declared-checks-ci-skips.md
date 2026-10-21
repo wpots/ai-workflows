@@ -4,10 +4,10 @@
 
 <!-- draft | ready | in-progress | done -->
 
-draft
+done
 
-Filed 2026-10-21 after Storybook broke on Next 16.4 in innovatieroute. Proposed
-for `ready`: no product question open.
+Filed 2026-10-21 after Storybook broke on Next 16.4 in innovatieroute, and
+delivered the same day.
 
 ## Ticket
 
@@ -69,7 +69,10 @@ becomes a project follow-up before a dependency bump breaks it unnoticed.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `node scripts/validate-skills.mjs` prints `OK: 38 skills validated, 97 docs link-checked, no errors.`
+- [x] `claude plugin eval . --case maintenance-3 --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 3`: score 1.00, 6/6 graders, skill fired. The case is numbered 3 because `feat-critical-ticket-age-flag.md` plans `maintenance-1` and `feat-maintenance-critical-hotfix-handoff.md` takes the next one.
+- [x] `node skills/run-checks/scripts/ci-parity.mjs <dir>` on innovatieroute's `.gitlab-ci.yml` and `package.json` from `development`: `parityLine` is `CI parity: approximate (config/ci version/2.0.0)`, and `projectJobs` lists `unit_test` with `npm t` and the deploy jobs with `./scripts/trigger-deploy.sh`. Those are the inputs the lane reads.
+- [ ] Reviewer: read lane E's new bullet in `skills/maintenance/SKILL.md` against the acceptance criteria above.
 
 ## Technical Notes
 
