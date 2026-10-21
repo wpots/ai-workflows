@@ -76,6 +76,10 @@ State on 2026-10-20:
 Filed 2026-10-08 from the October 2026 stack review (task T5, re-scoped from
 "build a CI agent lane" to "configure and measure the platform's own").
 
+## Ticket
+
+[Audit 2026-10](../audits/2026-10.md) — roadmap item 5
+
 ## Priority
 
 medium
