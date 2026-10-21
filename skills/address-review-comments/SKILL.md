@@ -18,7 +18,10 @@ one, and propose a concrete approach per comment. **Stop and wait for the user's
 go-ahead before changing any code.** Only after approval run Phase B.
 
 If the user explicitly says "do it all" / "volledig auto", you may run Phase A
-and B back-to-back without the approval pause.
+and B back-to-back without the approval pause. A `watch-mrs` loop in act mode
+counts as that go for comments that need no crucial decision (architecture,
+scope, a direction the team picks). A comment that does need one stops for
+that question only.
 
 ---
 
@@ -230,6 +233,9 @@ is the reviewer's call unless the user asks for it. On GitLab:
    notes only).
 2. Add a 👍 to each addressed note:
    `glab api -X POST "projects/<path>/merge_requests/<iid>/notes/<note_id>/award_emoji" -f name=thumbsup`.
+   The 👍 says the comment is picked up; never reply in its thread to explain
+   how. Reply in a thread only for pushback, a question, or a decision the
+   reviewer has to see.
 3. Post one top-level note that mentions the reviewer, names the pushed sha
    and what changed, and offers the MR for another look:
    `glab api -X POST "projects/<path>/merge_requests/<iid>/notes" -f body='…'`.
