@@ -150,8 +150,9 @@ explicit configuration) says go.
   `skills/receiving-code-review`; never only relay them and offer to look. When
   no comment needs a crucial decision (architecture, scope, a direction the
   team picks), run `skills/address-review-comments` without its approval
-  pause: apply, push, reply on each GitLab thread. If the MR has a review
-  thread in Slack, post `replied` and/or `pushed changes` there. A crucial
+  pause: apply, push, and a 👍 on each comment it picks up, with no reply
+  explaining how. If the MR has a review thread in Slack, post `replied`
+  and/or `pushed changes` there. A crucial
   decision goes to the user as that one question; the rest continues after
   the answer. In relay mode, report each comment and offer the same.
 
