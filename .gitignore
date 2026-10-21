@@ -7,3 +7,6 @@
 !.env.example
 graphify-out/
 evals/results/
+# Demo recordings and clips are big and stay out of git (record-skill-demo)
+docs/demo/**/*.mp4
+docs/demo/**/*.mov

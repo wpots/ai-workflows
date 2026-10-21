@@ -3,7 +3,8 @@
 The style, characters and ingredients behind the AI clips of the October 2026
 plugin demo, kept for the next demo video. The clips were made in Google Flow
 with Gemini Omni Flash (Veo); real terminal output came from VHS screen
-recordings, never from AI.
+recordings, never from AI. How those are made is the repo skill
+[record-skill-demo](../../../.claude/skills/record-skill-demo/SKILL.md).
 
 ## Workflow in Flow
 
