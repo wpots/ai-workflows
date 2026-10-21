@@ -6,10 +6,15 @@
 //   1. `## [Unreleased]` empty  -> nothing to do, exit 0.
 //   2. Otherwise run scripts/assign-plugin-version.mjs --write on a branch
 //      (`release/next`), commit "release: x.y.z", force-push it, and open the
-//      MR to main with the maintainer as reviewer — or update the open MR's
-//      title and description when it already exists. The cut archives the
+//      MR to main as a draft — or update the open MR's title and description
+//      when it already exists, keeping its draft state. The cut archives the
 //      delivered backlog items, so the description carries the backlog
 //      status next to the changelog section.
+//
+// With --ready (the Monday pipeline schedule, job `release_ready`) it does
+// none of that: it takes the open release MR out of draft and requests the
+// maintainer's review. A draft cannot merge, so a week of content merges
+// ships as one version and one Slack post.
 //
 // Merging that MR is the release decision; the version stays assigned after
 // merge, exactly as the manual flow. Without RELEASE_BOT_TOKEN the job prints
@@ -31,6 +36,7 @@ import { fileURLToPath } from "node:url";
 
 import { BACKLOG_DIR, planArchive, renderStatus } from "./backlog-archive.mjs";
 import { sectionBody } from "./changelog-sections.mjs";
+import { readyTitle, releaseTitle } from "./release-mr.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CHANGELOG = join(ROOT, "CHANGELOG.md");
@@ -44,6 +50,7 @@ const BRANCH = env.RELEASE_BRANCH || "release/next";
 const REVIEWER = env.RELEASE_REVIEWER || "wieteke.pots";
 const TARGET = env.CI_DEFAULT_BRANCH || "main";
 const TOKEN = env.RELEASE_BOT_TOKEN;
+const PROJECT = encodeURIComponent(env.CI_PROJECT_PATH ?? "");
 
 function run(command, commandArgs, options = {}) {
   return execFileSync(command, commandArgs, {
@@ -76,6 +83,56 @@ async function api(path, init = {}) {
   return response.json();
 }
 
+function requireCi(names) {
+  for (const name of names) {
+    if (!env[name]) {
+      fail(`${name} is not set; this script expects to run in GitLab CI`);
+    }
+  }
+}
+
+function openReleaseMrs() {
+  return api(`/projects/${PROJECT}/merge_requests?source_branch=${encodeURIComponent(BRANCH)}&state=opened`);
+}
+
+// --ready runs before the plan: it changes the MR, not the branch.
+if (args.includes("--ready")) {
+  if (!TOKEN) {
+    console.log("RELEASE_BOT_TOKEN is not set, so no release MR is marked ready.");
+    process.exit(0);
+  }
+
+  requireCi(["CI_API_V4_URL", "CI_PROJECT_PATH"]);
+
+  const [open] = await openReleaseMrs();
+
+  if (!open) {
+    console.log(`No open MR from ${BRANCH}: nothing to release this week.`);
+    process.exit(0);
+  }
+
+  const update = { title: readyTitle(open.title) };
+  const reviewers = await api(`/users?username=${encodeURIComponent(REVIEWER)}`);
+
+  if (reviewers.length > 0) {
+    update.reviewer_ids = [reviewers[0].id];
+  } else {
+    console.warn(`! reviewer '${REVIEWER}' not found; marking the MR ready without one`);
+  }
+
+  const updated = await api(`/projects/${PROJECT}/merge_requests/${open.iid}`, {
+    method: "PUT",
+    body: JSON.stringify(update),
+  });
+
+  if (updated.draft) {
+    fail(`!${updated.iid} is still a draft after the title change ("${updated.title}"); mark it ready by hand`);
+  }
+
+  console.log(`✔ !${updated.iid} (${updated.title}) is ready to merge: ${updated.web_url}`);
+  process.exit(0);
+}
+
 // 1. The plan, from the same script the manual flow uses.
 const plan = run(process.execPath, [ASSIGN]);
 
@@ -97,7 +154,7 @@ const backlog = renderStatus(planArchive(ROOT), version);
 
 if (dryRun) {
   console.log(`\n${backlog}`);
-  console.log(`\nDry run — would push ${BRANCH} and open or update the MR "release: ${version}".`);
+  console.log(`\nDry run — would push ${BRANCH} and open (as a draft) or update the MR "release: ${version}".`);
   process.exit(0);
 }
 
@@ -110,11 +167,7 @@ if (!TOKEN) {
   process.exit(0);
 }
 
-for (const name of ["CI_API_V4_URL", "CI_PROJECT_PATH", "CI_SERVER_HOST"]) {
-  if (!env[name]) {
-    fail(`${name} is not set; this script expects to run in GitLab CI`);
-  }
-}
+requireCi(["CI_API_V4_URL", "CI_PROJECT_PATH", "CI_SERVER_HOST"]);
 
 // 2. Commit as the token's own user. The project push rule "reject unverified
 // users" (commit_committer_check) refuses any committer email that is not a
@@ -159,7 +212,6 @@ try {
   fail(`git push to ${BRANCH} failed: ${String(error.stderr ?? error.message).replace(TOKEN, "***")}`);
 }
 
-const title = `release: ${version}`;
 const description = [
   sectionBody(readFileSync(CHANGELOG, "utf8"), version) ?? "",
   "",
@@ -170,18 +222,18 @@ const description = [
     "Merging this MR is the release: the version becomes visible in `/plugin`, " +
     `\`publish_release\` tags \`v${version}\` and creates the GitLab Release, and ` +
     "`announce_release` posts the notes in #ai-workflows. Every later merge to " +
-    `\`${TARGET}\` re-cuts this branch until it is merged. Merge it on Monday ` +
-    "morning, or right away for a fix someone is waiting on.",
+    `\`${TARGET}\` re-cuts this branch until it is merged. It stays a draft ` +
+    "until the Monday-morning schedule marks it ready and requests review; for " +
+    "a fix someone is waiting on, mark it ready by hand and merge right away.",
 ].join("\n");
 
-// 3. One open MR for the branch: update it, or open it with the reviewer.
-const project = encodeURIComponent(env.CI_PROJECT_PATH);
-const open = await api(
-  `/projects/${project}/merge_requests?source_branch=${encodeURIComponent(BRANCH)}&state=opened`,
-);
+// 3. One open MR for the branch: update it and keep its draft state, or open
+// it as a draft. The reviewer is requested when --ready takes it out of draft.
+const [open] = await openReleaseMrs();
 
-if (open.length > 0) {
-  const updated = await api(`/projects/${project}/merge_requests/${open[0].iid}`, {
+if (open) {
+  const title = releaseTitle(version, { draft: open.draft });
+  const updated = await api(`/projects/${PROJECT}/merge_requests/${open.iid}`, {
     method: "PUT",
     body: JSON.stringify({ title, description }),
   });
@@ -189,20 +241,14 @@ if (open.length > 0) {
   process.exit(0);
 }
 
-const reviewers = await api(`/users?username=${encodeURIComponent(REVIEWER)}`);
-
-if (reviewers.length === 0) {
-  console.warn(`! reviewer '${REVIEWER}' not found; opening the MR without one`);
-}
-
-const created = await api(`/projects/${project}/merge_requests`, {
+const title = releaseTitle(version, { draft: true });
+const created = await api(`/projects/${PROJECT}/merge_requests`, {
   method: "POST",
   body: JSON.stringify({
     source_branch: BRANCH,
     target_branch: TARGET,
     title,
     description,
-    reviewer_ids: reviewers.slice(0, 1).map((user) => user.id),
     remove_source_branch: true,
     labels: "release",
   }),

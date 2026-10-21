@@ -200,9 +200,11 @@ In a content MR:
 The release itself is cut by CI, in the release-please pattern: one release MR
 that is always current, and merging it is the release decision. The maintainer
 merges it **once a week, on Monday morning**, so a week of merges reaches
-developers as one version and one Slack post instead of one per merge. Only a
-fix someone is waiting on (a broken skill, a hook that blocks work) goes out
-the same day: merge the release MR right after that fix lands.
+developers as one version and one Slack post instead of one per merge. The MR
+enforces that: it opens as a draft, which GitLab will not merge, and a pipeline
+schedule takes it out of draft on Monday morning. Only a fix someone is waiting
+on (a broken skill, a hook that blocks work) goes out the same day: mark the
+release MR ready by hand right after that fix lands, and merge it.
 
 - **`release_train`** runs on every push to `main`. When `changelog.d/` holds
   fragments (or `## [Unreleased]` still has entries) it runs
@@ -210,12 +212,20 @@ the same day: merge the release MR right after that fix lands.
   the fragments become the `## [x.y.z]` section, in Keep a Changelog order,
   and are deleted, and the delivered backlog items are archived (see
   [below](#the-release-archives-the-backlog)) — commits `release: x.y.z`,
-  force-pushes, and opens the MR to
-  `main` with the maintainer as reviewer — or updates the open MR's title and
-  body when a later content merge changes what the release carries. With an
-  empty `## [Unreleased]` it does nothing. So the question "do we need a
-  release MR?" has a standing answer: if there is something to release, the
-  MR exists, and it merges on the next Monday.
+  force-pushes, and opens the MR to `main` as a draft — or updates the open
+  MR's title and body when a later content merge changes what the release
+  carries, keeping its draft state. There is only ever one release MR: three
+  content merges in a week re-cut the same MR three times into one version,
+  bumped by the largest fragment section among them. With an empty
+  `## [Unreleased]` it does nothing. So the question "do we need a release
+  MR?" has a standing answer: if there is something to release, the MR
+  exists, and it merges on the next Monday.
+- **`release_ready`** runs only from the pipeline schedule (Monday 07:00,
+  Europe/Amsterdam): `node scripts/release-train.mjs --ready` takes the open
+  release MR out of draft and requests the maintainer's review, which is the
+  Monday signal to merge it. No open release MR means nothing to release that
+  week, and the job says so. The other release jobs skip scheduled pipelines,
+  so the schedule never posts the previous release again.
 - **`announce_release`** runs on the same pushes and posts only when the merge
   changed the version in `.claude-plugin/plugin.json`, to the `#ai-workflows`
   Slack channel (its own channel, so `#development` stays free of release
@@ -235,13 +245,13 @@ the same day: merge the release MR right after that fix lands.
   exists is left alone. `node scripts/publish-release.mjs --dry-run --version
   x.y.z` shows the notes.
 
-`release_train` and `announce_release` need a CI/CD variable (Settings → CI/CD
-→ Variables, masked, protected) and print what they would do while it is
-missing, so the pipeline stays green. `publish_release` needs none:
+`release_train`, `release_ready` and `announce_release` need a CI/CD variable
+(Settings → CI/CD → Variables, masked, protected) and print what they would do
+while it is missing, so the pipeline stays green. `publish_release` needs none:
 
 | Variable | What | Used by |
 | --- | --- | --- |
-| `RELEASE_BOT_TOKEN` | project access token, role Developer, scopes `api` + `write_repository`; pushes `release/next` and opens the MR | `release_train` |
+| `RELEASE_BOT_TOKEN` | project access token, role Developer, scopes `api` + `write_repository`; pushes `release/next`, opens the MR and marks it ready | `release_train`, `release_ready` |
 | `SLACK_WEBHOOK_URL` | Slack incoming webhook for `#ai-workflows` | `announce_release` |
 
 ### Setting up the two variables (once)
@@ -274,7 +284,7 @@ missing, so the pipeline stays green. `publish_release` needs none:
    variable** on (the URL's characters are within GitLab's mask set). Save.
 
 Verify: the next push to `main` runs both jobs. The `release_train` log ends
-in `Opened !<n> (release: x.y.z)`, the `announce_release` log in `Not a
+in `Opened !<n> (Draft: release: x.y.z)`, the `announce_release` log in `Not a
 release commit`. Merge that release MR, and the following `announce_release`
 log ends in `Announced x.y.z in Slack`, with the post in `#ai-workflows`, and
 the `publish_release` log in `Published vx.y.z`, with the Release under
@@ -282,6 +292,23 @@ Deploy → Releases. To
 announce a version released before the webhook existed, run
 `SLACK_WEBHOOK_URL=<url> node scripts/announce-release.mjs --version x.y.z`
 from your own terminal; the URL never lands in the repo.
+
+### Setting up the Monday schedule (once)
+
+`release_ready` runs only from a pipeline schedule, which lives in the GitLab
+settings, not in the repo. Its owner runs the pipeline, so the maintainer owns
+it.
+
+1. Project → Build → Pipeline schedules → **New schedule**. Description
+   `Release MR ready (Monday)`, interval pattern *Custom* `0 7 * * 1`, cron
+   timezone *Amsterdam*, target branch `main`, no variables, *Activated* on.
+   Save.
+2. Verify without waiting for Monday: the schedule's **Run** button (▷) starts
+   it now. The pipeline holds `validate_ai_workflows` and `release_ready`
+   only, and the `release_ready` log ends in `✔ !<n> (release: x.y.z) is
+   ready to merge` — or `No open MR from release/next` when there is nothing
+   to release. Running it mid-week marks the MR ready, so only do that when
+   it may merge.
 
 The bump inference lives in `scripts/assign-plugin-version.mjs`, for CI and
 for the manual fallback alike: `### Removed` or a `BREAKING` marker is MAJOR
