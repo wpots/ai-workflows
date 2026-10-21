@@ -45,14 +45,17 @@ Only ask what isn't already given in the user's request.
 2. Resolve the MR id list (explicit ids, or fetch via the `scope=created_by_me`
    query above and filter to the confirmed project).
 3. Write a bash watcher script to a **stable location outside any ephemeral
-   scratchpad** — `~/.claude/state/mr-watch/<repo-slug>/watch.sh` — so state
+   scratchpad** — `~/.worktrees/.mr-watch/<repo-slug>/watch.sh` — so state
    (which comments were already seen, last known merge status) survives
    across sessions and re-invocations don't re-notify old items. Keep one
-   state subdirectory per MR id. Under a Claude Code sandbox, a `Monitor`
-   command has no bypass, and `~/.claude/state` fails with
-   `Operation not permitted`. Probe it with `touch` first, and fall back to
-   `/tmp/claude/mr-watch/<repo-slug>/`. The sandbox can write there, and the
-   state survives sessions until a reboot.
+   state subdirectory per MR id. A `Monitor` command has no sandbox bypass,
+   and `~/.worktrees` is the root a sandbox must already allow for the
+   worktree flow. Never put the state under `~/.claude/`: the sandbox denies
+   writes there with `Operation not permitted`. Probe the root with
+   `mkdir -p` and `touch`, and only when that fails fall back to
+   `/tmp/claude/mr-watch/<repo-slug>/` and tell the user: a reboot empties
+   it, and the first pass after that marks comments that arrived in the gap
+   as seen without reporting them.
 4. Script logic, per poll cycle, per watched MR:
    - Fetch notes: `glab api projects/<enc-repo>/merge_requests/<id>/notes`;
      diff non-system note ids against `seen_notes.txt`; echo one line per new
