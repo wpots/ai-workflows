@@ -39,6 +39,24 @@ the input — one item per candidate, in its order, each `Depends on:` the previ
 one. Do not re-cut those boundaries silently; if a candidate is wrong, say why and
 propose the new cut.
 
+## The same item in several repositories
+
+When one request asks for the same change in more than one repository:
+
+1. Check per repository that the problem exists before writing its item. A
+   repository without it gets no item, and the recap says what was checked.
+2. Write the **shared contract** once, before any item: every name, path,
+   flag, default, file format and refusal that has to match across the
+   repositories. Each item carries it verbatim in its `Technical Notes` under
+   **Shared contract**, and the items link each other under `## Related`.
+3. Ground, size and slice each item in its own repository. The slices may
+   differ; the contract may not.
+
+Writing the items in parallel subagents: give every subagent the same
+contract in its prompt. Subagents that each design the mechanism for their
+own repository come back with different script names, defaults and formats,
+and aligning them afterwards means rewriting every file.
+
 ## Context To Load
 
 1. Read `rules/backlog.md` and `rules/mr-sizing.md`.
