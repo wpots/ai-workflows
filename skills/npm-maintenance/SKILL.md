@@ -62,9 +62,10 @@ For a requested minor or patch update:
 
 1. Update only the requested packages. If the request is general maintenance, keep the batch limited to compatible minor and patch releases.
    Install a direct dependency at its **exact** target version (`<pkg>@1.2.3`), not a range. A range resolves to the newest matching release: `next@^16.3.8` once installed a 16.4.0 published that week, a framework minor nobody had tested. npm still saves the caret in `package.json`.
+   A release-age gate (`minimumReleaseAge` in `pnpm-workspace.yaml`, `min-release-age` in `.npmrc`) is never overridden here — not for routine updates, majors, or vulnerability fixes on development. When the newest version is too young, take the newest one that passes, and say which version waits and until when. Only `skills/dependency-hotfix` overrides the gate, for a critical's fix. Without a gate, do not propose one.
 2. Reinstall or update the lockfile using the selected package manager; never hand-edit a lockfile.
 3. Inspect `package.json` and the lockfile diff. Call out unexpected added, removed, or major-version transitive changes.
-4. Run the relevant checks in [Validation](#validation).
+4. Run the checks in [Validation](#validation).
 5. Summarize updated packages, version transitions, risk verdicts ([Risk analysis](#risk-analysis-in-every-mr)), audit status, changed files, and validation results.
 
 ## 3. Handle major updates
@@ -140,18 +141,45 @@ An external scanner (OSV-Scanner or a similar service) need not agree with the p
 - **It may scan another ref.** Scanners often read the production branch, not the working tree. Audit that ref's lockfile without checking it out: `git archive --output=<scratch>/lock.tar <ref> package.json package-lock.json`, unpack it, then `npm audit --package-lock-only --prefix <dir>`.
 - **Its severity may differ.** OSV can call critical what `npm audit` and GitHub call high, and it can list an advisory before `npm audit` has it. Filtering `npm audit` on the scanner's severity then finds nothing. Ask OSV directly instead: POST the lockfile's `name@version` list to `https://api.osv.dev/v1/querybatch`, then fetch each hit from `/v1/vulns/<id>`. The newest `published` date is usually the "new" finding.
 - **Its dates may differ.** OSV's `published` date and the date on the GitHub advisory page can be days apart. Report both.
-- **Check whether the vulnerable code path is reachable** before you rank urgency. An SVG-decoder bug matters little in an app that never decodes SVG. That decides between a hotfix and riding along with the next release, not whether the fix goes in.
+
+### Is the vulnerable code reachable?
+
+Triage every advisory before you rank its urgency, scanner finding or not. The verdict decides between a hotfix and riding along with the next release, never whether the fix goes in.
+
+1. **Read the advisory itself**: its impact, workarounds and patched versions. A title, a release-note line or a scanner summary is not enough. A Next.js release note titled an advisory "when SVG files are used"; the advisory itself describes a memory bug in sharp/libvips that allows remote code execution on glibc-based Linux whenever sharp is below `0.35.5`. A search for SVG settings would have called it unreachable.
+2. **List every condition it names**:
+   - the vulnerable component and its version, including a transitive one (sharp under `next`);
+   - the runtime or platform (glibc, a Node version);
+   - the configuration or feature it needs (`use cache`, image optimization, a config flag).
+3. **Check each condition against production**: its lockfile, config and code, not the working branch. Record the evidence per condition: the lockfile entry, a `path:line`, a config key.
+4. **Give one verdict**:
+   - `reachable`: every condition holds;
+   - `not reachable`: every condition was checked and at least one fails, with the evidence for that one;
+   - `unknown`: a condition could not be settled. **Unknown counts as reachable.**
+
+An advisory that tells you to upgrade even when your application does not use the feature settles urgency on its own: treat it as reachable.
+
+A critical moves from a hotfix to the next release only when a person decides so, with the verdict and its evidence recorded in the critical's ticket or the MR. Never make that move yourself.
 
 ## Validation
 
-Run only scripts present in `package.json`, preferring the project's documented validation command. Otherwise, use the smallest relevant set:
+Run every check the project declares in `package.json`, not a fixed list and not the subset that looks relevant to the bump. A framework minor can break tooling that depends on the framework's internals while lint, tests and the build stay green: Next 16.4 broke every Storybook story in one project, and nobody saw it for six days.
 
-1. lint and type checks;
-2. focused tests for affected packages, then the normal test suite where practical;
-3. production build;
-4. Storybook build or tests when Storybook is configured and the update can affect UI tooling.
+**The list.** Every script whose name is, or starts with, `lint`, `type-check`, `typecheck`, `ts-check`, `test` or `build`. A validation command the project documents (`CONVENTIONS.md`) replaces the scripts it runs, not the others. Leave out:
 
-For Next.js projects, include the production build. State any skipped check and why. Never claim validation passed when a required command was not run.
+- watch mode, and baseline or snapshot updates (`*:update`);
+- scripts that open a UI or a browser window;
+- per-environment variants of a script already in the list (`build:local:ghz` when `build` runs);
+- a script that another script in the list already calls (`test:shell` when `test` is `jest && npm run test:shell`);
+- Storybook checks, unless the project opted in (below).
+
+A script that rewrites files (`--fix`, `--write`) does not run as declared. Run its check-only form when the project declares one (`lint:check`); otherwise list it as skipped, reason "writes files".
+
+**Storybook checks are opt-in and never block.** They are `build-storybook`, `test-storybook`, and a `vitest` script that runs the Storybook project (`vitest.config.*` loads `@storybook/addon-vitest`, and the script selects that project or the config has no other). Storybook being in the repository is not the opt-in. They run when a job in the project's CI runs one of them, or when the user asks for them. A failing Storybook check goes into the summary and the MR description, with the failing stories. It does not stop the run, and it does not keep the MR in Draft.
+
+Run each script in the list once, on its own. A script that cannot run on this machine (it needs a database, browsers or secrets that are not here) is listed as skipped, with that reason; "not relevant to this bump" is not a reason. The summary lists every check with its result, skipped ones included. Never claim validation passed when a required command was not run.
+
+**Before you blame the bump**, run the failing tests or stories once more without it: on the target branch, with that branch's lockfile installed. A failure that also happens there is pre-existing; report it as such, with its cause when known.
 
 Capture exit codes, not excerpts: run each validation command on its own and read its status. `npm run build | tail` returns `tail`'s status, so a failed build prints as a green line.
 
