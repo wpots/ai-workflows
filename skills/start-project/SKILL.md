@@ -38,6 +38,7 @@ Six surfaces carry project context. Each fact has exactly one home.
 | `docs/journeys/<slug>.md` | how a user walks one journey, step by step | "step 3 validates the KvK number; the empty state shows …" |
 | `docs/architecture.md` | intent + rationale of the structure | "`src/vendor/` is Infrastructure because the vendor coupling is deliberate" |
 | `CONVENTIONS.md` | detected facts, as they are today | "Next.js 16, Payload 3, `npm run type-check`" |
+| `CONVENTIONS.md` § Tooling | where the project's services are, and who can see each | "`#jansen-greenberry` (`C0AAA111`) is shared with the client and is the release channel" |
 | `rules/` | patterns to follow while coding | "pages never fetch; loaders do" |
 
 Consequences to honour:
@@ -74,15 +75,19 @@ template into the new project. The copies keep their numbers, so they also
 use up the project's first MR numbers: with 49 copied MRs, the first real MR
 becomes `!50`. Deleting the copies before the project's first own MR gives the
 number back. trimbos-website did that and its first own MR got `!1`. Once the
-project has an own MR, assume the number is gone; that case is untested. So
-check the template first. Both counts must be `0`:
+project has an own MR, assume the number is gone; that case is untested. The
+template's tags come along too: trimbos-website started with 26 (`v3.0.0`,
+`UNI-*`, `archive/*`), and to the release skill `v3.0.0` reads as the
+project's own latest version. So check the template first. All three counts
+must be `0`:
 
 ```bash
 glab api "projects/greenberrynl%2Fproject-templates%2Funicore-template/merge_requests?state=all" | jq length
 glab api "projects/greenberrynl%2Fproject-templates%2Funicore-template/issues?state=all" | jq length
+glab api "projects/greenberrynl%2Fproject-templates%2Funicore-template/repository/tags?per_page=100" | jq length
 ```
 
-If either count is above `0`, stop and propose deleting those items from the
+If any count is above `0`, stop and propose deleting those items from the
 template. Deleting cannot be undone, so the user approves it first. Only then
 create the project.
 
@@ -94,11 +99,13 @@ check:
 | 1 | repo exists and sits at `greenberrynl/<client>/<project>` | `git remote -v`, `glab repo view <path>` |
 | 2 | created from the template — its lineage is recorded | `.unicore.json` exists (written by the template's setup, v4) and its `template.commit` exists in the template: `glab api "projects/greenberrynl%2Fthe-greenhouse%2Funicore-template/repository/commits/<commit>"`. No record → a v3 project or a skipped setup: fall back to a file fingerprint (`scripts/husky/readme-checks.js`, CI config, tooling config, `.nvmrc`, folder skeleton) and record that lineage could not be proven. A merge-base finds nothing: the template's `readme-checks` hook makes every project replace the template history before its first commit |
 | 3 | default branch and visibility match the Greenberry defaults | `glab api "projects/<url-encoded-path>"` |
-| 3a | no MRs or issues copied from the template | `glab api "projects/<path>/merge_requests?state=all"` and `.../issues?state=all`, compare each `created_at` with the project's own `created_at`. Anything older than the project was imported from the template, so report it as a **deviation**. If the project has no own MR yet, propose deleting the copies, after approval, and the first own MR still gets `!1`. If it already has an own MR, the number is taken. In both cases, delete the items from the template too, so the next project starts at `!1` |
+| 3a | no MRs, issues or tags copied from the template | `glab api "projects/<path>/merge_requests?state=all"` and `.../issues?state=all`, compare each `created_at` with the project's own `created_at`; `.../repository/tags?per_page=100`, compare each tag's `commit.created_at` the same way. Anything older than the project was imported from the template, so report it as a **deviation**. If the project has no own MR yet, propose deleting the copies, after approval, and the first own MR still gets `!1`. If it already has an own MR, the number is taken. Propose deleting the tags too, after approval; a clone keeps a deleted tag until `git fetch --prune --prune-tags`. In every case, delete the items from the template too, so the next project starts clean |
 | 3b | merge settings match `rules/git-flow.md` | `node <ai-workflows>/scripts/gitlab-merge-settings.mjs --project <path>` — read-only; reports `ff` + squash-always, the squash commit template, delete-source-branch, and the pipeline/discussion gates. Paste its table into the lane report. Resolving `<ai-workflows>`: see below |
-| 4 | protected branches and approval rules exist | `glab api "projects/<path>/protected_branches"`, `.../approval_rules` |
+| 4 | protected branches and approval rules exist | `glab api "projects/<path>/protected_branches"`, `.../approval_rules`. `main`, `acceptance` and `development` are each protected with `allow_force_push: false`. The template copy leaves `main` unprotected so the history can be replaced, and nothing protects it after that: an unprotected `main` once the history is replaced is a **deviation** |
 | 5 | the CI/CD variables the pipeline needs are present | `glab api "projects/<path>/variables"` — **names only, never print values** |
-| 6 | tracker and chat integrations wired | `glab api "projects/<path>/integrations/jira"`, `.../integrations/slack` |
+| 5b | CI and hooks follow the current baseline | `.gitlab-ci.yml` includes the `greenberrynl/config/ci-components` components at a release; a release candidate or a SHA is a **deviation**, fixed by pinning to the release once it is out. `node_version` in that include, `.nvmrc` and `engines.node` name the same version: the `verify` job rejects a range that admits another major. `.husky/pre-commit` runs `gitleaks` first; `.husky/pre-push` runs `lint:check`, `type-check` and `test`. "Prevent outdated deployment jobs" and "Allow rollback" are on: `ci_forward_deployment_enabled` and `ci_forward_deployment_rollback_allowed` are `true` in `glab api "projects/<path>"` |
+| 5c | secrets are set up, and gitleaks came first | Check 5b's gitleaks step was in place before the first secret was committed. Every `.env.<env>` holds only dotenvx-encrypted values (`KEY="encrypted:…"`), and `.env.keys` is gitignored. When `.env.keys.tpl` exists, the 1Password item it names exists: `op item get <item> --vault <vault> >/dev/null`, exit status only. A deploy job's `DOTENV_PRIVATE_KEY_<ENV>` is in check 5's variable names |
+| 6 | tracker and chat integrations wired | Jira: `glab api "projects/<path>/integrations/jira-cloud-app"` is `active`. Greenberry connects Jira through the GitLab for Jira Cloud app on the `greenberrynl` group, so `inherited: true` is expected, and an inactive per-project `integrations/jira` is **not** a deviation. Chat: `.../integrations/slack` |
 | 7 | the kickoff items the repo cannot answer: Jira project set up (standard kickoff stories imported), hosting environment chosen and contracted, CMS contract agreed | ask; record each as known or unknown |
 
 Report one table — check · **ok / deviation / unknown** · what fixes it. Unknown
@@ -133,8 +140,9 @@ edit a script under the plugin cache: it is replaced on update.
 
 A PoC or spike may skip the template method — deliberately, never accidentally:
 
-- skip checks 2–6 (3b included); keep the minimum (repo exists, default branch, visibility,
-  licence, and a README that says it is a PoC)
+- skip checks 2–6 (3a, 3b and 5b included); keep the minimum (repo exists, default branch, visibility,
+  licence, and a README that says it is a PoC) and check 5c: a PoC leaks a
+  committed secret just as well
 - **record the waiver**, or it quietly becomes a production project:
   `Project type: PoC — template method waived` in `docs/project-brief.md`, plus a
   decision-log entry in `docs/architecture.md` with who decided, when, why, and
@@ -167,9 +175,10 @@ once, as a table, and ask before writing anything.
 
 | Area | What to collect |
 | --- | --- |
-| Design | Figma file and prototype links per surface, the design-system/library file, where tokens come from, who owns them, what is still unfinished |
-| Content | CMS and which instance/environment, content-contract status, migration source (an existing site?), who writes the content |
-| Tracker | project key, board, sprint cadence, whether the standard kickoff stories were imported |
+| Design | Figma file and prototype links per surface, the design-system/library file, where tokens come from, who owns them, what is still unfinished; per file whether it is a concept or signed off, and whether it has variables with roles, modes and mobile sizes — tokens taken from a concept are proposals until sign-off |
+| Content | CMS and which instance/environment, content-contract status, migration source (an existing site?) and its data classification (a production dump stays local, never in the repo or a test fixture), who writes the content |
+| Tracker | project key and board ids (through the `jira` CLI, `skills/service-cli`), sprint cadence, whether the standard kickoff stories were imported, and whether the machine's `jira` default is another project: then every command needs `-p <KEY>` and sprint commands a per-project config |
+| Chat | channels with their ids; which one is shared with the client (the release skill posts there) and which is internal |
 | Hosting | chosen environment(s), contract status, who deploys, domains, preview URLs |
 | Integrations | analytics, consent, search, mail, auth, payments — and **who owns each credential** |
 | Brand & legal | brand guide, accessibility target, privacy/DPIA constraints, languages |
@@ -188,8 +197,13 @@ Rules for this lane:
   A count given from memory is routinely short, and the build nobody mentioned
   is often the oldest — the one the others grew from. Read each as code, not
   only as a live site.
-- Answers land in the document that owns them (brief, spec, architecture,
-  journey), not in a separate resource file nobody updates.
+- Answers land in the document that owns them, never in a separate resource
+  file nobody updates. Product facts go to the brief, spec, architecture or a
+  journey. **Where a service is** — tracker key and boards, channel ids, Figma,
+  Notion and Drive links — goes to `CONVENTIONS.md` § Tooling, because skills
+  read it there (the release skill takes its Slack channel from it). Each entry
+  carries its flag: shared with the client, not final, confidential. The brief
+  links to that section instead of copying it.
 
 ---
 
@@ -246,6 +260,13 @@ the team does not have to answer:
 - `docs/todo/`, existing epics — the known architectural debt, already tracked;
   the doc links to those items instead of restating them
 - `git log` on config files — decisions someone already made silently
+- the merged MR descriptions since the first commit — where a decision made
+  before the kickoff was argued, with its reason and what was rejected. With
+  check 3b's squash commit template the squash commit carries the MR body
+  (`git log --format=%B <default-branch>`); otherwise
+  `glab mr list -R <path> --merged --output json`. Each "turn on X", "replace
+  Y with Z" or "not Clever, not Vercel" in there is a decision-log candidate,
+  dated by its merge
 
 Present the harvest as a **confirm-or-correct list**, not as questions:
 
