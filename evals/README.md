@@ -176,6 +176,8 @@ hooks or other plugins.
 | `release` | `release-2` | names a repository, files or CLI state that the empty workspace lacks |
 | `release` | `release-3` | names a repository, files or CLI state that the empty workspace lacks |
 | `release` | `release-4` | names a repository, files or CLI state that the empty workspace lacks |
+| `release` | `release-5` | names a repository, files or CLI state that the empty workspace lacks |
+| `release` | `release-6` | names a repository, files or CLI state that the empty workspace lacks |
 | `release-notes` | `release-notes-1` | names a repository, files or CLI state that the empty workspace lacks |
 | `release-notes` | `release-notes-2` | names a repository, files or CLI state that the empty workspace lacks |
 | `sprint-demo` | `sprint-demo-1` | `docs/sprint15/` holds the plan and an `architecture-sprint-15.drawio` with a before and an after page; the sprint swapped the catalogue vendor; the… |
