@@ -238,8 +238,12 @@ push must use `--force-with-lease`.
 1. **Show the base branch, title, and description to the user and get
    approval before pushing** — pushing is outward-facing. Skip the ask only
    when the user already said to proceed without asking.
-2. Push the branch (add `--no-verify` when pushing from a worktree, per the
-   caveat above):
+2. Push the branch with its hooks on. A worktree is not a reason to skip them.
+   Use `--no-verify` only when, after reading the hook files, a hook falls
+   under one of the two cases in `references/worktrees.md`:
+   - it cannot execute in the worktree at all;
+   - its git-calling tests do not drop `GIT_*`.
+   Run that hook's commands by hand on the exact commit first. Then push:
    - First push (no upstream yet): `git push -u <remote> HEAD`.
    - After any rebase: `git push --force-with-lease`.
 3. Create the PR/MR **in the same turn you announce it.** Never end a turn on
