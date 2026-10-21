@@ -6,12 +6,12 @@ and other prompt-first tools should follow these steps directly.
 
 Goal: turn what shipped — a release between two refs, or the delivered set of a
 closed sprint — into plain-language notes the customer's product owner can
-forward unedited: what is new, what improved, what was fixed, what they should
-know, and where it is live. The sprint changelog from `commands/close-sprint.md`
-is an internal audit trail (commit SHAs, MR numbers, ticketless rows,
-justification) and the demo runsheet from `commands/sprint-demo.md` is presenter
-material. Neither is shareable as-is; both are good input. The issue tracker is
-read-only throughout.
+forward unedited: what is new, what improved, what was fixed, what upkeep we
+did, what they should know, and where it is live. The sprint changelog from
+`commands/close-sprint.md` is an internal audit trail (commit SHAs, MR numbers,
+ticketless rows, justification) and the demo runsheet from
+`commands/sprint-demo.md` is presenter material. Neither is shareable as-is;
+both are good input. The issue tracker is read-only throughout.
 
 ## Safety
 
@@ -73,9 +73,15 @@ output.
 | `new` | Nieuw | the customer or their users can do something they could not before |
 | `improved` | Verbeterd | an existing thing works better, faster, or more clearly |
 | `fixed` | Opgelost | something that was wrong now works — name the symptom the user saw, never the cause |
+| `maintenance` | Onderhoud | upkeep the team does on its own initiative, not a customer request or a reported bug: dependency and framework updates, cleanup of unused fields or data, housekeeping of background jobs |
 | `notice` | Goed om te weten | changed behaviour, a feature flag or test period, something the customer must do or decide |
-| `internal` | one summary line under Verbeterd, or omitted | refactor, CI, dependencies, lint, types, docs, test infrastructure |
-| `security` | Verbeterd, as an outcome | a vulnerability, leaked secret, exposed route, or hardening |
+| `internal` | omitted, or one summary line under Onderhoud | refactor, CI, lint, types, docs, test infrastructure |
+| `security` | Onderhoud, as an outcome; Verbeterd when the customer asked for it or reported it | a vulnerability, leaked secret, exposed route, or hardening |
+
+Onderhoud answers the question a customer asks about these lines: which ticket
+or bug is this? None, it is upkeep. Ask per item whether the customer could have
+requested or reported it: yes goes to Nieuw, Verbeterd, or Opgelost; no goes to
+Onderhoud.
 
 Security items are phrased as the protection the customer now has ("de
 koppeling met het bibliotheeksysteem is extra beveiligd"), never as the weakness
@@ -114,11 +120,16 @@ Write `docs/releases/<key>.md` from the [Template](#template) below, with
   sections are flat lists.
 - **"Goed om te weten" holds decisions and actions**, one bullet each, with the
   date or condition when known.
+- **"Onderhoud" is a short flat list, one line per kind of upkeep** (a framework
+  update, a security patch, a cleanup), not per package or per ticket. Package
+  names and versions stay out. The fixed line under the heading carries the "no
+  ticket, no bug" explanation, so the bullets do not repeat it. Leave the
+  section out when it is empty.
 - **"Waar staat het" is mandatory** and states per environment what is there
   and since when. It is the only place environment names and URLs appear.
 - **The ticket appendix** (`## Bijlage — tickets`) maps every body line to its
-  key, one row each. Included for the product-owner audience, omitted for end
-  users.
+  key, one row each; an Onderhoud line without a ticket gets `—`. Included for
+  the product-owner audience, omitted for end users.
 - Target size: under one screen for a sprint, under 6 KB in any case. Longer
   means the internal changelog is leaking in.
 
@@ -146,7 +157,9 @@ End with a concise list of:
 ## Template
 
 The section structure and filling rules are normative; the labels follow the
-customer's language — the example is Dutch.
+customer's language — the example is Dutch. In English the Onderhoud heading is
+"Maintenance" and its fixed line reads "Regular maintenance by Greenberry, not a
+requested change or a bug."
 
 ````markdown
 # Release 1.5.0 — <datum>
@@ -163,12 +176,19 @@ Voor: <klant>, productowner · Van: Greenberry
 ## Verbeterd
 
 - Boekentips uit het CMS laden sneller en tonen altijd een omslag.
-- De koppeling met het bibliotheeksysteem is extra beveiligd.
 
 ## Opgelost
 
 - Een collectiepagina met alleen een korte titel gaf een foutmelding.
 - Verdwenen knoppen op de homepage zijn terug.
+
+## Onderhoud
+
+Regulier onderhoud door Greenberry, geen aangevraagde wijziging of bug.
+
+- De koppeling met het bibliotheeksysteem is extra beveiligd.
+- De website draait op de nieuwste veilige versie van het onderliggende
+  framework.
 
 ## Goed om te weten
 
@@ -188,4 +208,5 @@ Voor: <klant>, productowner · Van: Greenberry
 | Zoekresultaten tonen per titel of hij nu aanwezig is in een vestiging | OBA-120, OBA-123 |
 | Uitgebreid zoeken heeft een leeftijdskeuze en een jaartalbereik | OBA-124 |
 | De koppeling met het bibliotheeksysteem is extra beveiligd | OBA-119, OBA-140 |
+| De website draait op de nieuwste veilige versie van het onderliggende framework | — |
 ````
