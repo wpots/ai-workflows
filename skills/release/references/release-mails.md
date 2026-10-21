@@ -54,8 +54,10 @@ V<x.y.z>`.
 2. Since when it is live, where, and which version. Say the key pages were
    checked only when the run actually checked them.
 3. The overview: one bullet per item from the release notes' body —
-   Nieuw, Verbeterd and Opgelost — in the notes' customer language. No
-   ticket keys, no MR numbers, no section headings in the mail.
+   Nieuw, Verbeterd and Opgelost — in the notes' customer language. The
+   Onderhoud items come last, behind one lead-in line that says what the notes'
+   fixed Onderhoud line says. No ticket keys, no MR numbers, no section
+   headings in the mail.
 4. `Let op:` lines for anything the customer must do or avoid, from the
    notes' "Goed om te weten".
 5. `met vriendelijke groet,`
@@ -68,17 +70,20 @@ de belangrijkste pagina's gecontroleerd. Hieronder een korte samenvatting.
 
 - Zoeksuggesties verschijnen zodra je even stopt met typen, niet meer bij
   elke letter.
+- Links binnen de site verloren soms de gekozen taal.
+
+Daarnaast hebben we onderhoud uitgevoerd, geen aangevraagde wijziging of bug:
+
 - De website en haar koppelingen zijn extra beveiligd en draaien op de
   nieuwste veilige versie van het onderliggende framework.
-- Links binnen de site verloren soms de gekozen taal.
 
 Let op: <wat de klant nog wel of niet moet doen>.
 
 met vriendelijke groet,
 ```
 
-Send it with `htmlBody` (a `<ul>` for the overview) and the plain text above
-as `body`.
+Send it with `htmlBody` (a `<ul>` for the overview and a second one for the
+Onderhoud bullets) and the plain text above as `body`.
 
 ## Delay or rollback mail
 
@@ -105,4 +110,5 @@ started the release of the website to production, containing the work of
 sprint 15. We expect to be done within the hour and will mail once
 everything is live and checked." and "The release has been live on <domain>
 since 10:12 (version 1.5.0), and we have checked the key pages. A short
-summary follows."
+summary follows." The Onderhoud lead-in reads "We also carried out maintenance,
+not a requested change or a bug:".

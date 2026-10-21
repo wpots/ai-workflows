@@ -55,9 +55,9 @@ stays in the sprint changelog and the appendix.
 ## Output
 
 `docs/releases/<key>.md` following the runbook's template (Nieuw, Verbeterd,
-Opgelost, Goed om te weten, Waar staat het, plus the ticket appendix for a
-product-owner audience), a paste-ready block in the reply, and the lists of
-dropped internal items and not-yet-live items awaiting the user's decision.
+Opgelost, Onderhoud, Goed om te weten, Waar staat het, plus the ticket appendix
+for a product-owner audience), a paste-ready block in the reply, and the lists
+of dropped internal items and not-yet-live items awaiting the user's decision.
 
 ## Hand-offs
 
