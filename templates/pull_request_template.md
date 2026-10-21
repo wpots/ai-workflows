@@ -1,6 +1,8 @@
 ## Summary
 
-<!-- 2-3 sentence overview of what this PR does and why -->
+<!-- 2-3 sentences: what this PR does and why, readable without opening
+anything else. Only what a reviewer needs: no links to Notion pages, Google
+Docs or Slack messages, no colleagues' names; state the reason itself. -->
 
 ## Scope
 

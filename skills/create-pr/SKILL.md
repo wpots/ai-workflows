@@ -170,6 +170,22 @@ Diff the current branch against the resolved base branch and produce:
 When a template is present, map these sections into the template's headings
 instead of using the defaults above verbatim.
 
+**Only what the reviewer needs.** The reviewer judges the change from the MR
+alone, so write the description for them:
+
+- Every sentence is about the change: what it does, why, and what to check.
+  Leave out how the work went and anything the diff already shows.
+- It stands on its own. No links to Notion pages, Google Docs or Slack
+  messages, no "as discussed", and no colleagues' names. When the change
+  answers a question from a meeting or a colleague, state the question or the
+  reason itself. Link only what the reviewer has to open to judge the change
+  (the ticket, a related MR or issue, a file in the repo), and say why.
+- Use plain sentences, give the reason before the details, and avoid jargon the
+  reviewer has to look up. One read should be enough to know what changed and
+  why.
+
+The same holds for the title and the commit messages.
+
 ### 7. Rebase onto Base, then Push & Create PR
 
 A PR/MR must **always be mergeable**. Before pushing — on both first creation
@@ -431,7 +447,8 @@ migration, no board) stay in the table on ➖.
   template's own language. **Never infer it from other existing MRs** — they
   may be inconsistent, and one MR in the chat language must not drag the rest
   along.
-- Keep the description concise and scannable.
+- Keep the description concise and scannable, and limited to what the reviewer
+  needs (step 6, "Only what the reviewer needs").
 - Prefer counts and impact summaries over long file lists.
 - Always show the base branch, title, and description for approval before
   pushing, unless the user already said to proceed without asking.
