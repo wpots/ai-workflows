@@ -187,6 +187,7 @@ writeFileSync(`${dir}/mr-payload.json`, JSON.stringify({
   target_branch: "main",
   title: "rules: <short description>",
   description: readFileSync(`${dir}/mr-body.md`, "utf8"),
+  labels: "ai:agent-authored",
   remove_source_branch: true,
   squash: true,
 }));

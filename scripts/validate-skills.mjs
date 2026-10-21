@@ -76,13 +76,29 @@ const read = (rel) => readFileSync(path.join(ROOT, rel), "utf8");
 // there (unlike the reviewer, which needs numeric ids). A snippet that omits it
 // teaches the agent to ship MRs without the only provenance signal that
 // survives a squash merge — the failure rules/git-flow.md exists to prevent.
+// The same holds for a fenced `glab mr create` and for an `--input` POST, whose
+// JSON payload is built in a neighbouring block, so the label only has to appear
+// somewhere in that file. Prose mentions of `glab mr create` are not snippets.
 for (const rel of tracked) {
-  if (!/^(skills|commands)\/.*\.md$/.test(rel)) continue;
+  if (!/^(skills|commands|shared)\/.*\.md$/.test(rel)) continue;
+  const text = read(rel);
+  let fenced = false;
   // Fold shell line continuations so a multi-line snippet reads as one command.
-  for (const line of read(rel).replace(/\\\n\s*/g, " ").split("\n")) {
+  for (const line of text.replace(/\\\n\s*/g, " ").split("\n")) {
+    if (line.trimStart().startsWith("```")) {
+      fenced = !fenced;
+      continue;
+    }
+    if (fenced && /^\s*glab mr create\b/.test(line) && !line.includes("ai:agent-authored")) {
+      err(rel, 'glab mr create snippet omits --label "ai:agent-authored"');
+    }
     if (!line.includes("glab api")) continue;
-    if (!/\/merge_requests"/.test(line) || !/--method\s+POST/.test(line)) continue;
-    if (!line.includes("labels=ai:agent-authored")) {
+    if (!/\/merge_requests"/.test(line) || !/(--method|-X)\s+POST/.test(line)) continue;
+    if (/--input\b/.test(line)) {
+      if (!text.includes("ai:agent-authored")) {
+        err(rel, 'glab MR-creation snippet posts an --input payload, and the file never sets labels to "ai:agent-authored"');
+      }
+    } else if (!line.includes("labels=ai:agent-authored")) {
       err(rel, 'glab MR-creation snippet omits --field "labels=ai:agent-authored"');
     }
   }
