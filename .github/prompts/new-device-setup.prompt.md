@@ -28,7 +28,8 @@ Then authenticate the CLIs (once per machine):
 
 - `glab auth login` with a **Personal Access Token** (scopes `api` +
   `write_repository`) — PATs avoid OAuth refresh races.
-- `jira init` with a Jira API token.
+- `jira init` with a Jira API token, and `export JIRA_LOGIN=<Atlassian email>`
+  in the shell profile: a project's checked-in `.jira.yml` carries no login.
 - `axiom auth login` with a personal API token, when installed.
 - `dotenvx` needs no install or auth — commands run it via `npx dotenvx`.
 - claude.ai connectors (Atlassian, Figma, Axiom) are authorized per user in the

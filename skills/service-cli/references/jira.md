@@ -9,9 +9,41 @@ jira me            # prints the configured user's email — the assignee filter 
 jira serverinfo    # site URL and version
 ```
 
-Headless (CI, routines): `JIRA_API_TOKEN` carries the token and
-`JIRA_CONFIG_FILE` points at a config generated once with `jira init`; the
-init itself is interactive. Read the token with `npx dotenvx get`, never inline.
+Headless (CI, routines): `JIRA_API_TOKEN` carries the token, `JIRA_LOGIN` the
+account, and `-c .jira.yml` (or `JIRA_CONFIG_FILE`) the project's config. Read
+the token with `npx dotenvx get`, never inline.
+
+## A project's own config
+
+`jira init` writes one machine default: one project, one board. A project on
+another key or board checks its own config in as `.jira.yml` at the repo root,
+so every developer and agent in that repo reaches the same project and sprint
+board without `-p` and without touching their machine config:
+
+```bash
+# Once per project: generate, delete the `login:` line, commit the file
+jira init -c .jira.yml --installation cloud --server https://<site>.atlassian.net \
+  --login <your email> --auth-type basic --project <KEY> --board "<sprint board name>"
+
+# Every command: from the repo root, -c after the subcommand
+jira issue list -c .jira.yml --plain --columns key,status,summary
+jira sprint list -c .jira.yml --state active --plain --columns ID,NAME,STATE
+```
+
+- **No `login` in the file.** It is the one personal line, and the CLI looks
+  the token up by it (keychain or `.netrc`). Each developer sets
+  `export JIRA_LOGIN=<email>` in their shell profile instead; without it every
+  command fails with "The tool needs a Jira API token". The variable overrides
+  the `login` of every config, the machine default included, which is harmless
+  as long as it names the same Atlassian account.
+- **`-c` after the subcommand.** `Bash(jira issue list *)` matches
+  `jira issue list -c .jira.yml …`; `jira -c .jira.yml issue list …` matches
+  no allow rule and costs an approval.
+- **Keep the full `jira init` output.** `issue.fields.custom` is what
+  `--custom <name>=<value>` resolves against, so do not trim it by hand;
+  regenerate with `--force` (and drop `login` again) when the site adds fields.
+- **`CONVENTIONS.md` § Tooling** names the file, the key and the board ids, so
+  a skill reads them there instead of probing.
 
 ## Output modes
 
@@ -60,8 +92,9 @@ jira board list
 
 JQL `sprint = "Sprint 8"` matches the short name even when the board prefixes
 it; the sprint **id** from `jira sprint list` is the reliable handle for
-writes. Another project than the configured default: `-p <KEY>` on every
-command. Another board needs its own config (`JIRA_CONFIG_FILE`).
+writes. A one-off look at another project: `-p <KEY>`, which does not change
+the board `sprint list` reads. A project that works against another key or
+board: its `.jira.yml` (§ A project's own config).
 
 ## Write — only the skills that are allowed to
 
