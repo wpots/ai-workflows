@@ -66,6 +66,16 @@ If a suggestion seems wrong → push back with technical reasoning. If you can't
 → say so: "I can't verify this without <X>. Investigate, ask, or proceed?" If it
 conflicts with a decision the user already made → stop and discuss first.
 
+## Feedback on a template MR reaches its downstream copies
+
+When the reviewed MR is in a template (`unicore-template`) and the feedback
+changes its approach, the projects that already took the change, or plan to,
+carry the old approach too. Search the downstream repos for the MR link and
+the changed files: ported code (a commit that copied the change) and backlog
+items in `docs/backlog/` that prescribe the port. List each with what has to
+follow. Update a backlog item once the new approach is proven, so it does not
+prescribe a second unproven fix.
+
 ## YAGNI check on "do it properly" suggestions
 
 When a reviewer says "implement this properly" (metrics, filters, export, config),

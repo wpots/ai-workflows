@@ -31,6 +31,11 @@ Only ask what isn't already given in the user's request.
   - delete source branch after merge (yes/no)
   - whether to skip the final confirmation before merging, or notify and wait
   Auto-merge is opt-in per invocation — never assume it from a prior session.
+- **Review comments**: relay only, or act on them (see Hand-offs). Ask once,
+  unless the user's instructions or memory already settle it.
+- **Slack post when ready for approval** (opt-in): the channel, and whether
+  the post mentions the channel. "Mergeable" in a user's words usually means
+  this state, since GitLab's `mergeable` is already approved.
 
 ## Implementation
 
@@ -53,13 +58,27 @@ Only ask what isn't already given in the user's request.
      diff non-system note ids against `seen_notes.txt`; echo one line per new
      note (author + body). Guard every `glab`/`jq` call against empty output
      (`[ -n "$json" ]`) so a transient API hiccup doesn't kill the loop.
+     Mark an MR's first pass with its own `initialized` file, never with the
+     existence of the merge-status file: an MR that stays `unchecked` never
+     writes that file, and stays in first-pass mode, silently marking every
+     new comment as seen.
    - Fetch the MR: `glab api projects/<enc-repo>/merge_requests/<id>`; read
-     `.detailed_merge_status`; echo on transition (`prev -> new`) — this field
-     alone captures approval, pipeline result, conflicts and draft state.
+     `.detailed_merge_status`; echo on transition (`prev -> new`). It names
+     only the first failing check, and `not_approved` comes before conflicts:
+     an MR with conflicts still reads `not_approved`. Track `.has_conflicts`
+     in its own `conflicts.txt` and echo its transitions.
      Skip `unchecked` and `checking`: GitLab sets them on every open MR each
      time the target branch moves and settles back on the old value minutes
      later. Neither store nor report them — only a settled status is a
      transition.
+   - **Ready for approval** (only with the Slack post configured): not draft,
+     head pipeline `success`, `has_conflicts` false,
+     `blocking_discussions_resolved` true, status `not_approved`, and
+     `approvals_left > 0` from `…/merge_requests/<id>/approvals` (fetched only
+     for a head SHA not yet in `ready.txt`). Echo one `READY` line per head
+     SHA. The session posts it: a reply in the MR's existing thread in the
+     channel (find the parent by the MR URL in the channel history), else a
+     new message in the channel's own format.
    - **Pipeline state, tracked separately**: keep `pipeline.txt` (last seen
      pipeline id + status) in the MR's state subdirectory, alongside
      `seen_notes.txt` — do not overload the merge-status file. Only when
@@ -91,6 +110,12 @@ Only ask what isn't already given in the user's request.
      executes, so a mid-run edit makes it run half-old, half-new lines. Stop
      the task, edit, start it again — the state files keep it from
      re-notifying.
+   - **Night pause**: between 23:00 and 06:00, after two polls without an
+     event, stop polling until 06:00. Route every event line through one
+     `emit` function that sets a `changed` flag, keep the quiet count in
+     `night_quiet.txt` so a re-armed Monitor keeps it, and while paused
+     `sleep 300` in a loop with no API calls. Short sleeps notice 06:00 soon
+     after the machine wakes.
 5. Start the script with the `Monitor` tool: `persistent: true`, a specific
    `description` (repo + MR ids), no `timeout_ms` override needed. Under a
    sandbox, list `gitlab.com` in the Monitor's `allowed_domains`: `glab` runs
@@ -99,7 +124,14 @@ Only ask what isn't already given in the user's request.
    re-arm it on the expiry notice. When only one event matters (the merge), a
    `run_in_background` Bash script that polls and exits on that event has no
    such cap and wakes the session once.
-6. Arm a `ScheduleWakeup` fallback heartbeat (1200–1800s) with `prompt` set to
+   On a laptop, a Monitor that expires with no events and state files whose
+   mtimes stop advancing usually mean the machine sleeps, not a hung call:
+   `pmset -g log | rg -e " Sleep " -e DarkWake` shows wakes of a few seconds,
+   and the loop only runs inside them. Check that before adding timeouts. A
+   timeout on `glab` needs SIGKILL from a forked parent: glab is a Go binary
+   and ignores SIGALRM, so `perl -e 'alarm …; exec …'` never kills it.
+6. Arm a `ScheduleWakeup` fallback heartbeat (1200–1800s, 3600s during the
+   night pause) with `prompt` set to
    re-invoke this skill with the same resolved args (repo, MR ids, interval,
    auto-merge config) — this is a safety net only; the Monitor is the real
    wake signal. Re-arm it after every `<task-notification>` from the Monitor,
@@ -113,6 +145,15 @@ Only ask what isn't already given in the user's request.
 Hand-offs are **proposals surfaced to the user, not silent autonomous fixes**:
 the loop detects, the skills act — and only after the user (or the invocation's
 explicit configuration) says go.
+
+- **New review comments, act mode** → evaluate them right away with
+  `skills/receiving-code-review`; never only relay them and offer to look. When
+  no comment needs a crucial decision (architecture, scope, a direction the
+  team picks), run `skills/address-review-comments` without its approval
+  pause: apply, push, reply on each GitLab thread. If the MR has a review
+  thread in Slack, post `replied` and/or `pushed changes` there. A crucial
+  decision goes to the user as that one question; the rest continues after
+  the answer. In relay mode, report each comment and offer the same.
 
 - **Failed pipeline** → report the failing job and stage, and offer two next
   steps. One is reproducing the failure locally with `skills/run-checks`. The
@@ -146,5 +187,5 @@ explicit configuration) says go.
 ## Output
 
 A running Monitor task (report its task id) watching the confirmed MRs, plus
-a confirmation of: repo/MR scope, poll interval, and the current auto-merge
-configuration.
+a confirmation of: repo/MR scope, poll interval, the current auto-merge
+configuration, the review-comment mode, and the Slack post if configured.
