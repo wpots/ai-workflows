@@ -5,7 +5,9 @@
 ready
 
 Filed 2026-10-13 while preparing the developer demo of the plugin. Time-box:
-one day, confirmed by the maintainer on 2026-10-13.
+one day, confirmed by the maintainer on 2026-10-13. Desk research for question
+4 done on 2026-10-15 from the Codex source; the prototype still has to confirm
+it.
 
 ## Priority
 
@@ -35,7 +37,7 @@ release.
      getting in each other's way? Which files does that add?
   3. Which of the 38 skills work in Codex unchanged, and how the 11 that name
      Claude Code-only tools behave there.
-  4. Which of the five plugin hooks can run under Codex, and what each one
+  4. Which of the six plugin hooks can run under Codex, and what each one
      needs changed.
   5. How an update reaches a Codex user: automatically, by a command, or by a
      workspace admin.
@@ -67,29 +69,79 @@ release.
   `codex plugin marketplace add owner/repo`; the plugin browser is
   `codex /plugins`. Workspace admins can import and sync a GitHub marketplace
   for their team.
-- Not in the docs read: non-GitHub marketplace sources, automatic updates, the
-  environment variable that points a hook at the plugin root, and always-on
-  instructions as a plugin component. Questions 1, 4, 5 and 6 exist because of
-  these gaps.
+- Not in the docs read: non-GitHub marketplace sources, automatic updates and
+  always-on instructions as a plugin component. Questions 1, 5 and 6 exist
+  because of these gaps. The hook environment is answered from source below.
+
+### What the Codex source says about hooks (read 2026-10-15, not yet run)
+
+Read from `openai/codex` `main` at `6fbd7be`, and checked against the
+`codex-cli 0.162.0-alpha.17.2` binary that ships with the VS Code extension
+(`codex features list`: `hooks stable true`).
+
+- Hooks have been stable since 0.124.0 and are on by default (`[features]
+  hooks`; `codex_hooks` is a deprecated alias). The config shape and the matcher
+  rules are Claude Code's: an exact match for `[A-Za-z0-9_|]` patterns, a regex
+  otherwise.
+- A plugin's `hooks/hooks.json` loads automatically when its manifest has no
+  `hooks` key. Codex looks for manifests in this order: a root `plugin.json`
+  with the agent-plugins `$schema`, then `.codex-plugin/plugin.json`, then
+  `.claude-plugin/plugin.json`. It also reads `.claude-plugin/marketplace.json`.
+  So the repo root may serve Codex without a second manifest (question 2; the
+  prototype confirms it).
+- Plugin hooks get `PLUGIN_ROOT`, `CLAUDE_PLUGIN_ROOT`, `PLUGIN_DATA` and
+  `CLAUDE_PLUGIN_DATA`, and `${VAR}` in the command string is expanded. Our
+  `hooks.json` resolves unchanged.
+- Each plugin hook must be trusted once in `/hooks`, keyed on a hash of its
+  definition, so a changed definition needs trusting again. An untrusted hook is
+  probably skipped in `codex exec`.
+- Tool names and input:
+  - The shell is `Bash`, and `tool_input.command` is a string.
+  - Edits are `apply_patch`, which `Write` and `Edit` match as aliases. The raw
+    patch is in `tool_input.command`, and there is no `file_path`, `content` or
+    `new_string`.
+  - MCP tools are named `mcp__<server>__<tool>`.
+- Supported decisions: `deny` with a reason, exit code 2, `additionalContext`
+  and `{"decision": "block"}`. `permissionDecision: "ask"` is unsupported and
+  fails open: the hook is logged as failed, and the tool runs anyway. `allow`
+  works only together with `updatedInput`.
+- `transcript_path` points at a Codex rollout, a format the docs call unstable
+  for hooks.
 
 ### What our side assumes Claude
 
 - `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` make the
   repo root the plugin. A Codex manifest would sit next to them; check that the
   `skills/` layout is read the same way by both.
-- `hooks/hooks.json` runs every hook through `${CLAUDE_PLUGIN_ROOT}`. Per script:
-  - `require_process_termination_approval.py` reads `tool_input.command`;
-    probably portable if Codex's shell tool sends the same field.
-  - `prefer_service_cli.py` splits Claude's `mcp__<server>__<tool>` names; Codex
-    names MCP tools its own way.
-  - `check_added_comments.py` matches Claude's `Write` and `Edit` tools and
-    their `content` and `new_string` fields.
-  - `improve_skill_retrospective.py` parses the Claude transcript at
-    `transcript_path` and keeps state in `CLAUDE_PLUGIN_DATA`; likely
+- `hooks/hooks.json` runs every hook through `${CLAUDE_PLUGIN_ROOT}`, which
+  Codex also sets. Here is how each script behaves under the source above:
+  - `prefer_service_cli.py` works unchanged. MCP naming is the same, and Codex
+    honours `deny`. This is the hook the prototype should fire.
+  - `require_process_termination_approval.py` fires, but it answers `ask`, so
+    the guard fails open. Do not port it; see "The approval guards per
+    harness" below.
+  - `require_ticket_transition_approval.py` fires on `Bash` and on the
+    connector's `transitionJiraIssue`, answers `ask` too, and fails open the
+    same way. The same section covers it.
+  - `check_added_comments.py` fires on `apply_patch` through the alias but
+    finds nothing, because it reads Claude's `Write` and `Edit` fields. To work
+    in Codex it needs an `apply_patch` branch that takes the added lines from
+    the patch.
+  - `improve_skill_retrospective.py` does nothing. It parses a Claude
+    transcript, and a Codex rollout has no `Skill` tool call to find. It stays
     Claude-only.
-  - `sync-ambient.sh` writes the baseline and the universal rules into
-    `~/.claude/rules/`; the Codex counterpart would be its global instructions
-    file.
+  - `sync-ambient.sh` runs and refreshes `~/.claude/rules/`, which Codex never
+    reads. It then tells the model that its global rules are current, which is
+    untrue in Codex. It must not run under Codex until question 6 is decided.
+- Two ways to give Codex a different hook set from the same root:
+  - A `.codex-plugin/plugin.json` whose `hooks` key points at a Codex-only
+    file. Codex reads it before `.claude-plugin/plugin.json`, and Claude never
+    reads it.
+  - Harness detection inside each script.
+
+  The first keeps the scripts simple, but it brings back the second manifest
+  that question 2 hoped to avoid.
+
 - Skills that name Claude Code-only tools (`AskUserQuestion`, `Monitor`,
   `ScheduleWakeup`, `EnterWorktree`, `TaskStop`, `SendMessage`): close-sprint,
   create-pr, datocms-migration, dependency-hotfix, mr-merged, release,
@@ -102,6 +154,42 @@ release.
   plugin — the same step the Claude migration took.
 - The only GitHub copy of this repo today is a personal mirror. If Codex needs a
   GitHub source, an organisation-owned one is part of the answer to question 1.
+
+### The approval guards per harness
+
+Two hooks exist only to force a person's go, and both answer `ask`, which Codex
+does not support.
+
+**The kill guard.** The Seatbelt profile in both the Claude Code 2.1.300 binary
+and the Codex 0.162 binary contains `(allow signal (target same-sandbox))`. A
+sandboxed `kill` aimed at VS Code therefore fails with `EPERM`, so the guard
+only matters for a kill that runs outside the sandbox.
+
+- Codex: leaving the sandbox needs an approval under the default `on-request`
+  policy, so Codex's own gate already covers the case the hook was written for.
+  That gate is gone under any of these:
+  - `--yolo` or `danger-full-access`
+  - `approval_policy = "never"`
+  - automatic review of escalations
+  - an `allow` prefix rule that a user clicked into `~/.codex/rules/`
+
+  The native backstop is one `prefix_rule(pattern=["kill"], decision="prompt")`
+  per termination command, delivered by `sync.sh`. It is untested whether such
+  a rule also catches `xargs kill` and `bash -lc "kill …"`, which the hook does
+  catch.
+- Claude Code: the hook stays. In auto mode, an unsandboxed retry goes to the
+  classifier rather than to a person. The sandbox is a per-user setting, and a
+  user without it has no other layer. The matching `ask` rules exist only in
+  project settings generated from `templates/project-claude-settings.json`.
+  It is untested whether the hook's `ask` still reaches a person in auto mode.
+
+**The ticket-transition guard.** In Codex, `jira issue move` is gated only
+while the sandbox blocks its network call. That is `workspace-write` without
+network access, which the Codex docs give as the default; this was not verified
+here. A user who grants the sandbox network access loses the gate. How Codex
+approves a connector's `transitionJiraIssue` call is untested. A
+`prefix_rule(pattern=["jira", "issue", "move"], decision="prompt")`, plus one
+per alias, is the same backstop as for the kill guard.
 
 ### Shape of the spike
 
@@ -132,6 +220,10 @@ that amendment or in a short appendix it links to.
   — slice 1 of the Cursor retirement; it also edits `scripts/sync.sh`
 - [feat-skill-eval-harness.md](feat-skill-eval-harness.md)
 - OpenAI, "Package your plugin": <https://developers.openai.com/codex/plugins/build>
+- OpenAI, Codex hooks: <https://learn.chatgpt.com/docs/hooks>
+- `openai/codex` source read for the hook notes:
+  <https://github.com/openai/codex/tree/6fbd7be1518d259e30e6fef48f05f433d2461a20>
+  (`codex-rs/hooks/src/engine/`, `codex-rs/core/src/tools/hook_names.rs`)
 - OpenAI, plugins overview: <https://learn.chatgpt.com/docs/plugins>
 - The New Stack, "OpenAI's Codex gets plugins":
   <https://thenewstack.io/openais-codex-gets-plugins/>
