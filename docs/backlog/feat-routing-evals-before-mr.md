@@ -12,6 +12,10 @@ eval spend manual, on her own seat. This item arms the same suite in the
 workflow instead: the MR flow runs it when a change can break routing, so it no
 longer depends on someone remembering to.
 
+## Ticket
+
+[Audit 2026-10](../audits/2026-10.md) — roadmap item 1
+
 ## Priority
 
 medium

@@ -15,6 +15,10 @@ the hook belongs in `hooks/hooks.json`, not in `templates/project-claude-setting
 the template route could not (`sync.sh` does not update an existing project
 `.claude/settings.json`), and this repo gets it by having the plugin enabled.
 
+## Ticket
+
+[Audit 2026-10](../audits/2026-10.md) — roadmap item 2
+
 ## Priority
 
 medium
