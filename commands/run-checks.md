@@ -12,6 +12,29 @@ Preferred path:
 
 Run project quality checks in sequence with review prompts between failures.
 
+## CI Parity First
+
+Read `.gitlab-ci.yml` before choosing what to run. Never run a CI job or
+anything from its `before_script`, and never ask how a job maps to a command.
+`skills/run-checks/scripts/ci-parity.mjs` prints the same report as JSON.
+
+- **CI v4.** When the file includes `ci-components/node-npm@<version>` or
+  `ci-components/node-pnpm@<version>`, run exactly the names in that include's
+  `scripts` input. Without that input, run the default `lint:check`,
+  `type-check`, `test`.
+  - Run them in that order, as `npm run <name>` for node-npm or
+    `pnpm run <name>` for node-pnpm, instead of the list below.
+  - Report the names `package.json` lacks before running anything.
+  - Report `CI parity: exact (ci-components <version>)`.
+- **Otherwise,** run the list below and report one of these:
+  - `CI parity: approximate (config/ci <ref>)` for a `greenberrynl/config/ci`
+    include;
+  - `CI parity: no CI config found` when there is no `.gitlab-ci.yml`.
+- **Drift, CI v4 only:** list names that only CI or only `.husky/pre-push`
+  runs.
+- **Project jobs, in every case:** list jobs the project defines itself as
+  `project job, not covered`, with their `script:` lines.
+
 ## Checks to Run (in order)
 
 `<pm>` is the package manager the lockfile names (`pnpm-lock.yaml` → `pnpm`,
@@ -35,7 +58,7 @@ no allow rule.
    - **STOP and prompt the user** before continuing to the next check
    - Ask: "Check failed. Would you like to: [fix it / skip to next check / abort]?"
 5. **Success handling** - If a check passes, automatically continue to the next one
-6. **Summary** - At the end, provide a summary of all checks run and their results
+6. **Summary** - At the end, provide a summary of all checks run and their results, with the CI parity line
 
 ## Sustainable verification
 
