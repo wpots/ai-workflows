@@ -117,6 +117,12 @@ its own analysis, and the back-merge keeps development's higher version
 - The package owns the database schema (Payload, Prisma, Drizzle) → the bump
   can need a migration. Stop and ask: generating a migration is the user's
   step, and a hotfix with a migration is their call.
+- Triage every advisory as "Is the vulnerable code reachable?" in
+  `skills/npm-maintenance/SKILL.md` §4 prescribes, against production's
+  lockfile and config, and put the verdict per advisory in the plan. A
+  `not reachable` verdict does not stop the hotfix: it is information for the
+  person who gives the go, and only they can move the critical to the next
+  release. `unknown` counts as reachable.
 
 ## Step 3 — Plan, then one go
 
@@ -179,6 +185,7 @@ Then show one plan block and ask for the go with `AskUserQuestion`:
 ```
 Project       greenberrynl/<client>/<site> · production branch main
 Critical      next 16.3.0 → 16.3.8 (GHSA-2xp9-…, GHSA-p293-…, GHSA-vcvr-…); with it @next/third-parties
+Reachable     GHSA-2xp9 reachable (<condition>: <evidence>) · GHSA-p293 unknown → counts as reachable · GHSA-vcvr not reachable (<failing condition>: <evidence>)
 Risk          Low — patch range, no runtime-relevant change used here, 16.3.8 is 12 d old · watch Function Invocations 1 h
 Branch        hotfix/deps-next-16.3.8 in ~/.worktrees/<repo>-hotfix-next
 MR            fix(deps): bump next to 16.3.8 for three critical RCE advisories → main, auto-merge armed

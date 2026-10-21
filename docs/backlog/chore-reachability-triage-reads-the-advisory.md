@@ -4,9 +4,10 @@
 
 <!-- draft | ready | in-progress | done -->
 
-draft
+done
 
-Filed 2026-10-21. Proposed for `ready`: no product question open.
+Filed and delivered on 2026-10-21. Delivery approved by the maintainer the same
+day.
 
 ## Ticket
 
@@ -83,7 +84,9 @@ running on production.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `claude plugin eval . --case npm-maintenance-7 --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 3`: score 1.00, all five graders pass (verdict not `not reachable`, sharp below 0.35.5 named as met, no reliance on `dangerouslyAllowSVG`, hotfix recommended, skill fired).
+- [x] `node scripts/validate-skills.mjs`: passes.
+- [ ] Read `skills/npm-maintenance/SKILL.md` §4 "Is the vulnerable code reachable?" next to `skills/dependency-hotfix/SKILL.md` Step 2. The hotfix bullet points to §4 and repeats only that `unknown` counts as reachable and that a person decides any move to the next release.
 
 ## Technical Notes
 
