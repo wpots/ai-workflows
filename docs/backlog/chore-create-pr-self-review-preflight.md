@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+done
 
 **Timing: do not start while !143 is open.** !143
 (`improve/commit-staging-hygiene`) also rewrites `skills/create-pr` and
@@ -67,7 +67,17 @@ see.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- `claude plugin eval <checkout> --case create-pr-6 --runs 1 --ablation none
+  --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 1` → score
+  1.00, a1–a3 and `skill-fired` pass ($0.24, 2026-10-21).
+- The same case against `main` without this change → score 0.50: a1 passes (the
+  `[correctness]` finding stops the push anyway), a2 and a3 fail (the push
+  waits on the `[docs]` finding, which never reaches the MR description).
+- `node scripts/validate-skills.mjs` → 38 skills, no errors.
+- `scripts/generate-adapters.sh` → `.github/prompts/create-pr.prompt.md`
+  regenerated from `commands/create-pr.md`.
+- Routing evals not run: only the body of `skills/create-pr/SKILL.md` changes,
+  not its frontmatter, and `create-pr-6` is not a routing case.
 
 ## Technical Notes
 

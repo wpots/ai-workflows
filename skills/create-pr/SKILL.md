@@ -92,11 +92,23 @@ If the platform cannot be inferred, ask the user.
    the MR description (see Generate PR Content). Everywhere else, and for a
    branch that changes only skill bodies, references or other cases, this step
    does nothing.
-6. Check whether the diff is primarily a shared AI workflow change.
+6. **Self-review.** Run the `code-review` skill once over
+   `<remote>/<resolved-base>...HEAD`, before the first push. Pass it the remote
+   and base resolved here: its own resolution assumes `origin`. A finding tagged
+   `[correctness]` or `[security]` stops the flow. Take those one at a time and
+   continue only once each is fixed or the user waives it explicitly; a waived
+   finding goes into the MR description with the reason the user gave. A
+   finding with any other lens tag never stops the flow: list it with its
+   `file:line` in the MR description and in the recap's `Open items` row. The
+   step runs no lint, type-check, test or build, so the pre-push checks sweep
+   stays the only one. It does nothing when `skills/work-backlog` reviewed this
+   branch in its step 7 during this session and the only commits since close
+   out its backlog item; the recap's `Self-review` row says so.
+7. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
      `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
-7. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the ai-workflows repo. Ask whether to:
+8. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the ai-workflows repo. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead
    - do both
@@ -431,6 +443,7 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | Template followed | ✅ | `<resolved template path>`, headings confirmed on read-back |
 | Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
 | Checks | ✅ | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
+| Self-review | ✅ | `<n>` findings, `<k>` blocking and fixed — ⚠️ when a finding was waived — ➖ with the reason it was skipped |
 | Migration | ➖ | none needed / added `<name>` |
 | Board updated | ✅ | section it moved to (if the project keeps a board) |
 | Worktree cleaned up | ➖ | removed + pruned, or ➖ if none was used |
