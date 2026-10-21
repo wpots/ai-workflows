@@ -111,6 +111,14 @@ its own analysis, and the back-merge keeps development's higher version
 - Packages released in lockstep move together: `@next/*` and
   `eslint-config-next` with `next`, `@payloadcms/*` with `payload`, and the
   like. Name them in the plan.
+- Read the release-age gate: `minimumReleaseAge` in `pnpm-workspace.yaml`
+  (minutes) or `min-release-age` in `.npmrc` (days, npm 11.10 and later). Read
+  the target version's age with `npm view <pkg> time --json`. A critical's fix
+  is often hours old — Next 16.4.1 was published three minutes before its two
+  critical advisories — and the gate then refuses it, even by exact version
+  (`ERR_PNPM_NO_MATURE_MATCHING_VERSION`, npm `ETARGET … with a date before`).
+  Step 4 overrides it for that one install. Without a gate nothing changes, and
+  the plan does not propose adding one.
 - The fix is a major, or there is no fix (`fixedIn` empty) → stop. A major
   goes through the researched path of `skills/npm-maintenance/SKILL.md` §3; a
   missing fix needs a mitigation decision from a human.
@@ -180,6 +188,7 @@ Then show one plan block and ask for the go with `AskUserQuestion`:
 Project       greenberrynl/<client>/<site> · production branch main
 Critical      next 16.3.0 → 16.3.8 (GHSA-2xp9-…, GHSA-p293-…, GHSA-vcvr-…); with it @next/third-parties
 Risk          Low — patch range, no runtime-relevant change used here, 16.3.8 is 12 d old · watch Function Invocations 1 h
+Gate          pnpm minimumReleaseAge 1440 min · 16.3.8 is 12 d old, passes (a younger fix: "bypassed for next@<v>, <age> old, fixes <GHSA>")
 Branch        hotfix/deps-next-16.3.8 in ~/.worktrees/<repo>-hotfix-next
 MR            fix(deps): bump next to 16.3.8 for three critical RCE advisories → main, auto-merge armed
 Version       1.1.3 + CHANGELOG [1.1.3] Security, tag v1.1.3, GitLab Release (per docs/release-process.md)
@@ -211,10 +220,22 @@ Include the draft parent message. No go, nothing leaves the machine.
   the caret in `package.json`. Transitive: `npm update <package>` when the
   parents' ranges allow it; otherwise an `overrides` entry pinned to the
   target, and the MR says when it can go.
+- When Step 2 found the target younger than the release-age gate, override
+  the gate on that one command only:
+  `pnpm add next@16.4.1 --config.minimumReleaseAge=0` or
+  `npm install next@16.4.1 --min-release-age=0`. Never edit
+  `pnpm-workspace.yaml` or `.npmrc` for it: once the lockfile holds the
+  version, a later install and CI's frozen install pass with the gate still
+  on, because nothing is resolved again. The plan and the MR description name
+  the bypass: package, version, its age, the gate, and the advisory it fixes.
 - Never hand-edit a lockfile; never `--force`, `--legacy-peer-deps` or
   `--ignore-scripts`. Read the lockfile diff per entry, not per line: only the
   intended packages and their own dependencies may change version. An
-  unexpected major elsewhere stops the run. Flag-only changes (`dev: true`
+  unexpected major elsewhere stops the run. With a release-age gate, name
+  every changed entry younger than it (`npm view <pkg> time --json` per
+  entry): only the fix package, its lockstep packages and their own
+  dependencies may be among them, and any other young entry stops the run.
+  Flag-only changes (`dev: true`
   dropped on optional platform binaries, a nested optional peer removed) are
   the bumped package's new graph when development's lockfile, which already
   runs that version, shows the same flags — check it there.

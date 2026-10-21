@@ -62,6 +62,7 @@ For a requested minor or patch update:
 
 1. Update only the requested packages. If the request is general maintenance, keep the batch limited to compatible minor and patch releases.
    Install a direct dependency at its **exact** target version (`<pkg>@1.2.3`), not a range. A range resolves to the newest matching release: `next@^16.3.8` once installed a 16.4.0 published that week, a framework minor nobody had tested. npm still saves the caret in `package.json`.
+   A release-age gate (`minimumReleaseAge` in `pnpm-workspace.yaml`, `min-release-age` in `.npmrc`) is never overridden here — not for routine updates, majors, or vulnerability fixes on development. When the newest version is too young, take the newest one that passes, and say which version waits and until when. Only `skills/dependency-hotfix` overrides the gate, for a critical's fix. Without a gate, do not propose one.
 2. Reinstall or update the lockfile using the selected package manager; never hand-edit a lockfile.
 3. Inspect `package.json` and the lockfile diff. Call out unexpected added, removed, or major-version transitive changes.
 4. Run the checks in [Validation](#validation).

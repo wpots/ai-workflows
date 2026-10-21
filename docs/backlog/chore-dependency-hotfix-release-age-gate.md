@@ -4,11 +4,10 @@
 
 <!-- draft | ready | in-progress | done -->
 
-draft
+done
 
-Filed 2026-10-21. Proposed for `ready`: no product question open. The npm
-override flag is still unverified (Technical Notes), and checking it is part of
-the delivery.
+Filed and delivered on 2026-10-21. The npm override was verified at delivery
+(Technical Notes).
 
 ## Ticket
 
@@ -60,7 +59,25 @@ accident.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] pnpm 10.34.6, scratch project with `minimumReleaseAge: 1440`:
+  `pnpm add next@16.5.0-canary.21 --lockfile-only` fails with
+  `ERR_PNPM_NO_MATURE_MATCHING_VERSION`. The same command with
+  `--config.minimumReleaseAge=0` resolves. A full
+  `pnpm install --frozen-lockfile --ignore-scripts --no-optional` afterwards
+  prints "Lockfile is up to date, resolution step is skipped" and installs, with
+  the gate still on.
+- [x] npm 11.21.1 (`npx --yes npm@11.21.1`), scratch project with
+  `min-release-age=1` in `.npmrc`:
+  - `npm install next@16.5.0-canary.21 --package-lock-only` fails with
+    `ETARGET No matching version found … with a date before …`.
+  - The same command with `--min-release-age=0` succeeds.
+  - Afterwards, with the gate still on, `npm install --package-lock-only` is
+    "up to date", and `npm ci --ignore-scripts --omit=optional` installs.
+- [x] `node scripts/validate-skills.mjs` passes.
+- [ ] Reviewer: read `skills/dependency-hotfix/SKILL.md` Step 2 (gate bullet),
+  the Step 3 plan example (`Gate` line), and the Step 4 install and
+  lockfile-diff bullets. Then read `skills/npm-maintenance/SKILL.md` §2,
+  step 1.
 
 ## Technical Notes
 
@@ -87,11 +104,10 @@ config change into a hotfix, and someone has to remove it later. The CLI
 override leaves nothing behind.
 
 **npm.** `min-release-age` (days) and `min-release-age-exclude` (names or globs)
-exist since npm 11.10.0. Whether `--min-release-age=0` switches the filter off
-is not verified. Check it at delivery, and fall back to
-`--min-release-age-exclude=<pkg>` on that one command. No Greenberry npm project
-sets the gate today; a local search of `~/Web` found only the two pnpm
-projects.
+exist since npm 11.10.0. Verified at delivery with npm 11.21.1:
+`--min-release-age=0` on the one command switches the filter off, and later
+installs pass with the gate on. No Greenberry npm project sets the gate today; a
+local search of `~/Web` found only the two pnpm projects.
 
 **Where it lands.**
 
