@@ -19,6 +19,17 @@ while IFS= read -r prompt_file; do
   GENERATED_FILES+=("${prompt_file#"$ROOT_DIR/"}")
 done < <(find "$ROOT_DIR/.github/prompts" -type f -name '*.prompt.md' | sort)
 
+# ── Temp files a sandboxed shell can write ───────────────────────────────────
+
+echo "Checking that every mktemp names a template under \$TMPDIR..."
+BARE_MKTEMP="$(grep -n 'mktemp' "$ROOT_DIR"/scripts/*.sh | grep -v 'TMPDIR' || true)"
+if [[ -n "$BARE_MKTEMP" ]]; then
+  echo "mktemp without a \$TMPDIR template: macOS then writes to /var/folders, which a sandboxed shell cannot write." >&2
+  echo "Use mktemp \"\${TMPDIR:-/tmp}/<name>.XXXXXX\" instead:" >&2
+  echo "$BARE_MKTEMP" >&2
+  exit 1
+fi
+
 # ── Static skill validation ──────────────────────────────────────────────────
 
 echo "Running skill validation..."

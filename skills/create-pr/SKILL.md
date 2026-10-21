@@ -199,6 +199,15 @@ push must use `--force-with-lease`.
 > commit that as its own commit with its own reason. Do not reach for
 > `--no-verify`: the same hook usually also runs migration and schema checks,
 > and skipping those is not what you were trying to skip.
+>
+> A hook step that dies on `Operation not permitted` in a sandboxed shell is
+> the sandbox, not the check. Seen in practice: `mktemp: mkstemp failed on
+> /var/folders/…: Operation not permitted` (macOS `mktemp` without a template
+> ignores `$TMPDIR`), and a write to a protected path such as `.vscode/`. Re-run
+> the same `git commit` or `git push` with the sandbox bypass, still without
+> `--no-verify`. When that bypass prompt is denied or closes unanswered, stop:
+> report the branch and what is staged but not committed, and ask. Never leave
+> it at a silent turn end.
 
 > **Worktree caveat.** If the branch is checked out in a git worktree
 > (`git worktree list` shows it under e.g. `.worktrees/<name>`), hooks and
