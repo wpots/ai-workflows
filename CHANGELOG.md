@@ -16,6 +16,58 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.12.0] - 2026-10-21
+
+### Added
+
+- `maintenance` lane E lists every check the project declares and whether CI
+  runs it, reading the CI through `run-checks`' `ci-parity.mjs`. `build` not
+  in CI is high when the host builds on deploy; any other declared check not
+  in CI is medium, with a CI job (or the v4 `verify` input) as the fix.
+  Storybook stays opt-in and is never a finding.
+  <!-- slack: Onderhoud | De sweep meldt welke checks van het project CI nooit draait; Storybook blijft opt-in -->
+- Ambient rule (Shell Usage › Node and npm): run `node`/`npm` through the
+  version the project pins (`.nvmrc`, `.node-version`, Volta, `engines`) and
+  its bundled npm unless `packageManager`/`engines.npm` names another, never
+  nvm's default on `PATH`. When the pinned npm cannot do the job, move the pin
+  in the same MR instead of writing the lockfile with an unpinned npm.
+  <!-- slack: Node/npm | Claude draait node en npm voortaan via de versie uit .nvmrc, niet de nvm-default -->
+
+### Changed
+
+- `npm-maintenance` and `dependency-hotfix` validate with every check the
+  project declares (`lint*`, type checks such as `ts-check`, `test*`,
+  `build*`) instead of a fixed list, leaving out watch, update and
+  per-environment variants. A script that rewrites files (`eslint --fix`)
+  runs only in its check-only form. Storybook checks are opt-in, through a CI
+  job that runs one or the user asking, and never block: a failure is
+  reported, not a stop or a Draft. A failing test is rerun on the target
+  branch before the bump is blamed.
+  <!-- slack: Onderhoud | Dependency-updates draaien alle projectchecks; Storybook alleen als je kiest, nooit blokkerend -->
+- `dependency-hotfix` reads a release-age gate (pnpm `minimumReleaseAge`, npm
+  `min-release-age`). When a critical's fix is younger than the gate, it
+  overrides the gate on that one install command, never in the config, and
+  names the bypass in the plan and the MR. `npm-maintenance` never overrides
+  the gate.
+  <!-- slack: Hotfix | Een verse critical-fix komt door de release-age gate, zonder de config aan te passen -->
+- `npm-maintenance` triages reachability from the advisory's own text, not its
+  title or a scanner summary: list every condition it names (component and
+  version, transitive included; platform; feature or config), check each
+  against production with evidence, and give `reachable`, `not reachable` or
+  `unknown`, where unknown counts as reachable. Only a person moves a critical
+  from a hotfix to the next release. `dependency-hotfix` runs the same triage
+  in Step 2 and puts the verdict per advisory in its plan.
+  <!-- slack: Onderhoud | Bereikbaarheid van een lek uit de advisory zelf; onbekend telt als bereikbaar -->
+- `release`: the start-mail indication is two hours and promises an update once
+  everything is checked, an acceptance deploy gets one internal mail, and the
+  customer's start mail waits for the promotion. A release mail to another
+  client is never a recipient proposal, and "leave them empty" is a valid
+  answer. When the Gmail connector cannot write, the mail text goes in the
+  reply. After a pause the state, dump and checks are re-derived before the
+  promotion. Also: a comment recipe for Jira, a comment on a partial ticket the
+  release answers, and the remote survivors checked against the remote.
+  <!-- slack: Release: twee uur marge, geen ontvangers van een andere klant, mailtekst in de reply zonder schrijfrechten -->
+
 ## [2.11.0] - 2026-10-21
 
 ### Action required
