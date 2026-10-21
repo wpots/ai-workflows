@@ -111,7 +111,12 @@ done < "$MAPPINGS_FILE"
 # compound command whose redirection failed an exit status of 0, so
 # `{ … } > "$target"` can fail while the script prints [ok] and exits clean.
 # That is how a stale generated file reaches CI while the local run looks green.
-TASKS_TMP="$(mktemp)"
+#
+# Every `mktemp` here names its template under $TMPDIR: without one, macOS
+# mktemp ignores $TMPDIR and writes to the per-user /var/folders directory,
+# which a sandboxed shell cannot write. An unchanged target is not rewritten,
+# so a checkout whose .vscode/ is write-protected still passes.
+TASKS_TMP="$(mktemp "${TMPDIR:-/tmp}/aiw-tasks.XXXXXX")"
 
 {
   printf '{\n'
@@ -150,7 +155,9 @@ TASKS_TMP="$(mktemp)"
   printf '}\n'
 } > "$TASKS_TMP"
 
-if cp "$TASKS_TMP" "$TASKS_FILE"; then
+if cmp -s "$TASKS_TMP" "$TASKS_FILE"; then
+  echo "  [ok] .vscode/tasks.json (unchanged)"
+elif cp "$TASKS_TMP" "$TASKS_FILE"; then
   echo "  [ok] .vscode/tasks.json"
 else
   fail "Could not write .vscode/tasks.json"
@@ -169,7 +176,7 @@ for cmd_file in "$COMMANDS_DIR"/*.md; do
   heading="$(head -1 "$cmd_file" | sed 's/^# *//')"
   prompt_file="$PROMPTS_DIR/${cmd_name}.prompt.md"
 
-  prompt_tmp="$(mktemp)"
+  prompt_tmp="$(mktemp "${TMPDIR:-/tmp}/aiw-prompt.XXXXXX")"
 
   {
     printf -- '---\n'
