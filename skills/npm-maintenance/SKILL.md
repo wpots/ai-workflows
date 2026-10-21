@@ -141,7 +141,25 @@ An external scanner (OSV-Scanner or a similar service) need not agree with the p
 - **It may scan another ref.** Scanners often read the production branch, not the working tree. Audit that ref's lockfile without checking it out: `git archive --output=<scratch>/lock.tar <ref> package.json package-lock.json`, unpack it, then `npm audit --package-lock-only --prefix <dir>`.
 - **Its severity may differ.** OSV can call critical what `npm audit` and GitHub call high, and it can list an advisory before `npm audit` has it. Filtering `npm audit` on the scanner's severity then finds nothing. Ask OSV directly instead: POST the lockfile's `name@version` list to `https://api.osv.dev/v1/querybatch`, then fetch each hit from `/v1/vulns/<id>`. The newest `published` date is usually the "new" finding.
 - **Its dates may differ.** OSV's `published` date and the date on the GitHub advisory page can be days apart. Report both.
-- **Check whether the vulnerable code path is reachable** before you rank urgency. An SVG-decoder bug matters little in an app that never decodes SVG. That decides between a hotfix and riding along with the next release, not whether the fix goes in.
+
+### Is the vulnerable code reachable?
+
+Triage every advisory before you rank its urgency, scanner finding or not. The verdict decides between a hotfix and riding along with the next release, never whether the fix goes in.
+
+1. **Read the advisory itself**: its impact, workarounds and patched versions. A title, a release-note line or a scanner summary is not enough. A Next.js release note titled an advisory "when SVG files are used"; the advisory itself describes a memory bug in sharp/libvips that allows remote code execution on glibc-based Linux whenever sharp is below `0.35.5`. A search for SVG settings would have called it unreachable.
+2. **List every condition it names**:
+   - the vulnerable component and its version, including a transitive one (sharp under `next`);
+   - the runtime or platform (glibc, a Node version);
+   - the configuration or feature it needs (`use cache`, image optimization, a config flag).
+3. **Check each condition against production**: its lockfile, config and code, not the working branch. Record the evidence per condition: the lockfile entry, a `path:line`, a config key.
+4. **Give one verdict**:
+   - `reachable`: every condition holds;
+   - `not reachable`: every condition was checked and at least one fails, with the evidence for that one;
+   - `unknown`: a condition could not be settled. **Unknown counts as reachable.**
+
+An advisory that tells you to upgrade even when your application does not use the feature settles urgency on its own: treat it as reachable.
+
+A critical moves from a hotfix to the next release only when a person decides so, with the verdict and its evidence recorded in the critical's ticket or the MR. Never make that move yourself.
 
 ## Validation
 
