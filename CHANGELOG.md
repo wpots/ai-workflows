@@ -16,6 +16,118 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.11.0] - 2026-10-21
+
+### Action required
+
+- Working in a project that checks in a `.jira.yml`: add
+  `export JIRA_LOGIN=<Atlassian email>` to your shell profile once. The file
+  carries no login, and without it every `jira` command fails with "The tool
+  needs a Jira API token".
+  <!-- slack: Project met `.jira.yml`? Zet eenmalig `export JIRA_LOGIN=<email>` in je shell profile -->
+
+### Added
+
+- `skills/service-cli`: a project on another Jira key or board than the
+  machine default checks its `jira` config in as `.jira.yml` (the
+  `jira init -c .jira.yml` output minus `login`); every command passes
+  `-c .jira.yml` after the subcommand so allowlist prefixes still match, and
+  the login comes from `JIRA_LOGIN`. Replaces the "own config via
+  `JIRA_CONFIG_FILE`" advice; `jira-ticket`, `setup-ai-workflows` and the
+  machine setup follow it.
+  <!-- slack: Jira-config per project in de repo als `.jira.yml`, met `-c .jira.yml` en `JIRA_LOGIN` -->
+
+### Changed
+
+- `skills/create-pr` writes the MR description for the reviewer only: what the
+  change does, why, and what to check, in plain sentences that one read is
+  enough for. No links to Notion pages, Google Docs or Slack messages, no "as
+  discussed" and no colleagues' names; when a change answers someone's
+  question, the description states the question or reason itself. The same
+  goes for the title and the commit messages, and the bundled MR template says
+  so too.
+  <!-- slack: create-pr | MR-beschrijving bevat alleen wat de reviewer nodig heeft: geen Notion-, Docs- of Slack-links, geen namen -->
+- Release cadence is enforced: the release MR opens as a draft and a Monday
+  07:00 pipeline schedule (`release_ready`) marks it ready and requests
+  review, so a week of merges ships as one version and one post. A fix
+  someone is waiting on: mark the MR ready by hand and merge. Scheduled
+  pipelines skip the other release jobs.
+  <!-- slack: Releases | Release-MR blijft draft tot maandagochtend; daarna één versie en één post per week -->
+- `release-notes`: the notes get an Onderhoud section (Maintenance in English)
+  for upkeep nobody requested or reported: framework and dependency updates,
+  security patches, cleanups. A fixed line under the heading says it is not a
+  ticket and not a bug, so customers stop asking which ticket a line belongs
+  to. `release` puts those items last in the live mail, and the Copilot prompt
+  is regenerated from the runbook.
+  <!-- slack: Klantnotes en live-mail krijgen een sectie Onderhoud voor werk zonder ticket of bug -->
+- `skills/run-checks` now runs what CI runs. In a project that includes the
+  CI v4 component `node-npm` or `node-pnpm` from `ci-components`, it runs
+  exactly the names in that include's `scripts` input, in order, or the
+  default `lint:check`, `type-check`, `test`. It reports
+  `CI parity: exact (ci-components <version>)` and the names `package.json`
+  lacks before it runs anything.
+  Projects on `config/ci` keep the convention sweep, now labelled
+  `CI parity: approximate (config/ci <ref>)`.
+  Either way, the summary lists drift against `.husky/pre-push` (CI v4 only)
+  and the project's own CI jobs as `project job, not covered`.
+  `skills/run-checks/scripts/ci-parity.mjs` reads `.gitlab-ci.yml`. It never
+  runs a job or anything from a job's `before_script`.
+  <!-- slack: run-checks | draait in een CI v4-project precies de scripts van de verify-job en meldt de CI-pariteit -->
+- `skills/watch-mrs` can act on new review comments instead of only relaying
+  them (asked once per invocation, or settled by the user's memory): it
+  evaluates them with `receiving-code-review`, applies the ones without a
+  crucial decision through `address-review-comments`, puts a 👍 on each comment
+  it picks up and posts `replied` / `pushed changes` in the MR's Slack thread. A
+  crucial decision goes to the user as that one question.
+- `skills/watch-mrs` pauses at night: between 23:00 and 06:00, after two
+  polls without an event, it stops polling until 06:00, with the quiet count
+  kept in a state file so a re-armed Monitor keeps it.
+- `skills/watch-mrs` can post an MR in a Slack channel once it is ready apart
+  from approvals: a reply in the MR's existing thread, else a new message,
+  once per head SHA.
+- `skills/receiving-code-review`: feedback that changes a template MR's
+  approach is traced to the projects that ported the change or plan to.
+
+### Fixed
+
+- MRs opened outside `skills/create-pr` now carry the `ai:agent-authored`
+  provenance label as well. The upstream MR rule names it for both routes,
+  `glab mr create` and the `--input` JSON, and its read-back confirms the label
+  and adds it when it is missing. The MR recipes in `upstream-rules`,
+  `upstream-to-unicore` and `service-cli` set it too. Before this fix, 17 of 53
+  MRs on `ai-workflows` went without the label, so `delivery-metrics` counted
+  too little agent work.
+- `scripts/validate-skills.mjs` now also checks `shared/`, fenced
+  `glab mr create` snippets and `-X POST` MR creation, and `--input` payloads
+  that never set the label.
+- `create-pr`: a commit or push hook that fails with `Operation not permitted`
+  in a sandboxed shell is re-run with the sandbox bypass, never with
+  `--no-verify`, and a bypass prompt that is denied or closes unanswered ends in
+  a status report (branch, staged, not committed) instead of a silent stop.
+- `skills/create-pr` no longer tells the agent to add `--no-verify` to every
+  push from a git worktree. A push keeps its hooks on, and `--no-verify` is
+  allowed only for the two cases `references/worktrees.md` names: a hook that
+  cannot execute in the worktree, and a hook whose git-calling tests do not
+  drop `GIT_*`. Even then, the agent first runs that hook's commands by hand.
+  This makes the push step agree with the sandbox rule above it, which says to
+  re-run a blocked hook with the bypass, never with `--no-verify`.
+- `skills/watch-mrs` no longer claims `.detailed_merge_status` covers
+  conflicts: it names only the first failing check, and `not_approved` comes
+  first, so the watcher tracks `.has_conflicts` on its own.
+- `skills/watch-mrs` marks an MR's first pass with its own `initialized` file:
+  deriving it from the merge-status file kept an MR stuck on `unchecked` in
+  first-pass mode, which marked its new comments as seen without reporting
+  them.
+- `skills/watch-mrs` says how to tell a sleeping laptop from a hung call
+  (`pmset -g log`), and that a `glab` timeout needs SIGKILL, since the Go
+  binary ignores SIGALRM.
+- `watch-mrs`: the watcher keeps its state in `~/.worktrees/.mr-watch/`
+  instead of `~/.claude/state`, which a sandbox never lets a `Monitor` write.
+  `~/.worktrees` is already writable for the worktree flow and survives a
+  reboot. `/tmp/claude/mr-watch/` stays as the fallback, and the skill now
+  says it loses comments that arrive across a reboot.
+  <!-- slack: watch-mrs | state staat nu in ~/.worktrees/.mr-watch, overleeft ook een reboot -->
+
 ## [2.10.2] - 2026-10-20
 
 ### Fixed
