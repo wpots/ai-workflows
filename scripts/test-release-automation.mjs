@@ -36,6 +36,7 @@ import {
   syncLabels,
   toPlainMrkdwn,
 } from "./release-announcement.mjs";
+import { readyTitle, releaseTitle } from "./release-mr.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -455,6 +456,13 @@ test("renderArchived links each item at the given commit", () => {
     "### Backlog\n\nDelivered and archived with this release:\n\n" +
       "- [Feature: A](https://gitlab.example/p/-/blob/abc123/docs/backlog/feat-a.md) (!42)",
   );
+});
+
+test("the release MR opens as a draft, keeps its state on a re-cut, and --ready drops only the prefix", () => {
+  assert.equal(releaseTitle("2.10.0", { draft: true }), "Draft: release: 2.10.0");
+  assert.equal(releaseTitle("2.10.1", { draft: false }), "release: 2.10.1");
+  assert.equal(readyTitle("Draft: release: 2.10.0"), "release: 2.10.0");
+  assert.equal(readyTitle("release: 2.10.0"), "release: 2.10.0");
 });
 
 test("every backlog item in the repo has a readable Status, so a release can archive it", () => {

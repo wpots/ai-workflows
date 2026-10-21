@@ -13,11 +13,13 @@ validate_ai_workflows:
 # Release automation on main (docs/contributing.md § Ship A Plugin Release).
 # release_train and announce_release print what they would do and exit 0 while
 # their CI/CD variable is missing: RELEASE_BOT_TOKEN (project access token,
-# scopes api + write_repository) for release_train, SLACK_WEBHOOK_URL
+# scopes api + write_repository) for release_train and release_ready, SLACK_WEBHOOK_URL
 # (#ai-workflows incoming webhook) for announce_release. publish_release needs
 # none: CI_JOB_TOKEN may create Releases. GIT_DEPTH 2 keeps HEAD^1 available,
 # which is how announce_release and publish_release tell a release merge from a
-# content merge.
+# content merge. A scheduled pipeline on main runs none of them: HEAD is then
+# whatever merged last, and when that was a release merge, announce_release
+# would post it a second time.
 .release_job:
   stage: release
   image: alpine:3.20
@@ -26,15 +28,28 @@ validate_ai_workflows:
   before_script:
     - apk add --no-cache git nodejs
   rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+      when: never
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # Keeps the release/next MR current: cuts the next version from
-# `## [Unreleased]` after every merge to main, opens the MR once, updates it
-# on later merges, no-op when there is nothing to release.
+# `## [Unreleased]` after every merge to main, opens the MR once as a draft,
+# updates it on later merges, no-op when there is nothing to release.
 release_train:
   extends: .release_job
   script:
     - node scripts/release-train.mjs
+
+# Takes the release MR out of draft and requests review, from the pipeline
+# schedule on main (Monday 07:00 Europe/Amsterdam, set up by hand: see
+# docs/contributing.md). Every schedule on main runs it, so a second schedule
+# needs a variable of its own to tell the two apart.
+release_ready:
+  extends: .release_job
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - node scripts/release-train.mjs --ready
 
 # Tags the merged release v<x.y.z> and creates its GitLab Release, with the
 # changelog section and the backlog items the release archived as notes.
