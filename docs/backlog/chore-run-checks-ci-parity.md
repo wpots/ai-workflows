@@ -4,12 +4,20 @@
 
 <!-- draft | ready | in-progress | done -->
 
-draft
+ready
 
-**Becomes `ready` when DEV-655 slice 1 is merged in
-`greenberrynl/config/ci-components`.** That slice builds the `verify` job and
-fixes the name and default of its `scripts` input; this item reads both. The
-4.0.0 tag is not the gate. The input can still change until that slice merges.
+**The gate is met.** This item waited for DEV-655 slice 1 to merge in
+`greenberrynl/config/ci-components`. Read 2026-10-21:
+- **The gate.** Slice 1 merged as ci-components !11 on 2026-10-15. Slices 2–6 of
+  DEV-655 merged after it.
+- **pnpm.** The pnpm variant merged as !19 (2026-10-16) and !20 (2026-10-19).
+- **Release.** `4.0.0-rc.1` was tagged on 2026-10-19.
+- **The input.** `templates/node-npm.yml` and `templates/node-pnpm.yml` declare
+  the same `scripts` input: `type: array`, default `[lint:check, type-check,
+  test]`.
+
+The facts below from 2026-10-13 still hold. What changed since is in Technical
+Notes, under "Re-read 2026-10-21".
 
 Re-evaluated 2026-10-13 against CI v4 (`greenberrynl/config/ci-components`,
 pre-release). The old blocker was the question of how a CI job's `script:` line
@@ -121,6 +129,29 @@ GitHub Actions is out: Greenberry projects run on GitLab.
 
 The first consumer is the RFW canary (DEV-659). Use it for `How to verify` once
 it is on v4.
+
+Re-read 2026-10-21, after the gate was met:
+
+- **No project consumes v4 yet.** RFW's `.gitlab-ci.yml` on `development` still
+  includes `greenberrynl/config/ci` at `version/3.1.1`. ci-components !26
+  (DEV-675) starts the pilots with Trimbos on `4.0.0-rc.1`. For `How to verify`,
+  use a scratch project whose `.gitlab-ci.yml` is a copy of a fixture consumer
+  in ci-components, such as `tests/fixtures/consumers/npm/.gitlab-ci.yml` or
+  `pnpm/.gitlab-ci.yml`, with a `scripts:` input added. Use the Trimbos project
+  instead once its v4 include has merged.
+- **Pin forms.** The fixture consumers pin the component as `@{sha}`, a
+  placeholder that the ci-components harness fills in. Real consumers pin a tag
+  such as `@4.0.0-rc.1`. The extractor takes everything after `@` as the version
+  and reports it as written. It does not validate the version.
+- **Inputs the local sweep ignores.** DEV-655 added inputs after slice 1, and
+  none of them changes which scripts run:
+  - `verify_paths`: CI skips `verify` when no changed file matches. The local
+    sweep always runs the full list.
+  - The `packageManager` guard: CI runs the npm version that `package.json`
+    pins. The local sweep uses the npm on the machine.
+  - `coverage_regex`, `junit_report` and `coverage_report`: these only shape the
+    CI job's output.
+  Name none of these in the parity line.
 
 ## Out of Scope
 

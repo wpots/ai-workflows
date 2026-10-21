@@ -2,9 +2,10 @@
 
 ## Status
 
-in-progress
+done
 
-Rewritten 2026-10-08 from the October 2026 stack review. The 2026-07-29
+Closed 2026-10-21: the live check below was found in a real session from
+2026-10-15. Rewritten 2026-10-08 from the October 2026 stack review. The 2026-07-29
 blocker was "no observable predicate for 'this run needed intervention'". That
 is resolved: a `Stop` hook receives `transcript_path`, `session_id`,
 `stop_hook_active` and `last_assistant_message`, and plugins ship hooks in
@@ -74,18 +75,36 @@ folded back into the skill instead of being noticed and forgotten.
 
 ## How to verify
 
-Stays `in-progress` until the first check below is ticked: it needs a live session
-with the plugin enabled, and three things it depends on come from the hooks
-documentation and were not observed — that Claude Code honours `decision: block`
-from a plugin `Stop` hook, that it passes `session_id` and
-`CLAUDE_PLUGIN_DATA` to it, and that Claude then offers instead of running.
+The first check needed a live session with the plugin enabled, because three
+things the hook depends on came from the hooks documentation and had not been
+observed: that Claude Code honours `decision: block` from a plugin `Stop` hook,
+that it passes `session_id` and `CLAUDE_PLUGIN_DATA` to it, and that Claude then
+offers instead of running. A real session on 2026-10-15 showed all three.
 
-- [ ] By hand, with this plugin enabled: run a Greenberry skill, press Esc to
+- [x] By hand, with this plugin enabled: run a Greenberry skill, press Esc to
       interrupt it, send a message, and let the turn end. Claude should ask in one
       sentence whether to run `improve-skill`, and not run it unless told to. A
       second interruption in the same session must not ask again.
       `${CLAUDE_PLUGIN_DATA}/improve-skill-retrospective/<session id>` should hold
       the signal name (`interrupt`).
+      Seen in session `25a9e849` on 2026-10-15 (Claude Code 2.1.292, plugin
+      2.9.1), times in UTC:
+      - 11:54:56: an Esc interrupt, after `/greenberry:backlog` was run from the
+        `/` menu. 11:55:18: the next message.
+      - 11:56:36: the turn ended. The transcript holds a `hook_blocking_error`
+        attachment from the `Stop` hook and the `Stop hook feedback` message.
+      - 11:56:41: Claude offered the retrospective and did not run it. It asked
+        again at 11:57:11, after a background pipeline finished. It ran
+        `improve-skill` only at 13:17:59, six seconds after the maintainer
+        answered "ja".
+      - `~/.claude/plugins/data/greenberry-ai-workflows/improve-skill-retrospective/25a9e849-…`
+        holds `interrupt`.
+      - Not met to the letter: the offer took two sentences, not one.
+      - Not seen live: a second interruption in the same session, because there
+        was none. The marker test in
+        `scripts/test_improve_skill_retrospective.py` covers it.
+      - This is the only marker from 2026-10-08 to 2026-10-21, so the hook
+        blocked once in thirteen days.
 - [x] `python3 scripts/test_improve_skill_retrospective.py` — 15 tests pass: the
       six required transcripts, a signal before the skill call, a non-Greenberry
       skill, quoted phrases in `attachment`, `tool_result` and assistant entries,
@@ -157,6 +176,16 @@ The change ships with the plugin: describe it in a fragment,
 `changelog.d/added.improve-skill-stop-hook.md` (the convention since the 2.6.0
 release), and leave `CHANGELOG.md` and `version` in `.claude-plugin/plugin.json`
 alone.
+
+Observation from the live check, 2026-10-21: in that transcript, a skill run
+from the `/` menu is a user entry with
+`<command-name>/greenberry:backlog</command-name>` and the skill body as a
+meta entry. It is not an assistant `tool_use` named `Skill`. The hook fired in
+`25a9e849` because the model had called `greenberry:mr-merged` through the
+Skill tool earlier in the same session. So a session whose only Greenberry skill
+was started from the `/` menu does not match the predicate. No missed
+intervention has been observed yet. Widen the match to `<command-name>` entries
+when one is, under the "harden what you can demonstrate" rule.
 
 ## Out of Scope
 
