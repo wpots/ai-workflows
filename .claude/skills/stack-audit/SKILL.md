@@ -152,6 +152,7 @@ When the quarter's delivery is shown to colleagues, the Phase 1 table of the
 next audit (or a fresh Phase 1 run) is the content. Build the deck as a Slides
 artifact. Google Slides plays video only from Drive or YouTube, so the clips go
 to Drive. The working folder `docs/demo/<yyyy>-<mm>-<slug>/` stays untracked.
+Recordings of a skill at work come from `record-skill-demo`.
 
 Afterwards, delete a local file only after finding its copy elsewhere by name
 **and** byte size, file by file. An export or a zip is not proof of

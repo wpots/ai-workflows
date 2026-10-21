@@ -1,0 +1,214 @@
+#!/usr/bin/env node
+// Fake `glab` for the watch-mrs recording. Simulates one merge request,
+// demo-shop/webshop!12 (DEMO-132), whose state moves along a timeline that
+// starts at the first call: pipeline running → lint fails → a review
+// comment → a new pipeline → success → approved and mergeable.
+// The start time lives in the Demo Shop's .git folder: a rebuild, or deleting
+// demo-glab-start there, restarts the timeline. Never touches GitLab.
+"use strict";
+
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+
+const START_FILE = path.join(os.homedir(), ".worktrees", process.env.DEMO_SHOP || "demo-shop", ".git", "demo-glab-start");
+const PHASE_SECONDS = Number(process.env.DEMO_GLAB_PHASE_SECONDS || 70);
+
+function elapsed() {
+  let start;
+  try {
+    start = Number(fs.readFileSync(START_FILE, "utf8"));
+  } catch {
+    start = Date.now();
+    try {
+      fs.writeFileSync(START_FILE, String(start));
+    } catch {
+      // read-only: every call is phase 0
+    }
+  }
+  return (Date.now() - start) / 1000;
+}
+
+const phase = Math.min(5, Math.floor(elapsed() / PHASE_SECONDS));
+const iso = (secondsAgo) => new Date(Date.now() - secondsAgo * 1000).toISOString();
+
+const PROJECT = { id: 777, name: "webshop", path_with_namespace: "demo-shop/webshop", web_url: "https://gitlab.com/demo-shop/webshop", default_branch: "main" };
+const WIETEKE = { id: 11, username: "wieteke.pots", name: "Wieteke Pots", state: "active" };
+const ROBIN = { id: 12, username: "robin.jansen", name: "Robin Jansen", state: "active" };
+
+function pipeline(id) {
+  const first = id === 9001;
+  let status;
+  if (first) status = phase === 0 ? "running" : "failed";
+  else status = phase <= 3 ? "running" : "success";
+  return {
+    id, iid: id - 8900, project_id: PROJECT.id, status, source: "merge_request_event",
+    ref: "refs/merge-requests/12/head", sha: first ? "b4f77e4c1d2a" : "d81c3a09e5f7",
+    web_url: `${PROJECT.web_url}/-/pipelines/${id}`, created_at: iso(first ? 600 : 60), updated_at: iso(5),
+  };
+}
+
+function headPipelineId() {
+  return phase >= 3 ? 9002 : 9001;
+}
+
+function jobs(pipelineId) {
+  const p = pipeline(pipelineId);
+  const job = (id, name, stage, status, extra = {}) => ({
+    id, name, stage, status, allow_failure: false, failure_reason: null,
+    web_url: `${PROJECT.web_url}/-/jobs/${id}`, pipeline: { id: pipelineId, status: p.status }, ...extra,
+  });
+  if (pipelineId === 9001) {
+    return [
+      job(70011, "lint", "verify", phase === 0 ? "running" : "failed", phase === 0 ? {} : { failure_reason: "script_failure" }),
+      job(70012, "test:unit", "test", phase === 0 ? "created" : "skipped"),
+      job(70013, "build", "build", phase === 0 ? "created" : "skipped"),
+    ];
+  }
+  return [
+    job(70021, "lint", "verify", "success"),
+    job(70022, "test:unit", "test", phase <= 3 ? "running" : "success"),
+    job(70023, "build", "build", phase <= 3 ? "created" : "success"),
+  ];
+}
+
+function detailedMergeStatus() {
+  return ["ci_still_running", "ci_must_pass", "ci_must_pass", "ci_still_running", "not_approved", "mergeable"][phase];
+}
+
+function notes() {
+  const list = [
+    { id: 400101, type: null, body: "requested review from @robin.jansen", system: true, author: WIETEKE, created_at: iso(900), resolvable: false, resolved: false, noteable_iid: 12 },
+  ];
+  if (phase >= 2) {
+    list.push({
+      id: 400117, type: "DiffNote", system: false, author: ROBIN, created_at: iso(30), resolvable: true, resolved: phase >= 5, noteable_iid: 12,
+      body: "De vervaldatum-check in `applyDiscountCode.ts` lijkt omgekeerd: ZOMER10 is per 30 september verlopen maar wordt nog geaccepteerd. Kun je daar een test voor toevoegen?",
+    });
+  }
+  if (phase >= 5) {
+    list.push({ id: 400125, type: null, body: "approved this merge request", system: true, author: ROBIN, created_at: iso(10), resolvable: false, resolved: false, noteable_iid: 12 });
+  }
+  return list;
+}
+
+function mr() {
+  const dms = detailedMergeStatus();
+  return {
+    id: 5012, iid: 12, project_id: PROJECT.id,
+    title: "feat(cart): kortingscode invoeren in de winkelwagen (DEMO-132)",
+    description: "Klanten voeren een kortingscode in de winkelwagen in.\n\nCloses DEMO-132",
+    state: "opened", draft: false, work_in_progress: false,
+    source_branch: "feature/DEMO-132-kortingscode", target_branch: "development",
+    author: WIETEKE, assignees: [WIETEKE], reviewers: [ROBIN],
+    merge_status: dms === "mergeable" ? "can_be_merged" : "cannot_be_merged",
+    detailed_merge_status: dms, has_conflicts: false, blocking_discussions_resolved: phase >= 5 || phase < 2,
+    sha: phase >= 3 ? "d81c3a09e5f7" : "b4f77e4c1d2a",
+    head_pipeline: pipeline(headPipelineId()),
+    pipeline: pipeline(headPipelineId()),
+    user_notes_count: phase >= 2 ? 1 : 0,
+    upvotes: 0, downvotes: 0,
+    web_url: `${PROJECT.web_url}/-/merge_requests/12`,
+    references: { short: "!12", relative: "!12", full: "demo-shop/webshop!12" },
+    created_at: iso(900), updated_at: iso(5),
+  };
+}
+
+function out(value) {
+  process.stdout.write(typeof value === "string" ? `${value}\n` : `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function trace() {
+  return [
+    "$ npm run lint",
+    "",
+    "/builds/demo-shop/webshop/src/modules/cart/DiscountCodeForm.tsx",
+    "  24:7  error  Form label must be associated with a control             jsx-a11y/label-has-associated-control",
+    "  30:7  error  Visible, non-interactive elements with click handlers",
+    "               must have at least one keyboard listener                 jsx-a11y/click-events-have-key-events",
+    "  30:7  error  Avoid non-native interactive elements                     jsx-a11y/no-static-element-interactions",
+    "",
+    "✖ 3 problems (3 errors, 0 warnings)",
+    "",
+    "ERROR: Job failed: exit code 1",
+  ].join("\n");
+}
+
+function api(rawPath) {
+  const p = String(rawPath).replace(/^["']|["']$/g, "").replace(/^\/+/, "").replace(/^api\/v4\//, "");
+  const [route] = p.split("?");
+  let m;
+  if (/^merge_requests$/.test(route)) return out([mr()]);
+  if (/^user$/.test(route)) return out(WIETEKE);
+  if (/^projects\/[^/]+$/.test(route)) return out(PROJECT);
+  if ((m = route.match(/^projects\/[^/]+\/merge_requests\/(\d+)\/notes$/))) return out(notes());
+  if ((m = route.match(/^projects\/[^/]+\/merge_requests\/(\d+)\/discussions$/))) return out(notes().map((n) => ({ id: `d${n.id}`, individual_note: n.system, notes: [n] })));
+  if ((m = route.match(/^projects\/[^/]+\/merge_requests\/(\d+)\/pipelines$/))) return out(phase >= 3 ? [pipeline(9002), pipeline(9001)] : [pipeline(9001)]);
+  if ((m = route.match(/^projects\/[^/]+\/merge_requests\/(\d+)\/approvals$/))) return out({ approved: phase >= 5, approvals_required: 1, approvals_left: phase >= 5 ? 0 : 1, approved_by: phase >= 5 ? [{ user: ROBIN }] : [] });
+  if ((m = route.match(/^projects\/[^/]+\/merge_requests\/(\d+)$/))) return out(mr());
+  if ((m = route.match(/^projects\/[^/]+\/merge_requests$/))) return out([mr()]);
+  if ((m = route.match(/^projects\/[^/]+\/pipelines\/(\d+)\/jobs$/))) return out(jobs(Number(m[1])));
+  if ((m = route.match(/^projects\/[^/]+\/pipelines\/(\d+)$/))) return out(pipeline(Number(m[1])));
+  if ((m = route.match(/^projects\/[^/]+\/pipelines$/))) return out([pipeline(headPipelineId())]);
+  if ((m = route.match(/^projects\/[^/]+\/jobs\/(\d+)\/trace$/))) return out(trace());
+  if ((m = route.match(/^projects\/[^/]+\/jobs\/(\d+)$/))) {
+    const all = [...jobs(9001), ...jobs(9002)];
+    return out(all.find((j) => j.id === Number(m[1])) || {});
+  }
+  process.stderr.write(`glab: 404 Not Found (${route})\n`);
+  process.exit(1);
+}
+
+function mrViewText() {
+  const m = mr();
+  return [
+    `title:\t${m.title}`,
+    `state:\topen`,
+    `author:\t${m.author.username}`,
+    `reviewers:\t${m.reviewers.map((r) => r.username).join(", ")}`,
+    `pipeline:\t${m.head_pipeline.status}`,
+    `merge status:\t${m.detailed_merge_status}`,
+    `url:\t${m.web_url}`,
+  ].join("\n");
+}
+
+const args = process.argv.slice(2);
+const wantsJson = args.some((a, i) => (a === "--output" || a === "-F") && args[i + 1] === "json") || args.includes("--output=json");
+
+function main() {
+  const [cmd, sub] = args;
+  if (cmd === "--version" || cmd === "version" || cmd === "-v") return out("glab 1.71.0 (2026-09-30)");
+  if (cmd === "auth" && sub === "status") {
+    return out([
+      "gitlab.com",
+      "  ✓ Logged in to gitlab.com as wieteke.pots (~/.config/glab-cli/config.yml)",
+      "  ✓ Git operations for gitlab.com configured to use ssh protocol.",
+      "  ✓ API calls for gitlab.com are made over https protocol.",
+      "  ✓ REST API Endpoint: https://gitlab.com/api/v4/",
+      "  ✓ Token found: **************************",
+    ].join("\n"));
+  }
+  if (cmd === "api") {
+    const target = args.slice(1).find((a, i, list) => !a.startsWith("-") && !["-X", "--method", "-H", "--header", "-f", "-F", "--field", "--raw-field"].includes(list[i - 1]));
+    return api(target || "");
+  }
+  if (cmd === "mr" && sub === "view") return out(wantsJson ? mr() : mrViewText());
+  if (cmd === "mr" && (sub === "list" || sub === "ls")) {
+    if (wantsJson) return out([mr()]);
+    return out(`Showing 1 open merge request on demo-shop/webshop.\n\n!12\tdemo-shop/webshop!12\t${mr().title}\t(development) ← (feature/DEMO-132-kortingscode)`);
+  }
+  if (cmd === "mr" && sub === "merge") {
+    process.stderr.write("glab (demo): merging is switched off in this demo\n");
+    process.exit(1);
+  }
+  if (cmd === "ci" && (sub === "status" || sub === "view" || sub === "get")) {
+    const p = pipeline(headPipelineId());
+    const lines = jobs(p.id).map((j) => `(${j.status}) • ${j.stage.padEnd(7)} ${j.name}`);
+    return out(`${lines.join("\n")}\n\nPipeline state: ${p.status}\n${p.web_url}`);
+  }
+  if (cmd === "repo" && sub === "view") return out(wantsJson ? PROJECT : `demo-shop/webshop\n${PROJECT.web_url}`);
+  process.stderr.write(`glab (demo): unsupported command: ${args.join(" ")}\n`);
+  process.exit(1);
+}
+
+main();

@@ -1,0 +1,528 @@
+#!/usr/bin/env node
+// Fake `jira` (ankitpokhrel/jira-cli look-alike) for the demo recordings.
+// Serves the fictional project DEMO from ../demo-jira-data.cjs and never
+// touches a real Jira. Covers the commands in
+// skills/service-cli/references/jira.md; anything else prints a short error.
+// Its key counter lives in the Demo Shop's .git folder, so a rebuild resets it.
+"use strict";
+
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const D = require("../demo-jira-data.cjs");
+
+const STATE_FILE = path.join(os.homedir(), ".worktrees", process.env.DEMO_SHOP || "demo-shop", ".git", "demo-jira-state.json");
+
+// ---------- argument parsing ----------
+
+const VALUE_FLAGS = new Set([
+  "-a", "--assignee", "-s", "--status", "-t", "--type", "-y", "--priority",
+  "-l", "--label", "-r", "--reporter", "-p", "--project", "-q", "--jql",
+  "--columns", "--state", "--paginate", "--order-by", "--comments",
+  "--summary", "-T", "--template", "-b", "--body", "-P", "--parent",
+  "--custom", "-C", "--component", "--created", "--updated", "-w", "--watching",
+]);
+
+function parseArgs(args) {
+  const positional = [];
+  const flags = {};
+  for (let i = 0; i < args.length; i++) {
+    let a = args[i];
+    if (a.startsWith("--") && a.includes("=")) {
+      const [k, ...rest] = a.split("=");
+      flags[k] = rest.join("=");
+      continue;
+    }
+    if (/^-[a-zA-Z]./.test(a) && !a.startsWith("--")) {
+      // short flag with attached value, e.g. -aWieteke or -tBug
+      const k = a.slice(0, 2);
+      if (VALUE_FLAGS.has(k)) {
+        flags[k] = a.slice(2);
+        continue;
+      }
+    }
+    if (a.startsWith("-")) {
+      if (VALUE_FLAGS.has(a) && i + 1 < args.length) {
+        flags[a] = args[++i];
+      } else {
+        flags[a] = true;
+      }
+      continue;
+    }
+    positional.push(a);
+  }
+  return { positional, flags };
+}
+
+const flag = (f, ...names) => {
+  for (const n of names) if (f[n] !== undefined) return f[n];
+  return undefined;
+};
+
+// ---------- data shaping ----------
+
+const STATUS_CATEGORY = {
+  "To Do": { key: "new", name: "To Do", colorName: "blue-gray" },
+  "In Progress": { key: "indeterminate", name: "In Progress", colorName: "yellow" },
+  "In Review": { key: "indeterminate", name: "In Progress", colorName: "yellow" },
+  Done: { key: "done", name: "Done", colorName: "green" },
+};
+
+const epicIssues = Object.entries(D.EPICS).map(([key, summary]) => ({
+  key, type: "Epic", summary, status: "In Progress", assignee: "wieteke",
+  sp: null, sprints: [], created: "2026-08-24", description: `Epic: ${summary}.`,
+}));
+
+const ALL = [...epicIssues, ...D.ISSUES];
+const byKey = (k) => ALL.find((i) => i.key.toUpperCase() === String(k).toUpperCase());
+const sprintById = (id) => D.SPRINTS.find((s) => s.id === id);
+const person = (k) => (k ? { ...D.PEOPLE[k], active: true, timeZone: "Europe/Amsterdam" } : null);
+const keyNum = (k) => Number(k.split("-")[1]);
+
+function adf(text) {
+  const content = [];
+  const blocks = String(text || "").split(/\n\n+/);
+  for (const block of blocks) {
+    const lines = block.split("\n");
+    const head = [];
+    const bullets = [];
+    const ordered = [];
+    for (const line of lines) {
+      if (/^- /.test(line)) bullets.push(line.slice(2));
+      else if (/^\d+\. /.test(line)) ordered.push(line.replace(/^\d+\. /, ""));
+      else head.push(line);
+    }
+    if (head.length) content.push({ type: "paragraph", content: [{ type: "text", text: head.join("\n") }] });
+    const list = (type, items) => ({
+      type,
+      content: items.map((t) => ({ type: "listItem", content: [{ type: "paragraph", content: [{ type: "text", text: t }] }] })),
+    });
+    if (bullets.length) content.push(list("bulletList", bullets));
+    if (ordered.length) content.push(list("orderedList", ordered));
+  }
+  return { type: "doc", version: 1, content };
+}
+
+function linksFor(issue) {
+  const out = [];
+  for (const l of issue.links || []) {
+    const other = byKey(l.inward || l.outward);
+    const side = l.inward ? "inwardIssue" : "outwardIssue";
+    out.push({ type: { name: l.type, inward: "is blocked by", outward: "blocks" }, [side]: { key: other.key, fields: { summary: other.summary, status: { name: other.status } } } });
+  }
+  for (const other of ALL) {
+    for (const l of other.links || []) {
+      if (l.inward === issue.key) out.push({ type: { name: l.type, inward: "is blocked by", outward: "blocks" }, outwardIssue: { key: other.key, fields: { summary: other.summary, status: { name: other.status } } } });
+      if (l.outward === issue.key) out.push({ type: { name: l.type, inward: "is blocked by", outward: "blocks" }, inwardIssue: { key: other.key, fields: { summary: other.summary, status: { name: other.status } } } });
+    }
+  }
+  return out;
+}
+
+function resolutionDate(issue) {
+  if (issue.status !== "Done") return null;
+  const last = sprintById(issue.sprints[issue.sprints.length - 1]);
+  const day = last && last.state === "closed" ? last.endDate.slice(0, 10) : "2026-10-12";
+  return `${day}T15:00:00.000+0200`;
+}
+
+function raw(issue) {
+  const sprints = issue.sprints.map(sprintById);
+  const comments = (issue.comments || []).map((c, n) => ({
+    id: String(20000 + n), author: person(c.author), created: c.created.replace("Z", "+0000"), body: adf(c.body),
+  }));
+  const fields = {
+    project: { key: "DEMO", name: "Demo Shop" },
+    summary: issue.summary,
+    issuetype: { name: issue.type, subtask: false },
+    status: { name: issue.status, statusCategory: STATUS_CATEGORY[issue.status] },
+    priority: { name: issue.prio || "Medium" },
+    assignee: person(issue.assignee),
+    reporter: person("po"),
+    labels: issue.labels || [],
+    components: [],
+    fixVersions: [],
+    created: `${issue.created}T09:00:00.000+0200`,
+    updated: `${issue.updated || issue.created}T16:30:00.000+0200`,
+    resolution: issue.status === "Done" ? { name: "Done" } : null,
+    resolutiondate: resolutionDate(issue),
+    description: adf(issue.description),
+    issuelinks: linksFor(issue),
+    comment: { comments, total: comments.length, maxResults: comments.length, startAt: 0 },
+    customfield_10016: issue.sp ?? null,
+    customfield_10020: sprints.length ? sprints : null,
+  };
+  if (issue.epic) {
+    fields.parent = { key: issue.epic, fields: { summary: D.EPICS[issue.epic], issuetype: { name: "Epic" }, status: { name: "In Progress" } } };
+  }
+  return { id: String(10000 + keyNum(issue.key)), key: issue.key, self: `${D.SITE}/rest/api/3/issue/${10000 + keyNum(issue.key)}`, fields };
+}
+
+// ---------- JQL (the subset the skills use) ----------
+
+function unquote(s) {
+  return String(s).trim().replace(/^["']|["']$/g, "");
+}
+
+function listValues(s) {
+  return s.replace(/^\(|\)$/g, "").split(",").map(unquote).filter(Boolean);
+}
+
+function sprintMatches(sprint, value) {
+  const v = unquote(value).toLowerCase();
+  if (/^\d+$/.test(v)) return sprint.id === Number(v);
+  const name = sprint.name.toLowerCase();
+  return name === v || name.endsWith(v) || v.endsWith(name);
+}
+
+function personMatches(k, value) {
+  const v = unquote(value).toLowerCase();
+  if (v === "currentuser()") return k === "wieteke";
+  if (!k) return v === "x" || v === "empty" || v === "unassigned";
+  const p = D.PEOPLE[k];
+  return p.emailAddress.toLowerCase() === v || p.displayName.toLowerCase().includes(v) || p.accountId === v;
+}
+
+function dateOf(spec) {
+  const s = unquote(spec);
+  const rel = s.match(/^-(\d+)([dw])$/i);
+  const now = new Date("2026-10-13T12:00:00Z");
+  if (rel) return new Date(now - Number(rel[1]) * (rel[2].toLowerCase() === "w" ? 7 : 1) * 86400000);
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function clauseMatches(issue, clause) {
+  let c = clause.trim();
+  while (c.startsWith("(") && c.endsWith(")")) c = c.slice(1, -1).trim();
+  if (/\s+OR\s+/i.test(c)) return c.split(/\s+OR\s+/i).some((part) => clauseMatches(issue, part));
+  if (/\s+AND\s+/i.test(c)) return c.split(/\s+AND\s+/i).every((part) => clauseMatches(issue, part));
+  let m;
+  const sprints = issue.sprints.map(sprintById);
+
+  if ((m = c.match(/^project\s*(=|in)\s*(.+)$/i))) return listValues(m[2]).some((p) => p.toUpperCase() === "DEMO" || p.toLowerCase() === "demo shop");
+  if ((m = c.match(/^sprint\s+in\s+(openSprints|closedSprints|futureSprints)\(\)$/i))) {
+    const want = { opensprints: ["active", "future"], closedsprints: ["closed"], futuresprints: ["future"] }[m[1].toLowerCase()];
+    return sprints.some((s) => want.includes(s.state));
+  }
+  if ((m = c.match(/^sprint\s+not\s+in\s+(openSprints|closedSprints|futureSprints)\(\)$/i))) {
+    return !clauseMatches(issue, `sprint in ${m[1]}()`);
+  }
+  if ((m = c.match(/^sprint\s+is\s+(not\s+)?empty$/i))) return m[1] ? sprints.length > 0 : sprints.length === 0;
+  if ((m = c.match(/^sprint\s+(not\s+in|in)\s*(\(.+\))$/i))) {
+    const hit = listValues(m[2]).some((v) => sprints.some((s) => sprintMatches(s, v)));
+    return /not/i.test(m[1]) ? !hit : hit;
+  }
+  if ((m = c.match(/^sprint\s*(!=|=)\s*(.+)$/i))) {
+    const hit = sprints.some((s) => sprintMatches(s, m[2]));
+    return m[1] === "=" ? hit : !hit;
+  }
+  if ((m = c.match(/^assignee\s+is\s+(not\s+)?empty$/i))) return m[1] ? Boolean(issue.assignee) : !issue.assignee;
+  if ((m = c.match(/^assignee\s+(not\s+in|in)\s*(\(.+\))$/i))) {
+    const hit = listValues(m[2]).some((v) => personMatches(issue.assignee, v));
+    return /not/i.test(m[1]) ? !hit : hit;
+  }
+  if ((m = c.match(/^assignee\s*(!=|=)\s*(.+)$/i))) {
+    const hit = personMatches(issue.assignee, m[2]);
+    return m[1] === "=" ? hit : !hit;
+  }
+  if ((m = c.match(/^statusCategory\s*(!=|=)\s*(.+)$/i))) {
+    const cat = STATUS_CATEGORY[issue.status];
+    const v = unquote(m[2]).toLowerCase();
+    const hit = cat.name.toLowerCase() === v || cat.key === v;
+    return m[1] === "=" ? hit : !hit;
+  }
+  if ((m = c.match(/^status\s+(not\s+in|in)\s*(\(.+\))$/i))) {
+    const hit = listValues(m[2]).some((v) => v.toLowerCase() === issue.status.toLowerCase());
+    return /not/i.test(m[1]) ? !hit : hit;
+  }
+  if ((m = c.match(/^status\s*(!=|=)\s*(.+)$/i))) {
+    const hit = unquote(m[2]).toLowerCase() === issue.status.toLowerCase();
+    return m[1] === "=" ? hit : !hit;
+  }
+  if ((m = c.match(/^(?:issuetype|type)\s+(not\s+in|in)\s*(\(.+\))$/i))) {
+    const hit = listValues(m[2]).some((v) => v.toLowerCase() === issue.type.toLowerCase());
+    return /not/i.test(m[1]) ? !hit : hit;
+  }
+  if ((m = c.match(/^(?:issuetype|type)\s*(!=|=)\s*(.+)$/i))) {
+    const hit = unquote(m[2]).toLowerCase() === issue.type.toLowerCase();
+    return m[1] === "=" ? hit : !hit;
+  }
+  if ((m = c.match(/^(?:key|issuekey|issue|id)\s+(not\s+in|in)\s*(\(.+\))$/i))) {
+    const hit = listValues(m[2]).some((v) => v.toUpperCase() === issue.key);
+    return /not/i.test(m[1]) ? !hit : hit;
+  }
+  if ((m = c.match(/^(?:key|issuekey|issue|id)\s*(!=|=)\s*(.+)$/i))) {
+    const hit = unquote(m[2]).toUpperCase() === issue.key;
+    return m[1] === "=" ? hit : !hit;
+  }
+  if ((m = c.match(/^(?:parent|"epic link"|"parent link"|parentEpic)\s*(=|in)\s*(.+)$/i))) {
+    return listValues(m[2]).some((v) => v.toUpperCase() === issue.epic);
+  }
+  if ((m = c.match(/^(?:"story point estimate"|"story points"|cf\[10016\]|customfield_10016)\s+is\s+(not\s+)?empty$/i))) {
+    return m[1] ? issue.sp != null : issue.sp == null;
+  }
+  if ((m = c.match(/^(?:summary|text|description)\s*~\s*(.+)$/i))) {
+    const v = unquote(m[1]).toLowerCase().replace(/\*/g, "");
+    return `${issue.summary} ${issue.description || ""}`.toLowerCase().includes(v);
+  }
+  if ((m = c.match(/^labels\s*(=|in)\s*(.+)$/i))) return listValues(m[2]).some((v) => (issue.labels || []).includes(v));
+  if ((m = c.match(/^labels\s+is\s+(not\s+)?empty$/i))) return m[1] ? (issue.labels || []).length > 0 : !(issue.labels || []).length;
+  if ((m = c.match(/^resolution\s+is\s+(not\s+)?empty$/i))) return m[1] ? issue.status === "Done" : issue.status !== "Done";
+  if ((m = c.match(/^resolution\s*(!=|=)\s*(.+)$/i))) {
+    const hit = issue.status === "Done" && unquote(m[2]).toLowerCase() !== "unresolved";
+    return m[1] === "=" ? hit : !hit;
+  }
+  if ((m = c.match(/^(created|updated|resolved|resolutiondate)\s*(>=|<=|>|<)\s*(.+)$/i))) {
+    const when = m[1].toLowerCase().startsWith("resol") ? resolutionDate(issue) : `${issue[m[1].toLowerCase()] || issue.created}T12:00:00`;
+    const limit = dateOf(m[3]);
+    if (!when || !limit) return m[1].toLowerCase().startsWith("resol") ? Boolean(when) : true;
+    const t = new Date(when);
+    return { ">=": t >= limit, "<=": t <= limit, ">": t > limit, "<": t < limit }[m[2]];
+  }
+  return true; // unknown clause: be lenient
+}
+
+function filterJql(issues, jql) {
+  if (!jql) return issues;
+  const where = jql.replace(/\s+order\s+by\s+.+$/i, "").trim();
+  if (!where) return issues;
+  return issues.filter((i) => clauseMatches(i, where));
+}
+
+function applyListFlags(issues, f) {
+  let out = issues;
+  const a = flag(f, "-a", "--assignee");
+  if (a) out = out.filter((i) => personMatches(i.assignee, a));
+  const s = flag(f, "-s", "--status");
+  if (s) {
+    const neg = s.startsWith("~");
+    const v = s.replace(/^~/, "").toLowerCase();
+    out = out.filter((i) => (i.status.toLowerCase() === v) !== neg);
+  }
+  const t = flag(f, "-t", "--type");
+  if (t) out = out.filter((i) => i.type.toLowerCase() === String(t).toLowerCase());
+  const l = flag(f, "-l", "--label");
+  if (l) out = out.filter((i) => (i.labels || []).includes(l));
+  const y = flag(f, "-y", "--priority");
+  if (y) out = out.filter((i) => (i.prio || "Medium").toLowerCase() === String(y).toLowerCase());
+  const q = flag(f, "-q", "--jql");
+  if (q) out = filterJql(out, q);
+  return out.sort((x, y2) => (y2.created.localeCompare(x.created)) || keyNum(y2.key) - keyNum(x.key));
+}
+
+// ---------- output ----------
+
+const fmtDate = (d) => (d ? `${d.slice(0, 10)} ${d.slice(11, 19)}` : "");
+
+const COLUMN = {
+  type: (i) => i.type,
+  key: (i) => i.key,
+  summary: (i) => i.summary,
+  status: (i) => i.status,
+  assignee: (i) => (i.assignee ? D.PEOPLE[i.assignee].displayName : ""),
+  reporter: () => D.PEOPLE.po.displayName,
+  priority: (i) => i.prio || "Medium",
+  resolution: (i) => (i.status === "Done" ? "Done" : ""),
+  created: (i) => `${i.created} 09:00:00`,
+  updated: (i) => `${i.updated || i.created} 16:30:00`,
+  labels: (i) => (i.labels || []).join(","),
+  "story points": (i) => (i.sp ?? ""),
+  sprint: (i) => i.sprints.map((id) => sprintById(id).name).join(","),
+  parent: (i) => i.epic || "",
+};
+const DEFAULT_COLUMNS = ["type", "key", "summary", "status", "assignee", "reporter", "priority", "resolution", "created", "updated", "labels"];
+
+function printIssues(issues, f) {
+  if (f["--raw"]) {
+    process.stdout.write(`${JSON.stringify(issues.map(raw), null, 2)}\n`);
+    return;
+  }
+  if (!issues.length) {
+    process.stderr.write('✗ No result found for given query in project "DEMO"\n');
+    return;
+  }
+  const cols = f["--columns"] ? String(f["--columns"]).split(",").map((c) => c.trim().toLowerCase()) : DEFAULT_COLUMNS;
+  const rows = issues.map((i) => cols.map((c) => String((COLUMN[c] || (() => ""))(i))));
+  if (!f["--no-headers"]) rows.unshift(cols.map((c) => c.toUpperCase()));
+  process.stdout.write(`${rows.map((r) => r.join("\t")).join("\n")}\n`);
+}
+
+const TYPE_ICON = { Bug: "🐞", Story: "⭐", Task: "✅", Epic: "⚡" };
+const shortDate = (d) => {
+  const dt = new Date(`${d.slice(0, 10)}T12:00:00Z`);
+  return dt.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "2-digit", timeZone: "UTC" }).replace(/,/g, ",");
+};
+
+function printView(issue, f) {
+  if (f["--raw"]) {
+    process.stdout.write(`${JSON.stringify(raw(issue), null, 2)}\n`);
+    return;
+  }
+  const comments = issue.comments || [];
+  const links = linksFor(issue);
+  const assignee = issue.assignee ? D.PEOPLE[issue.assignee].displayName : "Unassigned";
+  const out = [];
+  out.push(`${TYPE_ICON[issue.type] || "•"} ${issue.type}  🚧 ${issue.status}  ⌛ ${shortDate(issue.updated || issue.created)}  👷 ${assignee}  🔑️ ${issue.key}  💭 ${comments.length} comments  🧵 ${links.length} linked`);
+  out.push(`# ${issue.summary}`);
+  out.push(`⏱️  ${shortDate(issue.created)}  🔎 ${D.PEOPLE.po.displayName}  🚀 ${issue.prio || "Medium"}  📦 None  🏷️  ${(issue.labels || []).join(", ") || "None"}  👀 You + 0 watchers`);
+  out.push("");
+  out.push("------------------------ Description ------------------------");
+  out.push("");
+  out.push(issue.description || "No description");
+  if (links.length) {
+    out.push("");
+    out.push("------------------------ Linked Issues ------------------------");
+    out.push("");
+    for (const l of links) {
+      const other = l.inwardIssue || l.outwardIssue;
+      const verb = l.inwardIssue ? l.type.inward : l.type.outward;
+      out.push(` ${verb.toUpperCase()}`);
+      out.push(`  ${other.key} ${other.fields.summary} • ${other.fields.status.name}`);
+    }
+  }
+  const showComments = f["--comments"] ? Number(f["--comments"]) : 1;
+  if (comments.length && showComments > 0) {
+    out.push("");
+    out.push(`------------------------ ${comments.length} Comments ------------------------`);
+    for (const c of comments.slice(-showComments)) {
+      out.push("");
+      out.push(` ${D.PEOPLE[c.author].displayName} • ${shortDate(c.created)} • Latest comment`);
+      out.push("");
+      out.push(` ${c.body}`);
+    }
+  }
+  process.stdout.write(`${out.join("\n")}\n`);
+}
+
+function printSprints(sprints, f) {
+  if (f["--raw"]) {
+    process.stdout.write(`${JSON.stringify(sprints, null, 2)}\n`);
+    return;
+  }
+  const all = { id: (s) => s.id, name: (s) => s.name, start: (s) => fmtDate(s.startDate), end: (s) => fmtDate(s.endDate), complete: (s) => fmtDate(s.completeDate), state: (s) => s.state };
+  const cols = f["--columns"] ? String(f["--columns"]).split(",").map((c) => c.trim().toLowerCase()) : ["id", "name", "start", "end", "complete", "state"];
+  const rows = sprints.map((s) => cols.map((c) => String((all[c] || (() => ""))(s))));
+  if (!f["--no-headers"]) rows.unshift(cols.map((c) => c.toUpperCase()));
+  process.stdout.write(`${rows.map((r) => r.join("\t")).join("\n")}\n`);
+}
+
+function nextKey() {
+  let state = { next: D.NEXT_KEY };
+  try {
+    state = JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
+  } catch {
+    // first create: start from NEXT_KEY
+  }
+  const key = `DEMO-${state.next}`;
+  try {
+    fs.writeFileSync(STATE_FILE, JSON.stringify({ next: state.next + 1 }));
+  } catch {
+    // read-only location: keys repeat, which is fine for a demo
+  }
+  return key;
+}
+
+function fail(msg) {
+  process.stderr.write(`Error: ${msg}\n`);
+  process.exit(1);
+}
+
+// ---------- commands ----------
+
+const [cmd, sub, ...rest] = process.argv.slice(2);
+
+function main() {
+  if (!cmd || cmd === "--help" || cmd === "-h" || cmd === "help") {
+    process.stdout.write("Interactive Jira command line.\n\nUsage:\n  jira [command]\n\nAvailable Commands:\n  board, epic, issue, me, open, project, release, serverinfo, sprint, version\n");
+    return;
+  }
+  if (cmd === "version" || cmd === "--version") {
+    process.stdout.write('(Version="1.6.0", GitCommit="", CommitDate="", GoVersion="go1.23.4", Compiler="gc", Platform="darwin/arm64")\n');
+    return;
+  }
+  if (cmd === "me") {
+    process.stdout.write(`${D.ME.emailAddress}\n`);
+    return;
+  }
+  if (cmd === "serverinfo") {
+    process.stdout.write(`SERVER INFO\n-----------\n\nVersion:\t1001.0.0-SNAPSHOT\nBuild Number:\t100291\nDeployment Type:\tCloud\nDefault Locale:\tnl_NL\nServer:\t${D.SITE}\n`);
+    return;
+  }
+  if (cmd === "init") {
+    process.stdout.write("✓ Configuration already exists at ~/.config/.jira/.config.yml\n");
+    return;
+  }
+  if (cmd === "project") {
+    if (sub === "list") return void process.stdout.write("KEY\tNAME\tTYPE\tLEAD\nDEMO\tDemo Shop\tsoftware\tSanne de Wit\n");
+    return fail(`unknown command "${sub}" for "jira project"`);
+  }
+  if (cmd === "board") {
+    if (sub === "list") return void process.stdout.write("ID\tNAME\tTYPE\n42\tDEMO board\tscrum\n");
+    return fail(`unknown command "${sub}" for "jira board"`);
+  }
+  if (cmd === "epic") {
+    const { flags } = parseArgs(rest);
+    if (sub === "list" || sub === undefined) return printIssues(epicIssues, flags);
+    return fail(`unknown command "${sub}" for "jira epic"`);
+  }
+  if (cmd === "sprint") {
+    const { positional, flags } = parseArgs(rest);
+    if (sub === "list" || sub === "ls") {
+      let sprintId = positional[0] ? Number(positional[0]) : null;
+      if (flags["--current"]) sprintId = D.SPRINTS.find((s) => s.state === "active").id;
+      if (flags["--prev"]) sprintId = [...D.SPRINTS].reverse().find((s) => s.state === "closed").id;
+      if (flags["--next"]) sprintId = D.SPRINTS.find((s) => s.state === "future").id;
+      if (sprintId) {
+        const issues = applyListFlags(ALL.filter((i) => i.sprints.includes(sprintId)), flags);
+        return printIssues(issues, flags);
+      }
+      const states = String(flag(flags, "--state") || "active,closed").split(",").map((s) => s.trim());
+      return printSprints(D.SPRINTS.filter((s) => states.includes(s.state)), flags);
+    }
+    if (sub === "add") {
+      const [id, ...keys] = positional;
+      if (!id || !keys.length) return fail("sprint id and at least one issue key are required");
+      return void process.stdout.write(`✓ Issues added to the sprint ${id}\n`);
+    }
+    return fail(`unknown command "${sub}" for "jira sprint"`);
+  }
+  if (cmd === "issue") {
+    const { positional, flags } = parseArgs(rest);
+    if (sub === "list" || sub === "ls") {
+      const jql = flag(flags, "--jql", "-q");
+      let issues = filterJql(ALL, jql);
+      issues = applyListFlags(issues, { ...flags, "--jql": undefined, "-q": undefined });
+      return printIssues(issues, flags);
+    }
+    if (sub === "view") {
+      const issue = byKey(positional[0] || "");
+      if (!issue) return fail(`issue does not exist or you do not have permission to see it: ${positional[0]}`);
+      return printView(issue, flags);
+    }
+    if (sub === "create") {
+      if (!flags["--no-input"] && !flag(flags, "-s", "--summary")) return fail("summary is required; pass -s and --no-input");
+      const key = nextKey();
+      return void process.stdout.write(`✓ Issue created\n${D.SITE}/browse/${key}\n`);
+    }
+    if (sub === "move" || sub === "transition") {
+      return void process.stdout.write(`✓ Issue transitioned to state "${positional[1] || ""}"\n`);
+    }
+    if (sub === "edit") {
+      return void process.stdout.write(`✓ Issue updated\n${D.SITE}/browse/${positional[0] || ""}\n`);
+    }
+    if (sub === "comment") {
+      return void process.stdout.write(`✓ Comment added to issue "${positional[1] || positional[0] || ""}"\n`);
+    }
+    if (sub === "link") {
+      return void process.stdout.write(`✓ Issues linked as "${positional[2] || "Relates"}"\n`);
+    }
+    if (sub === "worklog") {
+      return void process.stdout.write("✓ Worklog added\n");
+    }
+    return fail(`unknown command "${sub}" for "jira issue"`);
+  }
+  return fail(`unknown command "${cmd}" for "jira"`);
+}
+
+main();
