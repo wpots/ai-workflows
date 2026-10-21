@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+done
 
 Filed 2026-10-21 from the measurement note of the October 2026 stack review
 (`docs/ai-stack-review-2026-10.md`, the maintainer's untracked local copy). That note said the label was "not on every
@@ -96,7 +96,43 @@ measures agent work instead of measuring which skill happened to open the MR.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] **The check fails without the fix.** With only the validator change applied
+      and the recipes still as on `main` (`379bac9`),
+      `node scripts/validate-skills.mjs` exits 1 with exactly three errors:
+      - `skills/service-cli/references/glab.md: glab mr create snippet omits --label "ai:agent-authored"`
+      - `skills/upstream-rules/SKILL.md: glab MR-creation snippet posts an --input payload, and the file never sets labels to "ai:agent-authored"`
+      - `skills/upstream-to-unicore/SKILL.md: glab mr create snippet omits --label "ai:agent-authored"`
+      `skills/code-review/SKILL.md`, which POSTs notes with `--input`, is not
+      among them. Neither are the prose mentions of `glab mr create` in
+      `shared/upstream-mr.md`, `skills/upstream-rules/SKILL.md` and
+      `commands/create-pr.md`.
+- [x] **The check passes with the fix.** With the recipes fixed,
+      `node scripts/validate-skills.mjs` prints
+      `OK: 38 skills validated, 95 docs link-checked, no errors.`
+- [x] **The generated copies match.** `bash scripts/generate-adapters.sh`
+      rewrote `AGENTS.md`, `.claude/rules/upstream-mr.md`,
+      `.github/copilot-instructions.md` and
+      `skills/upstream-rules/references/upstream-mr.md` from
+      `shared/upstream-mr.md`.
+      `bash scripts/validate-ai-instructions.sh` exits 0 with `No drift
+      detected.`
+- [x] **The plugin still validates.** `claude plugin validate .` reports
+      `Validation passed with warnings`. The only advice concerns the README
+      install line, which was there before this change.
+- [x] **The label is in every recipe.**
+      `rg -n 'ai:agent-authored' shared/upstream-mr.md skills/upstream-rules/SKILL.md skills/upstream-to-unicore/SKILL.md skills/service-cli/references/glab.md`
+      finds all of them:
+      - in the shared rule, the new bullet (lines 18–20, both routes) and the
+        read-back repair (lines 64–66);
+      - the `labels` key in the `upstream-rules` payload;
+      - the `--label` flag in `upstream-to-unicore` and in `service-cli`.
+- [x] **Routing evals: not triggered.** Two `SKILL.md` files change
+      (`upstream-rules`, `upstream-to-unicore`), and only in their bodies. No
+      `name`, `description` or `when_to_use` changes, and no case under
+      `evals/` changes.
+- **Not part of this item.** The first agent MR opened after the next release
+  through the upstream rule is the live proof. `scripts/delivery-metrics.mjs`
+  will show the label share catching up with the trailer share from then on.
 
 ## Technical Notes
 
@@ -146,3 +182,4 @@ measures agent work instead of measuring which skill happened to open the MR.
   signal
 - [../../scripts/validate-skills.mjs](../../scripts/validate-skills.mjs)
 - [../../scripts/delivery-metrics.mjs](../../scripts/delivery-metrics.mjs)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/255

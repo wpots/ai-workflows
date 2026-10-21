@@ -15,6 +15,11 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
   with **no `--reviewer` flag** and let the human assign one. Never infer a
   reviewer from CODEOWNERS, repo members, or git history, and never assign the
   MR author; only pass `--reviewer` when the user named that person.
+- Every MR an agent opens carries the provenance label `ai:agent-authored`, in
+  every repo: `glab mr create … --label "ai:agent-authored"`, or
+  `"labels": "ai:agent-authored"` in the JSON of the `--input` route below.
+  A squash merge drops the `Co-Authored-By` trailers, so the label is the only
+  record `scripts/delivery-metrics.mjs` can count (`rules/git-flow.md`).
 - Before the MR opens, a branch that adds a skill, changes a skill's `name`,
   `description` or `when_to_use`, or changes a routing case runs the routing
   evals first: "Before a skill MR" in `evals/README.md` of the `ai-workflows`
@@ -30,10 +35,10 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
 - `glab mr create` cannot carry a real MR body: there is no
   `--description-file`, `-d` takes a string, and `-d -` opens an editor. For any
   body with backticks or tables, POST to `…/merge_requests` with
-  `--input <file>` and `-H "Content-Type: application/json"`, then attach the
-  reviewer in a second call with `glab mr update`. Never pass the reviewer as
-  `--field "reviewer_ids[]=<id>"` — the bracket goes over as a literal JSON key
-  and the MR opens with no reviewer.
+  `--input <file>` and `-H "Content-Type: application/json"`, with the label in
+  that JSON, then attach the reviewer in a second call with `glab mr update`.
+  Never pass the reviewer as `--field "reviewer_ids[]=<id>"` — the bracket goes
+  over as a literal JSON key and the MR opens with no reviewer.
 - GitLab **accepts** a review request from the MR author, so `wieteke.pots`
   reviewing their own `ai-workflows` MR is expected, not a conflict with the
   never-assign-the-author line above — that line governs repos where a reviewer
@@ -56,6 +61,8 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
 - An `ai-workflows` MR without that reviewer is not done. Confirm it with
   `glab mr view <iid> -R greenberrynl/config/ai-workflows` before reporting, and
   report the real MR URL — never claim an MR or a reviewer the CLI did not
-  confirm.
+  confirm. The same read-back confirms the `ai:agent-authored` label on an MR
+  in any repo; when it is missing, add it with
+  `glab mr update <iid> -R <canonical-repo> --label "ai:agent-authored"`.
 - The GitHub mirror is not a substitute: these repos are reviewed on GitLab
   (GitHub also refuses a review request from the PR author).

@@ -242,7 +242,8 @@ glab mr create -R greenberrynl/the-greenhouse/unicore-template \
   --source-branch <type>/<short-description> \
   --target-branch <line-branch> \
   --title "<type>: <short description>" \
-  --description "<generated body>" --yes
+  --description "<generated body>" \
+  --label "ai:agent-authored" --yes
 ```
 
 - **Name the head repo with `-H`.** `-R` only sets the target; the source

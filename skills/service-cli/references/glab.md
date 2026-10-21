@@ -45,7 +45,7 @@ default. URL-encode the project path (`%2F`) in `glab api` calls.
 ## Write
 
 ```bash
-glab mr create -R <group/project> -H <group/project> -b main -t "<title>" -d "<one line>"
+glab mr create -R <group/project> -H <group/project> -b main -t "<title>" -d "<one line>" --label "ai:agent-authored"
 glab api "projects/<group>%2F<project>/merge_requests/123" --method PUT --field "description=@body.md"
 glab mr update 123 -R <group/project> --reviewer <username>
 glab api "projects/<group>%2F<project>/merge_requests/123/notes" --method POST --field "body=@comment.md"
