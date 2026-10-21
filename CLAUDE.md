@@ -230,6 +230,31 @@ that doesn't match costs a human approval and blocks autonomous runs.
 - Pass these rules on to subagents in their prompt too; they inherit the
   permission system but don't always read this file.
 
+### Node and npm: the version the project pins
+
+A non-interactive shell skips nvm's auto-switch, so `node` and `npm` resolve
+to nvm's *default* alias — rarely the project's pin. A lockfile written by
+another npm differs in its `peer`/`dev`/`devOptional` flags and in which
+optional peers it keeps, and CI's `npm ci` can reject it as out of sync.
+
+- Read the pin before the first `node`/`npm`/`npx` call: `.nvmrc`,
+  `.node-version`, Volta in `package.json`, then `engines.node`.
+- npm is the one bundled with the pinned Node, unless `packageManager` or
+  `engines.npm` names another version — then that one.
+- Run through the pinned binary by absolute path,
+  `~/.nvm/versions/node/v<pin>/bin/node ~/.nvm/versions/node/v<pin>/lib/node_modules/npm/bin/npm-cli.js <args>`,
+  not `npm` from `PATH` and not `<node>/bin/npm` (its shebang resolves `node`
+  from `PATH`). Confirm with `--version` once. An absolute path matches no
+  allow rule, so expect an approval prompt unless the project allowlists it.
+- Pinned version not installed: stop and ask for `nvm install <pin>`; never
+  fall back to whatever is on `PATH`.
+- When the pinned npm cannot do the job (a known bug, a lockfile `npm ci`
+  rejects), move the pin — `.nvmrc`, `packageManager`, the CI image — in the
+  same MR so local, CI and the lockfile agree. A lockfile written by an
+  unpinned npm, explained only in the commit message, flips back on the next
+  install by someone on the pin.
+- Name the Node and npm versions that ran in the recap.
+
 ### Git inside the sandbox
 
 Three git operations the sandbox blocks. Each fails in a way that points at the
