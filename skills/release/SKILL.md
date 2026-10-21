@@ -1,6 +1,6 @@
 ---
 name: release
-description: Run a production release end to end around the project's own release runbook — pre-flight, a "release is starting" mail draft with a one-hour indication, the promotion, tag and GitLab Release the runbook prescribes, customer release notes, a "release is live" reply draft with the overview of changes, an optional post in the project's Slack channel, the shipped tracker tickets tagged with the version and their status read back, and the housekeeping after it (sprint or support-month close and compaction, stale branches and worktrees). Asks who gets the mail and proposes sharing in Slack; drafts mail, never sends it. On a project without versions it proposes introducing them once and records the decision. Use when the user starts, runs or finishes a release ("release starten", "start the release", "naar productie", "release afronden", "promote acceptance to production"), or asks to version and close the tickets of a release ("versie op de tickets", "tickets van de release naar done").
+description: Run a production release end to end around the project's own release runbook — pre-flight, a "release is starting" mail draft with a two-hour indication, the promotion, tag and GitLab Release the runbook prescribes, customer release notes, a "release is live" reply draft with the overview of changes, an optional post in the project's Slack channel, the shipped tracker tickets tagged with the version and their status read back, and the housekeeping after it (sprint or support-month close and compaction, stale branches and worktrees). Asks who gets the mail and proposes sharing in Slack; drafts mail, never sends it. On a project without versions it proposes introducing them once and records the decision. Use when the user starts, runs or finishes a release ("release starten", "start the release", "naar productie", "release afronden", "promote acceptance to production"), or asks to version and close the tickets of a release ("versie op de tickets", "tickets van de release naar done").
 metadata:
   owner: wieteke.pots
 ---
@@ -27,7 +27,8 @@ Everything outward-facing is listed in the Step 3 plan and approved there in
 - the runbook's own writes: release commit, promotion, tag, GitLab Release,
   back-sync — exactly as the runbook prescribes;
 - two Gmail **drafts**: "release is starting" and "release is live". The
-  user sends them. This skill never sends mail;
+  user sends them. This skill never sends mail. When the connector cannot
+  write, the mail text goes in the reply instead;
 - Slack posts in the project channel, only when the user chose to share;
 - tracker writes for the tickets the plan lists: a version (or the label
   fallback). No status change: Jira's automation moves tickets from the
@@ -54,6 +55,15 @@ git, GitLab and Gmail, never from memory:
 | release commit on the pre-production branch, production does not contain it | Step 5, promotion |
 | production contains the release commit, tag or GitLab Release missing | Step 5, tag |
 | tag and Release exist | Step 6 onwards: notes, live mail, tracker, housekeeping |
+
+**After a pause.** When the release waited for acceptance or another go (a day
+or more), the table above is only where you start: re-derive the state before
+the promotion. The pre-production tip may have moved or been re-cut (a second
+release commit), the changelog date and the production dump are as old as the
+pause, and the Step 3 plan was approved for the old scope. Re-read scope,
+tickets and pre-flight, redo the dump and the production checks, show the
+delta against the approved plan, and get a go on the changed scope. A
+scratchpad does not survive between sessions: rebuild the watcher scripts.
 
 **After the fact.** "Give the tickets of the last release a version and move
 them to Done" is the last row: run Step 7 (and Step 8 when asked) for that
@@ -84,10 +94,16 @@ the recent tags with their ticket counts and say which tag you took.
 - **Tracker versions.** Jira goes CLI first, through the recipes in
   `skills/service-cli`: `jira release list -p <KEY>`. Versions in use mean
   the project works with fixVersions. None means Step 2 asks.
-- **Mail.** Is the Gmail connector available? Find the previous release mail:
-  `search_threads` with `in:sent subject:release` plus the project's domain or
-  name, `newer_than:180d`. Its recipients are the proposal for Step 2. Its
-  wording is the model, next to [references/release-mails.md](references/release-mails.md).
+- **Mail.** Is the Gmail connector available, and can it write? Reading works
+  without compose rights, so a successful search proves nothing about
+  drafting; Step 4 has the fallback. Find the previous release mail:
+  `search_threads` with `in:sent subject:release` plus this project's customer
+  domain or name, `newer_than:180d`. A generic word such as "website" also
+  matches another client's thread. Count a hit only when its recipients or
+  text name this project's customer: those recipients are the proposal for
+  Step 2, and its wording is the model, next to
+  [references/release-mails.md](references/release-mails.md). A release mail to
+  a different client is a model for wording only, never a recipient proposal.
 - **Slack.** The channel `CONVENTIONS.md` names (a `Slack` or
   `Notifications` entry with the channel id), and whether the connector is
   available.
@@ -101,9 +117,11 @@ Ask with `AskUserQuestion`, at most four per call. Skip what `CONVENTIONS.md`
 already answers, and ask a second call only for what remains.
 
 1. **Recipients** of the release mails. Offer the previous release mail's
-   To and Cc as the recommended option; "Other" takes free text. Offer to
-   record the answer in `CONVENTIONS.md` under "Release communication", so
-   the next release does not ask.
+   To and Cc as the recommended option; "Other" takes free text. Without a
+   hit, ask with no recommended option: "leave them empty, I fill them in" is
+   a valid answer, and the drafts then carry no To or Cc. Offer to record the
+   answer in `CONVENTIONS.md` under "Release communication", so the next
+   release does not ask.
 2. **Slack.** Recommend sharing in the linked channel: "start and live" /
    "live only" / "no". Without a known channel, ask for it or drop the
    question.
@@ -150,6 +168,16 @@ No go, no writes.
   the form of the previous release mail (default `Release V<x.y.z>`), body
   per [references/release-mails.md](references/release-mails.md).
 - The connector does not add the user's Gmail signature. The recap says so.
+- **Without compose rights** `create_draft` fails with "Insufficient scope".
+  Do not retry and do not look for another route: put the mail text in the
+  reply (subject, To and Cc as known, body), say that the Gmail connector
+  needs compose rights (re-authorize it in the claude.ai connector settings),
+  and carry on. The live mail in Step 6 does the same.
+- **Acceptance gate.** When the runbook asks for an accepted acceptance state
+  before the cut, the customer's start mail waits for that acceptance. The
+  acceptance deploy gets one internal mail instead
+  ([references/release-mails.md](references/release-mails.md) § Acceptance
+  deploy mail), and the start mail goes out when the promotion starts.
 - Slack, when chosen: one parent message with the same content. Keep its
   `ts`; every later Slack post is a reply in that thread.
 - **Pause** until the user says the start mail is out, or explicitly skips
@@ -167,6 +195,12 @@ the deploy job's log and the platform's own activity, not only a green job.
 - Run the read-only smoke checks the runbook's verify step names: key pages
   and headers. The live mail only says the pages were checked when that
   happened.
+- **Sandbox.** The read-back and verify steps need what the sandbox blocks:
+  `clever-tools` (it writes the npm cache) and the pre-flight `pg_dump` or
+  `psql` through Docker run with the sandbox off, and a `curl` to the
+  production host needs that host in `allowed_domains`. Say where the dump
+  lives and that a scratchpad is wiped between sessions: the user moves the
+  dump when it is the rollback point.
 - **Failure** (red pipeline, refused deploy, failed build): stop. Post a
   "blocked" reply in the Slack thread when sharing was chosen. Draft a short
   delay or rollback mail in the start-mail thread instead of the live mail.
@@ -196,11 +230,17 @@ Classify every key from the scope before writing anything:
 | key only in an MR description, as context ("anonymisation is RFW-218") | context | nothing |
 | an open MR still carries the key, or the PO reported it still reproducible after the merge, or a PO question in the comments is unanswered | partial | nothing — report it with the reason |
 
+A key that sits only in an MR description, but with the statement that its work
+landed through another MR of the range and a PO comment that clears it for
+production, is a proposal for `shipped`: put it in the plan, flagged, and let
+the go decide.
+
 Read the comments of every shipped ticket that is not yet Done; that is
-where partial delivery shows:
+where partial delivery shows. `--plain` prints the whole description first;
+the comment bodies are ADF JSON, so take the text nodes:
 
 ```bash
-jira issue view <KEY> --plain --comments 10
+jira issue view <KEY> --raw | jq -r '.fields.comment.comments[]? | .author.displayName + " " + .created[0:10] + ": " + (([.body | .. | objects | select(.type=="text") | .text] | join(" "))[0:520])'
 ```
 
 Then write, for the tickets the plan listed. Jira goes CLI first
@@ -231,6 +271,11 @@ jira issue list --jql 'project = <KEY> AND labels = "vX.Y.Z"' --plain --columns 
   ticket's transitions with the connector (`listJiraIssueTransitions`) and
   use the one whose target is in the done category.
 
+- **Answering a partial ticket.** When the release answers a PO question on a
+  partial ticket ("is deze om te testen?"), offer a comment: what is live
+  since when, where, and how to test it. That is a tracker write with its own
+  go. `jira issue comment add <KEY> --template <file> --no-input` keeps
+  paragraphs and lists intact.
 - **Version.** When the project works with versions and `jira release list`
   does not show this one yet, create it with the connector's
   `manageJiraProjectVersion` (`action: create`, the numeric project id,
@@ -271,7 +316,12 @@ hand-off; do not run either inline.
   release is what made those branches stale.
 - For a squash-merged branch, prove the merge as Step 5 of
   `skills/mr-merged/SKILL.md` describes before `git branch -D`. Also list
-  remote source branches of merged MRs that survived the merge.
+  remote source branches of merged MRs that survived the merge, checked
+  against the remote itself (`git ls-remote --heads origin <branch>`, or
+  `git fetch --prune`): remote-tracking refs outlive branches GitLab deleted
+  on merge, and `git branch -r` lists them as survivors. Inside the sandbox
+  `git branch -D` prints a `.git/config` lock warning and still deletes;
+  `git branch -dr origin/<branch>` removes a stale tracking ref.
 
 Never list protected branches (`main`, `master`, `development`, `acceptance`,
 `staging`, `production`) or the checked-out branch. A dirty worktree is
