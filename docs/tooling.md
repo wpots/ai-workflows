@@ -44,7 +44,7 @@ Installed and authenticated during `commands/new-device-setup.md`:
 | Tool | Install | Auth | Used by |
 | ---- | ------- | ---- | ------- |
 | `glab` | `brew install glab` | `glab auth login` with a Personal Access Token (scopes `api` + `write_repository`; PATs avoid OAuth refresh races) | create-pr, watch-mrs, mr-merged, address-review-comments, the MR contribution rule |
-| `jira` | `brew install ankitpokhrel/jira-cli/jira-cli` | `jira init` with a Jira API token; `JIRA_LOGIN` in the shell profile for a project's `.jira.yml` | the tracker path of jira-ticket, close-sprint, sprint-planning, refinement, sprint-demo, mr-merged |
+| `jira` | `brew install ankitpokhrel/jira-cli/jira-cli` | `jira init` with a Jira API token; `JIRA_LOGIN` in `~/.zshenv` (not `~/.zshrc`) for a project's `.jira.yml` | the tracker path of jira-ticket, close-sprint, sprint-planning, refinement, sprint-demo, mr-merged |
 | `axiom` | `brew install --cask axiomhq/tap/axiom` | `axiom auth login` with a personal API token (`AXIOM_TOKEN` + `AXIOM_ORG_ID` headless) | log and metric lookups during maintenance and incident triage |
 | `dotenvx` | none — runs via `npx dotenvx` | per-project `.env` files | secret reads in commands without pasting values |
 | claude.ai connectors | — | authorize Atlassian, Figma and Axiom once per user in claude.ai connector settings | the connector-only remainder per service (Confluence, Teamwork Graph; Axiom monitors and dashboards — see `skills/service-cli`); component-spec and design work (Figma) |

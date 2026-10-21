@@ -31,9 +31,11 @@ jira sprint list -c .jira.yml --state active --plain --columns ID,NAME,STATE
 ```
 
 - **No `login` in the file.** It is the one personal line, and the CLI looks
-  the token up by it (keychain or `.netrc`). Each developer sets
-  `export JIRA_LOGIN=<email>` in their shell profile instead; without it every
-  command fails with "The tool needs a Jira API token". The variable overrides
+  the token up by it (keychain or `.netrc`). Each developer exports
+  `JIRA_LOGIN=<email>` from `~/.zshenv` instead. Not from `~/.zshrc`: only
+  interactive shells read that, so an agent's `zsh -c` never sees the
+  variable. Without it every command fails with "The tool needs a Jira API
+  token", even with the token in the keychain. The variable overrides
   the `login` of every config, the machine default included, which is harmless
   as long as it names the same Atlassian account.
 - **`-c` after the subcommand.** `Bash(jira issue list *)` matches
