@@ -2,9 +2,10 @@
 
 ## Status
 
-in-progress
+done
 
-Filed 2026-10-12 as the alternative to slice 3 of the skill evals (task T4 of
+Closed 2026-10-21 by the maintainer's decision, on the evidence under the
+first check in `How to verify`. Filed 2026-10-12 as the alternative to slice 3 of the skill evals (task T4 of
 the AI stack reviews). Slice 3 runs the routing suite in GitLab CI, which needs
 an API key and a monthly cap, and the maintainer decided on 2026-10-08 to keep
 eval spend manual, on her own seat. This item arms the same suite in the
@@ -70,12 +71,34 @@ monthly CI bill.
 
 ## How to verify
 
-- [ ] After merge, on the next MR that adds a skill or edits a skill's
+- [x] After merge, on the next MR that adds a skill or edits a skill's
       `description`: open it through `skills/create-pr` and confirm the
       pre-flight runs the routing suite (the sandbox-bypass prompt appears) and
       the MR description carries a `Routing evals: …` line. Not checked before
       merge: the installed plugin is still the old copy, so no real `create-pr`
       run could load the new step. Set this item to `done` when it is ticked.
+      Ticked on 2026-10-21 by the maintainer's decision, on what was observed.
+      This item merged as 8314aad on 2026-10-13. Between that merge and
+      `bc2f6b8` (2026-10-21):
+      - 16 merged MRs carry a `Routing evals:` decision line. That excludes
+        !183 itself and release MR !203, which only quotes the changelog.
+      - Four of them say "has no routing cases", correctly:
+        - !191 changed the `description` of `upstream-to-unicore`.
+        - !200 is `backlog`.
+        - !212 is `upstream-to-unicore`.
+        - !229 is `release` and `mr-merged`.
+        The other twelve say "not triggered" or "not run" and name the reason.
+      - **Not observed live: a run of the suite from the pre-flight.** No MR in
+        that window added a skill (`git diff --name-status 8314aad bc2f6b8 --
+        'skills/*/SKILL.md'` lists only `M`). No MR changed the `name`,
+        `description` or `when_to_use` of the five skills with routing cases
+        (frontmatter compared per skill between the two commits). No MR changed
+        a routing-tagged case: the new cases `work-backlog-4` and
+        `work-backlog-5` carry no `routing` tag.
+      - The run itself was shown by hand on this branch (the next check). The
+        first MR that does trigger it is the first live proof. If that MR does
+        not run the suite, file a bug against `skills/create-pr` step 5. Do not
+        reopen this item.
 - [x] `claude plugin eval <worktree> --tag routing --runs 1 --ablation none
       --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 3` (the
       command in `evals/README.md`, with sandbox bypass) → 10 case(s), 10/10
