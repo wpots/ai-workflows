@@ -73,17 +73,22 @@ eligible — the close of month M still cross-references month M−1.
      `git cat-file -e origin/<integration>:docs/sprint-<M>-changelog.md`;
    - for the last-closed sprint, the next planning has run (Inputs 2);
    - `docs/sprint-<M>/` exists.
-3. Count the links into the folder from living docs and report them per file:
+3. Count the references to the folder across the whole repository, not only
+   `docs/`, and report them per file:
 
    ```bash
-   rg -c "sprint-<M>/" docs/ rules/ commands/ README.md CONVENTIONS.md \
-     --glob '!docs/sprint-<M>/**' --glob '!docs/sprint-<M>-changelog.md'
+   git grep -c -E "sprint-<M>/" -- . ':!docs/sprint-<M>/' ':!docs/sprint-<M>-changelog.md'
+   rg -c "sprint-<M>/" docs/todo/
    ```
 
-   Phase 2 turns each of them into a retrieval recipe. When ADRs, architecture
+   The first command reads tracked files in every directory (docs, source,
+   scripts, config); the second adds the gitignored local todos. Phase 2 turns
+   each living-doc reference into a retrieval recipe. When ADRs, architecture
    docs, a cross-sprint register or open backlog items are among them,
    recommend waiting until the work they document has shipped, and let the
-   user decide. Not a refusal: the count is the user's input.
+   user decide. Not a refusal: the count is the user's input. A hit under
+   `src/`, `scripts/`, `e2e/` or config is a code reference: Phase 2 and 4
+   say what happens to it.
 
 ## Phase 1 — Harvest durable content (flag-only)
 
@@ -105,20 +110,34 @@ topic, not per BLI. Each item names the durable statement, the suggested home
 (`git show sprint-<M>-bli-archive:docs/sprint-<M>/<file>`). Moving the content
 into its home is follow-up work with its own review, never part of this run.
 
+A folder of a dozen or more BLIs is worth a read-only subagent per sprint that
+reports topics back instead of editing. Its report is a lead, not a fact: a
+statement read from a BLI rather than checked in code is marked `verify` in the
+harvest file, and a contradiction between a BLI and the code is settled with
+one targeted search before it is written down as fact.
+
 ## Phase 2 — Link sweep
 
-Find every reference to the folder before removing it:
+Find every reference to the folder before removing it, in the whole repository:
 
 ```bash
-rg "docs/sprint-<M>/|docs/sprint-<M>-gaps.md" docs/ rules/ commands/ README.md
+git grep -n -E "docs/sprint-<M>/|docs/sprint-<M>-gaps\.md" -- . ':!docs/sprint-<M>/' ':!docs/sprint-<M>-changelog.md'
+rg -n "docs/sprint-<M>/|docs/sprint-<M>-gaps\.md" docs/todo/
 ```
 
 - References in **active** documents (backlog items, specs, todos): rewrite to
-  the harvested todo item or to the retrieval recipe.
+  the harvested todo item or to the retrieval recipe. A link to the folder as a
+  GitLab blob URL matches too: write the recipe as plain text, not as a link
+  that points at a file that is gone.
 - References inside `docs/sprint-<M>-changelog.md` itself become bare
   filenames — the `## Archief` section explains retrieval.
 - References inside other not-yet-compacted sprint folders may stay; they get
   the same treatment when their own sprint is compacted.
+- A reference from **code, tests or config** (an `@see` comment, a script's
+  pointer to a runthrough document) is not a doc edit, and rewriting it makes
+  the compaction diff non-docs-only. Leave it untouched in this run, list each
+  file and line in the harvest todo under "Follow-up MR", and keep the file it
+  names (Phase 4) — the same split as `commands/close-sprint.md` Phase 5.
 
 ## Phase 3 — Rewrite the changelog to the compact template
 
@@ -131,12 +150,32 @@ review evidence to grouped code paths. Add the `## Archief` section with the
 retrieval recipe. The full pre-compaction changelog stays reachable via the
 same tag.
 
+Two checks before the compact file replaces the original:
+
+- **No item lost.** Save the original (`git show HEAD:docs/sprint-<M>-changelog.md`
+  to a scratch file) and run
+  `node skills/compact-sprint/scripts/check-changelog-keys.mjs <original> <compact>`
+  (from the plugin or ai-workflows checkout). It
+  fails on a ticket that headed a table row and is gone, and reports the size
+  against the 15 KB target. The same check clears a draft a subagent wrote.
+- **No stale snapshot.** A "partial", "not delivered" or "no call site uses X"
+  line is a close-day statement. Re-check each against the integration branch
+  before copying it into "Afwijkingen & vervolg", or date it ("stand
+  <date>"); one targeted search per line is enough.
+
 ## Phase 4 — Remove the folder
 
 ```bash
 git rm -r docs/sprint-<M>/
 git rm docs/sprint-<M>-gaps.md
 ```
+
+Before `git rm -r`, list the folder and set aside every file that a Phase 2 hit
+outside `docs/` names, and any file that is not a BLI at all. Remove the rest
+file by file with `git rm`, leave those in place, and name them under
+`## Archief` and in the harvest todo's follow-up, with where they should
+move. The folder then survives with only those files until that follow-up
+lands.
 
 The gaps document was read by sprint M+1's planning and has had no reader
 since; the archive tag keeps it. A sprint closed before close-sprint cleared
@@ -154,10 +193,13 @@ Then hand the user the exact commands, **in this order** — the tag must land
 on a commit that still contains the folder and the full changelog:
 
 ```bash
-git tag sprint-<M>-bli-archive      # on the pre-compaction HEAD, before committing
+git tag sprint-<M>-bli-archive <sha>  # <sha> = the pre-compaction HEAD, before committing
 git push origin sprint-<M>-bli-archive
 # then commit the compaction diff via the normal MR/commit flow
 ```
+
+Print the real sha (`git rev-parse --short HEAD`) in the command, and one tag
+line per compacted sprint pushed in a single `git push`.
 
 When the project merges via MRs, the pre-compaction HEAD on the integration
 branch is already public, so the tag is safe to push immediately.
@@ -169,5 +211,6 @@ End with a concise list of:
 - Todo items created (paths)
 - Changelogs rewritten (size before → after)
 - Folders and gaps documents removed, plus any leftover working documents
-- References rewritten (count per file)
+- References rewritten (count per file), and the code references left for
+  their own MR (file and line)
 - The tag + push commands handed to the user

@@ -15,7 +15,12 @@ same workflow; Copilot follows the runbook directly.
 
 ## Workflow
 
-1. Read `commands/close-sprint.md` (project root, or the synced `commands/` dir).
+1. Read `commands/close-sprint.md` at the plugin root
+   (`<skill-dir>/../../commands/close-sprint.md`). A project's synced
+   `commands/` copy can lag the plugin and miss whole phases (5b, 5c and the
+   link sweep were absent from one): when both exist and differ, follow the
+   plugin's and say so in the recap. Use the project copy only on a tool with
+   no plugin copy.
 2. On projects without sprints, run the runbook in **support mode** (see its
    "Support mode" section): the close window is a calendar month and every
    `sprint-<N>` artifact maps to `support-<yyyy>-<mm>` (e.g. `support-2026-08`).
