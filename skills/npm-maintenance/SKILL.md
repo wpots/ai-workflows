@@ -108,20 +108,25 @@ does not show what happens. When the bump is a framework minor, the history
 check in §1 found a revert, or the risk verdict is High, measure before
 calling it safe:
 
-1. Measure request volume on a production build served locally (`next start`)
-   against the current production deployment as baseline: the homepage and one
-   list page, DevTools filtered on the framework's data-request marker
-   (`_rsc` for Next), counted after load, after 60 s idle, and after forced
-   re-renders.
+1. Measure the homepage and one list page, on a production build served
+   locally (`next start`) and on the current production deployment as the
+   baseline. Use the headless method in
+   [references/request-measurement.md](references/request-measurement.md): it
+   counts the framework's data requests (`_rsc` for Next) over 30 s of idle
+   after load, sampled every 5 s.
+   - **The idle check fails** when a marked request arrives in the last 10 s,
+     or when one URL is requested more than twice. A failure keeps the MR in
+     Draft, the same as a High verdict without a measurement.
+   - Report the volume against production as numbers, without a threshold.
 2. **Positive control**, when a known-bad version exists (a revert found in §1
    step 5): reinstall it with `<pm> install <pkg>@<bad> --no-save`, rebuild,
    and repeat the measurement. A clean result on the target proves nothing
    until the failure has been reproduced on the bad version. Restore
    `node_modules` from the lockfile afterwards. When no known-bad version
    exists, say that the result has no positive control.
-3. Put the numbers in the **Measurement** line of the risk block, and fill in
-   its **Watch after deploy** (the metric to check in the first hour) and
-   **Rollback** lines.
+3. Put the numbers and the idle result in the **Measurement** line of the risk
+   block, and fill in its **Watch after deploy** (the metric to check in the
+   first hour) and **Rollback** lines.
 
 ## 4. Address vulnerabilities
 

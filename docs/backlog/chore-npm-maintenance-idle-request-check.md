@@ -4,11 +4,10 @@
 
 <!-- draft | ready | in-progress | done -->
 
-draft
+done
 
-Filed 2026-10-21. Proposed for `ready`: no product question open. Lowest of the
-four dependency-regression items: build it after the other three, or when a
-measurement is skipped again.
+Filed 2026-10-21. Delivered the same day after the maintainer approved it, as
+an MR stacked on the one that filed it.
 
 ## Ticket
 
@@ -59,7 +58,33 @@ in DevTools.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] `node scripts/validate-skills.mjs` passes.
+- [x] The script from `references/request-measurement.md`, run once against a
+      local `next start` of a scratch Next 16.4.2 app. The app has a home page
+      linking to `/a`, `/b` and `/loop`, and a `/loop` page that calls
+      `router.refresh()` every second as a positive control. Command:
+      `node <scratch>/measure/measure-rsc.mjs --project <scratch>/idle-app http://localhost:3999/ http://localhost:3999/loop`,
+      with puppeteer-core 25.15.0 against the local Chrome, outside the
+      sandbox. Output:
+
+      ```
+      PASS http://localhost:3999/: _rsc total 6, last 10 s 0, max per URL 1, samples every 5 s 6 6 6 6 6 6
+        1x /a /_tree (200)
+        1x /b /_tree (200)
+        1x /loop /_tree (200)
+        1x /loop (200)
+        1x /b /b/__PAGE__ (200)
+      FAIL http://localhost:3999/loop: _rsc total 30, last 10 s 10, max per URL 30, samples every 5 s 4 9 14 20 25 29
+        30x /loop (200)
+      ```
+
+      Exit code 1, because `/loop` fails the idle check.
+- [x] The same command inside the command sandbox exits 2 with "The browser is
+      already running for …": Chrome cannot start there. The reference says so.
+- [ ] Reviewer: read step 1 of "Behavioural changes need a measurement" in
+      `skills/npm-maintenance/SKILL.md`, the High row in
+      `references/risk-analysis.md` §7 and the Measurement line in §8 side by
+      side. They agree on when the MR stays in Draft.
 
 ## Technical Notes
 
@@ -98,6 +123,22 @@ status was missing.
 **Test level.** Prose plus a script snippet, checked in review. Run the snippet
 once at delivery against a local `next start` of a Next project, and paste its
 output into `How to verify`. `node scripts/validate-skills.mjs` must pass.
+
+**Delivery notes (2026-10-21).**
+
+- puppeteer-core is installed with `npm install --prefix <scratch>/measure`,
+  not run through `npx`. Node resolves `import` from the script's location, so
+  a package that `npx` fetched cannot be imported by a script outside it.
+  Neither path touches the project.
+- Requests are keyed by path plus Next's `Next-Router-Segment-Prefetch` header.
+  Next 16 prefetches a link as separate segment requests (`/_tree`,
+  `/b/__PAGE__`), so keying by path alone would count a healthy link more than
+  once.
+- The High row in §7 changed as well. It said a headless run always leaves the
+  MR in Draft. Now that the measurement runs headless, Draft is only for a
+  measurement that could not run or an idle check that failed.
+- "After forced re-renders" from the old step 1 is gone. The headless method
+  measures load plus idle, which is the state the loop signature lives in.
 
 ## Out of Scope
 

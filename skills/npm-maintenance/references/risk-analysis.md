@@ -126,7 +126,7 @@ The highest level that applies wins.
 | --- | --- |
 | Low | Ready for review, with the block in the description. |
 | Medium | Ready for review. "Watch after deploy" names a concrete metric and where to read it. |
-| High | Draft until the measurement in `skills/npm-maintenance/SKILL.md` ("Behavioural changes need a measurement") has run and its numbers are in the block. A headless run leaves the MR in Draft and lists the measurement as an open action for a human. A hotfix follows its own rule (`skills/dependency-hotfix/SKILL.md` Step 3). |
+| High | Draft until the measurement in `skills/npm-maintenance/SKILL.md` ("Behavioural changes need a measurement") has run, its idle check passed, and its numbers are in the block. A headless run carries the measurement out with `references/request-measurement.md`. It leaves the MR in Draft, with the measurement as an open action for a human, only when the measurement could not run (no local build, no browser) or its idle check failed. A hotfix follows its own rule (`skills/dependency-hotfix/SKILL.md` Step 3). |
 
 ## 8. The block in the MR description
 
@@ -152,7 +152,7 @@ needs nothing beyond its table line.
 **Cost surface**: Vercel Function Invocations and Edge Requests. Baseline ~<n>/day (<usage page>).
 **History**: <revert sha> "<subject>" — <reason>, or "no earlier bump or revert".
 **Upstream**: <open regression issues that touch an exposed feature>, or "none found".
-**Measurement**: `_rsc` requests home/list after load · 60 s idle: production <n> · target <n> · known-bad <n>, or "open — required before this leaves Draft".
+**Measurement**: `_rsc` requests home/list over load + 30 s idle: production <n> · target <n> · known-bad <n>; idle: pass|fail (last 10 s: <n>, max per URL: <n>), or "open — required before this leaves Draft".
 **Watch after deploy**: <metric> in the first hour on <page>; act above <threshold>.
 **Rollback**: revert this MR and redeploy <previous tag or commit>.
 ```
