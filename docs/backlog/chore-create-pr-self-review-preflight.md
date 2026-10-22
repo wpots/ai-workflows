@@ -117,3 +117,4 @@ Depends on: feat-routing-evals-before-mr.md
 - [feat-routing-evals-before-mr.md](feat-routing-evals-before-mr.md)
 - https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/143
 - [../pipeline-map.md](../pipeline-map.md) — gap 1
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/277
