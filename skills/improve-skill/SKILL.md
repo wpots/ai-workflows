@@ -45,9 +45,21 @@ If a run had zero friction, skip silently — do not touch the skill.
      re-asks mid-batch
    - pitfalls, phrased as "never do X — it fails like Y; do Z instead"
    Drop anything session-specific (repo names, MR numbers, one-off context).
+   Some learnings rest on an outside fact: a tool flag, a platform limit, a
+   version, a branch or release line, a sandbox rule. Such a learning names,
+   in the same sentence:
+   - the fact it rests on;
+   - when that fact was checked;
+   - what would make the learning false.
+   For example: "`glab mr create` cannot take a body file; holds while glab
+   has no `--description-file` (checked 2026-10)". A learning about the repo's
+   own conventions is permanent and needs no condition.
 4. **Apply minimal edits** to the skill source: extend existing sections
    before adding new ones, keep the skill terse, and update the frontmatter
-   `description` if the skill's scope grew. If the fallback command runbook
+   `description` if the skill's scope grew. First read the existing pitfalls
+   in the area you edit. When a pitfall's stated condition visibly no longer
+   holds, remove that pitfall in the same edit, and name the removal in the
+   report. If the fallback command runbook
    exists and now materially diverges, give it a compact version of the same
    change. Editing `commands/<name>.md` changes its generated Copilot adapter
    `.github/prompts/<name>.prompt.md`: the pre-commit hook regenerates it and
@@ -68,7 +80,7 @@ If a run had zero friction, skip silently — do not touch the skill.
    - **a solution note** — when the learning is project-specific (belongs to
      that codebase, not the shared skill), write
      `docs/solutions/<slug>.md` in the project: symptom, root cause, fix,
-     prevention — one page. `backlog`, `refinement`, and `work-backlog` read
+     prevention, retire when — one page. `backlog`, `refinement`, and `work-backlog` read
      that folder as grounding, so the lesson resurfaces at planning time
      instead of being relearned.
 6. **Update intent mappings** when new trigger phrases surfaced this session:
@@ -79,8 +91,11 @@ If a run had zero friction, skip silently — do not touch the skill.
    never edit the generated blocks or the synced
    `~/.claude/rules/ai-workflows.md`.
 7. **Report once**: which files changed and the learnings captured, one line
-   per learning, including which compound artifacts (check/eval/solution
-   note) each produced.
+   per learning. Each line gives:
+   - the learning's retirement condition from step 3, or "permanent" for a
+     convention;
+   - which compound artifacts (check/eval/solution note) it produced.
+   Then list any pitfall removed under step 4.
 
 ## Deciding Whether a Skill Is Warranted
 
