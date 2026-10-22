@@ -30,6 +30,8 @@ Everything outward-facing is listed in the Step 3 plan and approved there in
   user sends them. This skill never sends mail. When the connector cannot
   write, the mail text goes in the reply instead;
 - Slack posts in the project channel, only when the user chose to share;
+- one reply in the dependency scanner's Slack thread, when its latest scan
+  lists the project under *Fix now* or *Deploy to fix now* (Step 8c);
 - tracker writes for the tickets the plan lists: a version (or the label
   fallback). No status change: Jira's automation moves tickets from the
   pipeline, and Step 7 reads the status back;
@@ -156,6 +158,7 @@ Release       cut on acceptance → acc rehearsal → ff-push to main → deploy
 Notes         skills/release-notes, v1.1.2..v1.2.0, product owner, Dutch
 Live mail     reply in the same thread, overview from the notes
 Slack         #<channel>: start message, live reply in the thread
+Scanner       reply "patched" in the dependency-scan thread of 20 Oct (payload 3.86.0 → 3.90.2), or "not listed"
 Tracker       fixVersion v1.2.0 on 11 tickets, 2 of them partial (RFW-295 MR still open, RFW-292 open PO question) · status read back after the deploy, no transitions · open, no version: RFW-301 (MR only)
 Housekeeping  support-2026-09 not closed yet → close-sprint after this run · stale branches listed at the end
 ```
@@ -336,6 +339,27 @@ Never list protected branches (`main`, `master`, `development`, `acceptance`,
 reported, never removed. Show the itemized list, then delete only the items
 the user approves. Verify that each approved item is gone.
 
+**8c. Dependency scanner thread.** The weekly scan post in Slack lists a
+project under *Deploy to fix now* when its fix sits on a branch but not on
+production yet, and says a release fixes it. This release is that fix, so
+close the loop once the deploy read-back is green:
+
+- Find the newest post: `slack_search_public` for "Dependency scan: action
+  items", then `slack_read_thread`. Skip the step when the project is listed
+  under neither *Fix now* nor *Deploy to fix now*.
+- Check before claiming: for each listed package, read the version the tag
+  ships (npm: `git show <tag>:package-lock.json | jq -r
+  '.packages["node_modules/<pkg>"].version'`) and compare it with the
+  scanner's fixed version. A package still below it is not patched: say that
+  and name the package instead.
+- Reply once in that thread, in its language: the project, "gepatcht" or the
+  equivalent, the live version and date, each package as `name@shipped` with
+  the scanner's `old → fixed`, and that the scan of `<date>` predates the
+  release, so the next scan clears it. `generatedAt` in the scanner's
+  `report.json` gives that date (`skills/dependency-hotfix` shows how to
+  fetch it). Never write that the scanner confirms the fix before a scan after
+  the release says so. The Step 3 go covers this post.
+
 ## Step 9 — Recap
 
 | | |
@@ -344,6 +368,7 @@ the user approves. Verify that each approved item is gone.
 | Deploy | read-back result and the live time, or ⚠️ with the quoted response |
 | Mails | draft links, whether the start mail was sent, the signature reminder |
 | Slack | thread link, or "not shared" |
+| Scanner thread | reply link, "not listed", or "not patched" with the package still below its fixed version |
 | Notes | `docs/releases/<key>.md` |
 | Tracker | version or label with the ticket count (partial ones included) and where to find it, shipped tickets not yet done with their status, tickets moved on the user's go, partial and open tickets with the reason |
 | Housekeeping | close and compact hand-offs, branches and worktrees removed or kept |
