@@ -20,6 +20,15 @@
         ]
       },
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/scripts/require_pinned_install_runtime.py\""
+          }
+        ]
+      },
+      {
         "matcher": "Bash|mcp__.*__transitionJiraIssue",
         "hooks": [
           {
