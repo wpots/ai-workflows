@@ -103,8 +103,9 @@ live in `skills/payload-jobs/SKILL.md`.
   `migrate:status`, `migrate:fresh`, `migrate:reset`, or any `payload migrate*`
   variant) — the user applies migrations manually; tell them what to run after
   schema changes. `templates/project-claude-settings.json` ships a PreToolUse
-  hook that hard-denies `migrate:fresh`/`migrate:create` invocations as a
-  deterministic backstop (it ignores mere mentions in grep/cat/echo)
+  hook that hard-denies every migrate script run through pnpm, npm, yarn, bun,
+  npx or `payload` as a deterministic backstop (it ignores mere mentions in
+  grep, cat, echo, git, glab, gh, jira and jq; `scripts/test_migration_guard.py`)
 - if the schema change lives on a branch checked out in a git worktree, check
   that branch out in the project's main working directory as soon as a
   migration is needed, and remove the now-unneeded worktree — migrations run
