@@ -194,8 +194,10 @@ shared `.git/config`.
 Check the prerequisites (Docker, gitleaks, the 1Password CLI, a free database
 port), then run the path with the scripts `package.json` defines: install from
 the lockfile, `.env.keys`, `test` without CMS env, `db:up` — **ask first**, it
-starts a container — with the migrations, `lint:check`, `type-check`, `build`,
-and the hook commands. The full list and the report format are in
+starts a container — `lint:check`, `type-check`, `build`, and the hook
+commands. **Never run a migrate script** (`migrate`, `migrate:status`, any
+`payload migrate*`): the developer applies the migrations, per
+`rules/payload.md`. The full list and the report format are in
 [references/first-run.md](references/first-run.md); read it before running the
 lane. A pass you did not see is not a pass.
 

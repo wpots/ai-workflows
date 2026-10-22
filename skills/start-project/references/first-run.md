@@ -26,8 +26,11 @@ a step whose script the project does not have:
 1. install from the lockfile (`pnpm install --frozen-lockfile`, `npm ci`)
 2. `.env.keys` exists, or `env:keys` writes it
 3. `test`, in a shell without CMS variables, as CI and a new developer run it
-4. `db:up` — **ask first**, it starts a container — then `migrate:status` and
-   `migrate` against that fresh database
+4. `db:up` — **ask first**, it starts a container. Then hand the migrations
+   to the developer: name the command (`pnpm run migrate`) and wait for their
+   result. Never run `migrate`, `migrate:status` or any other migrate script
+   yourself (`rules/payload.md` § Migrations); a step that needs a migrated
+   database is **not run** until the developer reports it ran
 5. `lint:check`, `type-check`, `build`
 6. the hooks: run the commands of `.husky/pre-commit` and `.husky/pre-push` as
    the files list them. When a test shells out to git, check that it drops the
