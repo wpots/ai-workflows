@@ -45,6 +45,10 @@ Confirm only what you cannot infer safely:
    move it on that session's behalf.
 3. Otherwise create a new file using the naming rules from `rules/backlog.md`
    plus any stricter project-local convention from `CONVENTIONS.md`.
+4. The same item in several repositories: check per repository that the
+   problem exists, write one shared contract first (names, paths, flags,
+   defaults, formats, refusals), and put it verbatim in every item's
+   `Technical Notes`. Parallel writers all get that contract.
 
 ## Phase 3 — Draft the item
 
