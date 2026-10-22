@@ -55,16 +55,27 @@ repo answers it:
 Collect the delivered set from the first source that exists; use later ones to
 fill gaps, never to override an earlier one:
 
-1. `docs/sprint-<N>-changelog.md` (or `docs/support-<yyyy>-<mm>-changelog.md`)
-   § Opgeleverd — the "Wat" column is already one functional sentence per item,
-   verified at sprint close, with the delivering commit in "Bewijs".
-2. `docs/demo/sprint-<N>/demo-script.md` — the "Wat" and "Waarom het telt"
+1. For a release scope key, the project's `CHANGELOG.md` when it keeps one
+   section per release (`## [X.Y.Z]`, with `## [Unreleased]` on top): the
+   section of the release tag, or `## [Unreleased]` for
+   `<production-ref>..<integration-ref>`. Each MR writes its own line there,
+   so the section also holds the work no ticket covers; a key, when there is
+   one, is the line's suffix. The lines are written for the team, often not in
+   the customer's language: input for Phase 1 and 3, never the customer
+   sentence. The delivering commit for Phase 2 is the oldest one
+   `git log --reverse --format=%h -S "<phrase from the line>" -- CHANGELOG.md`
+   lists.
+2. `docs/sprint-<N>-changelog.md` (or `docs/support-<yyyy>-<mm>-changelog.md`)
+   § Opgeleverd and § Ticketloos opgeleverd — the "Wat" column is already one
+   functional sentence per item, verified at sprint close, with the delivering
+   commit in "Bewijs".
+3. `docs/demo/sprint-<N>/demo-script.md` — the "Wat" and "Waarom het telt"
    lines per story plus the talk-only list; once close-sprint has flattened
    the folder, the same content is `docs/sprint-<N>/demo.md`.
-3. Tracker tickets in the range: `git log <range> --format=%s` for the keys,
+4. Tracker tickets in the range: `git log <range> --format=%s` for the keys,
    then each ticket's summary and acceptance criteria, and its BLI in
    `docs/backlog/` or `docs/sprint-<N>/`.
-4. Commit subjects — for finding items only. A commit subject is never the
+5. Commit subjects — for finding items only. A commit subject is never the
    customer-facing sentence.
 
 Record per item: key (or `—`), one functional sentence, source, and the commit
