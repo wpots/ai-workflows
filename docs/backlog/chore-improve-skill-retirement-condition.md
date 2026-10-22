@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+done
 
 Filed 2026-10-21 from rank 9 of the October 2026 stack review
 (`docs/ai-stack-review-2026-10.md`, the maintainer's untracked local copy). On
@@ -65,7 +65,30 @@ on.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- [x] **Eval `improve-skill-1`, base against branch.**
+      Command: `claude plugin eval <checkout> --case improve-skill-1 --runs 2
+      --ablation none --no-publish --trust-plugin --judge-model sonnet`.
+      - **`main` (`c0d4186`) with the case copied in:** 0/2, score 0.33 on both
+        runs.
+        - Neither run gives the `--state` learning a condition. One run wrote
+          only "glab 1.46 rejects it (checked 2026-10-22)".
+        - Neither run marks the branch convention permanent.
+      - **This branch:** 2/2, score 1.00, $0.32.
+- [x] **The case does not lean on the skill's own example.**
+      - A first version used the same `glab mr create --description-file`
+        fact that step 3 now gives as its example. It passed on the branch,
+        2/2, but that proved little.
+      - The case now uses a different flag: `glab mr list --state`.
+      - Grader `a1` was tightened too. The judge had accepted a version and a
+        date as a condition, and now it does not.
+      - All eval runs for this item cost $1.94.
+- [x] `skills/improve-skill/SKILL.md` is 194 lines, within the 500-line budget.
+      Steps 3, 4, 5 and 7 are extended, and no section is added.
+- [x] The pre-commit hook ran on each commit: `validate-skills.mjs` clean, the
+      test suites green, and `No drift detected` (nothing is generated from this
+      skill).
+- **Routing evals: not triggered.** `improve-skill` has no routing cases, its
+  frontmatter is unchanged, and the new case is not tagged `routing`.
 
 ## Technical Notes
 
@@ -109,3 +132,4 @@ on.
 - [../../skills/improve-skill/SKILL.md](../../skills/improve-skill/SKILL.md)
 - [../../evals/README.md](../../evals/README.md)
 - https://github.com/EveryInc/compound-engineering-plugin/releases
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/278
