@@ -43,13 +43,14 @@ existing-project path instead: [adopt-existing-project.md](adopt-existing-projec
 ## One Workflow: `start-project`
 
 Open the project in Claude or Codex and ask for the `start-project`
-workflow (Claude: `/greenberry:start-project`). It runs six lanes in order and
-stops for you where a person is needed.
+workflow (Claude: `/greenberry:start-project`). It runs six lanes plus a first
+run in order and stops for you where a person is needed.
 
 | Lane | What it does | What it leaves behind |
 | --- | --- | --- |
-| 0 · Repository | checks the repo against the template method above: namespace, template lineage, default branch and merge settings, protected branches, approval rules, CI/CD variable names, Jira and Slack integrations | a pass/deviation/unknown table; proposed fixes; a recorded PoC waiver when that applies |
+| 0 · Repository | checks the repo against the template method above: namespace, template lineage, what the template changed since, default branch and merge settings, protected branches, approval rules, CI/CD variable names, Jira and Slack integrations | a pass/deviation/unknown table; proposed fixes; `docs/todo/unicore-template-ports.md`; a recorded PoC waiver when that applies |
 | 1 · Config | runs `setup-ai-workflows` when the project has no (or a stale) `CONVENTIONS.md` | `CONVENTIONS.md` + the tool adapters |
+| 1b · First run | runs the project the way a developer starts it on day one: install, tests, local database and migrations, build, hooks | a pass/fail table; each failure routed to a template fix or a backlog item |
 | 2 · Resources | asks for design and service resources **before** writing anything | Figma/prototype links, CMS instance, tracker key, hosting, integrations with their credential owners, test accounts |
 | 3 · Intent | interviews you in short rounds | `docs/project-brief.md`, `docs/project-spec.md`, `docs/architecture.md` |
 | 4 · Journeys | hands off to `user-journeys` | one document per journey in `docs/journeys/`, each ending in slice candidates |

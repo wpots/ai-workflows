@@ -101,6 +101,6 @@ change.
 
 | Moment | Surface | Level |
 | --- | --- | --- |
-| Repo kickoff or retrofit | `skills/start-project` lane 1 | **Blocking** — deviations are reported, and fixed with the script only after an explicit go |
+| Repo kickoff or retrofit | `skills/start-project` lane 0, check 3b | **Blocking** — deviations are reported, and fixed with the script only after an explicit go |
 | Opening an MR | `skills/create-pr` | **Blocking** — conventional MR title and the `ai:agent-authored` label |
 | Monthly sweep | `skills/maintenance` lanes E and H | **Advisory** — settings drift as a finding; metrics as a delta |

@@ -61,7 +61,8 @@ lines rather than answering twenty questions.
 It detects retrofit mode itself and states the mode back to you in one line
 before continuing. It never overwrites an existing document without asking.
 
-`start-project` runs six lanes, and on a retrofit it says which it skips and why.
+`start-project` runs six lanes plus a first run, and on a retrofit it says which
+it skips and why.
 Two of them do work you would otherwise do by hand here:
 
 - **Lane 0 · Repository** checks the repo against the Greenberry template method —
