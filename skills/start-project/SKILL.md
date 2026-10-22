@@ -7,19 +7,21 @@ metadata:
 
 # Start A Project
 
-The one entry point for a project. Six lanes, in order — each one checks before
-it builds, so a lane that is already done costs a sentence instead of a rerun.
+The one entry point for a project. Six lanes plus a first run, in order — each
+one checks before it builds, so a lane that is already done costs a sentence
+instead of a rerun.
 
 | Lane | Question it answers | Output |
 | --- | --- | --- |
-| 0 · Repository | does the repo exist, and was it created the Greenberry way? | a verified repo, or the exact steps — plus a recorded waiver when it is a PoC |
+| 0 · Repository | does the repo exist, was it created the Greenberry way, and what has the template changed since? | a verified repo, or the exact steps — plus a recorded waiver when it is a PoC, and the template MRs to port |
 | 1 · Config | is ai-workflows set up in it? | `CONVENTIONS.md` + tool adapters, via `skills/setup-ai-workflows/SKILL.md` |
+| 1b · First run | does it run the way a developer starts it on day one? | a pass/fail table per step; each failure a finding with its fix route |
 | 2 · Resources | what already exists: designs, CMS, hosting, tracker, accounts? | a resource table every later lane reads from |
 | 3 · Intent | why, for whom, what does this release do, how is it structured? | `docs/project-brief.md`, `docs/project-spec.md`, `docs/architecture.md` |
 | 4 · Journeys | how does a user actually walk through it? | `docs/journeys/*`, via `skills/user-journeys/SKILL.md` |
 | 5 · Plan | what is the first properly sized work? | backlog items + tickets, via `skills/backlog/SKILL.md` |
 
-Run all six at a kickoff. On a retrofit, run the lanes that are missing and
+Run all of them at a kickoff. On a retrofit, run the lanes that are missing and
 **say which you skip and why** — a skipped lane nobody named is how a project
 ends up without an architecture doc for a year.
 
@@ -98,6 +100,7 @@ check:
 | --- | --- | --- |
 | 1 | repo exists and sits at `greenberrynl/<client>/<project>` | `git remote -v`, `glab repo view <path>` |
 | 2 | created from the template — its lineage is recorded | `.unicore.json` exists (written by the template's setup, v4) and its `template.commit` exists in the template: `glab api "projects/greenberrynl%2Fthe-greenhouse%2Funicore-template/repository/commits/<commit>"`. No record → a v3 project or a skipped setup: fall back to a file fingerprint (`scripts/husky/readme-checks.js`, CI config, tooling config, `.nvmrc`, folder skeleton) and record that lineage could not be proven. A merge-base finds nothing: the template's `readme-checks` hook makes every project replace the template history before its first commit |
+| 2b | the template has not moved on without the project | [Template delta](#template-delta-check-2b) below. Each template MR since `template.commit` that the project still lacks is a **deviation** until it has a row in the ports list |
 | 3 | default branch and visibility match the Greenberry defaults | `glab api "projects/<url-encoded-path>"` |
 | 3a | no MRs, issues or tags copied from the template | `glab api "projects/<path>/merge_requests?state=all"` and `.../issues?state=all`, compare each `created_at` with the project's own `created_at`; `.../repository/tags?per_page=100`, compare each tag's `commit.created_at` the same way. Anything older than the project was imported from the template, so report it as a **deviation**. If the project has no own MR yet, propose deleting the copies, after approval, and the first own MR still gets `!1`. If it already has an own MR, the number is taken. Propose deleting the tags too, after approval; a clone keeps a deleted tag until `git fetch --prune --prune-tags`. In every case, delete the items from the template too, so the next project starts clean |
 | 3b | merge settings match `rules/git-flow.md` | `node <ai-workflows>/scripts/gitlab-merge-settings.mjs --project <path>` — read-only; reports `ff` + squash-always, the squash commit template, delete-source-branch, and the pipeline/discussion gates. Paste its table into the lane report. Resolving `<ai-workflows>`: see below |
@@ -124,6 +127,17 @@ Use the first that exists:
 
 Neither exists → report the check as **unknown** and name both paths tried. Never
 edit a script under the plugin cache: it is replaced on update.
+
+### Template delta (check 2b)
+
+A project made from `development` starts on a line that keeps moving:
+trimbos-website took five template MRs in its first two days. List the
+template MRs merged or open since `template.commit`, decide per MR whether the
+project has the change, needs a port or is not affected, and write the ports
+to `docs/todo/unicore-template-ports.md`. Each port lands as its own MR, not in
+the kickoff. The commands and the file's format are in
+[references/template-delta.md](references/template-delta.md); read it before
+running the check.
 
 ### Fixing deviations
 
@@ -164,6 +178,38 @@ On a fresh clone `docs/architecture.md` does not exist yet, so that run detects
 the layer mapping itself. After lane 3 writes the architecture doc, **offer the
 refresh**: `CONVENTIONS.md` should link the intended mapping instead of carrying
 a second, re-derived copy of it.
+
+---
+
+## Lane 1b — First run
+
+Lanes 0 and 1 read the repository; this lane runs it, the way a developer does
+on day one. On trimbos-website four of the first thirteen commits fixed this
+path, each found by accident during other work: the tests failed without CMS
+env, the database had no start script and a wrong example URL, the Payload CLI
+read the encrypted env as plain text and lost port 5432 to another project's
+container, and a pre-push from a linked worktree set `core.bare=true` in the
+shared `.git/config`.
+
+Check the prerequisites (Docker, gitleaks, the 1Password CLI, a free database
+port), then run the path with the scripts `package.json` defines: install from
+the lockfile, `.env.keys`, `test` without CMS env, `db:up` — **ask first**, it
+starts a container — with the migrations, `lint:check`, `type-check`, `build`,
+and the hook commands. The full list and the report format are in
+[references/first-run.md](references/first-run.md); read it before running the
+lane. A pass you did not see is not a pass.
+
+**Every failure is a finding, not a fix.** Check whether the failing file is
+template-owned (the `owned` globs of check 2b):
+
+- template-owned → a template fix through `skills/upstream-to-unicore`, plus a
+  row in the ports list of check 2b; when an open template MR already fixes
+  it, name that MR
+- project-owned → an item through `skills/backlog`
+
+The kickoff goes on with lane 2; the fixes land as their own MRs. On a
+retrofit, run this lane when nobody has run a fresh clone since the last
+template port, and skip it, saying so, when the team runs this path daily.
 
 ---
 
@@ -212,28 +258,12 @@ Rules for this lane:
 ### 3a. Harvest what the repo already knows
 
 **First, check whether this kickoff already ran** — also on what looks like a
-bare clone, because the evidence lives outside the working tree:
-
-```
-git worktree list   # a prior session may have worked in another worktree
-git stash list      # a prior session may have stashed the scope document
-```
-
-Harness-created worktrees land in `.claude/worktrees/<name>`, hand-made ones in
-`~/.worktrees/<repo>-<slug>` (`skills/create-pr/references/worktrees.md`); `git worktree list`
-shows both. Read what they hold before interviewing:
-
-- per worktree: `git -C <path> status --porcelain`, then `ls <path>/docs`
-- per stash: `git stash show --name-only "stash@{n}"` **and**
-  `git show --stat "stash@{n}^3"` — the `^3` parent holds the files stashed
-  with `-u`, which is where an untracked document hides
-
-None of this shows up in `git status`, `ls`, or a `docs/` glob. Missing it is the
-most expensive failure in this skill: a second kickoff that rebuilt the documents
-from less evidence chose a different library than the first run had (with a
-reason), filed duplicate `docs/todo/` entries under new names, and never saw the
-requirements document, which existed only in a stash. When a prior run exists,
-stop and reconcile with the user before writing — see "Never overwrite silently".
+bare clone: other worktrees and the stash list (including the `^3` parent of a
+`-u` stash) can hold a prior run's documents that `git status`, `ls` and a
+`docs/` glob never show. Missing them is the most expensive failure in this
+skill. The commands are in [references/prior-run.md](references/prior-run.md).
+When a prior run exists, stop and reconcile with the user before writing — see
+"Never overwrite silently".
 
 Then, on a retrofit, read before asking — every fact found here is one question
 the team does not have to answer:
@@ -291,37 +321,16 @@ Never one long questionnaire. Four rounds, each small enough to answer in one
 sitting. Use `AskUserQuestion` where the harness offers it, with the option you
 would recommend first. Skip anything lane 2 or the harvest already answered.
 
-**Round 1 — Why and for whom** (feeds the brief)
-Problem being solved · commissioning organization and decision makers ·
-audiences and what each comes to do · what success looks like and how anyone
-would know · hard constraints (legal, privacy, budget, deadline) · what this
-product must never become.
+| Round | Feeds | Covers |
+| --- | --- | --- |
+| 1 · Why and for whom | brief | problem, decision makers, audiences, success, hard constraints, what it must never become |
+| 2 · Scope | brief, spec | journeys (names plus one line; lane 4 specs them), in and out of scope, which audience wins, the smallest credible release |
+| 3 · Product rules | spec | roles, entities, CMS vs code content, locales, accessibility, personal data, integrations and credential owners, environments, release constraints |
+| 4 · Architecture | architecture | system context, runtime paths and caching, layer mapping and its enforcement, schema, untrusted edges, hosting and services, cross-cutting choices, known deviations, each real decision with its reason |
 
-**Round 2 — Scope** (feeds the brief and spec)
-Which journeys exist and who walks them — **names plus one line each; lane 4
-specs them** · what is in scope for this release · what is explicitly out ·
-which audience wins when a tradeoff appears · the smallest credible release and
-what it has to prove.
-
-**Round 3 — Product rules** (feeds the spec)
-Roles and what each may reach · core entities and their relationships ·
-CMS-managed vs code-owned content · locales and what is translated ·
-accessibility target · personal data handled and the rule that follows ·
-integrations and who owns their credentials · environments · release constraints
-("no X in this phase").
-
-**Round 4 — Architecture** (feeds the architecture doc)
-System context: which processes serve which surfaces, and every external service
-they talk to · the runtime paths — how a request reaches a surface, what is
-cached cross-request and what may never be, what invalidates it, scheduled work
-and what keeps it from running twice · intended layer mapping for this project's
-actual folders, and whether anything enforces it · where the schema lives and how
-it changes · every edge untrusted data enters, and what validates it · hosting,
-database, media, email, preview, CI, observability, plus the runtime constraints
-those imply · the cross-cutting choices (authentication, localization, headers,
-consent, testing) · known deviations that exist in the code today and what
-tracks them · and for each real choice: what was decided, when, why, and what
-was rejected.
+The questions per round are in
+[references/interview-rounds.md](references/interview-rounds.md); read it
+before the first round.
 
 Two rules that outrank finishing the round:
 
@@ -352,20 +361,10 @@ For the architecture doc specifically:
   answers which question, and that the rule wins when a rule and this file
   disagree. Every section links to the rule or spec that owns the detail instead
   of restating it. Restating is how the copy rots.
-- **Write the diagrams in draw.io.** One file per diagram,
-  `docs/diagrams/<name>.drawio.svg`, embedded with a Markdown image link: GitLab
-  and GitHub render the SVG, and draw.io (the VS Code Draw.io extension, or
-  diagrams.net) edits it, because the model travels inside the file. No
-  Mermaid, and never an inline ```` ```drawio ```` block — GitLab shows that as
-  raw XML. Without an editor at hand, write the uncompressed `<mxfile>` model
-  into the `content` attribute of the root `<svg>` and draw the visible SVG from
-  the same coordinates; the first save in draw.io re-renders it. Lay it out on a
-  10px grid, with orthogonal edges, no edge crossing a shape or a container
-  title, and one colour per role plus a legend. A system-context diagram is the
-  minimum — it is the one thing a new developer reads first. Add a request-path
-  diagram once more than one surface shares the runtime, and a read/invalidation
-  pair once anything is cached cross-request. Diagram the shape; put the
-  exceptions a reader cannot guess in the notes under it.
+- **Write the diagrams in draw.io**, one `docs/diagrams/<name>.drawio.svg` per
+  diagram, never Mermaid. A system-context diagram is the minimum. The file
+  format, layout rules and when to add more diagrams are in
+  [references/architecture-diagrams.md](references/architecture-diagrams.md).
 - **Work outside in**: system context → topology → request paths → read path →
   layers → data → boundaries. A reader who stops after the first diagram should
   still have the right mental model.
@@ -443,7 +442,11 @@ Started <project-name>:
 
   Lane 0  repository     [checked]   template lineage ok · 2 deviations (no approval
                                      rule, Jira integration missing) · hosting unknown
+                                     · 4 template MRs to port
   Lane 1  config         [ran]       setup-ai-workflows: CONVENTIONS.md + 4 adapters
+  Lane 1b first run      [ran]       6/8 pass · test fails without CMS env
+                                     (template-owned → upstream) · db:up not run
+                                     (Docker blocked in the sandbox)
   Lane 2  resources      [collected] 3 Figma links, CMS instance, tracker key; 2 gaps
   Lane 3  intent         docs/project-brief.md   [created]
                          docs/project-spec.md    [created]
@@ -458,14 +461,18 @@ Started <project-name>:
   Waiting on:      hosting contract, 2 design frames
 ```
 
-List the open questions, the lane 0 deviations, and everything waiting on a
-person. They are the reason to read the documents.
+List the open questions, the lane 0 deviations, the lane 1b failures with
+their fix route, and everything waiting on a person. They are the reason to
+read the documents.
 
 ---
 
 ## Constraints
 
-- Do not modify source code, install dependencies, or configure tooling.
+- Do not modify source code, add or remove dependencies, or configure tooling.
+  Lane 1b runs the project's own scripts, an install from the lockfile and
+  (after a go) its local database container; that is the developer's first
+  run, not a change to the project.
 - Do not create or reconfigure a GitLab project silently — propose, then act on
   an explicit go. Never create a production repo from the CLI: it skips the
   template.
