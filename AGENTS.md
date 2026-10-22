@@ -255,6 +255,9 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
 <!-- BEGIN SHARED:safety -->
 - Prefer concrete execution over long planning.
 - Do not modify code unless requested.
+- Keep the user's main checkout unchanged for MR/PR review, review rework,
+  rebases, conflict resolution and merge-readiness work. Use an isolated
+  worktree outside the workspace; load `rules/git-flow.md` first.
 - Ask before destructive actions (force kill, reset, delete) unless explicitly requested.
 - **Never terminate Visual Studio Code without explicit approval for the exact
   target.** This includes `Code`, `Code Helper` (renderer, plugin/extension

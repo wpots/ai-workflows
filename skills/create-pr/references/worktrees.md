@@ -7,6 +7,13 @@ three non-negotiables — the root, the symlinked `node_modules`, removal after 
 push — and points here. Read this file before creating a worktree, and again
 before pushing from one.
 
+## When isolation is required
+
+`rules/git-flow.md` requires an isolated worktree for MR/PR reviews, review
+rework, rebases, conflict resolution and merge-readiness work. The main
+checkout remains unchanged even when clean. Record and verify its initial
+branch, HEAD and dirty state; do not switch or stash it to prepare the task.
+
 ## Cheap by default, heavy only on purpose
 
 A checkout costs ~90 MB; the same worktree with `node_modules` and a build

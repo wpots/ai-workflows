@@ -45,8 +45,9 @@ In practice, treat this directory as a topic-based rule library:
 7. Load `backlog.md` when writing user stories, backlog items, or task specs.
 8. Load `mr-sizing.md` alongside `backlog.md` whenever work is sized or sliced
    (backlog, refinement, sprint planning), and when opening or reviewing an MR.
-9. Load `git-flow.md` when branching, opening or merging an MR, or checking a
-   repository's merge settings.
+9. Load `git-flow.md` before branching, MR/PR review or rework, rebasing,
+   conflict resolution, merge-readiness work, opening or merging an MR, or
+   checking merge settings.
 10. Load `accessibility.md` when building interactive UI components.
 11. Load `content-blocks.md` when building or reviewing CMS-backed content blocks.
 12. Load `payload.md` when working on Payload schemas, hooks, generated types, jobs, or admin integrations.

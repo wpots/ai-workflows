@@ -10,6 +10,7 @@ Load only the relevant focused rule files for the task:
 
 - `rules/tailwind.md` for styling and design-token work
 - `rules/testing.md` before browser verification, tests, and test reviews
+- `rules/git-flow.md` before MR/PR review or rework, rebasing, conflict resolution, merge-readiness work, or other branch operations
 - `rules/accessibility.md` for interactive UI and accessibility checks
 - `rules/type-safety.md` for TypeScript-heavy work, trust boundaries, and runtime validation checks
 - `rules/adr.md` when recording an architecture decision, creating `docs/adr/` or `docs/architecture.md`, or changing something a recorded decision covers

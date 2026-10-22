@@ -1,7 +1,7 @@
 # Git Flow
 
-> Apply these rules when a branch is opened, when an MR is created or merged,
-> and whenever a repository's merge settings are checked or fixed.
+> Apply these rules before branch operations, MR/PR reviews, rebases, conflict
+> resolution and merge-readiness work, and when checking merge settings.
 
 One slice, one branch, one MR, one commit on the default branch. Everything
 between the branch point and the merge is scratch: only the squashed commit is
@@ -10,6 +10,20 @@ history, and only the MR carries metadata.
 ```
 feature branch (n scratch commits) ── MR ──squash──▶ default branch (1 commit)
 ```
+
+## Workspace isolation
+
+The user's main checkout stays read-only during MR/PR review, review rework,
+rebases, conflict resolution and merge-readiness work. Record its branch,
+HEAD and dirty state first. Do the task in an isolated worktree outside the
+repository and IDE-watched directories; setup and cleanup mechanics live in
+`skills/create-pr/references/worktrees.md`.
+
+A clean checkout, a request to make an MR mergeable, or a successful check
+does not authorize switching its branch, stashing its edits, resetting it,
+installing dependencies there or rewriting its generated files. A failed
+worktree setup or check does not authorize falling back to that checkout.
+Before reporting completion, verify its recorded state is unchanged.
 
 ## Project settings — the Greenberry baseline
 
