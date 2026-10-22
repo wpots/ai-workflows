@@ -1,1 +1,0 @@
-- Keep the main checkout unchanged during MR/PR reviews, review rework, rebases and merge-readiness work; use an isolated worktree and verify the original state before reporting.
