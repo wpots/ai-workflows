@@ -40,10 +40,11 @@ else
   exit 1
 fi
 
-echo "Running hook tests (process-termination approval, CLI-first connector gate, ticket-transition approval, improve-skill retrospective)..."
+echo "Running hook tests (process-termination approval, CLI-first connector gate, pinned install runtime, ticket-transition approval, improve-skill retrospective)..."
 if command -v python3 >/dev/null 2>&1; then
   python3 "$ROOT_DIR/scripts/test_process_termination_approval.py"
   python3 "$ROOT_DIR/scripts/test_prefer_service_cli.py"
+  python3 "$ROOT_DIR/scripts/test_pinned_install_runtime.py"
   python3 "$ROOT_DIR/scripts/test_ticket_transition_approval.py"
   python3 "$ROOT_DIR/scripts/test_improve_skill_retrospective.py"
 else

@@ -255,6 +255,10 @@ optional peers it keeps, and CI's `npm ci` can reject it as out of sync.
   install by someone on the pin.
 - Name the Node and npm versions that ran in the recap.
 
+The plugin's PreToolUse hook enforces this for installs: an `npm` or `pnpm`
+install whose Node or npm differs from the pin is denied, with the pinned
+command to run instead (`scripts/require_pinned_install_runtime.py`).
+
 ### Git inside the sandbox
 
 Three git operations the sandbox blocks. Each fails in a way that points at the

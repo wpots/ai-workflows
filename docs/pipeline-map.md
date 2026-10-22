@@ -115,7 +115,7 @@ descriptions route in parallel via the plugin.
 ### Hooks and loops
 
 Automation that runs without being asked is thin but real, and it is not evenly
-distributed. Three plugin-wide hard gates and a retrospective prompt ship through
+distributed. Four plugin-wide hard gates and a retrospective prompt ship through
 `hooks/hooks.json`; four project harness hooks ship through
 `templates/project-claude-settings.json`:
 
@@ -123,6 +123,7 @@ distributed. Three plugin-wide hard gates and a retrospective prompt ship throug
 | --- | --- | --- |
 | Process-termination approval | `PreToolUse(Bash)` | **Always asks** before `kill`, `pkill`, `killall`, or `taskkill`, even when a local allowlist would otherwise permit the command; the shared safety rule separately forbids terminating VS Code without approval for the exact PID and command |
 | CLI-first connector gate | `PreToolUse(mcp__.*)` | **Denies** an Atlassian or Axiom connector call that has a CLI equivalent while that CLI is installed, naming the `jira`/`axiom` command to run instead (`scripts/prefer_service_cli.py`); connector-only tools, other servers, a missing CLI and `AIW_ALLOW_MCP=1` pass through |
+| Pinned install runtime | `PreToolUse(Bash)` | **Denies** an `npm`/`pnpm` install (`install`, `ci`, `update`, `audit fix`, …) whose Node or npm differs from the project's pin (`.nvmrc`, `.node-version`, Volta, `engines`, `devEngines`, `packageManager`; without an npm pin, the npm bundled with the pinned Node), npm in a pnpm project or the reverse, and flags that switch the engine check off (`--force`, `--engine-strict=false`). The deny names the command on the pinned nvm install, or asks for `nvm install <pin>` when it is missing; global installs, pnpm's own version and unpinned projects pass (`scripts/require_pinned_install_runtime.py`) |
 | Ticket-transition approval | `PreToolUse(Bash\|mcp__.*__transitionJiraIssue)` | **Always asks** before `jira issue move` (aliases `transition`, `mv`) or a connector `transitionJiraIssue`, even when `Bash(jira *)` is allowed: Jira's automation moves tickets from the pipeline, so a status change needs the user's go; a headless run is denied (`scripts/require_ticket_transition_approval.py`) |
 | Improve-skill retrospective prompt | `Stop` | **Asks once per session**, by blocking the stop once, whether to run `skills/improve-skill` — only after a Greenberry skill ran and the user then stepped in: an interrupt, an explicit tool rejection, or typing right after a failed tool call that was the run's latest outcome. Never runs it or edits a skill itself (`scripts/improve_skill_retrospective.py`) |
 | Migration guard | `PreToolUse(Bash)` | **Denies** `migrate:fresh` and `migrate:create` — the only mechanically blocking gate in the whole pipeline |
