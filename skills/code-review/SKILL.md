@@ -16,6 +16,32 @@ The current design decision is to keep one general review workflow and extend it
 with an explicit type-safety audit instead of creating a separate type-safety
 review skill.
 
+## Workspace isolation
+
+Read `rules/git-flow.md` before branch operations. A named MR/PR review,
+rebase, conflict resolution or merge-readiness request uses an isolated
+worktree under `~/.worktrees/<repo>-<slug>`, outside the repository and every
+IDE-watched directory. A clean main checkout is still the user's workspace.
+
+1. Record the main checkout's path, branch, HEAD and dirty state.
+2. Fetch the requested refs without switching branches or stashing user work.
+   Inspect with `git show` / `git diff`, or create a detached worktree at the
+   fetched MR/PR head for review. Authorized fixes use the source branch in
+   that worktree. If it is already checked out in the main checkout, do not
+   move it or bypass git's protection; work detached and publish the reviewed
+   commit to the authorized remote source branch.
+3. Run edits, rebases, conflict resolution, installs, checks and builds only
+   in the isolated worktree. Follow `skills/create-pr/references/worktrees.md`
+   for setup and cleanup. Never use the main checkout as a fallback when
+   worktree setup or checks fail.
+4. Before reporting, verify the main checkout's branch, HEAD and existing
+   changes match the recorded state. Remove a clean task worktree after use;
+   preserve uncommitted work and report its path.
+
+A review of current uncommitted changes may read and capture that diff from
+the main checkout, without modifying it. Apply a copy in the worktree when
+execution is needed; do not stash the user's changes to prepare the review.
+
 ## Base Branch Resolution
 
 Use the first existing branch in this order:

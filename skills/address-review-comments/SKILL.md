@@ -1,6 +1,6 @@
 ---
 name: address-review-comments
-description: Pick up reviewer comments on a GitHub PR or GitLab MR, propose an approach per comment, then (after approval) apply, run checks, push, rebase onto the base branch, hand the MR back to the reviewer, and clean up. Works in the main checkout by default; only uses an isolated worktree after explicitly asking the user. Use when the user asks to address/pick up/process review feedback or reviewer comments on a PR/MR.
+description: Pick up reviewer comments on a GitHub PR or GitLab MR, propose an approach per comment, then (after approval) apply, run checks, push, rebase onto the base branch, hand the MR back to the reviewer, and clean up. Use when the user asks to address/pick up/process review feedback or reviewer comments on a PR/MR.
 metadata:
   owner: wieteke.pots
 ---
@@ -63,10 +63,9 @@ value re-derived).
 State the hand-back you will do after the push (step 9), so one go-ahead
 covers it.
 
-End the proposal with the **workspace question**: propose working in the main
-checkout (default), or — only if the main checkout is genuinely blocked — ask
-whether an isolated worktree is OK (see step 4 for the placement rules). Never
-create a worktree without an explicit yes.
+State the isolated worktree path you will use. The task's existing
+authorization covers worktree setup; ask only for unresolved implementation
+decisions or the code-change approval required by this phase.
 
 Wait for approval before Phase B.
 
@@ -74,37 +73,18 @@ Wait for approval before Phase B.
 
 ## Phase B — Apply, verify, push, rebase, clean up (after approval)
 
-### 4. Choose the workspace (main checkout by default)
+### 4. Use an isolated worktree
 
-**Default: work in the main checkout.** If the working tree is clean (or the
-user agrees to stash), simply:
+Read `rules/git-flow.md` and follow its workspace-isolation policy. Record the
+main checkout's path, branch, HEAD and dirty state before any branch work.
+Keep that checkout unchanged, including local edits and generated files.
 
-```bash
-git fetch <remote> <source_branch>
-git switch <source_branch>
-```
-
-Only fall back to a worktree when the main checkout is genuinely blocked (dirty
-state that can't be stashed, a dev server pinned to another branch) **and the
-user approved it in Phase A** — never unprompted.
-
-> ⚠️ **Worktrees can crash the user's IDE** when created inside the open
-> workspace: the file watcher and TS server index a full duplicate checkout
-> plus its freshly installed `node_modules`. If a worktree is approved:
->
-> - Place it where the **IDE genuinely does not watch it**: outside the
->   workspace root AND outside every harness `additionalDirectories` entry.
->   A directory listed in `additionalDirectories` is still indexed by the IDE
->   watcher, so a worktree there crashes just the same — prefer a path under the
->   home dir (e.g. `~/.worktrees/<repo>-<ticket>`) and accept the one-time
->   directory-permission grant. Never under `.claude/worktrees/`, `.worktrees/`,
->   or any path inside the open workspace/repo, and never a per-run temp path
->   (a fresh path re-grants every time).
-> - Offer to open it as a **separate IDE window** (`code -n <path>`) so the
->   main window never touches it.
-> - **Remove the worktree immediately** once the branch is pushed
->   (`git worktree remove --force <path>`; writing `.git/worktrees` may need the
->   sandbox disabled). The branch and its commits survive removal.
+Fetch the source branch and use a worktree under
+`~/.worktrees/<repo>-<ticket>`, outside the project and every IDE-watched
+directory. Use the source branch there when it is free; otherwise start
+detached at its fetched remote ref. Never switch, stash, reset or reinstall
+dependencies in the main checkout to make the task fit. Worktree setup or
+check failures are resolved in the worktree, not by falling back to main.
 
 A fresh worktree has **no dependencies installed and no local env files**. The
 full setup, check and cleanup rules are in
@@ -245,14 +225,11 @@ On GitHub, do the same with a reaction on each comment and `gh pr comment`.
 
 ### 10. Clean up
 
-Only when a worktree was used:
-
-```bash
-git worktree remove <worktree> --force
-```
-
-When working in the main checkout: switch back to the original branch and
-restore any stash.
+Remove the clean task worktree with `git worktree remove <worktree>`.
+Preserve uncommitted work and report its path instead of forcing removal.
+Verify the main checkout's branch, HEAD and pre-existing changes still match
+the initial snapshot. There is no main-checkout branch switch or stash to
+restore.
 
 ### 11. Evaluate workflow updates
 

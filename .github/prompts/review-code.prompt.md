@@ -17,6 +17,14 @@ Preferred path:
 
 Review current code changes against the best available remote base branch.
 
+## Workspace
+
+Load `rules/git-flow.md` first. Record the main checkout's branch, HEAD and
+dirty state; keep it unchanged. Review the fetched MR/PR head in an isolated
+worktree outside the project and IDE-watched directories. Authorized fixes,
+rebases, checks and builds run there too. Verify the main checkout still
+matches its snapshot before reporting; never fall back to it on setup failure.
+
 ## Base Branch Resolution
 
 Resolve in this order and use the first branch that exists:
