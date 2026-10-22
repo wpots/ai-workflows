@@ -436,24 +436,11 @@ but they still break, and differently:
 
 ## Report
 
-Write `docs/maintenance/maintenance-<YYYY-MM-DD>.md`:
-
-- **Verdict per lane** — `ok` · `attention` · `urgent`, one line each, so the
-  whole sweep is readable in ten seconds.
-- **Inventory** from step 0.
-- **Credential matrix** — variable × environment × status × verified-on.
-  Fingerprints only, never values.
-- **Findings**, ranked urgent → high → medium → low. Per finding: lane,
-  evidence (command output, `file:line`, status code), impact, fix, owner. A
-  declared check that CI never runs (lane E) is `high` for `build` when the
-  host builds on deploy and `medium` otherwise; Storybook is never one.
-- **Verified current** — what was probed and found healthy, with dates. This
-  is what makes the next sweep a delta instead of a rerun.
-- **Delivery metrics** — the lane H table plus the delta against the previous
-  sweep's numbers.
-- **Manual checks for the user** — dashboard-only items (vendor token lists,
-  webhooks, DNS/cert expiry).
-- **Parked** — findings below the backlog threshold, listed explicitly.
+Write `docs/maintenance/maintenance-<YYYY-MM-DD>.md` using the required
+[report format](references/report-format.md): a compact overview with a
+progress table, dated evidence and separate implementation/merge/deployment
+gates. Load it before writing the report and when recording authorized
+follow-ups; keep the same progress rows current.
 
 ### Backlog handoff — propose, then confirm
 

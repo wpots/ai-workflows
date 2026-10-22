@@ -1,0 +1,2 @@
+- Maintenance reports now start with a progress table that separates implementation, merge and environment verification, and keep dated evidence current after follow-ups.
+- Reports use a compact ordered template and link detailed investigation history instead of appending session transcripts.
