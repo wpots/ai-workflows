@@ -60,7 +60,8 @@ Ask only for what can't be inferred.
   services, so it must be an explicit choice.
 - **Mode** — report-only (default) or report + apply safe fixes after review.
 - **Backlog threshold** — default: anything expired/broken, any high or
-  critical vulnerability, and any EOL inside 6 months. Lower-severity items
+  critical vulnerability, a runtime pin behind a security release, and any EOL
+  inside 6 months. Lower-severity items
   are parked in the report unless the user wants everything tracked.
 - **Previous report** — if `docs/maintenance/` already has one, read the most
   recent so the sweep reports *deltas*, not a fresh wall of text.
@@ -98,11 +99,22 @@ audit, no updates, no `audit fix`. Record:
 - whether an automated updater (Renovate, Dependabot) is configured and
   actually opening MRs.
 
-### B. Runtime and platform EOL
+### B. Runtime security releases and EOL
 
 - The runtime pin must agree across **four** places: local pin (`.nvmrc`), CI
   image, hosting runtime config, and `engines`. Any mismatch is a finding —
   this is the classic "works locally, breaks in CI" root cause.
+- The pinned Node patch must not trail a security release of its own major.
+  `https://nodejs.org/dist/index.json` lists every release with
+  `"security": true|false`; a release in the same major, newer than the pin,
+  with `security: true` is a **high** finding. Name each release and its date,
+  and the CVEs from the Node blog's security post. A pin that agrees across
+  all four places never patches by itself: hosting that runs exactly
+  `engines.node` (Clever Cloud) stays on the pinned patch. The fix moves all
+  four places in one MR. In an npm project, that MR also regenerates the
+  lockfile with the npm the new Node ships with (the `npm` field of the same
+  index entry); see "Node and npm: the version the project pins" in the
+  ambient `CLAUDE.md`.
 - EOL horizon for Node, the database engine, and the framework major. Flag
   anything going EOL inside 6 months, with the date.
 - Docker base image tags pinned and current (`docker-compose*.yml`,
