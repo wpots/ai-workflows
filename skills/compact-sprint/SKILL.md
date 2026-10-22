@@ -16,14 +16,20 @@ same workflow; Copilot follows the runbook directly.
 
 ## Workflow
 
-1. Read `commands/compact-sprint.md` (project root, or the synced `commands/`
-   dir).
+1. Read `commands/compact-sprint.md` at the plugin root
+   (`<skill-dir>/../../commands/compact-sprint.md`). A project's synced
+   `commands/` copy can lag the plugin: when both exist and differ, follow the
+   plugin's and say so in the recap. Use the project copy only on a tool with
+   no plugin copy.
 2. Follow every phase in order: preconditions (retention guard), flag-only
    harvest, link sweep, changelog rewrite, folder removal, review pause and
    handover.
 3. The compact changelog template lives in `commands/close-sprint.md` under
    "Changelog template" — close-sprint writes new changelogs from it,
    compact-sprint rewrites old ones to it.
+4. Before a compact changelog replaces the original, run
+   `node <skill-dir>/scripts/check-changelog-keys.mjs <original> <compact>`: it
+   fails when a ticket that headed a table row is gone.
 
 ## Constraints
 
@@ -38,6 +44,9 @@ same workflow; Copilot follows the runbook directly.
   waiting until the work they document has shipped. The user decides.
 - Harvest is **flag-only**: durable decisions become `docs/todo/` items with a
   source recipe; nothing moves into specs/conventions/rules in this run.
+- Sweep the whole repository for references to the folder, not only `docs/`. A
+  reference from code, tests or config is left untouched and listed for its own
+  MR, and the file it names stays: the compaction diff remains docs-only.
 - Never run `git commit`, `git tag`, or `git push` — hand the user the exact
   commands. The archive tag must land on the pre-compaction commit, so the tag
   command comes before the commit in the handover.

@@ -55,11 +55,15 @@ a tracker without active or future sprints, mean support mode. Two
 support-specific notes; everything else in this runbook applies unchanged:
 
 - **Phase 1 window query.** There is no sprint to query. When the project uses
-  a tracker, fetch the month's set with a resolution window instead:
-  `assignee = <user> AND project = <KEY> AND resolved >= "<yyyy>-<mm>-01" AND
-  resolved < "<first day of next month>"`. Ticketless local BLIs are normal in
-  support mode: they are classified on Phase 2 git evidence alone and land in
-  the "Ticketloos opgeleverd" table.
+  a tracker, fetch the month's set with a status-category window instead:
+  `assignee = <user> AND project = <KEY> AND statusCategory = Done AND
+  statusCategoryChangedDate >= "<yyyy>-<mm>-01" AND statusCategoryChangedDate <
+  "<first day of next month>"`. Never window on `resolved`: a Done transition
+  that sets no resolution leaves the field empty, and the query then returns
+  nothing without an error. A ticket that moved to Done, was reopened and
+  closed again belongs to the month of its last move. Ticketless local BLIs are
+  normal in support mode: they are classified on Phase 2 git evidence alone and
+  land in the "Ticketloos opgeleverd" table.
 - **The delivery boundary is the merge date** on the integration branch, not
   the MR or branch creation date: work merged on 2 September belongs to
   `support-2026-09`, even when its branch started in August.
@@ -134,8 +138,11 @@ For each ticket:
    `docs/plans/`, `docs/specs/`).
 2. Check commits on the main integration branch:
    ```bash
-   git log --all --grep="<TICKET>" --format="%h %s %an <%ae>"
+   git log --all -E --grep="<TICKET>([^0-9]|$)" --format="%h %s %an <%ae>"
    ```
+   The trailing group keeps `RFW-29` from matching `RFW-291`. Never write the
+   boundary as `\b`: git's regex has no word boundary on macOS, and the search
+   then finds nothing without an error.
 3. Note PR / branch existence if discoverable.
 4. Read each BLI's `## Status` on the integration branch, and match code to
    BLIs, not to MRs. A merge is not the delivery: an item that merged with
@@ -223,7 +230,7 @@ For each ticket classified `delivered`:
    - `## Authors` → populate from Jira assignee plus git commit authors.
      - Primary: assignee from `jira issue view <TICKET> --plain`.
      - Additional: unique committers from
-       `git log --all --grep="<TICKET>" --format="%an <%ae>" | sort -u`.
+       `git log --all -E --grep="<TICKET>([^0-9]|$)" --format="%an <%ae>" | sort -u`.
      - Deduplicate against existing entries; never remove existing authors.
      - Format:
        ```markdown
