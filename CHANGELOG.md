@@ -16,6 +16,169 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.13.0] - 2026-10-22
+
+### Added
+
+- `skills/compact-sprint/scripts/check-changelog-keys.mjs`: compares the
+  original and the compact changelog and fails when a ticket that headed a
+  table row is gone; reports keys named only in prose and the size against the
+  15 KB template target. Tests in `scripts/test-compact-sprint-check-keys.mjs`,
+  run by `scripts/validate-ai-instructions.sh`.
+- Eval `close-sprint-7`: the support-month JQL and the ticket-key grep.
+- Plugin hook `scripts/require_pinned_install_runtime.py` (PreToolUse, Bash)
+  enforces the ambient rule "Node and npm: the version the project pins": an
+  `npm`/`pnpm` install whose Node or npm differs from the project's pin is
+  denied, and so are npm in a pnpm project (or the reverse) and flags that
+  switch the engine check off. The deny names the command on the pinned nvm
+  install, or asks for `nvm install <pin>` when that Node is missing. Global
+  installs, pnpm's own version and unpinned projects pass. Tests in
+  `scripts/test_pinned_install_runtime.py`, run by
+  `scripts/validate-ai-instructions.sh`.
+  <!-- slack: Node/npm | Een install op een andere Node of npm dan de pin wordt geblokkeerd, met het juiste commando -->
+- `skills/release` Step 8c: when the latest dependency-scan post in Slack lists
+  the project under *Fix now* or *Deploy to fix now*, the release replies once
+  in that thread that the site is patched: it checks the version the tag ships
+  against the scanner's fixed version first, names the packages and the live
+  version, and says the next scan clears it. The Step 3 plan lists the reply,
+  so the one go covers it, and the recap has a Scanner thread row.
+- Eval `release-8`: the scanner thread after a release that fixes a listed
+  critical.
+- `skills/start-project` lane 1b, first run: after the config lane it runs the
+  project the way a developer starts it on day one — prerequisites (Docker,
+  gitleaks, 1Password CLI, a free database port), install from the lockfile,
+  tests without CMS env, `db:up` after a go, migrations, build and the hook
+  commands — and routes each failure to a template fix through
+  `upstream-to-unicore` or a backlog item, instead of fixing it in the kickoff.
+- `skills/start-project` check 2b, template delta: lists the template MRs
+  merged or open since `template.commit`, decides per MR whether the project
+  has it, needs a port or is not affected, and writes the ports to
+  `docs/todo/unicore-template-ports.md`.
+- `skills/start-project` keeps its SKILL.md under 500 lines: the first-run
+  steps, the template delta, the prior-run detection, the interview questions
+  and the draw.io details moved to `references/`.
+- `rules/git-flow.md` names lane 0, check 3b, as the kickoff surface for the
+  merge settings; it said lane 1.
+
+### Changed
+
+- `backlog`: the same item for several repositories starts from one shared
+  contract (names, paths, flags, defaults, formats, refusals) that every item
+  carries verbatim, after checking per repository that the problem exists.
+  Parallel subagents get that contract in their prompt, so their items do not
+  have to be aligned by hand afterwards.
+  <!-- slack: Backlog | Hetzelfde item in meerdere repos begint bij één gedeeld contract, zodat de items niet uit elkaar lopen -->
+- `skills/create-pr` reviews the branch diff with `skills/code-review` once
+  before the first push (pre-flight step 6). A `[correctness]` or `[security]`
+  finding stops the flow until it is fixed or explicitly waived; a waiver goes
+  into the MR description with its reason. Findings with any other lens never
+  stop it and are listed with their `file:line` in the MR description and the
+  recap. A branch `skills/work-backlog` already reviewed in the same session is
+  not reviewed twice. `commands/create-pr.md` folds its architecture pass into
+  the same self-review.
+  <!-- slack: create-pr reviewt de diff vóór de push; correctness en security blokkeren, de rest komt in de MR -->
+- `skills/improve-skill` no longer asks for a check or an eval on top of every
+  learning. The prose edit is the default.
+  - A check is added only when the wrong text was in a skill, command or rule
+    and could come back there.
+  - An eval is added only when the skill's own text led the run the wrong way.
+    It is kept only after it was seen failing on the base.
+  - The `Stop` hook now offers to *check whether* anything from the run belongs
+    in the skill, adding "often nothing does", instead of offering to fold what
+    went wrong back.
+  <!-- slack: improve-skill | voegt geen check of eval meer toe die zonder de fix niet kan falen -->
+- `skills/improve-skill` now marks when a learning stops being true. A learning
+  that rests on an outside fact (a tool flag, a platform limit, a version, a
+  branch line, a sandbox rule) names that fact, the date it was checked, and
+  what would make it false. A repo convention is marked permanent.
+  - Before an edit, the retrospective reads the existing pitfalls in that area
+    and removes the ones whose condition no longer holds.
+  - The report gives each learning its condition and lists the removals.
+  - Solution notes gain a fifth part, "retire when".
+  <!-- slack: improve-skill | learnings zeggen wanneer ze niet meer kloppen, zodat verouderde regels eruit gaan -->
+- `skills/maintenance` lane B flags a Node pin that trails a security release
+  of its own major as a high finding, read from `nodejs.org/dist/index.json`
+  (`"security": true`). A pin that agrees across `.nvmrc`, the CI image,
+  hosting and `engines` never patches by itself, so the fix moves all four in
+  one MR; in an npm project that MR also regenerates the lockfile with the npm
+  of the new Node.
+  <!-- slack: Maintenance | Een Node-pin die achterloopt op een security-release is nu een high finding -->
+- `npm-maintenance`: the request measurement for a framework minor runs
+  headless (`references/request-measurement.md`, Playwright from the project
+  or `puppeteer-core` in the scratchpad, both driving the local Chrome) and
+  gets a pass/fail idle check: a data request in the last 10 s of a 30 s idle
+  window, or one URL fetched more than twice, keeps the MR in Draft. An
+  unattended run can now carry the measurement out instead of leaving it to a
+  human.
+  <!-- slack: Onderhoud | Requestmeting bij een framework-minor draait headless, met een harde idle-check tegen prefetch-loops -->
+- `commands/release-notes.md` Phase 0: for a release, the project's
+  `CHANGELOG.md` section of that tag (or `## [Unreleased]` for what the next
+  deploy brings) is the first source. Each MR writes its line there, also when
+  no ticket covers it, so those MRs no longer reach the notes through commit
+  subjects only. The sprint changelog source reads `Ticketloos opgeleverd` as
+  well as `Opgeleverd`.
+- `commands/close-sprint.md` Phase 2: one `git log --invert-grep` over the
+  window lists the merges without a ticket key, with a `glab api` lookup for a
+  key that only the MR title carries. Phase 2 searched per ticket only, so
+  "code without ticket" in 4b had no recipe; a ticketless merge that needs no
+  ticket now lands in `Ticketloos opgeleverd`.
+  <!-- slack: release-notes leest de CHANGELOG.md van de release, close-sprint vindt ticketloze merges -->
+- `skills/start-project` lane 0: the pre-flow check and check 3a count the
+  template's tags next to its MRs and issues; check 4 wants `main` protected
+  without force push once the history is replaced; new check 5b (CI include
+  pinned to a ci-components release, one Node version across CI, `.nvmrc` and
+  `engines`, gitleaks and the verify hooks, outdated-deployment and rollback
+  settings) and 5c (encrypted env files, `.env.keys` ignored, the 1Password
+  item present); check 6 reads Jira from the group-inherited
+  `jira-cloud-app` integration instead of the per-project `jira` one.
+- `skills/start-project` lane 2: service coordinates (tracker key and boards,
+  channel ids, Figma, Notion and Drive links) land in `CONVENTIONS.md` §
+  Tooling with a flag for client-visible, not final or confidential, because
+  skills read them there; the table adds a Chat row, design status per file,
+  the migration source's data classification and the `jira -p <KEY>` case.
+- `skills/start-project` lane 3a: a retrofit harvests the merged MR
+  descriptions since the first commit as decision-log candidates.
+
+### Fixed
+
+- `skills/close-sprint`, `skills/compact-sprint`: read the runbook from the
+  plugin root, not the project's synced `commands/` copy, which can lag and
+  miss whole phases (one lacked 5b, 5c and the link sweep).
+- `commands/close-sprint.md` support mode: the month window is `statusCategory
+  = Done AND statusCategoryChangedDate`, not `resolved`. A Done transition that
+  sets no resolution left `resolved` empty, so the query returned nothing
+  without an error.
+- `commands/close-sprint.md` Phase 2: `git log --grep` takes `-E` and
+  `<TICKET>([^0-9]|$)`. A bare key also matched longer keys (`RFW-29` against
+  `RFW-291`), and `\b` is no word boundary in git's regex on macOS, so it found
+  nothing without an error.
+- `commands/compact-sprint.md`: the sweep covers the whole repository, not only
+  `docs/`. A reference from code, tests or config is left for its own MR
+  instead of being rewritten, and the file it names stays in the folder, so
+  `git rm -r` no longer deletes a file the Phase 4 note says never to remove.
+  Harvest items read from a BLI are marked `verify`; changelog lines that claim
+  a code state are re-checked before they are copied; the handover tag command
+  names the sha.
+- `service-cli`, `new-device-setup`: `JIRA_LOGIN` goes in `~/.zshenv`, not
+  the shell profile. Agents run non-interactive `zsh -c`, which skips
+  `~/.zshrc`, so a login set there never reached them and every `jira` call
+  failed with "The tool needs a Jira API token" although the token was in the
+  keychain.
+  <!-- slack: Jira CLI | Zet JIRA_LOGIN in ~/.zshenv in plaats van ~/.zshrc, anders ziet een agent je login niet -->
+- `skills/release` Step 7: a ticket with a commit or merged MR in the release
+  range gets the version (or the label fallback) whatever its status and
+  whatever PO question is open; before, a partial ticket got nothing, so
+  shipped tickets looked as if they were not in the release. A key carried only
+  by an open MR is a new class, `open`: nothing written, reported with its MR.
+  Done stays a separate go. The recap now says where the label shows and that
+  Releases and the Fix Version field stay empty when the project has no Jira
+  version.
+- Keep the main checkout unchanged during MR/PR reviews, review rework, rebases and merge-readiness work; use an isolated worktree and verify the original state before reporting.
+- `skills/start-project` lane 1b no longer has the agent run `migrate:status`
+  and `migrate` after `db:up`: it names the command, the developer applies the
+  migrations, and a step that needs a migrated database stays not run until
+  they report it ran, per `rules/payload.md`.
+
 ## [2.12.0] - 2026-10-21
 
 ### Added
