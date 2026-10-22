@@ -163,6 +163,24 @@ For each ticket:
    - `code-without-ticket` — code references exist without a matching Jira key
      (surface during Phase 4b).
 
+Then search the window once for merges that carry no ticket key; the
+per-ticket search above never finds them:
+
+```bash
+git log development --first-parent \
+  --since="<first day> 00:00" --until="<day after the last> 00:00" \
+  --invert-grep -E --grep="<KEY>-[0-9]+" --format="%h %cs %s"
+```
+
+- `--grep` reads the whole message, so a key in a squash or merge-commit body
+  already drops the commit. A key that only the MR title or description
+  carries is not in git: look the MR up before calling a commit ticketless,
+  `glab api "projects/:id/repository/commits/<sha>/merge_requests" | jq '.[] | {iid, title}'`.
+- Drop repo-internal commits (docs, CI, tooling) and merges of the production
+  branch back into `development`. Each commit left is `code-without-ticket`.
+- When the project keeps a `CHANGELOG.md`, the line the commit added
+  (`git show <sha> -- CHANGELOG.md`) is the starting point for its "Wat".
+
 ## Phase 3 — Draft the sprint changelog
 
 Create `docs/sprint-<N>-changelog.md` from the template in
@@ -187,7 +205,8 @@ Tickets classified `partial`, `spillover`, or `not-started`. Per item:
 
 ### 4b. Gaps Jira ↔ Code
 
-- Code merged this sprint without a matching Jira ticket
+- Code merged this sprint without a matching Jira ticket (the Phase 2 window
+  search)
 - Tickets without a BLI or spec
 - BLIs without a Jira ticket
 
@@ -208,6 +227,9 @@ the sprint being closed. As each item is resolved, remove it:
 - A "code without ticket" item that belongs to an existing/known ticket, or a
   subtask folded into another BLI → record the resolution in that BLI and
   remove the gaps entry.
+- A "code without ticket" item that needs no ticket (upkeep, a fix found along
+  the way) → a row in the changelog's "Ticketloos opgeleverd", and remove the
+  gaps entry.
 - Cross-assignee code that is genuinely delivered in the sprint → give it a BLI
   in `docs/sprint-<N>/` (with confirmed authorship), add it to the changelog,
   and remove it from gaps. Verify it is actually on the integration branch
@@ -488,7 +510,8 @@ End with a concise list of:
   `commands/compact-sprint.md` (its retention guard decides; never run it as
   part of the close)
 - Whether to write customer release notes next (`commands/release-notes.md`):
-  the changelog's `Opgeleverd` rows are its first source
+  the changelog's `Opgeleverd` and `Ticketloos opgeleverd` rows are its source
+  for a sprint
 
 ## Changelog template
 

@@ -129,7 +129,8 @@ the close.
 
 The changelog is internal. Notes the customer reads are another separate,
 explicitly invoked lane: `skills/release-notes` takes the changelog's
-`Opgeleverd` rows as its first source, so name it in the wrap-up.
+`Opgeleverd` and `Ticketloos opgeleverd` rows as its source for a sprint, so
+name it in the wrap-up.
 
 In a project created from unicore-template (`.unicore.json`, or
 `scripts/husky/readme-checks.js` for a v3 project), check whether the sprint's
