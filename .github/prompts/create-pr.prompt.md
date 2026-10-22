@@ -82,29 +82,22 @@ If ambiguous, ask the user.
    - upstream the change in `ai-workflows` instead
    - do both
 
-## Architecture conformance pass
+## Self-review
 
-If the diff touches route/page/layout files, page-level templates, modules, or
-components (for Next.js: `src/app/**/page.tsx`, `src/app/**/layout.tsx`,
-`src/templates/**`, `src/modules/**`, `src/components/**`), run the **Definition
-of Done** checklist from the detected stack rule (e.g.
-`rules/stacks/nextjs-payload.md`) over the changed files **before** opening the
-PR/MR — so the agent catches deviations instead of the reviewer. For each
-changed route/module confirm:
+Run `commands/review-code.md` once over `<remote>/<base>...HEAD`, before the
+first push. Its Architecture Conformance Pass covers the stack rule's
+Definition of Done.
 
-- page = route control flow + `<Template/>` only (no markup, fetch, or
-  view-model derivation)
-- fetch + view-model derivation in `templates/<Name>/load<Name>.ts`; pure
-  raw → props mapping in `Transform*.ts`
-- paths via the project's central route helper (no hand-written, locale-prefixed
-  URL strings)
-- component prop interfaces in `types.ts`, never inline in the `.tsx`
-- one transform per module; hooks hold client state only
-
-If a box fails, fix the new code to conform before pushing. If the failure is in
-pre-existing neighbour code, leave it and flag it in a tracked follow-up (e.g. a
-`docs/todo/` entry) rather than expanding the PR scope (see "Conform to the
-rule, not the neighbour" in `rules/clean-architecture.md`).
+- A `[correctness]` or `[security]` finding stops the flow: one at a time,
+  continue only once it is fixed or the user waives it explicitly. A waived
+  finding goes into the description with the user's reason.
+- Any other finding never stops the flow: list it with its `file:line` in the
+  description and in the recap's `Open items` row.
+- No lint, type-check, test or build here; the pre-push sweep stays the only
+  one.
+- Skip it when `commands/work-backlog.md` reviewed the branch in its step 7
+  during this session and the only commits since close out its backlog item;
+  say so in the recap.
 
 ## Base Branch Resolution
 
@@ -254,6 +247,7 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
 | Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
 | Checks | ✅ | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
+| Self-review | ✅ | `<n>` findings, `<k>` blocking and fixed — ⚠️ when a finding was waived — ➖ with the reason it was skipped |
 | Migration | ➖ | none needed / added `<name>` |
 | Board updated | ✅ | section it moved to (if the project keeps a board) |
 | Worktree cleaned up | ➖ | removed + pruned, or ➖ if none was used |

@@ -249,7 +249,7 @@ building instead of re-running everything.
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
-| `skills/create-pr` | skill | `/create-pr` · `"open pr"`, `"submit pr"` · delegated at the end of `skills/work-backlog` | Rebase onto base, push, open PR/MR with a description generated from the diff; pre-flight delegates to `skills/migration-check` |
+| `skills/create-pr` | skill | `/create-pr` · `"open pr"`, `"submit pr"` · delegated at the end of `skills/work-backlog` | Rebase onto base, push, open PR/MR with a description generated from the diff; pre-flight delegates to `skills/migration-check` and `skills/code-review` |
 | `commands/create-pr.md` | command | `"create pr"` → command | Fallback runbook |
 | `skills/code-review` | skill | `/code-review` · also accepts an MR/PR **URL** | Review a branch, MR, or PR by URL; can post inline MR comments after a go-ahead |
 | `skills/receiving-code-review` | skill | `/receiving-code-review` · `"reviewer comments"`, `"reageer op review"` | Evaluate incoming feedback with rigour — verify, push back where wrong, then apply |
@@ -460,7 +460,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 
 | # | Gap | What it costs today | Filed as |
 | --- | --- | --- | --- |
-| 1 | `skills/create-pr` runs no self-review before the push (the pipeline watch after opening is delivered: step 7 waits out the setup stage and offers `skills/watch-mrs`) | A reviewer sees what a self-review would have caught | `docs/backlog/chore-create-pr-self-review-preflight.md` |
+| 1 | ~~`skills/create-pr` runs no self-review before the push~~ | Delivered 2026-10-21: pre-flight step 6 runs `skills/code-review` once before the first push; `[correctness]` and `[security]` findings stop the flow until fixed or waived, the rest go into the MR description | delivered |
 | 2 | No requirements snapshot pinned per branch, so no check that the ticket still says what it said when work started | AC changed or a comment moved the scope, and the MR silently misses it — and a gate that reads live Jira is not reproducible | parked, not filed: reopen on the first MR that missed a criterion changed after work started. The earlier spec, `feat-ticket-drift-check.md`, was removed on 2026-10-13 and is in git history |
 | 3 | ~~No surface triages a failing pipeline~~ | Covered since 2026-10-15 by the platform: GitLab's Fix pipeline flow, with prevention in `skills/run-checks`, which runs the CI v4 `verify` list locally (gap 5). On RFW 2 of 99 MR pipelines failed in a month, and no failure was seen to recur | Our own triage skill is superseded, not filed. Reopen it as a new item when the review-flow pilot finds the Fix pipeline flow not worth using **and** failed MR pipelines run above about 10% a month or one failure is shown to recur. Its earlier spec, the pipeline-triage backlog item, is in git history once the release archives it |
 | 4 | ~~`skills/watch-mrs` reports merge status, not pipeline detail, and hands off to nothing~~ | Delivered 2026-07-29: the watcher tracks pipeline transitions, names the failing job/stage, offers triage, and hands merges to `skills/mr-merged` | delivered |
