@@ -33,9 +33,10 @@ SESSION_ID = re.compile(r"[A-Za-z0-9._-]{1,128}")
 
 REASON = (
     "A Greenberry skill ran in this session and the run needed the user to step in. "
-    "In one sentence, offer to run /greenberry:improve-skill now so what went wrong "
-    "is folded back into that skill. Do not run improve-skill or edit any skill "
-    "unless the user says yes; if they decline, drop it."
+    "In one sentence, offer to run /greenberry:improve-skill now to check whether "
+    "anything from this run belongs in that skill; often nothing does. Do not run "
+    "improve-skill or edit any skill unless the user says yes; if they decline, "
+    "drop it."
 )
 
 

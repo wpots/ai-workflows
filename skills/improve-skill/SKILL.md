@@ -67,16 +67,16 @@ If a run had zero friction, skip silently — do not touch the skill.
    commit again; never hand-edit the adapter. The edit lands in `ai-workflows`
    through a GitLab MR, never on `main`: read
    `skills/upstream-rules/references/upstream-mr.md` before branching.
-5. **Compound each learning into every artifact it deserves** — a prose edit
-   alone evaporates under pressure; a check fires every time:
-   - **a check** — when the failure is mechanically detectable, add it where
-     machines look: a `scripts/validate-skills.mjs` block, a lint rule, a
-     hook, or a CI step.
-   - **an eval** — when the failure was behavioral (the skill produced the
-     wrong shape), add a case under `evals/<name>/` (copy a neighbouring
-     case: `prompt.md` plus `graders/`) capturing the prompt and the
-     condition that would have caught it. `evals/README.md` has the layout
-     and the run command.
+5. **Add a compound artifact only when it can fail without the fix.** The
+   prose edit is the default, and most learnings need nothing more:
+   - **a check** — only when the wrong text was in a skill, command or rule
+     and could come back there: a `scripts/validate-skills.mjs` block, a lint
+     rule, a hook, or a CI step. A check over files cannot catch a model that
+     improvised a wrong command those files never contained.
+   - **an eval** — only when the skill's own text led the run the wrong way.
+     Add a case under `evals/<name>/` (`prompt.md` plus `graders/`; layout and
+     run command in `evals/README.md`), and keep it only after watching it
+     fail on the base.
    - **a solution note** — when the learning is project-specific (belongs to
      that codebase, not the shared skill), write
      `docs/solutions/<slug>.md` in the project: symptom, root cause, fix,
