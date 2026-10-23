@@ -101,7 +101,12 @@ the recap that the connector was used. Report the ticket URL in the recap.
 
 - **Read the deploy back.** Find the target branch's pipeline for the merge or
   squash commit (`glab api "projects/<path>/pipelines?sha=<sha>"`), wait for
-  its deploy job, and read the job's log, not only its status. Wait in one
+  its deploy job, and read the job's log, not only its status. A `canceled`
+  pipeline whose deploy job never started was usually superseded by a later
+  push to the target branch, not refused: take the oldest later pipeline on
+  that branch whose sha contains the merge commit (`git merge-base
+  --is-ancestor <merge-sha> <later-sha>`), read its deploy log instead, and
+  name that pipeline in the recap. Wait in one
   bounded poll: every 30–60 s, for at most about 10 minutes (in Claude Code a
   Monitor until-loop, since a foreground `sleep` is blocked). A deploy job
   that has not run by then is ⏳ in the recap, with the pipeline link. A deploy job
