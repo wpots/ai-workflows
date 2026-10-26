@@ -135,16 +135,15 @@ Three rules keep process docs trustworthy:
    inventory row in [`FEATURES.md`](../FEATURES.md).
 4. Place it in the process in [pipeline-map.md](pipeline-map.md) — which phase it
    fires in, which gate it helps close, and how it is invoked.
-5. Add or update the regression cases for the skill in `evals/<name>/` and run
-   them: `claude plugin eval . --tag <name> --runs 1 --ablation none --no-publish
-   --trust-plugin --judge-model sonnet --max-cost-usd 3`. A `description` edit
-   also runs the routing suite: the same command with `--tag routing`. Layout,
-   the `runnable`, `needs-scaffold` and `routing` tags, the judge choice, and
-   why `--no-publish` is not optional are in
-   [`evals/README.md`](../evals/README.md). Each run is a real model call on your
-   account. For a one-off check no case covers yet,
-   `claude -p "<prompt>" --plugin-dir .` loads this checkout's plugin over the
-   installed one, so a skill change is never "only testable after the release".
+5. Add or update regression cases for the changed behavior in `evals/<name>/`.
+   Select exact case names and run only those cases once, with one plugin arm
+   and an explicit cost ceiling, following
+   [`evals/README.md`](../evals/README.md). A `description` edit selects the
+   affected skill's routing cases. Whole skill or routing suites, extra runs
+   and a no-plugin arm require the user's explicit approval of scope and total
+   budget. If no case matches, report the coverage gap; if a paid run is
+   refused, report it as not run. The README also covers free case-file
+   validation, fixtures, the judge choice and report privacy.
 6. Run `./scripts/validate-ai-instructions.sh`; steps 2–4 are checked, so a
    missing entry surfaces instead of staying invisible.
 7. Republish the pipeline map so the shared copy matches the repo — see

@@ -64,7 +64,7 @@ decision, recorded so it stops being re-proposed at every review. Both are liste
 | Release readiness | done | safe to ship — dependency and licence scanning, API-contract/breaking-change detection, docs updated | `skills/watch-mrs` (approval, pipeline, conflicts via `detailed_merge_status`), `skills/npm-maintenance` (dependencies, out of band) | ⚠️ partial — merge-readiness only, armed by hand |
 | Deploy health | done | the release is healthy in production — a post-deploy smoke check | nothing | ⛔ out of scope — canary and rollback automation are for traffic these projects do not have; a smoke check in CI is the whole intended ceiling |
 | Feedback triage | gate on the loop | is this comment actionable at all, before anything is reproduced or fixed | nothing | ❌ absent — filed, deliberately not next |
-| Skill-change health | done | exit from Improve — a skill that was edited still does what it did, and its new routing actually triggers | `claude plugin eval` over the cases in `evals/` — 62 cases for 17 skills, 25 of which run in an empty workspace, including a routing suite (`--tag routing`) for the five riskiest skills; the MR flow (`skills/create-pr`, the upstream MR rule) runs the routing suite on the maintainer's seat when a branch adds a skill, edits a skill's frontmatter or edits a routing case, and the rest runs by hand — not in CI | ⚠️ partial — routing is armed by the MR flow as model guidance, not a mechanical gate; the output cases are armed by nothing |
+| Skill-change health | done | exit from Improve — a skill that was edited still does what it did, and its new routing actually triggers | `claude plugin eval` over selected cases in `evals/`; the MR flow (`skills/create-pr`, the upstream MR rule) selects only cases for the changed behavior, one run per case with a cost ceiling, following `evals/README.md`; broader suites and extra runs require explicit approval of scope and total budget | ⚠️ partial — targeted runs are model guidance, not a mechanical gate; coverage and fixtures remain incomplete, and no CI job runs paid evals |
 | Workflow-asset review | done | any change to **this** repo | feature branch → GitLab MR → reviewer `wieteke.pots` (`shared/workflow-assets.md`) | ✅ policy, human-enforced |
 
 ## The improve loop
@@ -75,13 +75,13 @@ exists. That is the eighth lane:
 
 ![The improve loop: friction in any phase goes through skills/improve-skill and the upstream skills to a GitLab MR, into the shared context layer that every tool loads again; the skill-change health gate hangs off improve-skill](diagrams/improve-loop.drawio.svg)
 
-The dotted gate is only half there. Every other phase closes on a check; a skill edit
-closes on a human reading the diff, plus the routing suite the MR flow runs when a
-branch can break routing (`evals/README.md`, "Before a skill MR").
-`skills/improve-skill` may rewrite the instructions that drive every other phase.
-`claude plugin eval` runs the cases in `evals/`, but only 25 of the 62 cases run in an
-empty workspace, routing cases exist for the five riskiest skills only, the MR flow arms
-the routing suite and nothing else, and no CI job runs any of it. See [Gaps](#gaps).
+The dotted gate is only half there. A skill edit closes on a human reading
+the diff plus the targeted eval cases selected for its changed behavior
+(`evals/README.md`, "Before a skill MR"). `skills/improve-skill` may rewrite
+the instructions that drive every other phase. Some cases need a fixture,
+routing coverage is incomplete, and no CI job runs paid evals. Broader suites
+and additional runs require explicit approval of scope and total budget.
+See [Gaps](#gaps).
 
 Every change to this repo passes that gate — a developer editing a rule by hand and
 an agent running an upstream skill are treated identically. No direct pushes to
@@ -342,7 +342,7 @@ cannot silently grow.
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
 | `skills/improve-skill` | skill | `/improve-skill` · `"verbeter je skill"`, `"take learnings"`, `"learn from sessions"` · **policy says** after any run that needed intervention · offered once per session by the `Stop` hook (`scripts/improve_skill_retrospective.py`) | Post-run retrospective: fold friction back into the skill's canonical source, decide whether a recurring pattern deserves a new skill or a lighter surface, and author the new skill when warranted |
-| `evals/<skill>/<case>/` | evals | `claude plugin eval . --tag <skill> --no-publish` by hand; the routing suite also runs from the MR flow before a skill MR opens (`evals/README.md`) — no CI job | The Skill-change-health gate's cases: 62, 25 runnable in an empty workspace and 37 waiting for a fixture; 10 are routing cases (`--tag routing`) for `code-review`, `create-pr`, `refinement`, `start-project` and `work-backlog` |
+| `evals/<skill>/<case>/` | evals | The MR flow selects exact cases for changed behavior before the first push (`evals/README.md`), one run each with a cost ceiling; whole suites and extra runs require explicit scope and budget approval — no CI job | Regression cases for skill output and routing; some are runnable in an empty workspace, others need a fixture |
 | `skills/upstream-rules` | skill | `/upstream-rules` · `"propose rule"` · **should** fire whenever a shared asset is edited in a synced project | Propose a rule/skill change back to this repo as a GitLab MR |
 | `skills/upstream-to-unicore` | skill | `/upstream-to-unicore` · `"port to unicore"`, `"template harvest"` · **proposed** by `skills/mr-merged` and `skills/close-sprint` when template-owned files changed | Port reusable work into `unicore-template` on the release line chosen per change (v3 or v4), by name or as a harvest against the project's `.unicore.json` base; starts from the open template MR queue and hands the MR to `skills/watch-mrs` |
 | `skills/setup-ai-workflows` | skill | `/setup-ai-workflows` · `"apply ai-workflows"`, `"generate conventions"` | Generate `CONVENTIONS.md`, thin tool adapters, and sync shared assets into a project |
@@ -472,7 +472,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 9 | ~~"Run `improve-skill` after a run that needed intervention" is prose, not a hook~~ | Delivered 2026-10-08: a plugin `Stop` hook blocks once per session after a Greenberry skill run the user stepped into, so Claude offers the retrospective | delivered |
 | 10 | QA reports what it ran, but the run leaves behind nothing a reviewer can re-run | "Done" stays an assertion: the report says the criteria are met, and checking that claim means redoing the work | `docs/backlog/feat-requirements-traceability.md` |
 | 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | parked, not filed: reopen once gap 2 exists and ticket feedback measurably waits on attention. The earlier spec, `feat-jira-feedback-loop.md`, was removed on 2026-10-13 and is in git history |
-| 12 | A changed skill has a partial regression net: the MR flow runs the routing suite on routing-relevant changes, but there is no CI job, routing cases exist for only the five riskiest skills, and 37 of 62 cases need a fixture before they run | `skills/improve-skill` rewrites the instructions that drive every other phase; the check that the rewrite still triggers is armed in the MR flow (model guidance, not a gate), the check that it still delivers is armed by nothing | The MR-flow run is delivered (2026-10-13). It is pre-flight step 5 of `skills/create-pr` and a bullet in the upstream MR rule, and the procedure is in `evals/README.md` § "Before a skill MR". The CI job is superseded by that run, not filed: reopen it as a new item when a routing failure reaches review despite that step, when routing cases cover more than the five riskiest skills, or when local runs give real `costUsd` figures to set a CI cap from. Its earlier spec, eval slice 3/3, is in git history |
+| 12 | A changed skill has a partial regression net: the MR flow selects only cases for the changed behavior, coverage is incomplete and some cases need a fixture | `skills/improve-skill` rewrites the instructions that drive every other phase; targeted checks are prescribed in the MR flow as model guidance, not a mechanical gate, and no CI job runs paid evals | The MR flow and `evals/README.md` define case selection and reporting. Broader suites and extra repetitions require explicit approval of scope and total budget. Report a missing matching case as a coverage gap; do not silently broaden the run. Revisit automation when targeted failures reach review despite this step or coverage improves |
 
 Everything else the spec proposes is in the coverage table above rather than filed —
 recording it beats twenty draft items nobody picks up.

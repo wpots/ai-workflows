@@ -80,18 +80,15 @@ If the platform cannot be inferred, ask the user.
    regressed baseline snapshot, stop and surface it — a migration that fails
    `migrate` must not land in the PR/MR. Continue only once it passes or the user
    accepts the finding.
-5. **Routing evals.** If the repository has eval cases tagged `routing` under
-   `evals/` and the branch diff adds a skill, changes a skill's `name`,
-   `description` or `when_to_use`, or changes a routing case, follow "Before a
-   skill MR" in `evals/README.md`: it holds the exact trigger test, the command
-   and the result line. It runs the routing suite without asking, once, before
-   the first push. If a case fails, stop and surface the case, the skill and the
-   grader; continue only once it passes or the user accepts the failure, and
-   never loosen or delete the case to get a pass. Put the result line the README
-   prescribes (including `not run — <reason>`) in the verification section of
-   the MR description (see Generate PR Content). Everywhere else, and for a
-   branch that changes only skill bodies, references or other cases, this step
-   does nothing.
+5. **Targeted skill evals.** When the repository has `evals/`, follow
+   "Before a skill MR" in `evals/README.md` to select only cases that exercise
+   behavior changed by this branch. Use exact case names, one run each and an
+   explicit cost ceiling. Whole skill suites, the routing suite, extra runs
+   or a no-plugin arm need the user's explicit approval of scope and total
+   budget. If a selected case fails, stop until it passes or the user accepts
+   the failure; never loosen the case or expand the suite automatically. Put
+   the selected case names and actual results, or `not run — <reason>`, in the
+   MR description. If no matching case exists, report the coverage gap.
 6. **Self-review.** Run the `code-review` skill once over
    `<remote>/<resolved-base>...HEAD`, before the first push. Pass it the remote
    and base resolved here: its own resolution assumes `origin`. A finding tagged

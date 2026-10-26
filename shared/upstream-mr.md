@@ -20,11 +20,12 @@ upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
   `"labels": "ai:agent-authored"` in the JSON of the `--input` route below.
   A squash merge drops the `Co-Authored-By` trailers, so the label is the only
   record `scripts/delivery-metrics.mjs` can count (`rules/git-flow.md`).
-- Before the MR opens, a branch that adds a skill, changes a skill's `name`,
-  `description` or `when_to_use`, or changes a routing case runs the routing
-  evals first: "Before a skill MR" in `evals/README.md` of the `ai-workflows`
-  checkout has the trigger test, the command and the result line for the MR
-  description. Other repos have no routing cases, so this does nothing there.
+- Before the MR opens, select only eval cases that exercise behavior changed
+  by the branch. "Before a skill MR" in `evals/README.md` of `ai-workflows`
+  owns the case selection, capped commands and result line. Whole skill
+  suites, the routing suite, extra repetitions or a no-plugin arm require the
+  user's explicit approval of scope and total budget; an MR request does not
+  grant that approval. Repositories without `evals/` skip this step.
 - Pass **both** `-R <canonical-repo>` and `-H <canonical-repo>` to
   `glab mr create`, and `-R` to every follow-up `glab mr update`/`view`. `-R`
   sets only the target; the head (source) project and the MR lookup still

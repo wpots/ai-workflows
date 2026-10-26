@@ -76,9 +76,10 @@ that a question I parked for refinement actually reaches the next session.
 - **pipeline-map.** The "Definition of ready" gate row and its gate paragraph in
   `docs/pipeline-map.md` name this item as what keeps the gate partial; update both
   when it lands.
-- Changelog fragment `changelog.d/changed.ready-check-in-the-path.md`. If a skill's
-  `description` changes, run the routing evals first (`evals/README.md`). Try the
-  branch's skills before merge with `claude -p … --plugin-dir <worktree>`.
+- Changelog fragment `changelog.d/changed.ready-check-in-the-path.md`. Select
+  only cases for the changed behavior, including that skill's routing cases
+  when its `description` changes, following `evals/README.md`. Broader suites
+  and extra runs need explicit scope and budget approval.
 
 ## Out of Scope
 
