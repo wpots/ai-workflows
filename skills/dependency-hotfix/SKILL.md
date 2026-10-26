@@ -253,7 +253,9 @@ Include the draft parent message. No go, nothing leaves the machine.
   each script on its own, reading exit codes. The **production build** is
   required — this goes straight to production — and a failing build stops the
   run. A Storybook check runs only when the project opted in, and its failure
-  goes into the plan and the MR description, never into a stop. Then
+  goes into the plan and the MR description, never into a stop or a narrower
+  fix: Storybook yields to security updates (`skills/npm-maintenance/SKILL.md`
+  § Validation). Then
   `npm ls <package>` shows only fixed versions;
   when `osv-scanner` is installed (the scanner's engine), scan the lockfile
   with it and expect no critical.

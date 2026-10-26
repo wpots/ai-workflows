@@ -1,0 +1,1 @@
+- `skills/npm-maintenance`, `skills/dependency-hotfix`: a Storybook that breaks on a security update never holds the update back. Bump, then shim Storybook in `.storybook/` or leave it broken until Storybook supports the new version; never pin the framework below the fix.
