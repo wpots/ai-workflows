@@ -16,6 +16,63 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.14.0] - 2026-10-26
+
+### Action required
+
+- In a project with a Payload preset, replace the migration guard in
+  `.claude/settings.json` (the `PreToolUse` `Bash` hook whose reason starts
+  with `Blocked: migrate:fresh`) with the one in
+  `templates/project-claude-settings.json`. The sync never overwrites an
+  existing settings file, so only new projects get the wider guard from the
+  template.
+  <!-- slack: .claude/settings.json | neem de nieuwe migration guard uit de template over: blokkeert elk migrate-script -->
+
+### Added
+
+- fnm is supported next to nvm for running a project's pinned Node.
+  - **The rule.** "Node and npm: the version the project pins" in `CLAUDE.md`
+    now tells agents with fnm to run `fnm exec --using=.nvmrc <npm|pnpm|node> …`
+    from the project root, instead of the absolute nvm path.
+  - **The install hook** (`scripts/require_pinned_install_runtime.py`) changes
+    in three ways:
+    - it now judges an install run through `fnm exec` on the Node that fnm
+      selects; before, it let such a command through unchecked;
+    - when fnm has the pinned Node, a denied install names
+      `fnm exec --using=…`;
+    - when the pin is missing, it asks for `fnm install <pin>`.
+  - **The allowlist.** `templates/project-claude-settings.json` allows the
+    `--using=.nvmrc` form of the npm, pnpm and node commands it already allowed.
+    New projects get these rules; an existing project's `.claude/settings.json`
+    has to add them by hand.
+  <!-- slack: Node-pin | agents en de install-hook werken nu ook met fnm (`fnm exec --using=.nvmrc …`) naast nvm -->
+
+### Changed
+
+- Maintenance reports now start with a progress table that separates implementation, merge and environment verification, and keep dated evidence current after follow-ups.
+- Reports use a compact ordered template and link detailed investigation history instead of appending session transcripts.
+- The migration guard in `templates/project-claude-settings.json` denies every
+  migrate script an agent runs through pnpm, npm, yarn, bun, npx or `payload`
+  (`migrate`, `migrate:status`, `migrate:create`, `migrate:fresh`,
+  `migrate:reset`, `payload migrate*`), not only `migrate:fresh` and
+  `migrate:create`. Text after `git`, `glab`, `gh`, `jira`, `jq`, `echo` and
+  the read tools is a mention, so a commit message or MR title that names a
+  migrate command no longer trips it. `scripts/test_migration_guard.py` runs
+  the hook from the template against both lists.
+- `skills/npm-maintenance`, `skills/dependency-hotfix`: a Storybook that breaks on a security update never holds the update back. Bump, then shim Storybook in `.storybook/` or leave it broken until Storybook supports the new version; never pin the framework below the fix.
+
+### Fixed
+
+- Preserve project-specific Jest exclusions and coverage when running checks
+  from worktrees, so Playwright specs stay out of the Jest suite.
+- After a hotfix rehearsal on acceptance, restore acceptance ancestry in
+  development without changing its files, so the next promotion can fast-forward.
+- `skills/mr-merged` Step 5: a cancelled pipeline on the merge commit, with its
+  deploy job never started, is read as superseded by a later push. The
+  read-back follows the oldest later pipeline on the target branch that
+  contains the merge commit and reads that deploy log. Before, the deploy
+  looked missing while the next push had deployed it.
+
 ## [2.13.0] - 2026-10-22
 
 ### Added
