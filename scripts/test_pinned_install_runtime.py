@@ -18,6 +18,21 @@ SCRIPT = Path(__file__).with_name("require_pinned_install_runtime.py")
 
 # Node version → the npm it bundles, as nvm installs them.
 NODES = {"24.13.0": "11.6.2", "24.21.0": "11.19.0", "22.11.0": "10.9.0"}
+# The same for fnm; 24.22.1 is installed under fnm only.
+FNM_NODES = {"24.13.0": "11.6.2", "24.22.1": "11.19.1"}
+
+
+def install_node(node_dir: Path, node: str, npm: str) -> None:
+    stub = node_dir / "bin" / "node"
+    write(stub, f"#!/bin/sh\necho v{node}\n")
+    stub.chmod(stub.stat().st_mode | stat.S_IXUSR)
+    npm_dir = node_dir / "lib" / "node_modules" / "npm"
+    write(npm_dir / "package.json", json.dumps({"version": npm}))
+    cli = npm_dir / "bin" / "npm-cli.js"
+    write(cli, "")
+    cli.chmod(cli.stat().st_mode | stat.S_IXUSR)
+    (node_dir / "bin" / "npm").symlink_to(cli)
+    write(node_dir / "lib" / "node_modules" / "pnpm" / "bin" / "pnpm.cjs", "")
 
 
 def load_hook():
@@ -37,23 +52,26 @@ def write(path: Path, text: str) -> None:
 
 
 class Fixture:
-    """A fake nvm dir with stub `node` binaries, and three projects."""
+    """Fake nvm and fnm dirs with stub `node` binaries, and four projects."""
 
     def __init__(self, root: Path) -> None:
         self.root = root
         self.nvm = root / "nvm"
         for node, npm in NODES.items():
-            node_dir = self.node_dir(node)
-            stub = node_dir / "bin" / "node"
-            write(stub, f"#!/bin/sh\necho v{node}\n")
-            stub.chmod(stub.stat().st_mode | stat.S_IXUSR)
-            npm_dir = node_dir / "lib" / "node_modules" / "npm"
-            write(npm_dir / "package.json", json.dumps({"version": npm}))
-            cli = npm_dir / "bin" / "npm-cli.js"
-            write(cli, "")
-            cli.chmod(cli.stat().st_mode | stat.S_IXUSR)
-            (node_dir / "bin" / "npm").symlink_to(cli)
-            write(node_dir / "lib" / "node_modules" / "pnpm" / "bin" / "pnpm.cjs", "")
+            install_node(self.node_dir(node), node, npm)
+        self.fnm = root / "fnm"
+        for node, npm in FNM_NODES.items():
+            install_node(self.fnm_node_dir(node), node, npm)
+        # Only its presence on PATH matters: the hook reads fnm's dir, it never runs fnm.
+        self.fnm_bin = root / "fnm-bin"
+        fnm_stub = self.fnm_bin / "fnm"
+        write(fnm_stub, "#!/bin/sh\nexit 0\n")
+        fnm_stub.chmod(fnm_stub.stat().st_mode | stat.S_IXUSR)
+
+        self.fnm_project = root / "fnm-project"
+        write(self.fnm_project / "package.json", json.dumps({"name": "fnm-project"}))
+        write(self.fnm_project / ".nvmrc", "24.22.1\n")
+        write(self.fnm_project / "package-lock.json", "{}")
 
         self.npm_project = root / "npm-project"
         write(self.npm_project / "package.json", json.dumps({"name": "npm-project"}))
@@ -76,14 +94,21 @@ class Fixture:
     def node_dir(self, version: str) -> Path:
         return self.nvm / "versions" / "node" / f"v{version}"
 
+    def fnm_node_dir(self, version: str) -> Path:
+        return self.fnm / "node-versions" / f"v{version}" / "installation"
+
     def explicit(self, node: str, npm_from: str | None = None) -> str:
         cli = self.node_dir(npm_from or node) / "lib/node_modules/npm/bin/npm-cli.js"
         return f"{self.node_dir(node) / 'bin/node'} {cli}"
 
-    def run(self, command: str, *, path_node: str, cwd: Path) -> dict[str, object] | None:
+    def run(
+        self, command: str, *, path_node: str, cwd: Path, fnm: bool = False
+    ) -> dict[str, object] | None:
+        fnm_path = f"{self.fnm_bin}:" if fnm else ""
         env = {
-            "PATH": f"{self.node_dir(path_node) / 'bin'}:/usr/bin:/bin",
+            "PATH": f"{fnm_path}{self.node_dir(path_node) / 'bin'}:/usr/bin:/bin",
             "NVM_DIR": str(self.nvm),
+            "FNM_DIR": str(self.fnm),
             "HOME": str(self.root),
         }
         result = subprocess.run(
@@ -203,6 +228,57 @@ class PinnedInstallRuntimeTests(unittest.TestCase):
             output,
             ".nvmrc pins Node 24.30.0",
             "Stop and ask the user for `nvm install 24.30.0`",
+            "never fall back to the node on PATH",
+        )
+
+    def test_fnm_exec_on_the_pinned_version_passes(self) -> None:
+        fx = self.fx
+        for command in (
+            "fnm exec --using=.nvmrc npm ci",
+            "fnm exec --using .nvmrc npm install",
+            "fnm exec npm ci",
+            "fnm exec --using=24.22.1 npm ci",
+            "fnm exec --using=v24.22.1 -- npm ci",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(
+                    fx.run(command, path_node="24.13.0", cwd=fx.fnm_project, fnm=True)
+                )
+
+    def test_fnm_exec_on_another_version_is_denied(self) -> None:
+        fx = self.fx
+        output = fx.run(
+            "fnm exec --using=24.13.0 npm ci",
+            path_node="24.13.0",
+            cwd=fx.fnm_project,
+            fnm=True,
+        )
+        self.assert_denies(
+            output, ".nvmrc pins Node 24.22.1, this command runs Node v24.13.0"
+        )
+
+    def test_with_fnm_the_suggestion_is_fnm_exec(self) -> None:
+        fx = self.fx
+        output = fx.run("npm ci", path_node="24.13.0", cwd=fx.fnm_project, fnm=True)
+        self.assert_denies(
+            output,
+            ".nvmrc pins Node 24.22.1, this command runs Node v24.13.0",
+            "fnm exec --using=.nvmrc npm ci",
+        )
+        output = fx.run(
+            f"npm --prefix {fx.fnm_project} ci", path_node="24.13.0", cwd=fx.root, fnm=True
+        )
+        self.assert_denies(output, f"fnm exec --using=24.22.1 npm --prefix {fx.fnm_project} ci")
+
+    def test_with_fnm_a_missing_pin_asks_for_fnm_install(self) -> None:
+        fx = self.fx
+        project = fx.root / "fnm-uninstalled-pin"
+        write(project / "package.json", json.dumps({"name": "fnm-uninstalled-pin"}))
+        write(project / ".nvmrc", "24.30.0\n")
+        output = fx.run("npm ci", path_node="24.13.0", cwd=project, fnm=True)
+        self.assert_denies(
+            output,
+            "Stop and ask the user for `fnm install 24.30.0`",
             "never fall back to the node on PATH",
         )
 
