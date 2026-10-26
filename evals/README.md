@@ -48,14 +48,33 @@ a reason to loosen the prompt.
 
 ## Run
 
+The default is a targeted run: select only the added or changed cases and the
+existing cases that exercise the behavior changed by this branch. List the
+exact case names and why they apply before running them. Use one run per case,
+one plugin arm, and an explicit cost ceiling.
+
+A whole skill suite, the routing suite, all runnable cases, more repetitions or
+an added no-plugin arm require the user's explicit approval of the expanded
+scope and its total budget. Approval to edit a skill, push a branch or open an
+MR does not approve a broader eval run. A failure or missing coverage does not
+expand the selection automatically.
+
 ```bash
-# the routing suite
+# free case-file validation; no model run
+claude plugin eval . --max-cost-usd 0 --no-publish --trust-plugin
+
+# one selected regression case; $0.50 is an example ceiling, not its price
+claude plugin eval . --case backlog-5 --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 0.50
+```
+
+Broad runs are opt-in. Only after the user approves the suite and its total
+budget, use the matching selector, for example:
+
+```bash
+# requires explicit approval for the routing suite and a $3 budget
 claude plugin eval . --tag routing --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 3
 
-# one skill
-claude plugin eval . --tag component-spec --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 3
-
-# everything that needs nothing beyond its prompt
+# requires explicit approval for all runnable cases and a $10 budget
 claude plugin eval . --tag runnable --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 10
 ```
 
@@ -70,69 +89,67 @@ claude plugin eval . --tag runnable --runs 1 --ablation none --no-publish --trus
   for about $0.03 more per case.
 - `--trust-plugin` skips the first-run trust prompt; use it on this repo only.
 - `--case` takes one glob without alternation, and a second `--case` replaces
-  the first; run several named cases as separate commands.
+  the first; run several selected cases as separate commands with exact names.
+  Account for their combined budget; a case filter is not permission to run
+  unrelated cases one by one.
 - `--max-cost-usd 0` loads and validates every case file without starting a
   run, at no cost; a file that does not load is printed with a `✗`.
-- Results land in `evals/results/` (gitignored). Every run is a real model call
-  on your account: keep `--max-cost-usd` set.
+- Results land in `evals/results/` (gitignored). Every live run calls the model
+  on your account. A cost ceiling is a stop setting, not a fixed charge; a run
+  already in flight can exceed it. Respect the user's budget and any declined
+  execution or data-transfer permission. Never retry a refused paid run,
+  increase its budget or add repetitions automatically.
 
 ## Before a skill MR
 
 `skills/create-pr` and the upstream MR flow (`shared/upstream-mr.md`, the path
-`skills/improve-skill` takes) run the routing suite before the MR opens, when
-the branch can break routing. They say when the step applies and point here for
-the trigger test, the command and the result lines, so a change to those lands
-in one place.
+`skills/improve-skill` takes) use targeted evals before the first push. The
+selection and cost policy in [Run](#run) also applies to baseline/fixed runs
+while improving a skill.
 
-**When it fires.** Only in a checkout with routing cases, and only when the
-branch diff does at least one of these. List the candidates with
-`git diff --name-status <base>...HEAD -- 'skills/*/SKILL.md' 'evals/**'`:
+**Select from the branch diff.** Inspect the changed skills, rules, commands,
+shared fragments and eval files against the resolved base. For each selected
+case, name the changed behavior its assertions exercise:
 
-- A `skills/<name>/SKILL.md` is added (`A`): a new `description` can take over
-  another skill's requests.
-- A modified `SKILL.md` has a different `name`, `description` or `when_to_use`.
-  Compare the frontmatter (between the first two `---` lines) of
-  `git show <base>:<path>` with the branch version; a body edit or a
-  `metadata:` edit does not count.
-- A routing case is added or changed: its `prompt.md` or one of its
-  `graders/*.md` is in the diff.
+- An added or modified case selects that exact case, including when only a
+  grader changed.
+- A new skill or a change to a skill's `name`, `description` or `when_to_use`
+  selects only that skill's relevant routing cases. An added or changed
+  routing case does not select the routing cases of other skills.
+- A skill body, rule, command or shared-fragment change selects only existing
+  cases whose assertions exercise the changed behavior. It does not select
+  every case for a skill or every consumer of a shared fragment.
+- A documentation-only edit that changes no tested behavior selects no live
+  cases. If changed behavior has no suitable case, report the coverage gap;
+  do not substitute a broader suite.
 
-A skill "has routing cases" when some `evals/<skill>/*/prompt.md` lists
-`routing` in `tags` (`git grep -l -E '^tags:.*routing' -- 'evals/*/*/prompt.md'`).
-Anything else, such as a body edit, a reference file or a case without the
-`routing` tag, does nothing and costs nothing.
+**Run and report.**
 
-**What it does.**
+1. Run each selected case once using its exact `--case` name and the settings
+   in [Run](#run). An existing successful result for the same inputs is reused;
+   a later push reruns only cases whose relevant inputs changed. A wider run
+   waits for explicit approval of its scope and total budget.
+2. **All selected cases pass:** put their names, the observed pass count and
+   actual combined cost from the run results in the MR description. For
+   example: `Targeted evals: backlog-5 — 1/1 pass ($0.20, 2026-10-26)`.
+   Read `aggregates.casesPassed`, `aggregates.casesTotal` and `costUsd` from
+   `evals/results/<run>/aggregate-result.json`; do not present targeted results
+   as a full-suite pass.
+3. **A case fails:** stop before the push and name the case, the skill and the
+   grader. Continue once the selected case passes, or once the user accepts
+   the failure; record an accepted failure in the MR description. Never
+   loosen or delete the case to get a pass, or expand to a suite automatically.
+4. **No live run:** state `Targeted evals: not run — <reason>` and the selected
+   case names or coverage gap. Reasons include unchanged tested behavior, no
+   matching case, denied network/auth or data-transfer permission, and a cost
+   ceiling stopping a run. Include the targeted command when applicable.
+   Never claim a pass the run did not report.
 
-1. A frontmatter edit to a skill with no routing cases does not run the suite,
-   because the suite has nothing to say about that skill. The MR description
-   gets `Routing evals: <skill> has no routing cases`, so the reviewer sees the
-   gap rather than a missing line.
-2. Otherwise it runs the routing suite from [Run](#run), without asking first.
-   `--max-cost-usd 3` is about 1.7 times what the ten cases cost ($1.57 on
-   2026-10-08, $1.81 on 2026-10-13), and about eight MRs a month trigger it.
-   Run it once, on the pre-flight before the first push; a later push that
-   changes routing-relevant files again runs it again, other pushes do not.
-3. **All cases pass:** one line in the MR description, from the run's own
-   numbers (`aggregates.casesPassed`, `aggregates.casesTotal` and `costUsd` in
-   `evals/results/<run>/aggregate-result.json`):
-   `Routing evals: 10/10 pass ($1.81, 2026-10-13)`.
-4. **A case fails:** stop before the push and name the case, the skill and the
-   grader. Continue once the case passes, or once the user accepts the failure;
-   an accepted failure goes into the MR description with the case name
-   (`Routing evals: 9/10 pass, accepted failure: create-pr-3`). Never loosen or
-   delete the case to get a pass. A should-fire failure on a fresh prompt is a
-   finding about the `description` (see [Routing cases](#routing-cases)).
-5. **The run cannot happen** (no network, no auth, a refused permission prompt,
-   or exit code 2 because the cost ceiling stopped it): the MR description says
-   `Routing evals: not run — <reason>` followed by the command to run. Never
-   write a pass that the run did not report.
-
-Inside the Claude Code sandbox the run needs the sandbox bypass, because
-`claude plugin eval` reaches api.anthropic.com and writes to `/tmp`. The
-permission prompt that brings up is expected; refusing it is case 5. `--runs 1`
-is the documented setting and no case has flaked yet; if one does, raise
-`--runs` in the commands above instead of adding a retry to a skill.
+Inside the Claude Code sandbox a live run needs the sandbox bypass, because
+`claude plugin eval` reaches api.anthropic.com and writes to `/tmp`. A refused
+permission prompt is reported under step 4; it does not authorize another
+execution route. Additional repetitions need explicit scope and budget
+approval under [Run](#run).
 
 ## Runnable and needs-scaffold
 

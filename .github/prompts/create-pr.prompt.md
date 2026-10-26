@@ -67,12 +67,13 @@ If ambiguous, ask the user.
    number. Before reporting, merge every new branch into a scratch branch off
    the base and diff it against the snapshot: an empty diff proves nothing was
    lost.
-4. If the repository has eval cases tagged `routing` under `evals/` and the
-   diff adds a skill, changes a skill's `name`, `description` or `when_to_use`,
-   or changes a routing case, follow "Before a skill MR" in `evals/README.md`
-   (trigger test, command, result line). Stop on a failing case until it passes
-   or the user accepts it; put the result line, or `not run — <reason>`, in the
-   description. Otherwise this does nothing.
+4. When the repository has `evals/`, follow "Before a skill MR" in
+   `evals/README.md`: select exact cases for the changed behavior, one run each
+   with a cost ceiling. Whole skill suites, the routing suite, extra runs or
+   a no-plugin arm require explicit approval of scope and total budget. Stop
+   on a failing case until it passes or the user accepts it; record the case
+   names and actual results, or `not run — <reason>`, in the description. A
+   missing matching case is a coverage gap, not permission to expand the run.
 5. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,

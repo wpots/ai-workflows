@@ -76,7 +76,9 @@ If a run had zero friction, skip silently — do not touch the skill.
    - **an eval** — only when the skill's own text led the run the wrong way.
      Add a case under `evals/<name>/` (`prompt.md` plus `graders/`; layout and
      run command in `evals/README.md`), and keep it only after watching it
-     fail on the base.
+     fail on the base. Apply that README's targeted-case selection and budget
+     policy to both the baseline and fixed run; a retrospective does not
+     authorize a whole suite or extra repetitions.
    - **a solution note** — when the learning is project-specific (belongs to
      that codebase, not the shared skill), write
      `docs/solutions/<slug>.md` in the project: symptom, root cause, fix,
@@ -142,9 +144,10 @@ anything enforceable with a lint/validation rule (automate it instead).
 baseline actually fails — an agent (or you) handling the situation *without* the skill
 does the wrong thing. If the no-guidance baseline already does the right thing, there's
 nothing to write. This applies to edits too, not just new skills. Watch it before
-merge, not after a release: run the situation as a prompt with
-`claude -p "<prompt>" --plugin-dir <ai-workflows checkout>`, once on the base and
-once on your branch — the checkout's plugin loads over the installed one.
+merge, not after a release: run the same selected case once on the base and
+once on your branch, using the checkout's plugin and the selection, cost and
+permission policy in `evals/README.md`. A declined paid run is reported as
+not run; it is not replaced with an uncapped direct prompt.
 
 **Match the form to the failure** — the wrong form measurably backfires:
 
