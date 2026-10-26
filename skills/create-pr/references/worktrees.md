@@ -97,12 +97,22 @@ when the branch is pushed.
 
 ## Running tests, builds and hooks
 
-- Test runners often **ignore `.worktrees/`** (e.g. jest
+- Test runners often **ignore `.worktrees/`** (e.g. Jest
   `testPathIgnorePatterns` / `modulePathIgnorePatterns`), so a normal run finds
-  **0 tests**. Override those patterns when running natively from the worktree,
-  e.g. `npm test -- --testPathIgnorePatterns=/node_modules/ --modulePathIgnorePatterns=/__none__/ --coverage=false`.
-  Note the pattern matches the **absolute** path, so a worktree at
-  `~/.worktrees/…` is ignored too, not just one inside the repo.
+  **0 tests**. Read the project's configured lists and override only the option
+  whose pattern excludes the worktree root, removing only that exclusion.
+  Jest's CLI ignore options replace the configured lists (checked 2026-10;
+  recheck if that override behaviour changes), so preserve every other
+  exclusion, especially `/e2e/`: dropping it makes Jest load Playwright specs
+  and fail with “Playwright Test needs to be invoked via 'npx playwright test'”.
+  For a list containing `/node_modules/`, `/\.claude/`, `/.worktrees/` and
+  `/e2e/`, use
+  `npm test -- --testPathIgnorePatterns='/node_modules/|/\.claude/|/e2e/'`.
+  Keep the project's coverage settings for a full-suite check.
+  Patterns match the **absolute** path, so an unanchored `/.worktrees/`
+  excludes a worktree at `~/.worktrees/…` too. A `<rootDir>/.worktrees/`
+  pattern only excludes a nested directory; leave it intact when it does not
+  match the worktree root.
 - Never point the runner at the worktree **from the main checkout**. A
   `--rootDir <worktree>` (or equivalent) shortcut looks like it avoids both
   problems above, but path aliases resolved from the config (jest

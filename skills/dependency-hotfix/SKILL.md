@@ -395,6 +395,15 @@ For acceptance, then development (each that exists):
    thread, and leave the branch untouched.
 5. Verify: `git merge-base --is-ancestor origin/<production> origin/<branch>`
    holds for every long-lived branch.
+6. When the runbook fast-forwards `development` into `acceptance`, also verify
+   `git merge-base --is-ancestor origin/acceptance origin/development`.
+   Acceptance may already have rehearsed the unsquashed hotfix branch; merging
+   production into both branches leaves acceptance's own history outside
+   development. Use the same merge-tree/commit-tree push route to merge
+   acceptance into development **only when the resulting tree equals
+   development's current tree**. This preserves the tested files and restores
+   the next fast-forward. If the tree differs or conflicts, stop and report
+   the divergence instead of promoting unreviewed acceptance changes.
 
 A push to acceptance deploys acceptance. That is intended: it now runs what
 production runs.
