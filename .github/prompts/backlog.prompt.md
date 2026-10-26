@@ -42,13 +42,20 @@ Confirm only what you cannot infer safely:
    session's branch or worktree on the slug (`git worktree list`).
 2. If a matching file exists, update it. An item another session is still
    writing is updated additively and left uncommitted; never commit, rename or
-   move it on that session's behalf.
+   move it on that session's behalf. For other existing items, resolve the
+   filename from `## Ticket` using `rules/backlog.md`'s File Naming section;
+   correct a missing or wrong prefix and update links, `Depends on:` lines and
+   other filename references.
 3. Otherwise create a new file using the naming rules from `rules/backlog.md`
    plus any stricter project-local convention from `CONVENTIONS.md`.
 4. The same item in several repositories: check per repository that the
    problem exists, write one shared contract first (names, paths, flags,
    defaults, formats, refusals), and put it verbatim in every item's
    `Technical Notes`. Parallel writers all get that contract.
+5. Before finishing, verify that every changed item's filename prefix matches
+   its real Ticket key and that updated references resolve. Reusable changes
+   to this naming policy belong in canonical `ai-workflows` rules and skill;
+   reserve `CONVENTIONS.md` for project-specific requirements.
 
 ## Phase 3 — Draft the item
 

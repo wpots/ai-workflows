@@ -43,26 +43,32 @@ All backlog items MUST be written to the project's `docs/backlog/` folder.
 ```
 docs/
 └── backlog/
-    ├── feat-user-authentication.md
-    ├── feat-diary-entry-crud.md
-    ├── bug-date-picker-timezone.md
-    ├── story-onboarding-flow.md
+    ├── PROJ-101-feat-user-authentication.md
+    ├── PROJ-102-feat-diary-entry-crud.md
+    ├── PROJ-103-bug-date-picker-timezone.md
+    ├── PROJ-104-story-onboarding-flow.md
     └── ...
 ```
 
 ## File Naming
 
 - One item per file — never combine multiple stories/bugs in a single file.
-- Prefix with type: `feat-`, `bug-`, `story-`, `chore-`, `spike-`.
+- Types: `feat`, `bug`, `story`, `chore`, `spike`.
 - Use kebab-case for the rest of the name.
 - Extension: `.md`
 
-- Optionally prepend the project ticket key before the type: `JS-103-feat-user-authentication.md`.
-  - Use an uppercase project acronym and numeric ID (e.g. `PROJ-123`), keep hyphen separators, and preserve kebab-case for the descriptive part.
+- When `## Ticket` contains a real tracker key, the filename MUST start with
+  that exact key, before the type: `PROJ-123-feat-user-authentication.md`.
+  This applies to drafts too and is shared policy for every project.
+  - Preserve the tracker's key, keep hyphen separators, and use kebab-case for
+    the descriptive part.
+- When no ticket exists yet, use `<type>-<slug>.md`. Once a real ticket key is
+  assigned, prepend it and update references to the old filename. Never invent
+  a key to satisfy the naming rule.
 - When one ticket has several items, suffix each with its slice number and the
   capability it delivers: `PROJ-123-feat-vacancy-search-2-results.md`. The
   number orders them; the slug says what the slice is, not which layer it
-  touches.
+  touches. Every slice uses the same ticket-key prefix.
 
 ## File Template
 
