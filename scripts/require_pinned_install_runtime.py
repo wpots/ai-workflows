@@ -9,10 +9,11 @@ Volta or `devEngines.packageManager` names another. pnpm's own version is left
 to pnpm: pnpm 10 switches to the `packageManager` version by itself.
 
 The hook measures `node` and `npm` on its own PATH, or the binaries a command
-names by absolute path. A denied install gets the exact command on the pinned
-runtime, built from the nvm install of the pinned Node, so the agent can
-proceed without a human — unless that Node is not installed or the pin itself
-has to move, which is the user's call.
+names by absolute path, or the fnm install that `fnm exec` selects. A denied
+install gets the exact command on the pinned runtime — `fnm exec` when fnm has
+the pinned Node, otherwise the nvm install of it — so the agent can proceed
+without a human, unless that Node is not installed or the pin itself has to
+move, which is the user's call.
 """
 
 from __future__ import annotations
@@ -67,6 +68,8 @@ class Invocation:
     npm_entry: str | None = None
     npm_version: str | None = None
     env: dict[str, str] = field(default_factory=dict)
+    # `fnm exec`: None when the command does not run through it, "" without --using.
+    fnm_using: str | None = None
 
 
 @dataclass
@@ -226,6 +229,43 @@ def nvm_node_dir(version: str) -> Path:
     return nvm_dir() / "versions" / "node" / f"v{version.lstrip('v')}"
 
 
+def fnm_dir() -> Path:
+    if os.environ.get("FNM_DIR"):
+        return Path(os.environ["FNM_DIR"])
+    data_home = os.environ.get("XDG_DATA_HOME") or Path.home() / ".local" / "share"
+    return Path(data_home) / "fnm"
+
+
+def fnm_node_dir(version: str) -> Path:
+    return fnm_dir() / "node-versions" / f"v{version.lstrip('v')}" / "installation"
+
+
+def fnm_has(version: str) -> bool:
+    """fnm can run this Node: the binary is on PATH and the version is installed."""
+    return shutil.which("fnm") is not None and (fnm_node_dir(version) / "bin" / "node").exists()
+
+
+def installed_node_dir(version: str) -> Path:
+    """Where the pinned Node is installed: fnm first, then nvm (nvm's path when neither)."""
+    return fnm_node_dir(version) if fnm_has(version) else nvm_node_dir(version)
+
+
+def fnm_installed(spec: str) -> Path | None:
+    """The newest fnm install that `.nvmrc` semantics accept for this spec."""
+    try:
+        names = [entry.name for entry in (fnm_dir() / "node-versions").iterdir()]
+    except OSError:
+        return None
+    matching = [
+        version
+        for version in (parse_version(name) for name in names)
+        if version and nvm_satisfies(version, spec)
+    ]
+    if not matching:
+        return None
+    return fnm_node_dir(".".join(str(part) for part in max(matching)))
+
+
 def package_version(path: Path) -> str | None:
     data = read_json(path)
     version = data.get("version") if data else None
@@ -296,7 +336,7 @@ def project_pins(root: Path) -> ProjectPins | None:
     for spec in dev_engine_versions(manifest, "packageManager", "npm"):
         npm.append(Pin("package.json devEngines.packageManager", spec))
     if not npm and pinned_node:
-        bundled_dir = nvm_node_dir(pinned_node) / "lib" / "node_modules" / "npm"
+        bundled_dir = installed_node_dir(pinned_node) / "lib" / "node_modules" / "npm"
         bundled = package_version(bundled_dir / "package.json")
         if bundled:
             npm.append(Pin(f"the npm of the pinned Node v{pinned_node} ({bundled_dir})", bundled))
@@ -325,10 +365,33 @@ def subcommand(args: list[str]) -> tuple[str | None, list[str]]:
     return None, []
 
 
+def parse_fnm_exec(tokens: list[str], env: dict[str, str]) -> Invocation | None:
+    """`fnm exec [--using=X] [--] <command>`: the command, run on fnm's install."""
+    using = ""
+    index = 2
+    while index < len(tokens) and tokens[index].startswith("-"):
+        token = tokens[index]
+        index += 1
+        if token == "--":
+            break
+        if token == "--using" and index < len(tokens):
+            using = tokens[index]
+            index += 1
+        elif token.startswith("--using="):
+            using = token.split("=", 1)[1]
+    invocation = parse_invocation(tokens[index:], env)
+    if invocation is not None:
+        invocation.fnm_using = using
+    return invocation
+
+
 def parse_invocation(tokens: list[str], env: dict[str, str]) -> Invocation | None:
     if not tokens:
         return None
     first = command_name(tokens[0])
+
+    if first == "fnm":
+        return parse_fnm_exec(tokens, env) if tokens[1:2] == ["exec"] else None
 
     if first == "node":
         for index, token in enumerate(tokens[1:], start=1):
@@ -441,15 +504,28 @@ def overrides(invocation: Invocation) -> list[str]:
     return found
 
 
-def suggestion(invocation: Invocation, pins: ProjectPins) -> str:
+def fnm_using(invocation: Invocation, pins: ProjectPins, current: Path) -> str:
+    """`.nvmrc` when fnm would read the pin from it here, else the pinned version."""
+    assert pins.pinned_node is not None
+    nvmrc = next((pin for pin in pins.node if pin.source == ".nvmrc"), None)
+    targets_elsewhere = flag_value(invocation.args, ("--prefix", "-C", "--dir")) is not None
+    if nvmrc and nvmrc.spec.lstrip("v") == pins.pinned_node and current == pins.root:
+        if not targets_elsewhere:
+            return ".nvmrc"
+    return pins.pinned_node
+
+
+def suggestion(invocation: Invocation, pins: ProjectPins, current: Path) -> str:
     if pins.pinned_node is None:
         return "Run it with the Node and npm the project pins."
-    node_dir = nvm_node_dir(pins.pinned_node)
+    via_fnm = fnm_has(pins.pinned_node)
+    node_dir = installed_node_dir(pins.pinned_node)
     node_binary = node_dir / "bin" / "node"
     if not node_binary.exists():
+        tool, home = ("fnm", fnm_dir()) if shutil.which("fnm") else ("nvm", nvm_dir())
         return (
-            f"The pinned Node v{pins.pinned_node} is not installed under {nvm_dir()}. "
-            f"Stop and ask the user for `nvm install {pins.pinned_node}`; never fall "
+            f"The pinned Node v{pins.pinned_node} is not installed under {home}. "
+            f"Stop and ask the user for `{tool} install {pins.pinned_node}`; never fall "
             "back to the node on PATH."
         )
     args = shlex.join(
@@ -457,6 +533,9 @@ def suggestion(invocation: Invocation, pins: ProjectPins) -> str:
         for token in invocation.args
         if token not in OVERRIDE_FLAGS
         and not (invocation.manager == "npm" and token in NPM_OVERRIDE_FLAGS)
+    )
+    fnm_command = (
+        f"fnm exec --using={fnm_using(invocation, pins, current)} {invocation.manager} {args}"
     )
     if invocation.manager == "npm":
         cli = node_dir / "lib" / "node_modules" / "npm" / "bin" / "npm-cli.js"
@@ -467,7 +546,11 @@ def suggestion(invocation: Invocation, pins: ProjectPins) -> str:
                 f"The npm bundled with Node v{pins.pinned_node} ({bundled}) does not "
                 "match the npm pin either. Ask the user which version to run."
             )
+        if via_fnm:
+            return f"Run it through fnm on the pinned Node instead:\n  {fnm_command}"
         return f"Run it on the pinned runtime instead:\n  {node_binary} {cli} {args}"
+    if via_fnm:
+        return f"Run it through fnm on the pinned Node instead:\n  {fnm_command}"
     pnpm = node_dir / "lib" / "node_modules" / "pnpm" / "bin" / "pnpm.cjs"
     if not pnpm.is_file():
         found = shutil.which("pnpm")
@@ -527,6 +610,44 @@ def segment_tokens(segment: str) -> tuple[list[str], dict[str, str]] | None:
     return tokens, env
 
 
+def fnm_version_spec(using: str, current: Path) -> str | None:
+    """The version `fnm exec` asks for.
+
+    `--using` is a version or a file; without it fnm reads `.nvmrc` or
+    `.node-version`, taken here from the nearest directory that has one.
+    """
+    if re.fullmatch(r"v?\d+(?:\.\d+){0,2}", using):
+        return using
+    files = (
+        [resolve_dir(current, using)]
+        if using
+        else [
+            directory / name
+            for directory in (current, *current.parents)
+            for name in (".nvmrc", ".node-version")
+        ]
+    )
+    for path in files:
+        try:
+            lines = path.read_text().strip().splitlines()
+        except OSError:
+            continue
+        return lines[0].strip() if lines else None
+    return None
+
+
+def use_fnm_runtime(invocation: Invocation, current: Path) -> bool:
+    """Point the invocation at the fnm install `fnm exec` selects; False when unknown."""
+    spec = fnm_version_spec(invocation.fnm_using or "", current)
+    install = fnm_installed(spec) if spec else None
+    if install is None:
+        return False
+    invocation.node_binary = str(install / "bin" / "node")
+    if invocation.manager == "npm":
+        invocation.npm_entry = str(install / "lib" / "node_modules" / "npm" / "bin" / "npm-cli.js")
+    return True
+
+
 def denial(command: str, cwd: Path) -> str | None:
     if not QUICK_MATCH.search(command):
         return None
@@ -542,6 +663,9 @@ def denial(command: str, cwd: Path) -> str | None:
         invocation = parse_invocation(tokens, env)
         if invocation is None or not is_install(invocation):
             continue
+        # A version fnm cannot resolve makes `fnm exec` fail on its own.
+        if invocation.fnm_using is not None and not use_fnm_runtime(invocation, current):
+            continue
         target = flag_value(invocation.args, ("--prefix", "-C", "--dir"))
         root = project_root(resolve_dir(current, target) if target else current)
         pins = project_pins(root) if root else None
@@ -553,9 +677,10 @@ def denial(command: str, cwd: Path) -> str | None:
         listed = "\n".join(f"- {problem}" for problem in found)
         return (
             f"This install does not run on the runtime {pins.root} pins:\n{listed}\n"
-            f"{suggestion(invocation, pins)}\n"
+            f"{suggestion(invocation, pins, current)}\n"
             "The hook measures node and npm on its own PATH unless the command names "
-            "them by absolute path; the explicit form is judged by its own binaries. "
+            "them by absolute path or runs them through `fnm exec`; those forms are "
+            "judged by the binaries they select. "
             'Follow the ambient rule "Node and npm: the version the project pins" '
             "(ai-workflows CLAUDE.md, Shell Usage): when the pinned version cannot "
             "do the job, moving the pin is the user's decision, never a workaround."

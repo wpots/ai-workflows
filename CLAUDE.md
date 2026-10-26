@@ -235,8 +235,8 @@ that doesn't match costs a human approval and blocks autonomous runs.
 
 ### Node and npm: the version the project pins
 
-A non-interactive shell skips nvm's auto-switch, so `node` and `npm` resolve
-to nvm's *default* alias — rarely the project's pin. A lockfile written by
+A non-interactive shell skips the version manager's switch on `cd`, so `node`
+and `npm` resolve to its *default* — rarely the project's pin. A lockfile written by
 another npm differs in its `peer`/`dev`/`devOptional` flags and in which
 optional peers it keeps, and CI's `npm ci` can reject it as out of sync.
 
@@ -244,13 +244,18 @@ optional peers it keeps, and CI's `npm ci` can reject it as out of sync.
   `.node-version`, Volta in `package.json`, then `engines.node`.
 - npm is the one bundled with the pinned Node, unless `packageManager` or
   `engines.npm` names another version — then that one.
-- Run through the pinned binary by absolute path,
+- With fnm on `PATH`, run from the project root through
+  `fnm exec --using=.nvmrc <npm|pnpm|node> <args>`; use `--using=<pin>` when the
+  pin is not in `.nvmrc` or the command targets another directory. Confirm with
+  `fnm exec --using=.nvmrc node --version` once. The project allowlist template
+  covers the `--using=.nvmrc` form of the npm and pnpm commands it allows.
+- With nvm, run through the pinned binary by absolute path,
   `~/.nvm/versions/node/v<pin>/bin/node ~/.nvm/versions/node/v<pin>/lib/node_modules/npm/bin/npm-cli.js <args>`,
   not `npm` from `PATH` and not `<node>/bin/npm` (its shebang resolves `node`
   from `PATH`). Confirm with `--version` once. An absolute path matches no
   allow rule, so expect an approval prompt unless the project allowlists it.
-- Pinned version not installed: stop and ask for `nvm install <pin>`; never
-  fall back to whatever is on `PATH`.
+- Pinned version not installed: stop and ask for `fnm install <pin>` (or
+  `nvm install <pin>`); never fall back to whatever is on `PATH`.
 - When the pinned npm cannot do the job (a known bug, a lockfile `npm ci`
   rejects), move the pin — `.nvmrc`, `packageManager`, the CI image — in the
   same MR so local, CI and the lockfile agree. A lockfile written by an
@@ -260,7 +265,8 @@ optional peers it keeps, and CI's `npm ci` can reject it as out of sync.
 
 The plugin's PreToolUse hook enforces this for installs: an `npm` or `pnpm`
 install whose Node or npm differs from the pin is denied, with the pinned
-command to run instead (`scripts/require_pinned_install_runtime.py`).
+command to run instead: `fnm exec` when fnm has the pin, the nvm path otherwise
+(`scripts/require_pinned_install_runtime.py`).
 
 ### Git inside the sandbox
 
