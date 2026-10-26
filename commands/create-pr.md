@@ -126,7 +126,9 @@ Ticket link: extract `^([A-Z]+-[0-9]+)` from the branch name; if a tracker
 base URL is configured in project config (project-local skill facts,
 `AI-WORKFLOWS.md`, project `CLAUDE.md`), prefix the title with `<TICKET>: `
 and open the body with a `## Jira` section linking the ticket. Omit when
-either is missing — never guess a URL.
+either is missing — never guess a URL. Name no other ticket by key in the
+title, description or commits: the GitLab–Jira integration can move every
+named ticket to In Progress; refer to other tickets by title.
 
 Analyse the diff against the base branch and generate:
 

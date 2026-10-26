@@ -70,6 +70,16 @@ If the type is ambiguous, ask. The type drives the template (below) and the
    are in `skills/service-cli/references/jira.md`. The Atlassian connector is
    the fallback only when the CLI is not installed and cannot be installed now
    — see "Connector fallback" at the end, and say so in the recap.
+4. Backlog items that already exist for this work: the tracked files in
+   `docs/backlog/` **and** the untracked ones (`git status --porcelain
+   docs/backlog/`), because another session may have written them without
+   committing. When they exist, file the ticket from them — a
+   `TBD — proposed <type> "<title>"` line in their `## Ticket` field names the
+   ticket — and hand the new key to `skills/backlog` to write back.
+5. The project's ticket conventions: language and format from `CONVENTIONS.md`
+   (the tracker entry under Tooling). The language of a handful of existing
+   tickets is not yet a convention: with no entry and fewer than ten tickets,
+   ask once and propose recording the answer in `CONVENTIONS.md`.
 
 ## Workflow
 
@@ -81,10 +91,11 @@ If the type is ambiguous, ask. The type drives the template (below) and the
      acceptance criterion.
    - Task → the concrete outcome / definition of done.
 2. **Ground it in the codebase** (bugs + code tasks). Locate the actual file and
-   lines, reference them as `path/to/file.tsx:line`, and only state a cause /
-   touchpoint you can point at. If unconfirmed, write it as a hypothesis and
-   label it — never invent. Offload heavy reading to a subagent to keep context
-   clean.
+   lines, and only state a cause you can point at. If unconfirmed, write it as
+   a hypothesis and label it — never invent. The `path/to/file.tsx:line`
+   references go into the backlog item (`skills/backlog`); the ticket states
+   the cause in plain words (see "No repo references" under Templates).
+   Offload heavy reading to a subagent to keep context clean.
 3. **Resolve the Jira context:**
    - Project key → from "Context to load". When the repo has a `.jira.yml`,
      pass `-c .jira.yml` after the subcommand on every command instead (it also
@@ -99,8 +110,10 @@ If the type is ambiguous, ask. The type drives the template (below) and the
      `jira sprint list --state active,future --plain --columns ID,NAME,STATE`.
      Skip for backlog tickets.
 4. **Write the body** to a file in the scratchpad using the matching template,
-   in Markdown — the CLI renders it to Jira's format. Match the language and
-   English/native-term mix of the project's existing tickets.
+   in Markdown — the CLI renders it to Jira's format. Write it in the project's
+   ticket language (Context to load, 5), keeping established developer jargon
+   in English, and under the issue type's own Jira template when the project
+   has one (Jira gotchas).
 5. **Confirm, then create.** Show the user: issue type + summary + assignee +
    sprint + project. On approval:
 
@@ -117,8 +130,25 @@ If the type is ambiguous, ask. The type drives the template (below) and the
 ## Templates (ticket body)
 
 Pick the one matching the issue type. Omit a section only when truly not
-applicable. Keep grounding sections (Root cause, Affected) short/empty when
-unknown — they are for grounding, not for guesses.
+applicable. Keep the Root cause section short or empty when unknown — it is
+for grounding, not for guesses. When the project's Jira issue type carries its
+own description template, its headings win: map the sections below into them
+(a Story template of `Omschrijving` + `Acceptatiecriteria` takes the user
+story and context under the first) and keep Open questions and Tech notes
+after them.
+
+**No repo references in the ticket.** The product owner reads the ticket; the
+backlog item is the developer's spec and carries the key. So the body holds no
+file paths or file names, no line numbers, no backlog file names, no MR or
+commit links, and no Touchpoints section. Observable behaviour stays — a
+route, an environment variable, a header — and so do Notion and Figma links.
+A project whose `CONVENTIONS.md` asks for code pointers in tickets overrides
+this.
+
+**Open questions** mirror the backlog items' `Blocked on:` lines: the question,
+who answers it, and which part of the feature waits. **Tech notes** list the
+choices made while writing the backlog items without a PO or developer
+decision, so refinement confirms or changes them. Both are optional.
 
 ### Bug
 
@@ -147,13 +177,10 @@ unknown — they are for grounding, not for guesses.
 <screenshot / video / console>
 
 ## Root cause (if known)
-<file:line + explanation>
+<what goes wrong, in plain words>
 
 ## Suggested fix (optional)
 <direction>
-
-## Affected
-- path/to/file.tsx
 ```
 
 ### Story
@@ -172,8 +199,11 @@ As a <role>, I want <goal>, so that <value>.
 ## Out of scope
 <what this story explicitly does not cover>
 
-## Notes / touchpoints (optional)
-- path/to/area
+## Open questions (optional)
+- <question> — answered by <who>; holds up <which part>
+
+## Tech notes (optional)
+- <a choice made without a PO or developer decision>
 ```
 
 ### Task
@@ -188,8 +218,11 @@ As a <role>, I want <goal>, so that <value>.
 ## Definition of done
 - [ ] <concrete, checkable outcome>
 
-## Touchpoints (optional)
-- path/to/file.ts:line
+## Open questions (optional)
+- <question> — answered by <who>; holds up <which part>
+
+## Tech notes (optional)
+- <a choice made without a PO or developer decision>
 ```
 
 ## Jira fields
@@ -223,6 +256,26 @@ No priority, labels, components, or reporter overrides unless the user asks
   `.jira.yml`, with `-c .jira.yml` after the subcommand on every command and
   `JIRA_LOGIN` set (`skills/service-cli/references/jira.md` § A project's own
   config). Without one, `-p <KEY>` reaches another project but not its board.
+- **An issue type's description template.** Jira can prepend a per-type
+  template to the description on create, and the CLI shows no sign of it (seen
+  on a Story type in 2026-10; holds while the project configures one). After
+  the first create of each type, run `jira issue view <KEY> --plain` once. If
+  an empty template sits above the body, rewrite the body to its headings and
+  replace the description — part of the approved create, not a separate edit:
+
+  ```bash
+  jira issue edit <KEY> --no-input --skip-notify < body.md
+  ```
+
+  Stdin replaces the whole description; `--skip-notify` spares the watchers a
+  mail per fix. Write later tickets of that type to the template from the
+  start.
+- **Several issues into an epic** after creation:
+  `jira epic add <EPIC> <KEY>…` (checked on a classic project, 2026-10).
+- **Transition names belong to the workflow**, not the target status:
+  `jira issue move <KEY> "Open"` fails with `invalid transition state` and
+  lists the workflow's names (such as `progress naar open`); pass one of those.
+  Transition only on an explicit ask (Tracker write — safety).
 
 ## Connector fallback
 
