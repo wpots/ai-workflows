@@ -55,6 +55,18 @@ OVERRIDE_FLAGS = {
     "--config.package-manager-strict=false",
 }
 NPM_OVERRIDE_FLAGS = {"--force", "-f"}
+# Install subcommands with a direct counterpart in the other package manager.
+# `npm install <pkg>` / `npm ci` and `pnpm install --frozen-lockfile` are
+# handled in `translated`; anything else is named, never guessed.
+TO_PNPM = {
+    "uninstall": "remove", "remove": "remove", "rm": "remove", "un": "remove",
+    "update": "update", "up": "update", "upgrade": "update",
+    "dedupe": "dedupe", "prune": "prune",
+}
+TO_NPM = {
+    "remove": "uninstall", "rm": "uninstall", "uninstall": "uninstall", "un": "uninstall",
+    "update": "update", "up": "update", "upgrade": "update", "dedupe": "dedupe",
+}
 OVERRIDE_ENV = {"npm_config_engine_strict": "false", "npm_config_force": "true"}
 
 Version = tuple[int, int, int]
@@ -440,6 +452,48 @@ def is_install(invocation: Invocation) -> bool:
     return name in PNPM_INSTALLS
 
 
+def positional(args: list[str]) -> list[str]:
+    found: list[str] = []
+    skip = False
+    for token in args:
+        if skip:
+            skip = False
+        elif token in VALUE_FLAGS:
+            skip = True
+        elif not token.startswith("-"):
+            found.append(token)
+    return found
+
+
+def translated(invocation: Invocation, manager: str) -> Invocation | None:
+    """The same install in the project's package manager; None without a direct counterpart."""
+    name, rest = subcommand(invocation.args)
+    if name is None:
+        return None
+    leading = invocation.args[: len(invocation.args) - len(rest) - 1]
+    if manager == "pnpm":
+        if name in {"ci", "clean-install"}:
+            target: list[str] | None = ["install", "--frozen-lockfile"]
+        elif name in {"install", "i", "add"}:
+            target = ["add" if positional(rest) else "install"]
+        else:
+            target = [TO_PNPM[name]] if name in TO_PNPM else None
+        directory_flags = {"--prefix": "-C"}
+    else:
+        if name in {"install", "i"} and "--frozen-lockfile" in rest:
+            target = ["ci"]
+            rest = [token for token in rest if token != "--frozen-lockfile"]
+        elif name in {"install", "i", "add"}:
+            target = ["install"]
+        else:
+            target = [TO_NPM[name]] if name in TO_NPM else None
+        directory_flags = {"-C": "--prefix", "--dir": "--prefix"}
+    if target is None:
+        return None
+    args = [directory_flags.get(token, token) for token in leading + target + rest]
+    return Invocation(manager, args, env=invocation.env)
+
+
 def flag_value(args: list[str], names: tuple[str, ...]) -> str | None:
     for index, token in enumerate(args):
         if token in names and index + 1 < len(args):
@@ -561,6 +615,18 @@ def suggestion(invocation: Invocation, pins: ProjectPins, current: Path) -> str:
     return f"Run pnpm under {node_binary}."
 
 
+def advice(invocation: Invocation, pins: ProjectPins, current: Path) -> str:
+    """The command to run instead, in the project's package manager."""
+    if not pins.manager or pins.manager == invocation.manager:
+        return suggestion(invocation, pins, current)
+    counterpart = translated(invocation, pins.manager)
+    if counterpart is None:
+        return f"Run the {pins.manager} equivalent of this command on the pinned runtime."
+    if pins.pinned_node is None:
+        return f"Run it with {pins.manager} instead:\n  {pins.manager} {shlex.join(counterpart.args)}"
+    return suggestion(counterpart, pins, current)
+
+
 def problems(invocation: Invocation, pins: ProjectPins) -> list[str]:
     found: list[str] = []
     if pins.manager and pins.manager != invocation.manager:
@@ -677,7 +743,7 @@ def denial(command: str, cwd: Path) -> str | None:
         listed = "\n".join(f"- {problem}" for problem in found)
         return (
             f"This install does not run on the runtime {pins.root} pins:\n{listed}\n"
-            f"{suggestion(invocation, pins, current)}\n"
+            f"{advice(invocation, pins, current)}\n"
             "The hook measures node and npm on its own PATH unless the command names "
             "them by absolute path or runs them through `fnm exec`; those forms are "
             "judged by the binaries they select. "

@@ -293,6 +293,32 @@ class PinnedInstallRuntimeTests(unittest.TestCase):
         output = fx.run("npm install", path_node="24.13.0", cwd=fx.pnpm_project)
         self.assert_denies(output, "installs with pnpm", "this command runs npm")
 
+    def test_the_wrong_manager_gets_the_projects_manager_suggested(self) -> None:
+        fx = self.fx
+        for command, cwd, expected in (
+            ("npm install", fx.pnpm_project, "pnpm/bin/pnpm.cjs install"),
+            ("npm ci", fx.pnpm_project, "pnpm/bin/pnpm.cjs install --frozen-lockfile"),
+            ("npm i -D zod@4.6.5", fx.pnpm_project, "pnpm/bin/pnpm.cjs add -D zod@4.6.5"),
+            ("npm uninstall zod", fx.pnpm_project, "pnpm/bin/pnpm.cjs remove zod"),
+            ("pnpm install --frozen-lockfile", fx.npm_project, "npm/bin/npm-cli.js ci"),
+            ("pnpm add zod@4.6.5", fx.npm_project, "npm/bin/npm-cli.js install zod@4.6.5"),
+            ("pnpm remove zod", fx.npm_project, "npm/bin/npm-cli.js uninstall zod"),
+        ):
+            with self.subTest(command=command):
+                output = fx.run(command, path_node="24.13.0", cwd=cwd)
+                self.assert_denies(output, expected)
+        output = fx.run("npm ci", path_node="24.13.0", cwd=fx.pnpm_project, fnm=True)
+        self.assert_denies(output, "fnm exec --using=24.13.0 pnpm install --frozen-lockfile")
+        output = fx.run(
+            f"npm --prefix {fx.pnpm_project} install", path_node="24.13.0", cwd=fx.root
+        )
+        self.assert_denies(output, f"pnpm/bin/pnpm.cjs -C {fx.pnpm_project} install")
+
+    def test_a_wrong_manager_command_without_a_counterpart_names_the_manager(self) -> None:
+        fx = self.fx
+        output = fx.run("npm audit fix", path_node="24.13.0", cwd=fx.pnpm_project)
+        self.assert_denies(output, "Run the pnpm equivalent of this command")
+
     def test_global_installs_pass(self) -> None:
         fx = self.fx
         for command in (
