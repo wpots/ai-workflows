@@ -168,6 +168,16 @@ with `<TICKET>: ` and open the description with a linked ticket section:
 If the branch has no ticket or no tracker base URL is configured, omit the
 section — do not guess a URL.
 
+**Only the delivered ticket by key.** Where the GitLab–Jira integration
+transitions on development activity, every key in a branch name, commit
+message, MR title or MR description moves that ticket to In Progress, and
+again on merge (seen in 2026-10: a docs MR listing ten keys moved all ten;
+holds while the project runs that automation). So name by key only the ticket
+this branch delivers. An MR that writes backlog items, docs or ticket
+bookkeeping names other tickets by title. When keys slipped in anyway, move
+those tickets back after the merge — on the user's go — and say so in the
+recap.
+
 Diff the current branch against the resolved base branch and produce:
 
 - **Title** — a conventional-commit subject (`type(scope): imperative`),
