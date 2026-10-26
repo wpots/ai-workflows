@@ -99,7 +99,12 @@ and aligning them afterwards means rewriting every file.
      preceding slice merged describes the old tree. Re-check its file names,
      inventories and counts against the default branch and correct the item.
 5. Write or update the backlog item in `docs/backlog/` using the structure from
-   `rules/backlog.md`.
+   `rules/backlog.md`. Resolve its filename from `## Ticket` using that rule's
+   File Naming section. For an existing item with a real ticket key and a
+   missing or wrong prefix, rename it in place and update links, `Depends on:`
+   lines and other filename references. Before finishing, verify that every
+   changed item's prefix matches its Ticket field and that the updated
+   references resolve.
 6. For a **bug** item, fill `## Reproduction` with the shortest path that shows
    the defect — a function call on a fixture when there is one, otherwise the
    route, role and input. Make a fair attempt, then stop: when no reliable path
@@ -153,6 +158,9 @@ unattended.
   exists.
 - Prefer the project's tracker key and filename conventions when they are stricter
   than the shared backlog rule.
+- Reusable naming-policy corrections belong in the canonical `ai-workflows`
+  rules and skill, with the fallback command aligned. `CONVENTIONS.md` holds
+  only project-specific requirements.
 - `## Status` holds the status value and the ready check's notes, not a progress
   log: this skill writes `ready` only after the developer confirms it, and
   `in-progress` and `done` belong to whoever delivers the item.
