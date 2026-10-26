@@ -1,6 +1,6 @@
 {
   "name": "greenberry",
-  "version": "2.14.0",
+  "version": "2.14.1",
   "displayName": "Greenberry AI Workflows",
   "description": "Greenberry's shared skills and command runbooks: PR and commit flows, sprint workflows, reviews, scaffolding, and backlog delivery. Skills live in skills/; only the runbooks without a skill are registered as commands, the rest of commands/ is the fallback for tools without skills.",
   "commands": ["./commands/new-device-setup.md", "./commands/safe-kill-port.md"],
