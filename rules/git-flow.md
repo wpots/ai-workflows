@@ -109,7 +109,10 @@ and `development` as a fast-forward or two-parent merge-commit push when
 not the commit, so production stops being an ancestor and the next
 fast-forward release fails. The push carries only the reviewed hotfix commit
 and lockfile, `package.json` and changelog conflict resolution — never a new
-change.
+change. When acceptance already rehearsed the unsquashed hotfix and the runbook
+fast-forwards development into acceptance, this exception also permits merging
+acceptance into development after those back-merges, but only when the merged
+tree equals development's current tree: history is joined without changing files.
 
 ## Enforcement
 
