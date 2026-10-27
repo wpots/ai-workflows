@@ -11,8 +11,9 @@ Use this skill when the user asks to create **any** Jira issue — a bug, a user
 story, or a task. It **writes** to the tracker (creates one issue).
 
 The goal: every ticket lands in Jira with a predictable, type-appropriate
-template, so a developer can pick it up directly. The skill is project-agnostic —
-resolve every instance-specific value at runtime rather than assuming it.
+template, short enough for the product owner to read in a minute; the backlog
+item carries the developer's detail. The skill is project-agnostic — resolve
+every instance-specific value at runtime rather than assuming it.
 
 ## Scope — tracker ticket, not a local backlog item
 
@@ -94,7 +95,7 @@ If the type is ambiguous, ask. The type drives the template (below) and the
    lines, and only state a cause you can point at. If unconfirmed, write it as
    a hypothesis and label it — never invent. The `path/to/file.tsx:line`
    references go into the backlog item (`skills/backlog`); the ticket states
-   the cause in plain words (see "No repo references" under Templates).
+   the cause in plain words (see "Never in a ticket" under Ticket length).
    Offload heavy reading to a subagent to keep context clean.
 3. **Resolve the Jira context:**
    - Project key → from "Context to load". When the repo has a `.jira.yml`,
@@ -113,74 +114,96 @@ If the type is ambiguous, ask. The type drives the template (below) and the
    in Markdown — the CLI renders it to Jira's format. Write it in the project's
    ticket language (Context to load, 5), keeping established developer jargon
    in English, and under the issue type's own Jira template when the project
-   has one (Jira gotchas).
+   has one (Jira gotchas). Then count it: `wc -w <path/to/body.md>` against the
+   caps in "Ticket length".
 5. **Confirm, then create.** Show the user: issue type + summary + assignee +
-   sprint + project. On approval:
+   sprint + project + the word count (Story: the criteria count too) + the
+   tickets it links to. Over a cap: do not create, follow "Over the cap". On
+   approval:
 
    ```bash
    jira issue create -p RFW -t Bug -s "<summary>" -a "<email>" \
      -T <path/to/body.md> --no-input
    jira sprint add <sprint-id> <NEW-KEY>      # only when a sprint was chosen
+   jira issue link <A> <B> Blocks             # only the links named at the confirm step
    ```
 
    `--no-input` keeps the CLI from prompting for optional fields or opening an
    editor; without it the command blocks.
 6. **Report back** the issue key and the URL the create command prints.
 
+## Ticket length — the PO reads it in one minute
+
+The ticket is read by the product owner, not the developer; a long ticket is
+skimmed, and a skimmed ticket is accepted without being read. Hard caps,
+counted with `wc -w <body.md>` over the whole body, headings included, before
+the confirm step:
+
+| Type  | Cap       | Sections                                                    |
+| ----- | --------- | ----------------------------------------------------------- |
+| Story | 250 words | User story, Acceptance criteria, Open questions (optional)  |
+| Task  | 100 words | Goal, Definition of done, Open questions (optional)         |
+| Bug   | 150 words | Steps to reproduce, Expected, Actual                        |
+
+- **Story:** one user-story sentence plus at most two lines of context, only
+  what the PO does not already know. At most 8 criteria, one sentence each
+  (≤ 20 words), at capability level and observable by a PO. Edge cases,
+  numbers, formulas and cache or build behaviour belong in the backlog item.
+- **Out of scope:** one line, at most 3 items, only what a PO would otherwise
+  assume is included.
+- **Open questions:** at most 3, PO-facing, one line each:
+  `<question>? <who answers> — holds up <which part>`. They mirror the backlog
+  items' `Blocked on:` lines.
+- **Dependencies:** Jira issue links, never prose. Name them at the confirm
+  step — linking edits the other issue — and add them after the create with
+  `jira issue link <A> <B> Blocks`; read the direction back once with
+  `jira issue view <B> --plain`.
+- **Sources:** one link (Notion, Figma), never quoted or summarised.
+- **Never in a ticket:** tech notes, slicing or build order, function, token or
+  library names, file paths or file names, line numbers, backlog file names,
+  MR or commit links, and rejected alternatives. The backlog item is the
+  developer's spec and carries the key; it holds all of this. Observable
+  behaviour stays (a route, an environment variable, a header). A decision the
+  PO has to sign off becomes an open question in PO terms, not a tech note.
+
+A project whose `CONVENTIONS.md` names other caps or asks for code pointers in
+tickets overrides this.
+
+### Over the cap
+
+Never trim silently and never create. At the confirm step show the count
+(`11 criteria, 340 words`) and propose one of these; the user decides:
+
+1. **Move the detail to the backlog item and lift the criteria to capability
+   level.** The default: the criteria are usually edge cases and numbers.
+2. **Split into two stories under the same epic**, when the PO could accept one
+   without the other. Split by capability, never to make a ticket MR-sized (see
+   "The ticket is the feature, not the MR").
+3. **Group the criteria under short subheadings** when it is one capability with
+   many rules. The caps still hold.
+
 ## Templates (ticket body)
 
-Pick the one matching the issue type. Omit a section only when truly not
-applicable. Keep the Root cause section short or empty when unknown — it is
-for grounding, not for guesses. When the project's Jira issue type carries its
+Pick the one matching the issue type and stay inside its cap. Omit a section
+only when truly not applicable. When the project's Jira issue type carries its
 own description template, its headings win: map the sections below into them
 (a Story template of `Omschrijving` + `Acceptatiecriteria` takes the user
-story and context under the first) and keep Open questions and Tech notes
-after them.
-
-**No repo references in the ticket.** The product owner reads the ticket; the
-backlog item is the developer's spec and carries the key. So the body holds no
-file paths or file names, no line numbers, no backlog file names, no MR or
-commit links, and no Touchpoints section. Observable behaviour stays — a
-route, an environment variable, a header — and so do Notion and Figma links.
-A project whose `CONVENTIONS.md` asks for code pointers in tickets overrides
-this.
-
-**Open questions** mirror the backlog items' `Blocked on:` lines: the question,
-who answers it, and which part of the feature waits. **Tech notes** list the
-choices made while writing the backlog items without a PO or developer
-decision, so refinement confirms or changes them. Both are optional.
+story and context under the first) and keep Open questions after them.
 
 ### Bug
 
 ```markdown
-## Summary
-<one sentence: what goes wrong>
-
-## Environment
-- URL/page:
-- Role:
-- Locale:
-- Device/browser (if relevant):
-
 ## Steps to reproduce
+Where: <page/URL, role, locale; device/browser if relevant>
 1.
 2.
-3.
 
 ## Expected
 <what should happen>
 
 ## Actual
-<what happens now>
-
-## Evidence
-<screenshot / video / console>
-
-## Root cause (if known)
-<what goes wrong, in plain words>
-
-## Suggested fix (optional)
-<direction>
+<what happens now; screenshot or video attached or linked; the cause in one
+plain sentence when known>
 ```
 
 ### Story
@@ -188,41 +211,28 @@ decision, so refinement confirms or changes them. Both are optional.
 ```markdown
 ## User story
 As a <role>, I want <goal>, so that <value>.
-
-## Context
-<why now / background>
+<At most two lines of context. One link to the design or source.>
 
 ## Acceptance criteria
-- [ ] <criterion 1>
-- [ ] <criterion 2>
-
-## Out of scope
-<what this story explicitly does not cover>
+- [ ] <one observable sentence, ≤ 20 words>
 
 ## Open questions (optional)
-- <question> — answered by <who>; holds up <which part>
+- <question>? <who answers> — holds up <which part>
 
-## Tech notes (optional)
-- <a choice made without a PO or developer decision>
+Out of scope: <at most 3 items>
 ```
 
 ### Task
 
 ```markdown
 ## Goal
-<one sentence: the outcome>
-
-## Context
-<why this is needed>
+<one sentence: the outcome, and why when it is not obvious>
 
 ## Definition of done
 - [ ] <concrete, checkable outcome>
 
 ## Open questions (optional)
-- <question> — answered by <who>; holds up <which part>
-
-## Tech notes (optional)
-- <a choice made without a PO or developer decision>
+- <question>? <who answers> — holds up <which part>
 ```
 
 ## Jira fields
@@ -292,6 +302,8 @@ some instances); `contentFormat: "markdown"` for the body.
 ## Constraints
 
 - Confirm before creating. One issue per request.
+- Stay inside the caps in "Ticket length"; over a cap, ask — never trim
+  silently, never create.
 - Ground bugs/code-tasks in real code; mark anything unproven as a hypothesis.
 - Discover instance-specific ids at runtime; assume nothing is hardcoded.
 
