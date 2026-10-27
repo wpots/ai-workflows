@@ -257,6 +257,12 @@ Use the create-pr skill (it handles rebase onto base, MR templates, push, and
   pipeline is green.
 - This is an autonomous run: skip create-pr's interactive approval pause —
   the MR itself is the review surface.
+- Create-pr's local handover (its `references/local-handover.md`) still runs
+  when the diff touches the UI: open the changed stories and a page in a
+  browser the user sees, leave them running, and end the report (step 11)
+  with the screenshot question. A subagent's or headless run cannot keep
+  servers alive, so it lists the URLs and the commands that start them
+  instead.
 - In the canonical config repos (`ai-workflows`, `unicore-template`) never push
   straight to the base branch. An `ai-workflows` MR must carry
   `--reviewer wieteke.pots` — verify it (`glab mr view <iid>`) before reporting.
@@ -273,8 +279,9 @@ project's merge-request channel. If neither, say so in the final report.
 ### 11. Report
 
 End with: item picked (and why it was next), branch + MR URL, checks run and
-their results, acceptance criteria coverage, the `How to verify` steps, and
-anything a reviewer should look at first. When the item is a slice, add the
+their results, acceptance criteria coverage, the `How to verify` steps, the local
+handover's story and page URLs when the diff touches the UI, and anything a
+reviewer should look at first. When the item is a slice, add the
 ticket's standing — "slice 2/3 for PROJ-123; slice 3 remains" — so it is visible
 that the product owner cannot test the feature yet. If anything was skipped or
 blocked, state it plainly.

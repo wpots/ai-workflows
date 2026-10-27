@@ -171,7 +171,12 @@ Applies on every run, including updates to an existing PR/MR.
 ## Fallback Execution
 
 1. Show base branch, title, and description and get approval before pushing
-   (skip only if the user already said to proceed without asking).
+   (skip only if the user already said to proceed without asking). When the
+   diff touches the UI, first serve the branch locally (Storybook and the dev
+   script, from the checkout that holds the branch), open each changed story
+   and a page that renders the component in a browser the user sees, leave
+   them running, and ask in the same approval whether screenshots go into the
+   description — never add them unasked.
 2. Push the branch:
    - First push: `git push -u <remote> HEAD`
    - After a rebase rewrote history: `git push --force-with-lease <remote> HEAD`
@@ -224,7 +229,13 @@ Applies on every run, including updates to an existing PR/MR.
    cache. Wait for it in one bounded poll (every 30–60 s, at most about
    10 minutes); when the setup stage has not finished by then, report the
    stage it reached and offer `watch-mrs` for the rest.
-5. Output the PR/MR URL on success.
+5. Screenshots, only after a yes: save them outside the repository, upload
+   each on GitLab with
+   `glab api --method POST projects/<encoded-path>/uploads --form "file=@<path>"`
+   and put the returned `markdown` in the verification section (PUT the
+   description from a file). GitHub has no attachment API: give the user the
+   paths.
+6. Output the PR/MR URL on success.
 
 ### No-CLI fallbacks
 
@@ -252,8 +263,9 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | Checks | ✅ | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
 | Self-review | ✅ | `<n>` findings, `<k>` blocking and fixed — ⚠️ when a finding was waived — ➖ with the reason it was skipped |
 | Migration | ➖ | none needed / added `<name>` |
+| Local handover | ✅ | story `<url>` · page `<url>` · screenshots `<n>` added / declined — ➖ when the diff touches no UI |
 | Board updated | ✅ | section it moved to (if the project keeps a board) |
-| Worktree cleaned up | ➖ | removed + pruned, or ➖ if none was used |
+| Worktree cleaned up | ➖ | removed + pruned, ⏳ kept while the user checks the handover, or ➖ if none was used |
 | Open items | ⚠️ | remaining gates/assumptions (approval, follow-up) |
 
 "PR/MR opened" always carries the number **and** the full link.
