@@ -78,6 +78,9 @@ ticket's items — never invented:
 - **Not included** — what this change explicitly does not do, so the PO does
   not test scope that never shipped.
 
+Keep the whole comment readable in one minute, the rule `skills/jira-ticket`
+sets for the ticket itself (§ Ticket length).
+
 Write it in the tracker's working language, matching the project's existing
 tickets — not the language of the chat session. If the diff gives no
 user-observable behaviour (pure refactor, CI, tooling), say so in the comment
