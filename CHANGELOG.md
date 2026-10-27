@@ -16,6 +16,33 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.14.2] - 2026-10-27
+
+### Changed
+
+- `jira-ticket`: a ticket is read by the product owner in one minute, so a
+  Story is capped at 250 words and 8 one-sentence criteria, a Task at 100 and a
+  Bug at 150, counted with `wc -w` before the confirm step. Tech notes, slicing,
+  code names and file paths stay in the backlog item; dependencies become Jira
+  issue links. A ticket over a cap is never trimmed silently or created: the
+  confirm step proposes moving detail to the backlog item, splitting by
+  capability, or grouping the criteria, and the user decides. `mr-merged`'s
+  "How to test this" comment follows the same one-minute rule, and a new eval
+  case guards the caps.
+  <!-- slack: Jira-tickets | Story max. 250 woorden en 8 criteria, Task 100, Bug 150; tech-detail blijft in het BLI -->
+- Skill evals select only cases relevant to the changed behavior, one run per
+  case with an explicit cost ceiling. Broader suites, repetitions and a
+  no-plugin arm require explicit approval of scope and total budget; MR
+  descriptions report the exact selection and actual cost.
+  <!-- slack: Evals | Alleen betrokken evalcases standaard; bredere suites en extra runs pas na akkoord op scope en budget -->
+
+### Fixed
+
+- `backlog`: filenames must start with their known tracker key, including
+  drafts and every slice. Updating an item corrects a missing or wrong prefix
+  and its references; the naming policy lives in the shared rules and skill.
+  <!-- slack: Backlog | BLI-bestanden krijgen verplicht het bekende ticketnummer als prefix, ook voor drafts en slices -->
+
 ## [2.14.1] - 2026-10-26
 
 ### Changed
