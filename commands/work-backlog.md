@@ -66,7 +66,9 @@ implement → verify → merge request. Stop after one MR; humans review and mer
    "Blocked on" section when rule 5/6 applies. An MR created through
    `glab api` ignores a `draft` field: prefix the title with `Draft: `;
    `glab mr update <iid> --ready` drops it. Autonomous run: skip the
-   interactive approval pause.
+   interactive approval pause, but when the diff touches the UI still do the
+   local handover (open the changed stories and a page in a browser the user
+   sees) and end the report with the screenshot question.
 10. **Notify** — rely on the repo's GitLab→Slack integration if configured;
     else post the MR link to the merge-request channel if a Slack tool is
     available; else note it in the report.

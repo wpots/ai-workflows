@@ -254,9 +254,19 @@ push must use `--force-with-lease`.
 > command verbatim on the exact commit, and removing the worktree after the
 > push.
 
+> **Local handover — when the diff touches the UI** (components, stories,
+> styles, pages or routes). Before the approval ask below, follow
+> `references/local-handover.md`: serve the branch from its own checkout, open
+> every changed story and a page that renders the component in a browser the
+> user sees, and leave them running so the user checks the change locally
+> while reading the description.
+
 1. **Show the base branch, title, and description to the user and get
    approval before pushing** — pushing is outward-facing. Skip the ask only
-   when the user already said to proceed without asking.
+   when the user already said to proceed without asking. After a local
+   handover, the same ask also asks whether screenshots go into the
+   description. Never add them unasked: when the push needs no approval, ask
+   it on the last line of the recap instead.
 2. Push the branch with its hooks on. A worktree is not a reason to skip them.
    Use `--no-verify` only when, after reading the hook files, a hook falls
    under one of the two cases in `references/worktrees.md`:
@@ -366,7 +376,10 @@ glab mr create \
      `skills/watch-mrs`, which follows the rest of the pipeline and names a
      failing job.
    Report only what the read-back confirmed.
-5. Output the PR/MR URL on success.
+5. **Screenshots, once the user said yes**: taken outside the repository and
+   uploaded into the template's verification section, per "Screenshots, only
+   after a yes" in `references/local-handover.md`.
+6. Output the PR/MR URL on success.
 
 ### 8. Fallbacks When the CLI Is Unavailable
 
@@ -452,8 +465,9 @@ Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
 | Checks | ✅ | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
 | Self-review | ✅ | `<n>` findings, `<k>` blocking and fixed — ⚠️ when a finding was waived — ➖ with the reason it was skipped |
 | Migration | ➖ | none needed / added `<name>` |
+| Local handover | ✅ | story `<url>` · page `<url>` · screenshots `<n>` added / declined — ➖ when the diff touches no UI |
 | Board updated | ✅ | section it moved to (if the project keeps a board) |
-| Worktree cleaned up | ➖ | removed + pruned, or ➖ if none was used |
+| Worktree cleaned up | ➖ | removed + pruned, ⏳ kept while the user checks the handover, or ➖ if none was used |
 | Open items | ⚠️ | remaining gates/assumptions (approval, follow-up) |
 
 "PR/MR opened" always carries the number **and** the full link. "Open items"
