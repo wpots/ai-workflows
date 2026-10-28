@@ -244,26 +244,27 @@ Applies on every run, including updates to an existing PR/MR.
 
 ## Recap
 
-Close out with a **Recap** table so no closeout step depends on memory. Fixed
-row set, always in this order — never drop a row; set it to ➖ when not
-applicable, so a missed step stands out. Follow the table with one short
-"What & why" line.
+Close out with a recap the user can act on at a glance: a two-line header
+(`**!<num>** <title> → <base>`, then the full link), the table, a `➖ n/a:`
+line naming the steps that did not apply, and one "What & why" line. The
+status icon is the first column; a step that does not apply leaves the table
+for the ➖ line, so no row sits empty and none goes missing.
 
-Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
+Status icons: ✅ done · ⏳ waits on the user or is blocked · ⚠️ heads-up · ➖ n/a.
 
-| Step | Status | Detail |
+| | Step | Detail |
 | --- | --- | --- |
-| PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
-| Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
-| Checks | ✅ | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
-| Self-review | ✅ | `<n>` findings, `<k>` blocking and fixed — ⚠️ when a finding was waived — ➖ with the reason it was skipped |
-| Migration | ➖ | none needed / added `<name>` |
-| Local handover | ✅ | story `<url>` · page `<url>` · screenshots `<n>` added / declined — ➖ when the diff touches no UI |
-| Board updated | ✅ | section it moved to (if the project keeps a board) |
-| Worktree cleaned up | ➖ | removed + pruned, ⏳ kept while the user checks the handover, or ➖ if none was used |
-| Open items | ⚠️ | remaining gates/assumptions (approval, follow-up) |
+| ⏳ | Open items | what the user does next (approve, check the handover, answer), then each follow-up or unverified assumption |
+| ✅ | Local handover | story `<url>` · page `<url>` · screenshots `<n>` added / declined |
+| ✅ | Checks | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
+| ✅ | Self-review | `<n>` findings, `<k>` blocking and fixed; ⚠️ when one was waived |
+| ✅ | MR | rebased on `<remote>/<base>`, mergeable |
+| ✅ | Migration | added `<name>` |
+| ✅ | Board | moved to `<section>` |
+| ✅ | Worktree | removed + pruned; ⏳ kept while the user checks the handover |
 
-"PR/MR opened" always carries the number **and** the full link.
+One line per Detail cell. `Open items` always stays, as ✅ `nothing` when the
+MR needs nothing more from the user.
 
 ## Guidelines
 
