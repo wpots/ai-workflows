@@ -4,16 +4,13 @@
 
 <!-- draft | ready | in-progress | done -->
 
-draft
+in-progress
 
-Blocked on: maintainer — give the go for the headless probe runs on her own
-seat (see Technical Notes, "Cost"). `paths:` behaviour for plugin skills is
-undocumented, so this cannot be settled from the docs.
-Next step: maintainer flips this item to `ready`, or runs `/skill-doctor`
-herself and pastes the output under Technical Notes.
+Go for the headless probe runs on the maintainer's seat given 2026-10-28
+("implement T11").
 
 Filed 2026-10-21 from rank 8 (F4/F10, "context pass") of the October 2026 stack
-review (`docs/ai-stack-review-2026-10.md`). The ambient-layer trim from that
+review (`docs/audits/2026-10.md`). The ambient-layer trim from that
 rank is done: `CLAUDE.md` went from 25,195 bytes to 19,599 bytes on `main`. Two
 parts are still open:
 - nobody has run `/skill-doctor`;
@@ -21,7 +18,7 @@ parts are still open:
 
 ## Ticket
 
-<!-- no tracker ticket: this repo's own backlog -->
+[Audit 2026-10](../audits/2026-10.md) — roadmap item 8
 
 ## Priority
 
