@@ -250,7 +250,7 @@ building instead of re-running everything.
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
-| `skills/create-pr` | skill | `/create-pr` · `"open pr"`, `"submit pr"` · delegated at the end of `skills/work-backlog` | Rebase onto base, push, open PR/MR with a description generated from the diff; pre-flight delegates to `skills/migration-check` and `skills/code-review` |
+| `skills/create-pr` | skill | `/create-pr` · `"open pr"`, `"submit pr"` · delegated at the end of `skills/work-backlog` | Rebase onto base, push, open PR/MR with a description generated from the diff; pre-flight delegates to `skills/migration-check` and `skills/code-review`; a UI diff is served from the branch and opened in a browser the user sees before the approval ask, and screenshots go into the description only after a yes |
 | `commands/create-pr.md` | command | `"create pr"` → command | Fallback runbook |
 | `skills/code-review` | skill | `/code-review` · also accepts an MR/PR **URL** | Review a branch, MR, or PR by URL; can post inline MR comments after a go-ahead |
 | `skills/receiving-code-review` | skill | `/receiving-code-review` · `"reviewer comments"`, `"reageer op review"` | Evaluate incoming feedback with rigour — verify, push back where wrong, then apply |
@@ -430,7 +430,7 @@ actually stands against it — the alignment view, not a wish list.
 | Build | codemod / migration assistant | ⚠️ | `skills/npm-maintenance` for dependencies, `skills/migration-check` for DB migrations, `skills/datocms-migration` for CMS schema migrations; no general codemod |
 | QA | requirements traceability: criterion → test → result, per criterion | ⚠️ | the BLI's `How to verify` records the run steps and their observed results per item; what is filed is now the *evidence* half — a check a reviewer can re-run — not a per-criterion matrix: `docs/backlog/feat-requirements-traceability.md` |
 | QA | flag untestable criteria back to the readiness gate | ❌ | filed with the above |
-| QA | visual regression against the Figma frame | ⛔ | pixel-diffing against a frame baseline needs a maintained baseline nobody will maintain; screenshot evidence attached to the MR is the accepted lighter form; the project `verify` skill takes the screenshots, attaching them to the MR is not wired yet |
+| QA | visual regression against the Figma frame | ⛔ | pixel-diffing against a frame baseline needs a maintained baseline nobody will maintain; screenshot evidence attached to the MR is the accepted lighter form: the project `verify` skill takes screenshots for its pre-commit report, and `skills/create-pr` uploads them into the MR description after the user says yes (on GitHub it hands over the file paths) |
 | QA | a11y verification | ✅ | `skills/wcag-audit`, `rules/accessibility.md` |
 | Review | auto-generated MR description from diff + ticket | ✅ | `skills/create-pr` |
 | Review | semantic first-pass review beyond linting | ✅ | `skills/code-review`, eight explicit lenses merged into one severity-ordered list |
@@ -523,10 +523,11 @@ reopen condition ("a client consumes releases rather than sprints") fired when t
 team decided to share release notes with clients, and `skills/release-notes` now
 covers it.
 
-Two of these are cheap to revisit if the stack review's visual-verification and
-CI-agent-lane tasks land: screenshot evidence on the MR and a smoke check in CI are the
-lighter forms named in the *Instead* column, so landing them closes the intent behind
-four rows without building any of the four.
+Two of these close through the lighter forms named in the *Instead* column, without
+building either: screenshot evidence on the MR and a smoke check in CI. The visual half
+landed in October 2026 (the project `verify` skill before a commit, the `skills/create-pr`
+local handover before the push), which closes the intent behind the visual-regression
+rows. The smoke check in CI is still open, so the canary-rollout rows wait on it.
 
 ## Keeping this map accurate
 
