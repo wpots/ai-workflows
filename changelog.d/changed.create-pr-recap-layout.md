@@ -1,2 +1,0 @@
-- `create-pr`: the recap opens with the MR number, title and link, then a table with the status icon first and `Open items` (what waits on you) as its first row. Steps that did not apply move to one `➖ n/a:` line instead of empty rows, and the reviewer, label, template and rebase rows become one `MR` row.
-  <!-- slack: Recap: MR-link bovenaan, eerst wat op jou wacht, niet-van-toepassing op één regel -->
