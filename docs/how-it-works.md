@@ -169,7 +169,9 @@ setup with a clear split:
 - `CLAUDE.md`, `AGENTS.md` — thin adapters; `AGENTS.md` is the one Codex and
   Claude share, and `CLAUDE.md` imports it
 - `.github/copilot-instructions.md` — Copilot adapter with context inlined
-- `rules/`, `commands/` — shared baseline rules and runbooks
+- `rules/`, `commands/` — shared baseline rules and runbooks;
+  `rules/payload.md` only for projects with a `payload` or `@payloadcms/*`
+  dependency
 - `.github/prompts/` — Copilot prompt wrappers generated from `commands/`
 - `.claude/settings.json` — graphify hooks, only written when the project has
   none

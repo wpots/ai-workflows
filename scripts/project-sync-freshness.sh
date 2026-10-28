@@ -103,7 +103,10 @@ fi
 # Exactly what `sync.sh --project` writes, by source: the synced directories,
 # the shared fragments injected into the adapters, the adapter templates, and
 # the scripts that do the generating. CONVENTIONS.md is project-owned and must
-# stay out -- a project editing its own conventions is not drift.
+# stay out -- a project editing its own conventions is not drift. The digest
+# covers the superset: rules/payload.md and the payload-only lines count even
+# for a project without Payload, so a change to only those triggers one re-sync
+# that rewrites nothing but the stamp.
 ADAPTER_TEMPLATES=(
   project-ai-workflows.md
   project-CLAUDE.md

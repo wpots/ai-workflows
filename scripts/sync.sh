@@ -30,7 +30,9 @@ Modes:
 Project sync copies:
   AI-WORKFLOWS.md                   (developer guide for tool loading behavior)
   CLAUDE.md / AGENTS.md             (thin adapters for Claude and Codex)
-  rules/ and commands/              (shared baseline rules and runbooks)
+  rules/ and commands/              (shared baseline rules and runbooks;
+                                     rules/payload.md and the pointers to it
+                                     only when package.json depends on Payload)
   .claude/skills/verify/SKILL.md    (pre-commit verification; only when missing)
   .gitignore                        (appends .playwright-mcp/ once; rest untouched)
 
@@ -78,8 +80,9 @@ ensure_dir() {
 sync_dir() {
   local src="$1"
   local dest="$2"
+  shift 2
   ensure_dir "$dest"
-  local -a cmd=(rsync -av --delete)
+  local -a cmd=(rsync -av --delete "$@")
   if [[ "$DRY_RUN" -eq 1 ]]; then
     cmd+=(--dry-run)
   fi
@@ -180,11 +183,43 @@ inject_shared() {
   mv "$tmp" "$target"
 }
 
+# A project uses Payload when package.json depends on `payload` or any
+# `@payloadcms/*` package. Without it, rules/payload.md and the lines marked
+# payload-only are noise, so project sync leaves them out.
+project_uses_payload() {
+  local package_json="$1/package.json"
+  [[ -f "$package_json" ]] || return 1
+  grep -Eq '"(payload|@payloadcms/[^"]+)"[[:space:]]*:' "$package_json"
+}
+
+# A Payload-only line in a template or rules/rules.md ends in this marker, so
+# the optional part is visible to whoever edits the source. Keep a marked entry
+# on one line: a wrapped continuation would stay behind.
+PAYLOAD_ONLY_MARKER="<!-- payload-only -->"
+
+strip_payload_only_lines() {
+  local target="$1"
+  [[ -f "$target" ]] || return 0
+  local status=0
+  grep -vF "$PAYLOAD_ONLY_MARKER" "$target" > "${target}.tmp" || status=$?
+  # Status 1 only means nothing was left to print; anything above is a read
+  # error, and moving the partial output over the adapter would truncate it.
+  if (( status > 1 )); then rm -f "${target}.tmp"; return "$status"; fi
+  mv "${target}.tmp" "$target"
+}
+
 # --- Project sync mode ---
 if [[ -n "$PROJECT_DIR" ]]; then
   echo "Syncing ai-workflows into project: $PROJECT_DIR (dry-run=$DRY_RUN)"
 
   CONVENTIONS_FILE="$PROJECT_DIR/CONVENTIONS.md"
+
+  USES_PAYLOAD=0
+  if project_uses_payload "$PROJECT_DIR"; then
+    USES_PAYLOAD=1
+  else
+    echo "  [ok] no Payload dependency — skipping rules/payload.md and its pointers"
+  fi
 
   # Check for CONVENTIONS.md — never overwrite, just warn if missing
   if [[ -f "$CONVENTIONS_FILE" ]]; then
@@ -240,9 +275,20 @@ if [[ -n "$PROJECT_DIR" ]]; then
     if [[ "$DRY_RUN" -eq 1 ]]; then
       echo "[dry-run] sync rules -> rules/"
     else
-      sync_dir "$SRC_RULES" "$PROJECT_DIR/rules"
+      rules_args=()
+      if [[ "$USES_PAYLOAD" -eq 0 ]]; then
+        # --delete-excluded also removes a payload.md an earlier sync left behind
+        rules_args=(--exclude /payload.md --delete-excluded)
+      fi
+      sync_dir "$SRC_RULES" "$PROJECT_DIR/rules" ${rules_args[@]+"${rules_args[@]}"}
       echo "  [ok] rules/ (shared rules directory)"
     fi
+  fi
+
+  if [[ "$USES_PAYLOAD" -eq 0 && "$DRY_RUN" -eq 0 ]]; then
+    for adapter in AI-WORKFLOWS.md AGENTS.md rules/rules.md; do
+      strip_payload_only_lines "$PROJECT_DIR/$adapter"
+    done
   fi
 
   # Sync commands/ to project root (single copy, all tools reference it)
