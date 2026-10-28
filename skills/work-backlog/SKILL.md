@@ -286,6 +286,31 @@ ticket's standing — "slice 2/3 for PROJ-123; slice 3 remains" — so it is vis
 that the product owner cannot test the feature yet. If anything was skipped or
 blocked, state it plainly.
 
+## Night pause in a loop
+
+Under a self-paced loop (`/loop` without an interval, which reschedules itself
+with `ScheduleWakeup`), nobody reviews or merges between 23:00 and 06:00 local
+time, and every tick re-reads the whole conversation. After an hour without a
+request the prompt cache has expired, so a tick that fires after the laptop
+slept writes the whole context again at the cache-write rate: on a context of
+600–800K tokens that costs $2–6 per tick, and once the plan's limit has run out
+it bills to usage credits without a prompt. On 2026-10-27 two sessions that
+ran past 23:00, one of them this loop, cost $76 in cache writes by 03:00: each
+wake after the laptop slept wrote 600–730K tokens again.
+
+- A tick that fires between 23:00 and 06:00 starts no unit of work: no new
+  item, no rework, no rebase. It reports one line and arms the morning resume.
+- When the next tick would land in that window, do not schedule it. End the
+  self-paced loop (`ScheduleWakeup` with `stop: true`) and arm one one-shot
+  `CronCreate` (`recurring: false`) a few minutes past 06:00, not on the hour,
+  pinned to that morning's date, with the same `/loop` prompt, unless
+  `CronList` already shows that job. That is one cache rebuild in the morning
+  instead of one per hour.
+- A run the user starts by hand in the window runs; only its next tick waits
+  for the morning.
+- End the run's report with the pause and the cron job's next run time as
+  `CronCreate` returns it.
+
 ## Edge cases
 
 - **Malformed BLI** (missing Status/Related): skip it, flag it in the report.
