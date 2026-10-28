@@ -49,7 +49,9 @@ longer produces a second file to review.
   `github.copilot.chat.codeGeneration.instructions`. The file is deleted when
   nothing else is left in it.
 - `skills/improve-skill` no longer says that editing a runbook changes its
-  generated Copilot adapter, and a changelog fragment records that.
+  generated Copilot adapter, `skills/upstream-rules` no longer expects a drift
+  retry when a change touches `commands/`, and a changelog fragment records
+  both.
 
 ## How to verify
 
@@ -68,6 +70,14 @@ Where the code sits on 2026-10-28:
   sandbox write-protects `.vscode/`, so this edit runs with the sandbox bypass or
   by hand. `.vscode/tasks.json` is a generated file and stays.
 - `skills/improve-skill/SKILL.md`: line 64. Line 117 is slice 3.
+- `skills/upstream-rules/SKILL.md`: the "Expect one drift retry when the
+  change touches `commands/`" bullet, which describes the prompt regeneration.
+  Its sentence about `shared/*.md` fragments stays (added while delivering
+  slice 1).
+- `FEATURES.md` ("Generated Artifacts") and `docs/how-it-works.md` (the
+  do-not-hand-edit list): the `.github/prompts/*.prompt.md` line, since this
+  slice deletes the folder. Slice 1 took the `.github/copilot-instructions.md`
+  line from both lists.
 
 The validator's drift list is built from the files on disk before
 `generate-adapters.sh` runs, and `git diff --quiet` skips untracked files. So

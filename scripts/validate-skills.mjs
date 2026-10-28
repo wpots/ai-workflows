@@ -486,8 +486,8 @@ if (tracked.has(SKILL_MAPPINGS)) {
 // CLAUDE.md loads in every session, and a skill row that names
 // `commands/<x>.md` as its fallback already routes that runbook. So CLAUDE.md
 // carries only the uncovered command rows, verbatim, and a covering skill row
-// must hold every trigger of the command row it replaces there. AGENTS.md and
-// the Copilot adapter keep the full command block.
+// must hold every trigger of the command row it replaces there. AGENTS.md
+// keeps the full command block.
 
 function mappingRows(rel) {
   if (!tracked.has(rel)) return [];
@@ -547,15 +547,7 @@ if (tracked.has(COMMAND_MAPPINGS) && tracked.has(SKILL_MAPPINGS) && tracked.has(
 const REQUIRED_MARKERS = {
   "CLAUDE.md": ["skill-mappings", "safety", "graphify"],
   "AGENTS.md": ["command-mappings", "skill-mappings", "safety", "graphify"],
-  ".github/copilot-instructions.md": ["core-rules", "command-mappings", "safety"],
   "templates/project-AGENTS.md": ["command-mappings", "safety", "graphify", "workflow-assets"],
-  "templates/project-copilot-instructions.md": [
-    "core-rules",
-    "command-mappings",
-    "safety",
-    "graphify",
-    "workflow-assets",
-  ],
 };
 
 for (const [rel, markers] of Object.entries(REQUIRED_MARKERS)) {
@@ -623,7 +615,6 @@ const UPSTREAM_MR_AMBIENT = [
   "templates/project-CLAUDE.md",
   "templates/project-AGENTS.md",
   "templates/project-ai-workflows.md",
-  "templates/project-copilot-instructions.md",
 ];
 const UPSTREAM_MR_MARKER = "<!-- BEGIN SHARED:upstream-mr -->";
 

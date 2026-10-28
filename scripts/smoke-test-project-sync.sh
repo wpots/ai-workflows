@@ -33,21 +33,6 @@ assert_contains() {
   fi
 }
 
-assert_prompt_alignment() {
-  local project_dir="$1"
-  local cmd_file=""
-  local cmd_name=""
-  local prompt_file=""
-
-  for cmd_file in "$project_dir/commands/"*.md; do
-    [[ -f "$cmd_file" ]] || continue
-    cmd_name="$(basename "$cmd_file" .md)"
-    prompt_file="$project_dir/.github/prompts/${cmd_name}.prompt.md"
-    assert_exists "$prompt_file"
-    assert_contains "$prompt_file" "name: ${cmd_name}"
-  done
-}
-
 echo "Smoke test: project sync without CONVENTIONS.md"
 WITHOUT_CONVENTIONS="$TMP_DIR/no-conventions"
 mkdir -p "$WITHOUT_CONVENTIONS"
@@ -74,17 +59,14 @@ if grep -Fq "BEGIN SHARED:" "$WITHOUT_CONVENTIONS/CLAUDE.md"; then
   echo "FAIL: CLAUDE.md carries a shared fragment that AGENTS.md already brings" >&2
   exit 1
 fi
-assert_exists "$WITHOUT_CONVENTIONS/.github/copilot-instructions.md"
+assert_missing "$WITHOUT_CONVENTIONS/.github"
 assert_missing "$WITHOUT_CONVENTIONS/.cursor"
 assert_exists "$WITHOUT_CONVENTIONS/rules"
 assert_exists "$WITHOUT_CONVENTIONS/commands"
-assert_exists "$WITHOUT_CONVENTIONS/.github/prompts"
 assert_exists "$WITHOUT_CONVENTIONS/commands/run-checks.md"
 assert_exists "$WITHOUT_CONVENTIONS/commands/review-code.md"
 assert_exists "$WITHOUT_CONVENTIONS/commands/setup-ai-workflows.md"
 assert_exists "$WITHOUT_CONVENTIONS/rules/stacks/react-native-expo.md"
-assert_contains "$WITHOUT_CONVENTIONS/.github/copilot-instructions.md" "No CONVENTIONS.md found. Run setup-ai-workflows to generate one."
-assert_prompt_alignment "$WITHOUT_CONVENTIONS"
 
 echo "Smoke test: project sync with existing CONVENTIONS.md"
 WITH_CONVENTIONS="$TMP_DIR/with-conventions"
@@ -112,16 +94,12 @@ EOF_CONVENTIONS
 assert_exists "$WITH_CONVENTIONS/AI-WORKFLOWS.md"
 assert_exists "$WITH_CONVENTIONS/CLAUDE.md"
 assert_exists "$WITH_CONVENTIONS/AGENTS.md"
-assert_exists "$WITH_CONVENTIONS/.github/copilot-instructions.md"
+assert_missing "$WITH_CONVENTIONS/.github"
 assert_missing "$WITH_CONVENTIONS/.cursor"
 assert_exists "$WITH_CONVENTIONS/rules"
 assert_exists "$WITH_CONVENTIONS/commands"
-assert_exists "$WITH_CONVENTIONS/.github/prompts"
 assert_exists "$WITH_CONVENTIONS/commands/scaffold-component.md"
-assert_exists "$WITH_CONVENTIONS/.github/prompts/scaffold-component.prompt.md"
-assert_contains "$WITH_CONVENTIONS/.github/copilot-instructions.md" "Smoke test project"
 assert_contains "$WITH_CONVENTIONS/AI-WORKFLOWS.md" "Shared Workflow Assets"
-assert_prompt_alignment "$WITH_CONVENTIONS"
 
 echo "Smoke test: .cursor/ files from an earlier sync are left alone"
 WITH_CURSOR="$TMP_DIR/with-cursor"
@@ -131,6 +109,17 @@ echo "earlier sync" > "$WITH_CURSOR/.cursor/rules/conventions.mdc"
 "$SYNC_SCRIPT" --project "$WITH_CURSOR" >/dev/null
 assert_contains "$WITH_CURSOR/.cursor/rules/conventions.mdc" "earlier sync"
 assert_missing "$WITH_CURSOR/.cursor/rules/graphify.mdc"
+
+echo "Smoke test: .github/ Copilot files from an earlier sync are left alone"
+WITH_COPILOT="$TMP_DIR/with-copilot"
+mkdir -p "$WITH_COPILOT/.github/prompts"
+echo '{ "name": "sync-smoke-with-copilot", "private": true }' > "$WITH_COPILOT/package.json"
+echo "earlier sync" > "$WITH_COPILOT/.github/copilot-instructions.md"
+echo "earlier sync" > "$WITH_COPILOT/.github/prompts/run-checks.prompt.md"
+"$SYNC_SCRIPT" --project "$WITH_COPILOT" >/dev/null
+assert_contains "$WITH_COPILOT/.github/copilot-instructions.md" "earlier sync"
+assert_contains "$WITH_COPILOT/.github/prompts/run-checks.prompt.md" "earlier sync"
+assert_missing "$WITH_COPILOT/.github/prompts/review-code.prompt.md"
 
 # --- Freshness stamp + SessionStart hook ---
 
@@ -268,6 +257,10 @@ if [[ -e "$DRY_PROJECT/.claude/skills/verify/SKILL.md" ]]; then
 fi
 if [[ -e "$DRY_PROJECT/.gitignore" ]]; then
   echo "Dry run wrote a .gitignore" >&2
+  exit 1
+fi
+if [[ -e "$DRY_PROJECT/.github" ]]; then
+  echo "Dry run wrote a .github/ directory" >&2
   exit 1
 fi
 

@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-in-progress
+done
 
 Go to drop Copilot given by the maintainer on 2026-10-28; the decision is the
 2026-10-28 amendment of `docs/skills-first-migration-plan.md`. The team uses
@@ -71,7 +71,32 @@ setup and the templates touches one adapter fewer.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- `bash scripts/smoke-test-project-sync.sh` → `Project sync smoke test passed.`
+  With only the new smoke test on the old `sync.sh`, it fails at its first new
+  assert: `Unexpected path: …/no-conventions/.github`.
+- The new fixture writes `.github/copilot-instructions.md` and one prompt file
+  before a sync, then checks that both still read `earlier sync` and that no
+  other prompt file appeared. The dry-run scenario now also fails when a
+  `.github/` directory appears; the old prompt block created one even under
+  `--dry-run`.
+- `bash scripts/validate-ai-instructions.sh` → exit 0: `OK: 38 skills
+  validated, 105 docs link-checked, no errors`, the three node test files
+  `fail 0` (the release-automation test keeps the stamp's template list and the
+  release path list in step), both smoke tests passed, `No drift detected`.
+- `rg -n "core-rules|project-copilot-instructions|inject_conventions"` over the
+  repo hits only `CHANGELOG.md`, `changelog.d/` and `docs/backlog/`.
+- `.github/copilot-instructions.md` is still named in `FEATURES.md`'s tool
+  table (slice 3) and in the smoke test's leave-alone fixture. In
+  `FEATURES.md` and `docs/how-it-works.md`, the lists of this repo's generated
+  files also named it; those two lines went in this slice, because the file is
+  gone.
+- Re-sync prompt: `rules/`, `shared/`, `commands/setup-ai-workflows.md`, two
+  templates and `sync.sh` change, all inside `source_digest()`, so every synced
+  project reads as stale once. This follows from the digest; it was not run
+  against a real project.
+- Targeted evals: not run. No eval case covers `setup-ai-workflows` or
+  `upstream-rules`. That is a coverage gap: the description change only drops
+  "Copilot" from the adapter list.
 
 ## Technical Notes
 

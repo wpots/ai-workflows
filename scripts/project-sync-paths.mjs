@@ -16,7 +16,6 @@ export const PROJECT_SYNC_PATHSPECS = [
   "templates/project-ai-workflows.md",
   "templates/project-CLAUDE.md",
   "templates/project-AGENTS.md",
-  "templates/project-copilot-instructions.md",
   "templates/project-claude-settings.json",
   "scripts/sync.sh",
   "scripts/project-sync-freshness.sh",

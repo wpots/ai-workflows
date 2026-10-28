@@ -56,13 +56,12 @@ Preferred path:
    - `AI-WORKFLOWS.md`
    - `CLAUDE.md`
    - `AGENTS.md`
-   - `.github/copilot-instructions.md`
    - `rules/`
    - `commands/`
-   - `.github/prompts/`
 
-   Cursor is not supported: generate nothing under `.cursor/` and leave the
-   project's existing `.cursor/` files as they are.
+   Cursor and Copilot are not supported: generate nothing under `.cursor/` or
+   `.github/` for them, and leave the project's existing files there as they
+   are.
 8. Emit project tooling: write a checked-in, env-var-based `.mcp.json`
    for detected needs — Playwright in
    devDependencies → `playwright`, live-browser debugging →

@@ -1,6 +1,6 @@
 ---
 name: setup-ai-workflows
-description: Set up or refresh the AI-workflow configuration of a project — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md, Copilot), adds a developer-facing AI-WORKFLOWS.md guide, emits an env-var-based project .mcp.json for integration tooling, and detects deviations from global rules including type-safety and trust-boundary posture. This is the config lane, not the project kickoff — a whole new project starts with skills/start-project. Use when the user asks to apply ai-workflows to a project, (re)generate CONVENTIONS.md or the tool adapters, or refresh a project's synced workflow assets.
+description: Set up or refresh the AI-workflow configuration of a project — generates CONVENTIONS.md as the single source of project context, creates thin tool adapters (CLAUDE.md, AGENTS.md), adds a developer-facing AI-WORKFLOWS.md guide, emits an env-var-based project .mcp.json for integration tooling, and detects deviations from global rules including type-safety and trust-boundary posture. This is the config lane, not the project kickoff — a whole new project starts with skills/start-project. Use when the user asks to apply ai-workflows to a project, (re)generate CONVENTIONS.md or the tool adapters, or refresh a project's synced workflow assets.
 metadata:
   owner: wieteke.pots
 ---
@@ -244,7 +244,8 @@ Guidelines:
   whether to follow the existing code or the target.
 - Keep it under 80 lines — concise and scannable.
 - Distinguish between:
-  - universal baseline rules from the adapters and `shared/core-rules.md`
+  - universal baseline rules from the adapters and the TypeScript section of
+    `rules/project.md`
   - deeper policy from `rules/type-safety.md`
   - review-specific audit behavior from the code-review workflow
 
@@ -258,18 +259,13 @@ Use templates from `<ai-workflows>/templates/`:
 | `AI-WORKFLOWS.md` | `project-ai-workflows.md` | Reference guide — explains how each tool uses the synced files |
 | `AGENTS.md` | `project-AGENTS.md` | Reference — "read CONVENTIONS.md"; the one adapter every agent shares |
 | `CLAUDE.md` | `project-CLAUDE.md` | Import — `@AGENTS.md` and `@CONVENTIONS.md`, plus the Claude-specific lines |
-| `.github/copilot-instructions.md` | `project-copilot-instructions.md` | **Inline** — embed CONVENTIONS.md content plus condensed core rules (Copilot can't rely on file refs) |
 
-Cursor is not supported: generate nothing under `.cursor/`, and leave any
-`.cursor/` files the project already has as they are.
+Cursor and Copilot are not supported: generate nothing under `.cursor/` or
+`.github/` for them, and leave any files the project already has there as they
+are.
 
-For the Copilot adapter, read the generated CONVENTIONS.md and inject its
-content between `<!-- BEGIN CONVENTIONS -->` and `<!-- END CONVENTIONS -->`
-markers in the template. Also inject the shared `core-rules` fragment so the
-Copilot file carries a compact coding baseline inline.
-
-After generating adapters, inject shared fragments (command-mappings, safety,
-core-rules where applicable) into the generated files using the
+After generating adapters, inject shared fragments (command-mappings, safety
+where applicable) into the generated files using the
 `<!-- BEGIN SHARED -->` / `<!-- END SHARED -->` marker pattern.
 
 ### 7. Sync Shared Workflow Files
@@ -278,12 +274,11 @@ Sync these shared workflow assets into the project:
 
 - `rules/`
 - `commands/`
-- `.github/prompts/*.prompt.md` generated from `commands/`
 
 These are reusable workflow assets, not project-owned conventions.
 The type-safety split should stay visible in the generated project guidance:
 
-- universal baseline in adapters and Copilot core rules
+- universal baseline in the adapters and `rules/project.md`
 - deeper enforcement policy in `rules/type-safety.md`
 - audit behavior in the review workflow
 
@@ -358,10 +353,8 @@ Initialized <project-name> with ai-workflows:
   AI-WORKFLOWS.md       [created/updated]  — developer guide for tool loading behavior
   CLAUDE.md             [created/updated]  — thin adapter (references CONVENTIONS.md)
   AGENTS.md             [created/updated]  — thin adapter (references CONVENTIONS.md)
-  .github/copilot-instructions.md  [created/updated]  — Copilot adapter (CONVENTIONS.md + core rules inlined)
   rules/                [synced]           — shared baseline coding rules
   commands/             [synced]           — shared workflow runbooks
-  .github/prompts/      [synced]           — Copilot prompt files generated from commands/
   .mcp.json             [created/skipped]  — project MCP servers (env-var-based, checked in)
   .claude/settings.json [created/skipped]  — marketplace prompt + project hooks
   .gitignore            [appended/ok]      — .playwright-mcp/ (browser MCP output)

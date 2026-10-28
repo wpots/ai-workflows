@@ -9,7 +9,7 @@ Hard rule, not a preference: never a direct push to `main`, not even a one-line
 doc fix. The same rule applies to the `upstream-rules` and `upstream-to-unicore`
 skills when run from a project. The canonical wording lives in
 [`shared/upstream-mr.md`](../shared/upstream-mr.md). It is injected into this
-repo's `AGENTS.md`, Copilot adapter and repo-only Claude rule
+repo's `AGENTS.md` and repo-only Claude rule
 (`.claude/rules/upstream-mr.md`), and into
 `skills/upstream-rules/references/upstream-mr.md` for the upstream skills — but
 not into the root `CLAUDE.md` or the project adapter templates, which load in
@@ -87,10 +87,10 @@ Useful variants:
 | --- | --- |
 | project-specific stack, structure, scripts, exceptions | that project's `CONVENTIONS.md` |
 | a reusable coding standard | `rules/` |
-| compact universal type-safety doctrine | `shared/core-rules.md` (detailed enforcement → `rules/type-safety.md`) |
+| compact universal type-safety doctrine | the TypeScript section of `rules/project.md` (detailed enforcement → `rules/type-safety.md`) |
 | a reusable multi-step workflow | `skills/` first |
 | a Copilot-compatible wrapper or fallback procedure | `commands/` |
-| tool-specific adapter wording | `templates/`, `AGENTS.md`, `CLAUDE.md`, or `.github/copilot-instructions.md` |
+| tool-specific adapter wording | `templates/`, `AGENTS.md`, or `CLAUDE.md` |
 | a snippet repeated across adapters | `shared/` |
 
 If a synced project changed a shared workflow file in a generally reusable way,

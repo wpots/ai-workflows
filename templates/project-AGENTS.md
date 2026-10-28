@@ -57,8 +57,8 @@ language reaches the right one.
 
 ### Commands
 
-Commands in `commands/` remain compatibility adapters and fallback runbooks,
-especially for Copilot-style flows or when a skill path is unavailable.
+Commands in `commands/` remain compatibility adapters and fallback runbooks for
+when a skill path is unavailable.
 
 ## Shared Workflow Source
 

@@ -78,9 +78,10 @@ Mentions on 2026-10-28, before slices 1 and 2:
 - `README.md` 3, 26 (stays), 41, 42; line 73 is slice 1.
 - `AGENTS.md` 16, 22, 32. Edit outside the shared blocks; the pre-commit hook
   regenerates those.
-- `FEATURES.md` 14–17, 145–146, 158.
-- `docs/how-it-works.md` 14, 22, 40, 50, 55, 93–94, 130–131, 172, 174; 105–106
-  is slice 1.
+- `FEATURES.md` 14–17, 158; the generated-artifacts list (145–146) is slices
+  1 and 2.
+- `docs/how-it-works.md` 14, 22, 40, 50, 55, 93–94, 172, 174; 105–106 and 130
+  are slice 1, 131 is slice 2.
 - `docs/keep-current.md` 14, 56, 75; `docs/adopt-new-project.md` 40 (stays),
   104–106;
   `docs/adopt-existing-project.md` 4 (stays), 23; `docs/contributing.md` 85
