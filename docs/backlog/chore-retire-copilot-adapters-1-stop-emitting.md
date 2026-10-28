@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+in-progress
 
 Go to drop Copilot given by the maintainer on 2026-10-28; the decision is the
 2026-10-28 amendment of `docs/skills-first-migration-plan.md`. The team uses
