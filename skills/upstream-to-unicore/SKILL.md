@@ -207,6 +207,10 @@ Read the target line's `.gitlab-ci.yml` and `.husky/` and run what they run:
   `docker run -d --name <slug> -e POSTGRES_PASSWORD=<pw> -p <free port>:5432 postgres:17`
   (5432 is usually a project's own), then `payload migrate` with `NODE_ENV`,
   `PAYLOAD_DB_URL` and `PAYLOAD_SECRET` set. Remove the container afterwards.
+- **A change that touches the UI** (components, stories, styles, pages) also
+  gets `skills/local-handover` on the project generated above. That project
+  has no database with content, so the handover is the story links plus what
+  to add to a page.
 - **v3** (a `v3` branch only) — the `package.json` scripts that the CI file
   and the hooks call.
 - In the worktree from Step 4 the template's git hooks do not run: husky

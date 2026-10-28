@@ -208,9 +208,10 @@ showing a rename with `0 0` is evidence.
 Remove the worktree as soon as the branch is pushed
 (`git worktree remove --force <path>`); that reclaims `node_modules` and the
 build output in one step, and any env file copied in goes with it — never leave
-a copied secret behind. One exception: when `create-pr`'s local handover
-(`local-handover.md`) serves Storybook or the dev server from the worktree, it
-stays until the user is done checking; then stop those servers and remove it. To audit what is safe to drop in a **squash-merging**
+a copied secret behind. One exception: when `skills/local-handover` serves
+Storybook or the dev server from the worktree, it stays until the user is done
+checking; then that skill stops the servers, drops its database copy and the
+worktree goes. To audit what is safe to drop in a **squash-merging**
 repo, do not trust `git branch --merged` or ancestry — check
 `git cherry <base> <branch>` (patch-id) plus the MR state, and keep anything
 with uncommitted changes.

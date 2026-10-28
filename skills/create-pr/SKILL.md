@@ -255,11 +255,11 @@ push must use `--force-with-lease`.
 > push.
 
 > **Local handover — when the diff touches the UI** (components, stories,
-> styles, pages or routes). Before the approval ask below, follow
-> `references/local-handover.md`: serve the branch from its own checkout, open
-> every changed story and a page that renders the component in a browser the
-> user sees, and leave them running so the user checks the change locally
-> while reading the description.
+> styles, pages or routes). Before the approval ask below, run
+> `skills/local-handover` on this checkout: it serves the branch, opens a
+> direct link to every changed story and a test page in a browser the user
+> sees, on a copy of a local CMS database, and leaves them running so the user
+> checks the change while reading the description.
 
 1. **Show the base branch, title, and description to the user and get
    approval before pushing** — pushing is outward-facing. Skip the ask only
@@ -378,7 +378,7 @@ glab mr create \
    Report only what the read-back confirmed.
 5. **Screenshots, once the user said yes**: taken outside the repository and
    uploaded into the template's verification section, per "Screenshots, only
-   after a yes" in `references/local-handover.md`.
+   after a yes" in `skills/local-handover`.
 6. Output the PR/MR URL on success.
 
 ### 8. Fallbacks When the CLI Is Unavailable

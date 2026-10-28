@@ -29,6 +29,7 @@ Use it to decide where updates should land first and whether a command is a full
 | `work-backlog` | skill + command | `skills/work-backlog/SKILL.md` | `commands/work-backlog.md` | yes |
 | `address-review-comments` | skill only | `skills/address-review-comments/SKILL.md` | none | n/a |
 | `jira-ticket` | skill only | `skills/jira-ticket/SKILL.md` | none | n/a |
+| `local-handover` | skill only | `skills/local-handover/SKILL.md` | none | n/a |
 | `npm-maintenance` | skill only | `skills/npm-maintenance/SKILL.md` | none | n/a |
 | `maintenance` | skill only | `skills/maintenance/SKILL.md` | none | n/a |
 | `greenberry-maintenance` | skill only | `skills/greenberry-maintenance/SKILL.md` | none | n/a |

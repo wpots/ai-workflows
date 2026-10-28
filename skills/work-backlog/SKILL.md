@@ -257,10 +257,9 @@ Use the create-pr skill (it handles rebase onto base, MR templates, push, and
   pipeline is green.
 - This is an autonomous run: skip create-pr's interactive approval pause —
   the MR itself is the review surface.
-- Create-pr's local handover (its `references/local-handover.md`) still runs
-  when the diff touches the UI: open the changed stories and a page in a
-  browser the user sees, leave them running, and end the report (step 11)
-  with the screenshot question. A subagent's or headless run cannot keep
+- `skills/local-handover` still runs when the diff touches the UI: direct
+  links to the changed stories and a test page in a browser the user sees,
+  left running, and the report (step 11) ends with the screenshot question. A subagent's or headless run cannot keep
   servers alive, so it lists the URLs and the commands that start them
   instead.
 - In the canonical config repos (`ai-workflows`, `unicore-template`) never push
