@@ -133,12 +133,19 @@ Only ask what isn't already given in the user's request.
    and the loop only runs inside them. Check that before adding timeouts. A
    timeout on `glab` needs SIGKILL from a forked parent: glab is a Go binary
    and ignores SIGALRM, so `perl -e 'alarm …; exec …'` never kills it.
-6. Arm a `ScheduleWakeup` fallback heartbeat (1200–1800s, 3600s during the
-   night pause) with `prompt` set to
+6. Arm a `ScheduleWakeup` fallback heartbeat (1200–1800s) with `prompt` set to
    re-invoke this skill with the same resolved args (repo, MR ids, interval,
    auto-merge config) — this is a safety net only; the Monitor is the real
    wake signal. Re-arm it after every `<task-notification>` from the Monitor,
    per the standard dynamic-loop pattern.
+   When the next heartbeat would land between 23:00 and 06:00, arm none.
+   The paused script emits nothing, so the heartbeat is the only thing that
+   wakes the session at night, and an hourly one finds the prompt cache
+   expired each time and writes the whole context again. Arm one one-shot
+   `CronCreate` (`recurring: false`) a few minutes past 06:00 instead, not on
+   the hour, pinned to that morning's date, with the same prompt, unless
+   `CronList` already shows that job: it re-arms the Monitor if it died and
+   resumes the heartbeat.
 7. On each notification, relay only what changed — one short line per event
    (new comment / status transition / pipeline transition / merge result).
    Don't restate unrelated baseline info the user already saw.
