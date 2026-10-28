@@ -106,3 +106,4 @@ bypass. It costs no model tokens.
 - [../../rules/project.md](../../rules/project.md)
 - [../../rules/clean-architecture.md](../../rules/clean-architecture.md)
 - [../../rules/rules.md](../../rules/rules.md)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/314
