@@ -6,7 +6,7 @@ How `create-pr` puts a UI change in front of the user before the approval ask
 
 The diff touches the UI when it changes components, stories, styles, pages or
 routes (`## Structure` in `CONVENTIONS.md` says where those live). Otherwise
-there is no handover and the recap's `Local handover` row is ➖.
+there is no handover and the recap names `Local handover` on its ➖ line.
 
 ## Serve the branch
 

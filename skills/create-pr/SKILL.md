@@ -448,32 +448,37 @@ No policy or no Slack tool → skip silently.
 
 ### 11. Recap
 
-Close out with a **Recap** table so no closeout step depends on memory. Use a
-fixed row set, always in this order — never drop a row; set it to ➖ when not
-applicable, so a missed step stands out. Follow the table with one short
-"What & why" line stating the substantive change.
+Close out with a recap the user can act on at a glance, so no closeout step
+depends on memory: the MR first, then what waits on the user, then the steps.
 
-Status icons: ✅ done · ⏳ open/blocked · ➖ n/a · ⚠️ heads-up.
+1. **Header**, two lines: `**!<num>** <title> → <base>`, then the full link on
+   its own line. The number and the link are never left out.
+2. **The table.** The status icon is the first column, so its left edge reads
+   as a checklist. Rows keep the order below. A step that does not apply
+   leaves the table and is named on the ➖ line, so every step is still
+   accounted for without empty rows.
+3. **`➖ n/a:`** the steps that did not apply, by name, with the reason in
+   brackets when it is not obvious: `Migration (no schema change)`.
+4. **What & why:** one line on the substantive change.
 
-| Step | Status | Detail |
+Status icons: ✅ done · ⏳ waits on the user or is blocked · ⚠️ heads-up · ➖ n/a.
+
+| | Step | Detail |
 | --- | --- | --- |
-| PR/MR opened | ✅ | `!<num>` / `#<num>` → full link (→ `<base>`) |
-| Reviewer requested | ✅ | `<username>`, verified — or ➖ when the repo has no reviewer policy |
-| Provenance label | ✅ | `ai:agent-authored`, confirmed on read-back — or ⚠️ with the reason when labelling failed |
-| Template followed | ✅ | `<resolved template path>`, headings confirmed on read-back |
-| Rebased on base | ✅ | on `<remote>/<base>`, mergeable |
-| Checks | ✅ | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
-| Self-review | ✅ | `<n>` findings, `<k>` blocking and fixed — ⚠️ when a finding was waived — ➖ with the reason it was skipped |
-| Migration | ➖ | none needed / added `<name>` |
-| Local handover | ✅ | story `<url>` · page `<url>` · screenshots `<n>` added / declined — ➖ when the diff touches no UI |
-| Board updated | ✅ | section it moved to (if the project keeps a board) |
-| Worktree cleaned up | ➖ | removed + pruned, ⏳ kept while the user checks the handover, or ➖ if none was used |
-| Open items | ⚠️ | remaining gates/assumptions (approval, follow-up) |
+| ⏳ | Open items | what the user does next (approve, check the handover, answer), then each follow-up or unverified assumption |
+| ✅ | Local handover | story `<url>` · page `<url>` · screenshots `<n>` added / declined |
+| ✅ | Checks | lint ✓ · type-check ✓ · test ✓ · MR pipeline ✓ (or the stage it reached) |
+| ✅ | Self-review | `<n>` findings, `<k>` blocking and fixed; ⚠️ when one was waived |
+| ✅ | MR | reviewer `<username>` · label `ai:agent-authored` · template `<path>` · rebased on `<remote>/<base>`, mergeable |
+| ✅ | Migration | added `<name>` |
+| ✅ | Board | moved to `<section>` |
+| ✅ | Worktree | removed + pruned; ⏳ kept while the user checks the handover |
 
-"PR/MR opened" always carries the number **and** the full link. "Open items"
-summarises anything still pending (approval, a follow-up, an unverified
-assumption). Rows that don't apply to this task (e.g. no worktree, no
-migration, no board) stay in the table on ➖.
+Keep every Detail cell to one line: links in full, names in backticks, no
+sentences. `Open items` always stays in the table, as ✅ `nothing` when the MR
+needs nothing more from the user. In the `MR` row a part that failed or does
+not apply says so in place: `reviewer ➖ no policy`, `label ⚠️ <reason>`,
+`template` with its headings confirmed on read-back.
 
 ## Guidelines
 
