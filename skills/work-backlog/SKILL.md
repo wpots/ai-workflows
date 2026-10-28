@@ -297,6 +297,18 @@ it bills to usage credits without a prompt. On 2026-10-27 two sessions that
 ran past 23:00, one of them this loop, cost $76 in cache writes by 03:00: each
 wake after the laptop slept wrote 600–730K tokens again.
 
+- **Evening check-in.** The first tick at or after 18:00 local time, or the end
+  of the working day the user gave when starting the loop, asks once with
+  `AskUserQuestion` before it starts any work: stop the loop now, or go on
+  until a time the user names (23:00 as the offered option, any other time in
+  the free-text answer). Stop ends the self-paced loop (`ScheduleWakeup` with
+  `stop: true`). Until a time keeps it ticking; the first tick after that time
+  starts no work and arms the morning resume below. A time past 23:00 is the
+  user's choice and overrides the night window for that night. Ask again the
+  next evening, not on every tick.
+- While that question is open no tick runs, so nothing re-reads the context.
+  A question that expires unanswered (a background or Remote Control session)
+  counts as no answer: arm the morning resume.
 - A tick that fires between 23:00 and 06:00 starts no unit of work: no new
   item, no rework, no rebase. It reports one line and arms the morning resume.
 - When the next tick would land in that window, do not schedule it. End the
