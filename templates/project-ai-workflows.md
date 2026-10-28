@@ -14,7 +14,6 @@ When `CONVENTIONS.md` conflicts with synced baseline rules, `CONVENTIONS.md` win
 
 | Tool | What it reliably loads | What that means in practice |
 | ---- | ---------------------- | --------------------------- |
-| GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. `.github/prompts/*.prompt.md` are attachable helpers, not guaranteed auto-context. |
 | Claude Code | Global `~/.claude/CLAUDE.md` and `~/.claude/rules/*.md`, the `greenberry` plugin (auto-registered via `.claude/settings.json`), plus project files when present | Global Claude rules must stay universal. Skills/commands come from the plugin and auto-update. Project-specific context belongs in `CONVENTIONS.md`, this guide, and project adapters. |
 | Codex | `AGENTS.md` plus repo files it can inspect | `AGENTS.md` is the shared adapter (Claude imports it too); deeper project context lives in `CONVENTIONS.md`, `rules/`, and `commands/`. |
 
@@ -45,7 +44,7 @@ Use this as the intended model inside synced projects:
 
 | Tool | Preferred workflow surface |
 | ---- | -------------------------- |
-| GitHub Copilot | commands/runbooks |
+| GitHub Copilot | not supported; sync generates nothing for it, and `.github/` files from earlier syncs are left as they are |
 | Cursor | not supported; sync generates nothing for it, and `.cursor/` files from earlier syncs are left as they are |
 | Codex | skills first, commands as fallback |
 | Claude Code | skills first (via the `greenberry` plugin, e.g. `/greenberry:create-pr`), commands as fallback |
@@ -54,7 +53,7 @@ Use this as the intended model inside synced projects:
 
 Use this rule of thumb:
 
-- Always-on: the thin adapter for the tool, `CONVENTIONS.md`, and the compact Copilot baseline
+- Always-on: the thin adapter for the tool and `CONVENTIONS.md`
 - On-demand: focused files in `rules/` and workflow runbooks in `commands/`
 
 The focused rules are intentionally conditional so every conversation does not load every concern.
@@ -75,8 +74,8 @@ Load the relevant file when the task needs it:
 
 This setup treats type safety as three layers:
 
-- universal baseline: compact always-on guidance from adapters and Copilot core
-  rules
+- universal baseline: compact always-on guidance from the adapters and, in
+  Claude Code, the global rules
 - deeper policy: `rules/type-safety.md` for trust boundaries, strict TypeScript
   posture, lint guardrails, and transport-to-domain separation
 - review audit: the code-review workflow checks unsafe assertions, missing
@@ -104,12 +103,11 @@ Per tool:
 
 - Claude Code: project `CLAUDE.md` imports `AGENTS.md` and `CONVENTIONS.md`; `AGENTS.md` points to `rules/`, but mentioning the specific rule in the prompt gives the strongest signal.
 - Codex: `AGENTS.md` points to the local files, and explicitly naming a focused rule is still helpful for narrow tasks.
-- Copilot: assume only `.github/copilot-instructions.md` is ambient. If a focused rule matters, name it in the prompt or work from the matching prompt/runbook.
 
 For workflows:
 
 - If a matching skill exists and the current tool supports skills well, prefer the skill.
-- If you are using Copilot, or a workflow needs a prompt-friendly fallback, use the matching command/runbook.
+- If a workflow needs a prompt-friendly fallback, use the matching command/runbook.
 - Keep rules as the policy source even when a skill or command helps execute the work.
 
 ## Files In This Project
@@ -118,10 +116,8 @@ For workflows:
 - `AI-WORKFLOWS.md`: this guide
 - `AGENTS.md`: the adapter every agent shares; Codex reads it directly
 - `CLAUDE.md`: imports `AGENTS.md` and `CONVENTIONS.md` and adds the Claude-specific lines
-- `.github/copilot-instructions.md`: Copilot-facing adapter with `CONVENTIONS.md` and condensed baseline rules inlined
 - `rules/`: synced shared coding standards
 - `commands/`: synced workflow runbooks
-- `.github/prompts/`: Copilot prompt wrappers generated from `commands/`
 
 ## Available Command Triggers
 
@@ -174,4 +170,4 @@ shaped outside the list costs a human approval and blocks autonomous runs.
   Greenberry stack or concern baseline.
 - Edit `CONVENTIONS.md` for project-local decisions.
 - Edit the shared `ai-workflows` repo when a rule or runbook should be reused across projects.
-- Re-run project sync after upstream updates to refresh the local adapters, rules, commands, and prompt files.
+- Re-run project sync after upstream updates to refresh the local adapters, rules, and commands.

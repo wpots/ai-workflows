@@ -142,7 +142,6 @@ These files are generated or derived from the canonical repo sources:
 
 - `AGENTS.md`
 - `CLAUDE.md`
-- `.github/copilot-instructions.md`
 - `.github/prompts/*.prompt.md`
 - `.vscode/tasks.json`
 

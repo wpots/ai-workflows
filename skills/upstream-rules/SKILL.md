@@ -52,11 +52,9 @@ Common mappings:
 |---|---|
 | `commands/<file>.md` | `commands/<file>.md` |
 | `rules/<file>.md` | `rules/<file>.md` |
-| `.github/prompts/<file>` | `.github/prompts/<file>` |
 | `AI-WORKFLOWS.md` | `templates/project-ai-workflows.md` |
 | `AGENTS.md` | `templates/project-AGENTS.md` |
 | `CLAUDE.md` | `templates/project-CLAUDE.md` |
-| `.github/copilot-instructions.md` | `templates/project-copilot-instructions.md` |
 
 Fetch the current upstream version of each mapped file from
 `<gitlab-remote>/main` and diff it against the local source material. If the
@@ -142,8 +140,8 @@ Three things about committing here, each of which costs a wasted cycle otherwise
   regenerates `.github/prompts/<name>.prompt.md` from `commands/<name>.md`, then
   fails the commit with `Drift detected`. Stage the regenerated prompt and
   commit again. Editing a `shared/*.md` fragment does the same to `CLAUDE.md`,
-  `AGENTS.md`, `.github/copilot-instructions.md` and the `templates/` adapters —
-  stage all of them; they are generated, never hand-edited.
+  `AGENTS.md` and the `templates/` adapters — stage all of them; they are
+  generated, never hand-edited.
 - **A new `rules/<file>.md` must land in every rule index in the same commit.**
   The validator warns on a rule missing from the `FEATURES.md` rules table and
   from a phase table in `docs/pipeline-map.md`, on top of the `rules/rules.md`

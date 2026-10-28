@@ -87,6 +87,7 @@ When reviewing TypeScript changes, check for:
 
 ## Relation To Other Surfaces
 
-- `shared/core-rules.md` is the compact always-on baseline.
+- The TypeScript section of `rules/project.md` is the compact always-on
+  baseline.
 - This file is the deeper on-demand policy reference.
 - The code-review workflow should use this file as its type-safety checklist.

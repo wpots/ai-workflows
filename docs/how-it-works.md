@@ -102,8 +102,8 @@ better signal for specialized tasks.
 
 Three layers:
 
-- **universal baseline** — compact rules in `shared/core-rules.md`, inlined into
-  Copilot-facing instructions and mirrored by the general baseline rules
+- **universal baseline** — the TypeScript section of `rules/project.md`, which
+  loads in every Claude session
 - **deeper policy** — `rules/type-safety.md` for trust boundaries, strict
   `tsconfig` posture, lint guardrails, transport-to-domain separation
 - **review audit** — `code-review` checks runtime validation gaps, unsafe
@@ -127,7 +127,6 @@ Generated or derived convenience artifacts — do not hand-edit:
 
 - `AGENTS.md`
 - `CLAUDE.md`
-- `.github/copilot-instructions.md`
 - `.github/prompts/*.prompt.md`
 - `.vscode/tasks.json`
 

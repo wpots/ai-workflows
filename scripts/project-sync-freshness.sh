@@ -108,7 +108,6 @@ ADAPTER_TEMPLATES=(
   project-ai-workflows.md
   project-CLAUDE.md
   project-AGENTS.md
-  project-copilot-instructions.md
   project-claude-settings.json
 )
 

@@ -30,9 +30,7 @@ Modes:
 Project sync copies:
   AI-WORKFLOWS.md                   (developer guide for tool loading behavior)
   CLAUDE.md / AGENTS.md             (thin adapters for Claude and Codex)
-  .github/copilot-instructions.md   (Copilot adapter with conventions inlined)
   rules/ and commands/              (shared baseline rules and runbooks)
-  .github/prompts/*.prompt.md       (attachable via #file: in Copilot chat)
   .claude/skills/verify/SKILL.md    (pre-commit verification; only when missing)
   .gitignore                        (appends .playwright-mcp/ once; rest untouched)
 
@@ -182,46 +180,6 @@ inject_shared() {
   mv "$tmp" "$target"
 }
 
-inject_conventions() {
-  local target="$1"
-  local conventions_file="$2"
-
-  local begin_marker="<!-- BEGIN CONVENTIONS -->"
-  local end_marker="<!-- END CONVENTIONS -->"
-  local tmp="${target}.tmp"
-  local in_block=0
-  local found=0
-
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    if [[ "$line" == "$begin_marker" ]]; then
-      echo "$line"
-      if [[ -f "$conventions_file" ]]; then
-        cat "$conventions_file"
-      else
-        echo "No CONVENTIONS.md found. Run setup-ai-workflows to generate one."
-      fi
-      in_block=1
-      found=1
-      continue
-    fi
-    if [[ "$line" == "$end_marker" ]]; then
-      in_block=0
-      echo "$line"
-      continue
-    fi
-    if [[ "$in_block" -eq 0 ]]; then
-      echo "$line"
-    fi
-  done < "$target" > "$tmp"
-
-  if [[ "$found" -eq 0 ]]; then
-    rm -f "$tmp"
-    return
-  fi
-
-  mv "$tmp" "$target"
-}
-
 # --- Project sync mode ---
 if [[ -n "$PROJECT_DIR" ]]; then
   echo "Syncing ai-workflows into project: $PROJECT_DIR (dry-run=$DRY_RUN)"
@@ -277,22 +235,6 @@ if [[ -n "$PROJECT_DIR" ]]; then
     fi
   fi
 
-  # Generate copilot-instructions.md from template with CONVENTIONS.md inlined
-  if [[ -f "$SRC_TEMPLATES/project-copilot-instructions.md" ]]; then
-    if [[ "$DRY_RUN" -eq 1 ]]; then
-      echo "[dry-run] generate .github/copilot-instructions.md from template"
-    else
-      ensure_dir "$PROJECT_DIR/.github"
-      cp "$SRC_TEMPLATES/project-copilot-instructions.md" "$PROJECT_DIR/.github/copilot-instructions.md"
-      inject_conventions "$PROJECT_DIR/.github/copilot-instructions.md" "$CONVENTIONS_FILE"
-      for fragment in "$SRC_SHARED"/*.md; do
-        marker_name="$(basename "$fragment" .md)"
-        inject_shared "$PROJECT_DIR/.github/copilot-instructions.md" "$marker_name"
-      done
-      echo "  [ok] .github/copilot-instructions.md (CONVENTIONS.md + core rules inlined)"
-    fi
-  fi
-
   # Sync rules/ to project root (single copy, all tools reference it)
   if [[ -d "$SRC_RULES" ]]; then
     if [[ "$DRY_RUN" -eq 1 ]]; then
@@ -310,33 +252,6 @@ if [[ -n "$PROJECT_DIR" ]]; then
     else
       sync_dir "$SRC_COMMANDS" "$PROJECT_DIR/commands"
       echo "  [ok] commands/ (shared command runbooks)"
-    fi
-  fi
-
-  # Generate .github/prompts/ from commands/ (Copilot needs frontmatter)
-  if [[ -d "$SRC_COMMANDS" ]]; then
-    ensure_dir "$PROJECT_DIR/.github/prompts"
-    if [[ "$DRY_RUN" -eq 1 ]]; then
-      echo "[dry-run] generate .github/prompts/ from commands/"
-    else
-      # Remove existing generated prompts
-      rm -f "$PROJECT_DIR/.github/prompts/"*.prompt.md
-      for cmd_file in "$PROJECT_DIR/commands/"*.md; do
-        [[ -f "$cmd_file" ]] || continue
-        _basename="$(basename "$cmd_file" .md)"
-        # Extract title from first heading
-        _title="$(head -1 "$cmd_file" | sed 's/^# //')"
-        _prompt_file="$PROJECT_DIR/.github/prompts/${_basename}.prompt.md"
-        {
-          echo "---"
-          echo "name: ${_basename}"
-          echo "description: \"${_title}\""
-          echo "---"
-          echo ""
-          cat "$cmd_file"
-        } > "$_prompt_file"
-      done
-      echo "  [ok] .github/prompts/ (generated from commands/)"
     fi
   fi
 

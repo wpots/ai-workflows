@@ -70,7 +70,7 @@ files are generated: [How it works](docs/how-it-works.md).
 | `hooks/hooks.json` | hooks shipped by that plugin: the `PreToolUse` gates, the added-comments check, the ambient-layer `SessionStart` sync and the `Stop` prompt for the improve-skill retrospective |
 | `scripts/` | sync, adapter generation, validation, smoke tests |
 | `docs/` | the guides below, plus the pipeline map and decision records |
-| `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md` | generated adapters for this repo itself |
+| `AGENTS.md`, `CLAUDE.md` | generated adapters for this repo itself |
 
 Key scripts:
 
