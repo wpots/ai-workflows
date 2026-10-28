@@ -4,8 +4,6 @@ Applies to all projects regardless of folder naming or tech stack. These
 principles define _what_ belongs where — stack rules define _how_ to express
 this in a given project's actual folder structure.
 
----
-
 ## The Four Layers
 
 Dependencies flow **inward only**. Outer layers depend on inner layers. Inner
@@ -16,67 +14,30 @@ Presentation  →  Application  →  Infrastructure  →  Domain
    (outer)                                           (inner)
 ```
 
-### Domain
+- **Domain** — the core of the application, framework-free and
+  side-effect-free: business entities and their invariants, interfaces
+  (repository contracts, service ports), pure functions operating on entities,
+  shared value types and enums.
+- **Application** — orchestrates use cases: one use case per function, hook or
+  action; custom hooks that encode a single business operation; Server Actions
+  (in Next.js the application/infrastructure boundary); application-level
+  state, not UI state and not domain entities directly.
+- **Infrastructure** — adapts the outside world: API clients and fetch
+  utilities, database/CMS query adapters (Payload collections, Prisma calls),
+  storage adapters (AsyncStorage, localStorage, cookies), third-party
+  integrations (analytics, auth providers, notifications), cache strategies.
+- **Presentation** — renders UI, a thin layer with no business logic:
+  components and screens, navigation configuration, page/route files, UI-only
+  state (open/closed, active tab, scroll position).
 
-The core of the application. Framework-free, side-effect-free.
+## Dependency Rule
 
-- Business entities and their invariants
-- Interfaces (repository contracts, service ports)
-- Pure functions operating on entities
-- Shared value types and enums
-
-**Must not import from:** Application, Infrastructure, Presentation, or any
-framework package (React, Next.js, Expo, etc.).
-
-### Application
-
-Orchestrates use cases. Coordinates domain logic and infrastructure.
-
-- Use case implementations (one use case per function/hook/action)
-- Custom hooks that encode a single business operation
-- Server Actions (in Next.js these are the application/infrastructure boundary)
-- Application-level state (not UI state, not domain entities directly)
-
-**Must not import from:** Presentation.
-**May import from:** Domain, Infrastructure (via domain interfaces).
-
-### Infrastructure
-
-Adapts the outside world to the application's needs.
-
-- API clients and fetch utilities
-- Database/CMS query adapters (e.g. Payload collections, Prisma calls)
-- Storage adapters (AsyncStorage, localStorage, cookies)
-- Third-party service integrations (analytics, auth providers, notifications)
-- Cache strategies
-
-**Must not import from:** Presentation.
-**May import from:** Domain (to implement its interfaces).
-
-### Presentation
-
-Renders UI. Thin layer — no business logic.
-
-- React components and screens
-- Navigation configuration
-- Page/route files
-- UI-only state (open/closed, active tab, scroll position)
-
-**Must not import from:** Infrastructure directly.
-**May import from:** Application (hooks, actions), Domain (types only).
-
----
-
-## Dependency Rule — Summary
-
-| Layer          | May import from             |
-| -------------- | --------------------------- |
-| Domain         | nothing outside Domain      |
-| Infrastructure | Domain only                 |
-| Application    | Domain, Infrastructure      |
-| Presentation   | Application, Domain (types) |
-
----
+| Layer          | May import from                                                       |
+| -------------- | --------------------------------------------------------------------- |
+| Domain         | nothing outside Domain, and no framework (React, Next.js, Expo, etc.) |
+| Infrastructure | Domain only, to implement its interfaces                              |
+| Application    | Domain, Infrastructure (via domain interfaces)                        |
+| Presentation   | Application (hooks, actions), Domain (types only)                     |
 
 ## Forbidden Patterns
 
@@ -118,24 +79,6 @@ function UserProfile({ id }) {
 }
 ```
 
-### Infrastructure importing from presentation
-
-```ts
-// ❌ an API client referencing a component
-import { Toast } from "@/components/Toast";
-
-// ✅ infrastructure returns data/errors; presentation decides how to show them
-```
-
-### Domain importing from outer layers
-
-```ts
-// ❌ a domain entity importing a fetch utility
-import { apiFetch } from "@/lib/api";
-
-// ✅ domain entities have zero external imports
-```
-
 ### Raw UI state used as domain state
 
 ```tsx
@@ -146,7 +89,13 @@ const [cart, setCart] = useState<CartItem[]>([]);
 const { cart, addItem, removeItem } = useCart();
 ```
 
----
+### Imports against the dependency rule
+
+- Infrastructure importing from presentation, such as an API client importing
+  `Toast` from `@/components/Toast`: infrastructure returns data or errors, and
+  presentation decides how to show them.
+- Domain importing from an outer layer, such as an entity importing `apiFetch`
+  from `@/lib/api`: domain entities have zero external imports.
 
 ## Boundary Rules
 
@@ -154,12 +103,10 @@ const { cart, addItem, removeItem } = useCart();
   model) happen **at layer edges**, not inside components or deep inside
   infrastructure.
 - Types defined in Domain are the only types that flow freely across all layers.
-  Infrastructure-specific types (raw API responses, ORM models) must be
-  transformed before crossing into Application or Presentation.
+  Infrastructure-specific types (raw API responses, ORM models) are transformed
+  before crossing into Application or Presentation.
 - Side effects (network, storage, notifications) are always initiated from
   Application or Infrastructure — never from Domain.
-
----
 
 ## Conform to the rule, not the neighbour
 
@@ -173,8 +120,6 @@ When you spot the existing deviation, do not silently fix it in the same change
 `docs/todo/` entry) that names the file and the rule it breaks, so the retrofit
 can be scheduled on its own. Your new code lands conforming; the old code gets a
 tracked follow-up.
-
----
 
 ## When Reviewing Code
 
