@@ -79,3 +79,4 @@ bypass. It costs no model tokens.
 
 - [../contributing.md](../contributing.md), Contributor Setup
 - [../../.claude/settings.json](../../.claude/settings.json)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/305
