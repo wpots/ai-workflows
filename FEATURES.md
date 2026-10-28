@@ -78,6 +78,7 @@ skills ship via the `greenberry` plugin (`.claude-plugin/`), invoked as
 | `address-review-comments` | Pick up reviewer comments on a PR/MR, propose an approach per comment, apply, and push | No (skill only) |
 | `receiving-code-review` | Evaluate incoming review feedback with technical rigor before implementing any of it | No (skill only) |
 | `watch-mrs` | Watch open GitLab MRs for reviewer comments and merge-readiness, optionally auto-merging | No (skill only) |
+| `local-handover` | Put a branch or MR in front of the user to test locally: direct story links and a CMS test page, served from its own worktree on a copy of a local CMS database | No (skill only) |
 | `test-driven-development` | Drive a feature or bugfix test-first through a strict RED-GREEN-REFACTOR cycle | No (skill only) |
 | `migration-check` | Statically verify a freshly generated Payload/Postgres migration for snapshot-drift bugs | No (skill only) |
 | `payload-jobs` | Audit or set up Payload's jobs queue for multi-instance hosting — one elected runner, closed run endpoint, orphaned-run recovery, idempotent tasks, heartbeat coverage | No (skill only) |

@@ -525,8 +525,8 @@ covers it.
 
 Two of these close through the lighter forms named in the *Instead* column, without
 building either: screenshot evidence on the MR and a smoke check in CI. The visual half
-landed in October 2026 (the project `verify` skill before a commit, the `skills/create-pr`
-local handover before the push), which closes the intent behind the visual-regression
+landed in October 2026 (the project `verify` skill before a commit, `skills/local-handover`
+before the push), which closes the intent behind the visual-regression
 rows. The smoke check in CI is still open, so the canary-rollout rows wait on it.
 
 ## Keeping this map accurate

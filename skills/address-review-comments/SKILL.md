@@ -206,6 +206,10 @@ the old base cannot safely be substituted by the squash commit.
 
 ### 9. Hand the MR back to the reviewer
 
+When the rework touches the UI, run `skills/local-handover` on the task
+worktree first and hand back once the user has checked it; the worktree stays
+until then.
+
 Once the final commit is on the remote, leave every thread open — resolving
 is the reviewer's call unless the user asks for it. On GitLab:
 
