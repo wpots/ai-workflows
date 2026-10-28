@@ -28,7 +28,7 @@ In practice, treat this directory as a topic-based rule library:
 | `mr-sizing.md`                          | MR size budget, sliceability test, split triggers, ticket-to-item mapping |
 | `git-flow.md`                           | Branch/MR flow, squash-and-ff merge settings, MR title as history, provenance labels |
 | `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
-| `payload.md`                            | Payload schemas, generated types, hooks, admin integrations, jobs queue |
+| `payload.md`                            | Payload schemas, generated types, hooks, admin integrations, jobs queue <!-- payload-only --> |
 | `clean-architecture.md`                 | Layer principles, dependency rules, forbidden patterns (all stacks) |
 | `stacks/nextjs-payload.md`              | Next.js conventions (App Router, proxy vs. middleware, read path, DoD); Payload sections optional |
 | `stacks/react-native-expo.md`              | React Native + Expo conventions                              |
@@ -50,19 +50,19 @@ In practice, treat this directory as a topic-based rule library:
    checking merge settings.
 10. Load `accessibility.md` when building interactive UI components.
 11. Load `content-blocks.md` when building or reviewing CMS-backed content blocks.
-12. Load `payload.md` when working on Payload schemas, hooks, generated types, jobs, or admin integrations.
-13. Load `sustainability.md` when reviewing performance, caching, bundle size,
+12. Load `sustainability.md` when reviewing performance, caching, bundle size,
     CI cost, or dependencies — or when changing public-route rendering.
-14. Load `sonarqube.md` when a SonarQube or SonarLint finding is mentioned, or
+13. Load `sonarqube.md` when a SonarQube or SonarLint finding is mentioned, or
     when editing code that could trip one of its opted-in rules.
-15. Load `documentation.md` when adding comments or JSDoc, when changing code
+14. Load `documentation.md` when adding comments or JSDoc, when changing code
     that existing comments, JSDoc, or repo docs describe, and during code
     review. Adding comments to new code is the trigger that is easiest to
     miss — load the rule before writing them, not when review flags them.
-16. Load `adr.md` when recording or revisiting an architecture decision,
+15. Load `adr.md` when recording or revisiting an architecture decision,
     creating `docs/adr/` or `docs/architecture.md`, or when a change
     contradicts a recorded decision.
-17. Load the appropriate stack file based on detected stack (see below).
+16. Load the appropriate stack file based on detected stack (see below).
+17. Load `payload.md` when working on Payload schemas, hooks, generated types, jobs, or admin integrations. <!-- payload-only -->
 
 ## Stack Detection
 
@@ -72,7 +72,7 @@ Before loading a stack file, read the project's `package.json` and check
 - `"next"` present → load `stacks/nextjs-payload.md` — **every Next.js project,
   with or without Payload**. The file's Payload sections are additive; its
   Next-general rules (App Router, proxy vs. middleware, read path, DoD) apply
-  even when `@payloadcms/payload` is absent.
+  even when neither `payload` nor a `@payloadcms/*` package is present.
 - `"expo"` or `"react-native"` present → load
   `stacks/react-native-expo.md` when available
   - if the file is not available locally, fall back to

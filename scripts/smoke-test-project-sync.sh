@@ -121,6 +121,54 @@ assert_contains "$WITH_COPILOT/.github/copilot-instructions.md" "earlier sync"
 assert_contains "$WITH_COPILOT/.github/prompts/run-checks.prompt.md" "earlier sync"
 assert_missing "$WITH_COPILOT/.github/prompts/review-code.prompt.md"
 
+# A missing file has no pattern in it either, so check it exists first:
+# grep would exit 2 and the assertion would pass on nothing.
+assert_not_contains() {
+  local path="$1"
+  local pattern="$2"
+  assert_exists "$path"
+  if grep -Fq "$pattern" "$path"; then
+    echo "Unexpected '$pattern' in $path" >&2
+    exit 1
+  fi
+}
+
+echo "Smoke test: a project without Payload gets no Payload rule or pointers"
+touch "$WITH_CONVENTIONS/rules/payload.md"
+"$SYNC_SCRIPT" --project "$WITH_CONVENTIONS" >/dev/null
+assert_missing "$WITH_CONVENTIONS/rules/payload.md"
+assert_exists "$WITH_CONVENTIONS/rules/stacks/nextjs-payload.md"
+for adapter in AI-WORKFLOWS.md CLAUDE.md AGENTS.md; do
+  assert_not_contains "$WITH_CONVENTIONS/$adapter" "rules/payload.md"
+done
+for stripped in AI-WORKFLOWS.md AGENTS.md rules/rules.md; do
+  assert_not_contains "$WITH_CONVENTIONS/$stripped" "<!-- payload-only -->"
+done
+assert_not_contains "$WITH_CONVENTIONS/rules/rules.md" '`payload.md`'
+assert_contains "$WITH_CONVENTIONS/rules/rules.md" "stacks/nextjs-payload.md"
+# Only the marked line goes: its neighbours survive, and the numbered loading
+# list keeps counting without a gap.
+assert_contains "$WITH_CONVENTIONS/AGENTS.md" "rules/content-blocks.md"
+assert_contains "$WITH_CONVENTIONS/AI-WORKFLOWS.md" "rules/content-blocks.md"
+assert_contains "$WITH_CONVENTIONS/rules/rules.md" "16. Load the appropriate stack file"
+
+echo "Smoke test: a Payload project keeps the Payload rule and pointers"
+WITH_PAYLOAD="$TMP_DIR/with-payload"
+mkdir -p "$WITH_PAYLOAD"
+cat > "$WITH_PAYLOAD/package.json" <<'EOF_PACKAGE'
+{
+  "name": "sync-smoke-with-payload",
+  "private": true,
+  "dependencies": {
+    "@payloadcms/next": "^3.0.0"
+  }
+}
+EOF_PACKAGE
+"$SYNC_SCRIPT" --project "$WITH_PAYLOAD" >/dev/null
+assert_exists "$WITH_PAYLOAD/rules/payload.md"
+assert_contains "$WITH_PAYLOAD/AGENTS.md" "rules/payload.md"
+assert_contains "$WITH_PAYLOAD/rules/rules.md" '`payload.md`'
+
 # --- Freshness stamp + SessionStart hook ---
 
 # The hook writes its once-per-mismatch bookkeeping into $CLAUDE_PLUGIN_DATA;

@@ -57,6 +57,11 @@ Preferred path:
    Cursor and Copilot are not supported: generate nothing under `.cursor/` or
    `.github/` for them, and leave the project's existing files there as they
    are.
+
+   Without a `payload` or `@payloadcms/*` dependency, do not copy
+   `rules/payload.md`, and leave out every line marked `<!-- payload-only -->`
+   in `AGENTS.md`, `AI-WORKFLOWS.md` and `rules/rules.md`, as
+   `scripts/sync.sh --project` does.
 8. Emit project tooling: write a checked-in, env-var-based `.mcp.json`
    for detected needs — Playwright in
    devDependencies → `playwright`, live-browser debugging →

@@ -16,7 +16,7 @@ Load only the relevant focused rule files for the task:
 - `rules/adr.md` when recording an architecture decision, creating `docs/adr/` or `docs/architecture.md`, or changing something a recorded decision covers
 - `rules/backlog.md` for user stories, specs, and backlog work
 - `rules/content-blocks.md` for CMS-backed block architecture, transforms, and block-specific checklists
-- `rules/payload.md` for Payload schema, generated-type, and integration work
+- `rules/payload.md` for Payload schema, generated-type, and integration work <!-- payload-only -->
 - `rules/project.md` for component and module work (prop-types in `types.ts`, named handlers, no `React.FC`, etc.)
 - `rules/sonarqube.md` when addressing a SonarQube/SonarLint finding or writing code that could trip an opted-in Sonar rule
 - the appropriate `rules/stacks/*` file after detecting the stack from `package.json`

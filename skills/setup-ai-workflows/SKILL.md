@@ -71,7 +71,7 @@ Read `package.json` (if present) and classify:
 | Detected dependency            | Stack              |
 | ------------------------------ | ------------------ |
 | `next`                         | Next.js            |
-| `next` + `@payloadcms/payload` | Next.js + Payload  |
+| `next` + `payload` or a `@payloadcms/*` package | Next.js + Payload  |
 | `expo` or `react-native`       | React Native + Expo |
 | None of the above              | Generic            |
 
@@ -276,6 +276,12 @@ Sync these shared workflow assets into the project:
 - `commands/`
 
 These are reusable workflow assets, not project-owned conventions.
+
+Without a `payload` or `@payloadcms/*` dependency (step 2), do not copy
+`rules/payload.md`, and leave out every line marked `<!-- payload-only -->`
+in `AGENTS.md`, `AI-WORKFLOWS.md` (step 6) and `rules/rules.md`, as
+`scripts/sync.sh --project` does.
+
 The type-safety split should stay visible in the generated project guidance:
 
 - universal baseline in the adapters and `rules/project.md`
