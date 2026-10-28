@@ -1,6 +1,6 @@
 ---
 name: stack-audit
-description: The quarterly audit of the ai-workflows AI stack, run as a sprint of one quarter — one audit file in docs/audits/, ranked backlog items keyed to it, and a close of the previous quarter's plan. Use when the user asks for the quarterly audit, a stack review or AI-stack review, the January, April, July or October audit, "kwartaalaudit", "stack audit", "audit van de AI-stack", wants backlog items filed or ranked from an audit, or asks how far the previous audit's plan got.
+description: The quarterly audit of the ai-workflows AI stack, run as a sprint of one quarter — one audit file in docs/audits/, ranked backlog items keyed to it, and a close of the previous quarter's plan. Use when the user asks for the quarterly audit, a stack review or AI-stack review, the January, April, July or October audit, "kwartaalaudit", "stack audit", "audit van de AI-stack", wants backlog items filed or ranked from an audit, works on one of its items ("work on T18 of the audit", "rank 3"), or asks how far the previous audit's plan got.
 metadata:
   owner: wieteke.pots
 ---
@@ -9,9 +9,13 @@ metadata:
 
 The audit is a sprint of one quarter. The audit file is its planning document,
 the backlog items keyed to it are its scope, the `work-backlog` loop is its
-delivery, and the next audit opens with this one's close. Status always comes
-from git, never from an earlier audit file: the July 2026 file still listed
-`packages/` as open after it had been removed the same day.
+delivery, and the next audit opens with this one's close.
+
+The audit file is also where delivery is written down: its Delivery Status
+table is what the maintainer reads to see whether an item shipped, so Phase 5
+keeps it current. Git is the evidence behind each row. A status is checked
+against git, never copied from an earlier audit file: the July 2026 file still
+listed `packages/` as open after it had been removed the same day.
 
 ## The quarter
 
@@ -63,7 +67,9 @@ filed before the key existed name their audit in prose only; find them with
 `-S "October 2026 stack review"` (or the July equivalent) instead of the key.
 
 Classify each rank: done (with MR links), in-progress, ready, draft (name the
-blocking decision), parked, superseded, dropped (with the reason). Re-measure
+blocking decision), parked, superseded, dropped (with the reason). Start from
+the previous file's Delivery Status row; where git disagrees with it, git wins
+and the close says what changed. Re-measure
 every number the previous baseline holds with the same definitions; a changed
 definition makes the delta meaningless, so say so instead of comparing.
 
@@ -104,9 +110,11 @@ and `claude plugin eval` always gets `--no-publish`.
 5. Ranked plan: `Rank | Item | What to do now | Why it pays off | Impact | Effort`.
    "Why it pays off" names Quality, Time, Tokens, Automation, Security or Team
    scale plus the mechanism. Impact ▲ ► ▽, effort S/M/L. Then a "Dropped" line.
-6. Decisions only the maintainer can make: answered (dated) and open.
-7. Confidence and gaps.
-8. Sources, grouped, at the end.
+6. Delivery status: `Rank | Item | Status | MRs`, one row per rank, every row
+   `not started` when the audit merges. Phase 5 keeps it current.
+7. Decisions only the maintainer can make: answered (dated) and open.
+8. Confidence and gaps.
+9. Sources, grouped, at the end.
 
 Rules for the file:
 
@@ -145,6 +153,16 @@ Run `/loop work-backlog` scoped to the audit key: only `ready` items whose
 item is `ready`, stop the loop and report which decisions block which ranks.
 Do not pick unkeyed `ready` items unless she names them. When the queue runs
 dry mid-quarter, run Phase 4 again for the next ranks.
+
+The MR that delivers a rank, or a slice of one, updates that rank's Delivery
+Status row in the same MR: the status with the date it changed, and the MR
+number added to the list. On `main` the row is then true from the moment the
+work merges. `work-backlog` does not read this skill, so the loop prompt says
+it. The same holds outside the loop: a session asked to work on an item, or
+one that finds the item already delivered, writes the row before it reports.
+Another session may hold uncommitted edits to the same audit file, so check
+`git worktree list` and `git -C <worktree> status` first; when one does, send
+it the row instead of opening a second MR on the same table.
 
 ## Phase 6 — Demo (optional)
 
