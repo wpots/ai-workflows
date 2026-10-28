@@ -185,6 +185,7 @@ ready check in `skills/backlog` holds items against this list and nothing else.
 | Size | no split trigger in `rules/mr-sizing.md` fires |
 | Approach | `Technical Notes` name the approach, the files or modules it touches, and the test level per criterion; where two approaches were viable, the choice and why |
 | Dependencies | every `Depends on:` item is named; what the work needs from outside — credentials, API access, client content, design — is available |
+| CMS sections | every section the editor places, configures or labels is a block: its copy is block fields with defaults, its data comes from the block's own loader, and automatic content shows read-only in the block (`rules/payload.md` § Editor-Facing Sections) |
 | Bug | `## Reproduction` holds a path, or what was tried |
 
 - **A person flips it.** The developer sets `ready`, by hand or by confirming

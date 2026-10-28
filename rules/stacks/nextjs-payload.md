@@ -252,6 +252,29 @@ Page  →  Loader  →  Query (infrastructure)  →  Payload
   — never a bare `load.ts` — so it stays greppable and unambiguous across
   modules. The same applies to a module that needs its own data-access seam
   (`modules/<Name>/load<Name>.ts`).
+- A CMS block that renders server data is such a module. Its loader is
+  registered by block type, and the route's loader runs the loaders of the
+  blocks on the page, passing the results on keyed by block id. The route never
+  branches on page type for one block's data, so the block works on every page
+  type that places it (`rules/payload.md` § Editor-Facing Sections).
+
+```ts
+// one entry per data block: ({ block, page, locale }) => Promise<Items>,
+// calling cached queries with primitives
+export const BLOCK_LOADERS = {
+  relatedContent: loadRelatedContent,
+  childPageList: loadChildPageList,
+} satisfies BlockLoaders;
+
+const itemsByBlock = Object.fromEntries(
+  await Promise.all(
+    dataBlocks(page).map(async (block) => [
+      block.id,
+      await BLOCK_LOADERS[block.blockType]({ block, page, locale }),
+    ]),
+  ),
+);
+```
 
 Co-location:
 
@@ -290,6 +313,8 @@ in `rules/clean-architecture.md`).
       `modules/*`, `components/*`) or returns a view-model/prop shape.
 - [ ] No template imports an infrastructure query function directly — it goes
       through the loader.
+- [ ] A block's data comes from the block's own loader, not from a page-type
+      branch in the route's loader.
 
 Machine-enforce the import-direction boundary (infrastructure read-path ↛
 presentation; templates ↛ infrastructure queries) with `no-restricted-imports`

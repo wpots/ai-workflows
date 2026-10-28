@@ -32,6 +32,39 @@ For every new Payload block:
 Payload provides `blockType` on block items. Preserve that discriminator through
 the frontend transform layer and expose it to the rendered block component.
 
+## Editor-Facing Sections
+
+A section of a page template that the editor places, configures or labels is a
+block, so the editor finds every setting where it renders.
+
+- **A fixed section is a blocks field.** A section with a fixed place in the
+  template (related content, a child-page grid, filter results) is a `blocks`
+  field with `maxRows: 1` in that place, like the hero. Not page fields in the
+  sidebar or on a separate tab, and not markup hard-coded in the template.
+- **Section copy lives on the block.** Its heading, the cards' call to action
+  ("Read more"), its empty-state text and similar copy are fields on the block,
+  localized with the page and each with a per-locale default. Not a page field,
+  not a global such as Site Settings, and not a dictionary key. The dictionary
+  keeps UI chrome: aria labels, count nouns with plural rules, messages from
+  code.
+- **A data block owns its loader.** A block that needs server data has its own
+  loader, registered by block type (`rules/stacks/nextjs-payload.md` § Read
+  Path). Never wire one block's data as a page-type switch: the same block
+  must work on every collection that places it.
+- **Automatic content stays visible.** What a block fills on its own (related
+  pages, child pages, filter results) shows read-only in the block in the
+  admin, from the same loader the site uses, so the editor sees what visitors
+  get. Where the design also allows hand-picking, the picks field sits on the
+  same block, ahead of the automatic fill, and the read-only list marks each
+  item as chosen or suggested.
+- **A route without a document gets a singleton.** When a template has no
+  document of its own (error pages), its sections live on a singleton
+  collection: one document the editor cannot duplicate, like a homepage, which
+  serves every variant. Not a field on a settings global.
+
+When a backlog item plans a section any other way, correct the item before
+building it.
+
 ## Type Boundaries
 
 - treat generated Payload document types as transport types
