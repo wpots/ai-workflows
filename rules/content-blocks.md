@@ -18,7 +18,7 @@ Each block module should usually include:
 
 - `<BlockName>.tsx` — presentational component
 - `types.ts` — exported props interface and block-specific types
-- `Transform<BlockName>.ts` — maps CMS transport data into trusted component
+- `transform<BlockName>.ts` — maps CMS transport data into trusted component
   props
 - `<BlockName>.stories.tsx` — Storybook coverage
 - `<BlockName>.test.ts` or `<BlockName>.test.tsx` — Jest coverage
@@ -31,8 +31,15 @@ does not fit the common shape exactly.
 
 - block folders and component files use PascalCase, for example
   `QuoteBlock/QuoteBlock.tsx`
-- transform files use `Transform<BlockName>.ts`
+- transform files are camelCase like every other function file:
+  `transform<BlockName>.ts`
 - transform exports use `transform<BlockName>`
+- every other mapper from CMS data into the content contract (an image, a
+  link, a teaser, the page) is a transform too, named after the type it
+  returns: `transformContentImage` returns `ContentImage`
+- `to<Name>` is only for conversions that do not read CMS data, such as
+  `toAbsoluteUrl`, so the prefix alone tells a reader where the trust boundary
+  is
 - props interfaces live in `types.ts` and follow `<BlockName>Props`
 
 ## Frontend Contract
