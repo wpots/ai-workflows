@@ -1,30 +1,24 @@
 # CLAUDE.md
 
+<!--
+The `greenberry` plugin installs this file as `~/.claude/rules/ai-workflows.md`,
+next to `communication.md`, `project.md` and `clean-architecture.md`, and Claude
+Code loads every file in `~/.claude/rules/` into each conversation.
+`~/.claude/CLAUDE.md` belongs to the user; the plugin never writes it. Keep the
+global rules universal, not stack-specific.
+
+Claude Code strips block-level HTML comments like this one before it loads the
+file, so notes for maintainers cost no context.
+-->
+
 ## Purpose
 
 Use this setup as a universal Claude Code baseline across projects.
 
-## Loading Model
-
-The `greenberry` plugin installs this file as `~/.claude/rules/ai-workflows.md`,
-and Claude Code loads every file in `~/.claude/rules/` into each conversation.
-`~/.claude/CLAUDE.md` belongs to the user; the plugin never writes it.
-Keep the global rules universal, not stack-specific.
-
-Workflow surface strategy for Claude in this repo:
-
-- skills are first-class and the canonical surface for repeatable workflows;
-  they ship via the `greenberry` plugin from the ai-workflows marketplace and
-  auto-update (invoke as `/greenberry:<skill>`, natural-language triggers keep
-  working through each skill's description)
-- commands and runbooks remain the fallback path when no skill exists
-- rules stay the policy source of truth
-
-The ai-workflows sync intentionally keeps the global Claude rules slim:
-
-- `communication.md`
-- `project.md`
-- `clean-architecture.md`
+Skills are the canonical surface for repeatable workflows: invoke one as
+`/greenberry:<skill>`, or let its description route you there. Commands and
+runbooks are the fallback when no skill exists; rules stay the policy source of
+truth.
 
 ## Project Overrides
 
@@ -52,18 +46,17 @@ named in its skill's row below.
 
 ### Skill Mapping
 
-On skill-aware tools the skill is the canonical path; the command is the
-fallback. Invoke a skill as `/greenberry:<skill>` or let its description route
-you there.
-
 <!-- BEGIN SHARED:skill-mappings -->
 Skills are the canonical surface. A command is listed only where one exists as
-fallback for tools that cannot use skills. Alphabetical, so a missing entry is
-easy to spot.
+fallback for tools that cannot use skills.
+
+<!--
+Alphabetical, so a missing entry is easy to spot.
 
 Line format: triggers `->` the routing targets, then an optional note after a
 `;`. Only paths before the `;` count as routes — a skill named in a note is a
 cross-reference, so it still needs its own line.
+-->
 
 - `address review comments`, `pick up review comments`, `apply review feedback`, `pak review comments op` -> `skills/address-review-comments` (skill only; evaluate the feedback with `skills/receiving-code-review` first)
 - `review architecture`, `check clean arch`, `architecture audit`, `layer violation` -> `skills/architecture-review` (skill only)
@@ -98,7 +91,7 @@ cross-reference, so it still needs its own line.
 - `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `skills/sustainable-review` (canonical), `commands/sustainable-review.md` (fallback)
 - `tdd`, `test-driven development`, `test first`, `test eerst`, `schrijf eerst een test` -> `skills/test-driven-development` (skill only)
 - `upstream rule`, `propose rule`, `share rule change` -> `skills/upstream-rules` (skill only)
-- `upstream to unicore`, `port to unicore`, `upstream to template`, `unicore-template`, `template harvest`, `wat moet terug naar de template` -> `skills/upstream-to-unicore` (skill only; the target line, v3 `development` or v4 presets, is chosen per change, and `skills/mr-merged` and `skills/close-sprint` propose its harvest when template-owned files change)
+- `upstream to unicore`, `port to unicore`, `upstream to template`, `unicore-template`, `template harvest`, `wat moet terug naar de template` -> `skills/upstream-to-unicore` (skill only; `skills/mr-merged` and `skills/close-sprint` propose its harvest when template-owned files change)
 - `user journeys`, `spec the journeys`, `user flows`, `customer journey`, `journeys uitwerken` -> `skills/user-journeys` (skill only; writes `docs/journeys/`, then hands the slice candidates to `skills/backlog`)
 - `watch mr`, `monitor mr`, `notify on approval`, `auto-merge when ready` -> `skills/watch-mrs` (skill only)
 - `wcag audit`, `accessibility audit`, `wcag compliance audit`, `a11y audit` -> `skills/wcag-audit` (skill only)
@@ -144,28 +137,25 @@ load; inside `ai-workflows` it also loads from `.claude/rules/upstream-mr.md`.
 
 ## Graphify
 
+<!--
 The graphify skill itself is a personal global skill
-(`~/.claude/skills/graphify/SKILL.md`), not shipped by this repo. When the user
-types `/graphify`, follow that skill before doing anything else.
+(`~/.claude/skills/graphify/SKILL.md`), not shipped by this repo; Claude Code
+runs it on `/graphify` like any other skill.
+-->
 
 <!-- BEGIN SHARED:graphify -->
-This project may ship a **graphify** knowledge graph under `graphify-out/`
-(god nodes, community structure, and cross-file relationships). The graph data
-is gitignored, so each developer builds their own with `graphify update .`.
+This project may ship a **graphify** knowledge graph under `graphify-out/`,
+gitignored, so each developer builds their own with `graphify update .`. When
+`graphify-out/graph.json` exists, answer codebase and architecture questions
+from the graph before browsing raw files: `graphify query "<question>"`,
+`graphify path "<A>" "<B>"` and `graphify explain "<concept>"` return a scoped
+subgraph, much smaller than raw grep output.
 
-When `graphify-out/graph.json` exists, prefer the graph over raw file browsing
-for codebase and architecture questions:
-
-- `graphify query "<question>"` — scoped subgraph for any codebase or architecture question
-- `graphify path "<A>" "<B>"` — dependency path between two symbols
-- `graphify explain "<concept>"` — all nodes related to a concept
-
-These return a scoped subgraph, usually much smaller than raw grep output or `GRAPH_REPORT.md`.
-
-- If `graphify-out/wiki/index.md` exists, navigate it instead of reading raw files.
-- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review when query/path/explain do not surface enough context.
-- Use direct Read/Grep/Glob once graphify has oriented you and you need to modify or debug specific lines, or when `graphify-out/graph.json` does not exist yet.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- If `graphify-out/wiki/index.md` exists, navigate it instead of raw files.
+- Read `graphify-out/GRAPH_REPORT.md` only for a broad architecture review.
+- Switch to Read/Grep/Glob once graphify has oriented you and you need to
+  modify or debug specific lines.
+- After modifying code, run `graphify update .` (AST-only, no API cost).
 <!-- END SHARED:graphify -->
 
 ## Shell Usage
@@ -176,24 +166,17 @@ These return a scoped subgraph, usually much smaller than raw grep output or `GR
 
 ### Service access: CLI first, connector for the remainder
 
-Reach GitLab, Jira and Axiom through their CLI (`glab`, `jira`, `axiom`)
-before any MCP connector tool, and load `skills/service-cli` for the recipes
-(auth check, read-only subcommands, `--raw | jq` projections, the write
-commands). A CLI runs in every harness and in headless runs, every teammate
-has it from new-device-setup, its commands are allowlisted per subcommand,
-and the call stays in the transcript for a human to re-run. A connector tool
-is the fallback only for what the CLI cannot reach:
+Reach GitLab, Jira and Axiom through `glab`, `jira` and `axiom` before any MCP
+connector tool; `skills/service-cli` has the recipes. A CLI call runs headless,
+is allowlisted per subcommand, and stays in the transcript for a human to
+re-run. A connector is the fallback only for what the CLI cannot reach: Jira's
+Confluence, Teamwork Graph, Compass and Loom, and Axiom's monitors, dashboards,
+notifiers, spotlight and service map. `glab` covers all of GitLab.
 
-- GitLab: nothing — `glab` covers it.
-- Jira: Confluence, the Teamwork Graph, Compass, Loom.
-- Axiom: monitors, dashboards, notifiers, spotlight, the service map — the
-  CLI stops at datasets, APL queries and ingest.
-
-The plugin's PreToolUse hook enforces this: an Atlassian or Axiom connector
-call with a CLI equivalent is denied, with the command to run instead, as
-long as that CLI is installed. When the CLI is missing the call goes through
-— say so in the recap. `AIW_ALLOW_MCP=1` in the environment switches the hook
-off for a session when the CLI itself is broken.
+The plugin's PreToolUse hook denies a connector call that has a CLI equivalent
+and names the command to run, as long as that CLI is installed. When the CLI is
+missing the call goes through — say so in the recap. `AIW_ALLOW_MCP=1` switches
+the hook off for a session when the CLI itself is broken.
 
 ### Autonomy: write commands that match the allowlist
 
@@ -236,69 +219,51 @@ that doesn't match costs a human approval and blocks autonomous runs.
 ### Node and npm: the version the project pins
 
 A non-interactive shell skips the version manager's switch on `cd`, so `node`
-and `npm` resolve to its *default* — rarely the project's pin. A lockfile written by
-another npm differs in its `peer`/`dev`/`devOptional` flags and in which
-optional peers it keeps, and CI's `npm ci` can reject it as out of sync.
+and `npm` resolve to its default, rarely the project's pin; a lockfile another
+npm writes can fail CI's `npm ci`.
 
 - Read the pin before the first `node`/`npm`/`npx` call: `.nvmrc`,
-  `.node-version`, Volta in `package.json`, then `engines.node`.
-- npm is the one bundled with the pinned Node, unless `packageManager` or
-  `engines.npm` names another version — then that one.
-- With fnm on `PATH`, run from the project root through
-  `fnm exec --using=.nvmrc <npm|pnpm|node> <args>`; use `--using=<pin>` when the
-  pin is not in `.nvmrc` or the command targets another directory. Confirm with
-  `fnm exec --using=.nvmrc node --version` once. The project allowlist template
-  covers the `--using=.nvmrc` form of the npm and pnpm commands it allows.
-- With nvm, run through the pinned binary by absolute path,
+  `.node-version`, Volta in `package.json`, then `engines.node`. npm is the one
+  that Node bundles, unless `packageManager` or `engines.npm` names another.
+- With fnm, run `fnm exec --using=.nvmrc <npm|pnpm|node> <args>` from the
+  project root (`--using=<pin>` for another directory). With nvm, run the pinned
+  binaries by absolute path,
   `~/.nvm/versions/node/v<pin>/bin/node ~/.nvm/versions/node/v<pin>/lib/node_modules/npm/bin/npm-cli.js <args>`,
-  not `npm` from `PATH` and not `<node>/bin/npm` (its shebang resolves `node`
-  from `PATH`). Confirm with `--version` once. An absolute path matches no
-  allow rule, so expect an approval prompt unless the project allowlists it.
+  never `npm` from `PATH` or `<node>/bin/npm`. Confirm with `--version` once.
 - Pinned version not installed: stop and ask for `fnm install <pin>` (or
   `nvm install <pin>`); never fall back to whatever is on `PATH`.
-- When the pinned npm cannot do the job (a known bug, a lockfile `npm ci`
-  rejects), move the pin — `.nvmrc`, `packageManager`, the CI image — in the
-  same MR so local, CI and the lockfile agree. A lockfile written by an
-  unpinned npm, explained only in the commit message, flips back on the next
-  install by someone on the pin.
+- When the pinned npm cannot do the job, move the pin (`.nvmrc`,
+  `packageManager`, the CI image) in the same MR, so local, CI and the lockfile
+  agree.
 - Name the Node and npm versions that ran in the recap.
 
-The plugin's PreToolUse hook enforces this for installs: an `npm` or `pnpm`
-install whose Node or npm differs from the pin is denied, with the pinned
-command to run instead: `fnm exec` when fnm has the pin, the nvm path otherwise
-(`scripts/require_pinned_install_runtime.py`).
+The plugin's PreToolUse hook denies an `npm` or `pnpm` install off the pin and
+names the pinned command (`scripts/require_pinned_install_runtime.py`).
 
 ### Git inside the sandbox
 
-Three git operations the sandbox blocks. Each fails in a way that points at the
-server, your permissions or the repo rather than at the sandbox, so recognise
-them:
+Three git operations fail in the sandbox with errors that blame the server,
+your permissions or the repo:
 
-- **Writes to `.git/config`.** `error: could not lock config file .git/config:
-  Operation not permitted`. That makes `git checkout -b <new> <remote>/<base>`
-  exit 1 after creating the branch **without switching to it** — the next
-  commit then lands on the branch you were leaving. Use
-  `git switch -c <branch> --no-track <start-point>` (writes no config) and
-  confirm with `git branch --show-current` before staging. `git branch -d` warns
-  the same way but does delete. `git push -u` pushes, then fails on recording
-  the upstream: push with `git push <remote> <branch>`.
-- **Anything over SSH** (`git fetch`, `git push`): `~/.ssh` is unreadable, so
-  git reports `Please make sure you have the correct access rights and the
-  repository exists` — which reads as a revoked GitLab token, not a sandbox
-  denial. Run those with the sandbox bypass; they need the network anyway.
-- **Checkouts that rewrite a write-protected path.** A `merge`, `rebase` or
-  `switch` that has to replace a file the sandbox protects (e.g. `.vscode/`)
-  dies halfway: `error: unable to unlink old '.vscode/tasks.json': Operation
-  not permitted`. `HEAD` stays put but the tree is already half-written, so
-  `git status` shows the incoming commits as hundreds of local edits. When
-  `git diff --stat <target>` lists only the protected path and your own work is
+- **`.git/config` is read-only** (`could not lock config file`):
+  `git checkout -b <new> <remote>/<base>` creates the branch **without
+  switching to it**, so the next commit lands on the branch you were leaving.
+  Branch with `git switch -c <branch> --no-track <start-point>`, check
+  `git branch --show-current` before staging, and push with
+  `git push <remote> <branch>`, not `-u`.
+- **SSH** (`git fetch`, `git push`): `~/.ssh` is unreadable, and git's
+  `correct access rights` error reads like a revoked token. Run these with the
+  bypass; they need the network anyway.
+- **A checkout over a protected path** such as `.vscode/` dies halfway
+  (`unable to unlink old …`) and leaves the incoming commits as local edits.
+  When `git diff --stat <target>` lists only that path and your own work is
   stashed, `git reset --hard <target>` with the bypass finishes the move;
   otherwise stop and ask. Moving a branch across many commits, start with the
   bypass.
 
 Never pipe a command whose failure matters through `head`/`tail` in an `&&`
-chain: the pipe returns the pager's exit status, so the chain continues and the
-error line scrolls out of the excerpt.
+chain: the chain continues on the pager's exit status, and the error line
+scrolls out of the excerpt.
 
 ### Worktrees
 

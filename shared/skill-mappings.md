@@ -1,10 +1,13 @@
 Skills are the canonical surface. A command is listed only where one exists as
-fallback for tools that cannot use skills. Alphabetical, so a missing entry is
-easy to spot.
+fallback for tools that cannot use skills.
+
+<!--
+Alphabetical, so a missing entry is easy to spot.
 
 Line format: triggers `->` the routing targets, then an optional note after a
 `;`. Only paths before the `;` count as routes — a skill named in a note is a
 cross-reference, so it still needs its own line.
+-->
 
 - `address review comments`, `pick up review comments`, `apply review feedback`, `pak review comments op` -> `skills/address-review-comments` (skill only; evaluate the feedback with `skills/receiving-code-review` first)
 - `review architecture`, `check clean arch`, `architecture audit`, `layer violation` -> `skills/architecture-review` (skill only)
@@ -39,7 +42,7 @@ cross-reference, so it still needs its own line.
 - `sustainable review`, `sustainability review`, `performance review`, `performance audit`, `green refactor`, `ci review`, `dependency review` -> `skills/sustainable-review` (canonical), `commands/sustainable-review.md` (fallback)
 - `tdd`, `test-driven development`, `test first`, `test eerst`, `schrijf eerst een test` -> `skills/test-driven-development` (skill only)
 - `upstream rule`, `propose rule`, `share rule change` -> `skills/upstream-rules` (skill only)
-- `upstream to unicore`, `port to unicore`, `upstream to template`, `unicore-template`, `template harvest`, `wat moet terug naar de template` -> `skills/upstream-to-unicore` (skill only; the target line, v3 `development` or v4 presets, is chosen per change, and `skills/mr-merged` and `skills/close-sprint` propose its harvest when template-owned files change)
+- `upstream to unicore`, `port to unicore`, `upstream to template`, `unicore-template`, `template harvest`, `wat moet terug naar de template` -> `skills/upstream-to-unicore` (skill only; `skills/mr-merged` and `skills/close-sprint` propose its harvest when template-owned files change)
 - `user journeys`, `spec the journeys`, `user flows`, `customer journey`, `journeys uitwerken` -> `skills/user-journeys` (skill only; writes `docs/journeys/`, then hands the slice candidates to `skills/backlog`)
 - `watch mr`, `monitor mr`, `notify on approval`, `auto-merge when ready` -> `skills/watch-mrs` (skill only)
 - `wcag audit`, `accessibility audit`, `wcag compliance audit`, `a11y audit` -> `skills/wcag-audit` (skill only)
