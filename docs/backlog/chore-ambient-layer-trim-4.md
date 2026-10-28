@@ -111,3 +111,4 @@ bypass. It costs no model tokens.
 - [../../shared/graphify.md](../../shared/graphify.md)
 - [../../shared/skill-mappings.md](../../shared/skill-mappings.md)
 - [chore-load-ambient-layer-once-in-this-repo.md](chore-load-ambient-layer-once-in-this-repo.md)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/311
