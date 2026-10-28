@@ -16,6 +16,70 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.15.0] - 2026-10-28
+
+### Added
+
+- `local-handover`: a skill of its own for testing a branch or MR locally, also on request ("zet !66 klaar om te testen"). It serves the branch from its own worktree, opens a direct link to every story the diff touches (read from Storybook's `index.json`) and a test page that already holds the new block, and runs the dev server on a copy of the local CMS database, so a branch with `push: true` never pushes its schema into the developer's database. `create-pr`, `work-backlog`, `address-review-comments` and `upstream-to-unicore` run it when the diff touches the UI; `create-pr/references/local-handover.md` moved into it.
+  <!-- slack: MR lokaal testen: directe story-links en een testpagina, op een kopie van je lokale database -->
+
+### Changed
+
+- The always-on baseline (`CLAUDE.md`, installed as
+  `~/.claude/rules/ai-workflows.md`) loads 7.2k tokens instead of 8.5k in
+  every session. The Node pin, git in the sandbox and CLI-first sections keep
+  every rule in fewer words; the hooks behind the Node pin and CLI-first still
+  name the fix when a call is denied. Notes for maintainers (how the file is
+  installed, the mapping table's line format) move into HTML comments, which
+  Claude Code strips before loading.
+- `shared/graphify.md`: the same graphify guidance in fewer words, in
+  `CLAUDE.md`, `AGENTS.md` and the synced project adapters.
+- The `upstream-to-unicore` mapping row no longer says the v3 or v4 line is
+  chosen per change: the skill targets v4 on `development`.
+  <!-- slack: De vaste basis laadt 7,2k tokens per sessie in plaats van 8,5k: dezelfde regels in minder woorden -->
+- `rules/project.md` and `rules/clean-architecture.md`, the other two rules the
+  plugin installs into every session, load 4.6k tokens instead of 5.5k. Rules
+  that were stated two or three times now appear once: the Forbidden Patterns
+  list of `project.md` repeated rules from the sections above it, Props
+  Destructuring moves into Component Design, and the per-layer import lines of
+  `clean-architecture.md` fold into the dependency table. The "expert frontend
+  developer" persona line is gone, and `project.md` no longer says both that
+  200 lines is a guideline to discuss and that a component over 200 lines is
+  forbidden: the guideline stays.
+  <!-- slack: project.md en clean-architecture.md laden 4,6k tokens per sessie in plaats van 5,5k: elke regel nog maar één keer -->
+- `rules/payload.md` § Editor-Facing Sections: a section the editor places,
+  configures or labels is a block. A fixed section is a `blocks` field like the
+  hero, its copy is block fields with per-locale defaults (not Site Settings or
+  the dictionary), its data comes from the block's own loader instead of a
+  page-type switch, and what it fills automatically shows read-only in the
+  admin. The stack rule's Read Path and Definition of Done and the backlog
+  Definition of Ready check for it.
+  <!-- slack: CMS-secties zijn blocks: copy op het block met defaults, data via een eigen loader, automatische inhoud read-only in de admin -->
+- `create-pr`: the recap opens with the MR number, title and link, then a table with the status icon first and `Open items` (what waits on you) as its first row. Steps that did not apply move to one `➖ n/a:` line instead of empty rows, and the reviewer, label, template and rebase rows become one `MR` row.
+  <!-- slack: Recap: MR-link bovenaan, eerst wat op jou wacht, niet-van-toepassing op één regel -->
+- `skills/work-backlog` § Night pause in a loop: the first tick at or after
+  18:00 asks whether the loop goes on — stop now, or go on until a time the
+  user names. Until that time it keeps ticking, then pauses until the morning;
+  an unanswered question runs no ticks at all.
+  <!-- slack: work-backlog-loop vraagt om 18:00: stoppen of doorgaan tot … -->
+- `skills/work-backlog` § Night pause in a loop: a self-paced `/loop` tick
+  between 23:00 and 06:00 starts no work, and the loop resumes with one
+  one-shot `CronCreate` after 06:00 instead of waking through the night. Each
+  night tick on an expired prompt cache wrote the whole context again, which
+  bills to usage credits once the plan's limit has run out.
+- `skills/watch-mrs`: during the night pause the fallback heartbeat makes way
+  for the same morning `CronCreate`; the 3600s night heartbeat woke the session
+  on an expired cache every hour.
+  <!-- slack: Loops slapen 's nachts: work-backlog en watch-mrs gaan na 06:00 verder met één cron -->
+- Project sync and `setup-ai-workflows` stop generating Copilot files: no more
+  `.github/copilot-instructions.md` or `.github/prompts/*.prompt.md`, and the
+  `shared/core-rules.md` fragment that only the Copilot adapter carried is gone.
+  Files an earlier sync left in a project's `.github/` stay where they are; delete
+  them by hand if you want them gone. The shared rules, templates and project
+  guide no longer name Copilot as a target, so each synced project is reported
+  stale once, with the usual note naming `sync.sh --project`, until its next
+  re-sync.
+
 ## [2.14.3] - 2026-10-27
 
 ### Changed
