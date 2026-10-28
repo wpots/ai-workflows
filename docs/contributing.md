@@ -58,6 +58,13 @@ session so Claude offers `skills/improve-skill`. It never runs the retrospective
 itself, and its test (`scripts/test_improve_skill_retrospective.py`) runs inside
 `validate-ai-instructions.sh`.
 
+The plugin installs this repo's `CLAUDE.md` as `~/.claude/rules/ai-workflows.md`,
+and a session here also loads the root `CLAUDE.md` as project instructions:
+the same 8.5k tokens twice, from two versions once a branch edits the file. The
+project [`.claude/settings.json`](../.claude/settings.json) skips the installed
+copy with `claudeMdExcludes`, so a session here reads the working tree's
+`CLAUDE.md` only, which is the version under edit.
+
 ## Daily Loop
 
 1. Edit the canonical source in this repo.
