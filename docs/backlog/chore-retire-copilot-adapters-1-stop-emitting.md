@@ -177,6 +177,7 @@ same MR.
 
 ## Related
 
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/313>
 - [chore-retire-copilot-adapters-2-prompt-files.md](chore-retire-copilot-adapters-2-prompt-files.md)
 - [chore-retire-copilot-adapters-3-wording.md](chore-retire-copilot-adapters-3-wording.md)
 - [../skills-first-migration-plan.md](../skills-first-migration-plan.md) — the
