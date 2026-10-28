@@ -1,0 +1,100 @@
+# Chore: This Repo Stops Generating Copilot Prompt Files
+
+## Status
+
+<!-- draft | ready | in-progress | done -->
+
+ready
+
+Go to drop Copilot, and the cut, given by the maintainer on 2026-10-28. Waits
+for slice 1 to merge: both edit `scripts/validate-ai-instructions.sh`.
+
+## Ticket
+
+[Audit 2026-10](../audits/2026-10.md) — roadmap item 7
+
+## Slice
+
+2/3 — this repo stops generating Copilot prompt files
+
+## Priority
+
+low
+
+## Summary
+
+`scripts/generate-adapters.sh` turns every `commands/*.md` into a
+`.github/prompts/*.prompt.md` for Copilot Chat. With Copilot out nothing reads
+them, so the generator, the folder and the editor settings that point Copilot at
+them go.
+
+## User Story
+
+As the maintainer of the shared workflow assets, I want this repo to stop
+generating prompt files for a tool nobody runs, so that a change to a runbook no
+longer produces a second file to review.
+
+## Acceptance Criteria
+
+- `scripts/generate-adapters.sh` no longer writes `.github/prompts/`, and
+  `.github/prompts/` is deleted from this repo. On the committed branch,
+  `git status --porcelain .github` prints nothing after
+  `scripts/validate-ai-instructions.sh` runs. On a commit that only deletes the
+  folder and leaves the generator unchanged, it lists the regenerated prompt
+  files.
+- `scripts/validate-ai-instructions.sh` no longer collects `.github/prompts/`
+  into its drift list.
+- `.vscode/settings.json` drops the two Copilot Chat settings:
+  `chat.promptFilesLocations` and
+  `github.copilot.chat.codeGeneration.instructions`. The file is deleted when
+  nothing else is left in it.
+- `skills/improve-skill` no longer says that editing a runbook changes its
+  generated Copilot adapter, and a changelog fragment records that.
+
+## How to verify
+
+<!-- Filled in by whoever delivers the item. -->
+
+## Technical Notes
+
+Where the code sits on 2026-10-28:
+
+- `scripts/generate-adapters.sh`: the prompt block from 167 (the
+  `PROMPTS_DIR` loop through 192).
+- `scripts/validate-ai-instructions.sh`: the `find … .github/prompts` loop at
+  18–20.
+- `.vscode/settings.json`: both keys exist only for Copilot Chat
+  (`chat.promptFilesLocations` lists `.github/prompts` and `skills/*`). The
+  sandbox write-protects `.vscode/`, so this edit runs with the sandbox bypass or
+  by hand. `.vscode/tasks.json` is a generated file and stays.
+- `skills/improve-skill/SKILL.md`: line 64. Line 117 is slice 3.
+
+The validator's drift list is built from the files on disk before
+`generate-adapters.sh` runs, and `git diff --quiet` skips untracked files. So
+deleting the folder while the generator still writes it passes the pre-commit
+hook and leaves untracked prompt files behind. The `git status` criterion is the
+check that fails without this change.
+
+`.github/` holds nothing else once slice 1 has deleted
+`.github/copilot-instructions.md`, so the directory disappears.
+
+Changelog section: `changed`, e.g. `changelog.d/changed.copilot-prompt-files.md`.
+The skill body changes, its description does not, so the routing-eval
+pre-flight does not apply.
+
+Add this MR to rank 7's row in the Delivery Status table of the audit, in the
+same MR.
+
+## Out of Scope
+
+- Anything slice 1 or slice 3 covers.
+- The `commands/` runbooks themselves (F3 of the October 2026 audit).
+
+## Related
+
+Depends on: chore-retire-copilot-adapters-1-stop-emitting.md
+
+- [chore-retire-copilot-adapters-1-stop-emitting.md](chore-retire-copilot-adapters-1-stop-emitting.md)
+- [chore-retire-copilot-adapters-3-wording.md](chore-retire-copilot-adapters-3-wording.md)
+- [../../scripts/generate-adapters.sh](../../scripts/generate-adapters.sh)
+- [../../scripts/validate-ai-instructions.sh](../../scripts/validate-ai-instructions.sh)

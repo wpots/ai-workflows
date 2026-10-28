@@ -8,7 +8,8 @@ was decided and the model it left behind.
 Phase 1 is decided:
 
 - **Supported tools:** Codex, Claude, and GitHub Copilot; Roo is dropped as a
-  sync target. Cursor was on this list until 2026-10-08 (see the amendment).
+  sync target. Cursor was on this list until 2026-10-08 and Copilot until
+  2026-10-28 (see the amendments).
 - **Claude skill status: first-class.** Skills are the canonical workflow
   surface on Claude and ship via the `greenberry` plugin from this repo's
   marketplace (`.claude-plugin/`, root-as-plugin). Commands stay as the
@@ -31,6 +32,18 @@ Phase 1 is decided:
   `.cursor/` files that synced projects already hold are left alone.
 - Nothing else in the 2026-07-27 record changes.
 
+## Amendment (2026-10-28)
+
+- **Copilot is out.** With Cursor gone, Claude and Codex are the supported
+  tools. Copilot's adapters (`.github/copilot-instructions.md`,
+  `.github/prompts/*.prompt.md`) get no further work. Sync stops generating
+  them in three slices keyed to roadmap item 7 of the
+  [October 2026 audit](audits/2026-10.md). `.github/` files that synced
+  projects already hold are left alone.
+- Principle 2 loses its reason: the runbooks in `commands/` were kept for
+  Copilot. They stay as the fallback for tools without skills until F3 of that
+  audit decides whether they stay at all.
+
 ## Goal
 
 Move `ai-workflows` toward a clearer skills-first model for repeatable workflows while keeping:
@@ -49,14 +62,14 @@ Use this target model:
 | --- | --- |
 | `rules/` | durable coding standards and policy |
 | `skills/` | repeatable multi-step workflows for skill-aware tools |
-| `commands/` | Copilot-friendly runbooks and fallback dispatch |
+| `commands/` | fallback runbooks for tools without skills; F3 decides whether they stay |
 | `templates/*` and adapters | always-on routing, precedence, and local usage guidance |
 
 Tool support target:
 
 | Tool | Always-on entry point | Workflow strategy |
 | --- | --- | --- |
-| GitHub Copilot | `.github/copilot-instructions.md` | command/runbook-first, no skills dependency |
+| GitHub Copilot | none | not supported (2026-10-28); sync generates its adapters until the retirement lands |
 | Cursor | none | not supported (2026-10-08); sync stopped generating its adapters (2026-10-13) |
 | Codex | `AGENTS.md` | skill-first where possible, commands as fallback |
 | Claude | `CLAUDE.md` plus global/project rules | skill-first via the `greenberry` plugin, commands as fallback (decided 2026-07-27) |
@@ -65,8 +78,9 @@ Tool support target:
 
 1. Do not replace rules with skills.
    Rules are reference policy. Skills should load rules when relevant, not absorb them wholesale.
-2. Do not remove command runbooks for Copilot compatibility.
-   Copilot still needs direct, prompt-friendly runbooks.
+2. Keep the command runbooks as the fallback for tools without skills.
+   They were kept for Copilot until 2026-10-28; whether they stay is F3 of the
+   October 2026 audit.
 3. Prefer one canonical workflow source per workflow.
    If a skill becomes the canonical implementation, the command should become a compatibility wrapper or fallback summary rather than a second independently evolving workflow.
 4. Keep always-on instructions compact.
@@ -76,7 +90,7 @@ Tool support target:
 
 | Phase | Outcome | Where it landed |
 | --- | --- | --- |
-| 1. Decide the support matrix | decided 2026-07-27, amended 2026-10-08 | the decision record above; the matrix in [`AGENTS.md`](../AGENTS.md), [`README.md`](../README.md), [`FEATURES.md`](../FEATURES.md) and [`templates/project-ai-workflows.md`](../templates/project-ai-workflows.md) |
+| 1. Decide the support matrix | decided 2026-07-27, amended 2026-10-08 and 2026-10-28 | the decision record above; the matrix in [`AGENTS.md`](../AGENTS.md), [`README.md`](../README.md), [`FEATURES.md`](../FEATURES.md) and [`templates/project-ai-workflows.md`](../templates/project-ai-workflows.md) |
 | 2. Classify existing assets | done | [`workflow-canonical-sources.md`](workflow-canonical-sources.md) names one canonical source per workflow |
 | 3. Normalize skill-first workflows | done | skills are canonical and commands remain as fallback runbooks; the skill-mapping rows in `CLAUDE.md` name both |
 | 4. Tighten rule usage | standing practice | principles 1 and 4 above; it has no deliverable of its own |
@@ -88,7 +102,8 @@ For new work:
 
 - new policy -> add or update a rule file
 - new multi-step reusable workflow -> create a skill first
-- Copilot support for that workflow -> add a command/runbook wrapper
+- a fallback for tools without skills -> add a command/runbook wrapper, until
+  F3 is decided
 - always-on behavior -> keep it in adapters or compact shared fragments only if it is broadly universal
 
 This gives the repo a cleaner contract:

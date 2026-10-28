@@ -149,7 +149,11 @@ Read from `openai/codex` `main` at `6fbd7be`, and checked against the
   `watch-mrs` is built on `Monitor` and is the likeliest to need a Codex path
   of its own.
 - Today Codex gets the skills from `scripts/sync.sh` into
-  `~/.codex/skills/custom`, and `AGENTS.md` from project sync. If a Codex plugin
+  `~/.codex/skills/custom`, and `AGENTS.md` from project sync. Codex reads that
+  folder: the bundled `codex-cli 0.164.0-alpha.11.1` names three skill roots,
+  `codex-home-skills` (`$CODEX_HOME/skills`), `user-agent-skills`
+  (`~/.agents/skills`) and its system skills (strings in the binary,
+  2026-10-28, not a live run). If a Codex plugin
   ships, sync must stop copying skills for Codex, or the copies shadow the
   plugin — the same step the Claude migration took.
 - The only GitHub copy of this repo today is a personal mirror. If Codex needs a
@@ -204,7 +208,7 @@ that amendment or in a short appendix it links to.
 - Building the Codex plugin itself; that becomes follow-up items on go.
 - Rewriting skills to drop Claude Code-only tools.
 - A Codex counterpart of `claude plugin eval`.
-- Cursor (being retired) and Copilot.
+- Cursor (retired 2026-10-13) and Copilot (out since 2026-10-28).
 - An organisation-wide Codex rollout.
 
 ## Related
@@ -216,9 +220,10 @@ that amendment or in a short appendix it links to.
   [../keep-current.md](../keep-current.md) change only on a go
 - [../org-managed-plugin-settings.md](../org-managed-plugin-settings.md) — the
   Claude counterpart for team-wide marketplace registration
-- [chore-retire-cursor-adapters-1-stop-emitting.md](chore-retire-cursor-adapters-1-stop-emitting.md)
-  — slice 1 of the Cursor retirement; it also edits `scripts/sync.sh`
-- [feat-skill-eval-harness.md](feat-skill-eval-harness.md)
+- [chore-retire-copilot-adapters-1-stop-emitting.md](chore-retire-copilot-adapters-1-stop-emitting.md)
+  — slice 1 of the Copilot retirement; it also edits `scripts/sync.sh`
+- [../../evals/README.md](../../evals/README.md) — the `claude plugin eval`
+  setup a Codex counterpart would mirror
 - OpenAI, "Package your plugin": <https://developers.openai.com/codex/plugins/build>
 - OpenAI, Codex hooks: <https://learn.chatgpt.com/docs/hooks>
 - `openai/codex` source read for the hook notes:
