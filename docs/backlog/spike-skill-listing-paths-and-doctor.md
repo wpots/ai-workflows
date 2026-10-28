@@ -283,6 +283,7 @@ the sandbox blocks that host.
 ## Related
 
 - [../audits/2026-10.md](../audits/2026-10.md), rank 8
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/304
 - [../../skills/payload-jobs/SKILL.md](../../skills/payload-jobs/SKILL.md)
 - [../../skills/migration-check/SKILL.md](../../skills/migration-check/SKILL.md)
 - [../../skills/datocms-migration/SKILL.md](../../skills/datocms-migration/SKILL.md)
