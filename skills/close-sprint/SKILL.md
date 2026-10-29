@@ -116,7 +116,9 @@ Phase 1**, not at the first write, after the analysis is already done:
 A changelog at `docs/sprint-<N>-changelog.md` following the "Changelog
 template" section of the runbook, a gaps document at `docs/sprint-<N>-gaps.md`
 (including the Phase 8 stale-branch and worktree overview), delivered BLIs
-relocated to `docs/sprint-<N>/` with updated status and authors, the sprint's
+filed in `docs/sprint-<N>/` with updated status and authors (most already
+moved there by the commit that set them `done`; the close moves the rest and
+removes the planning `.gitkeep`), the sprint's
 ephemeral working documents removed and listed under the changelog's
 `## Archief`, the sprint demo flattened into `docs/sprint-<N>/demo.md` when a
 demo folder exists, and a list of spillover items prepared for the Phase 7

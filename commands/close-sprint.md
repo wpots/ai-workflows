@@ -134,8 +134,9 @@ linked issues.
 
 For each ticket:
 
-1. Locate the BLI: `docs/backlog/<TICKET>-*.md` (also check `docs/refine/`,
-   `docs/plans/`, `docs/specs/`).
+1. Locate the BLI: `docs/sprint-<N>/<TICKET>-*.md`, where its `done` commit
+   moved it, or `docs/backlog/<TICKET>-*.md` (also check `docs/refine/`,
+   `docs/plans/`, `docs/specs/`, and earlier `docs/sprint-*/` folders).
 2. Check commits on the main integration branch:
    ```bash
    git log --all -E --grep="<TICKET>([^0-9]|$)" --format="%h %s %an <%ae>"
@@ -233,7 +234,12 @@ the sprint being closed. As each item is resolved, remove it:
   branch) and concrete follow-up actions (a tracker status to update, a
   follow-up subticket to create, a doc/intent mismatch to confirm).
 
-## Phase 5 — Move delivered BLIs into the sprint folder
+## Phase 5 — File delivered BLIs in the sprint folder
+
+Most delivered BLIs are already in `docs/sprint-<N>/`: the commit that set
+them `done` moved them there (`rules/backlog.md` § Done Items Leave the
+Backlog). This phase files the rest, moves back what does not belong, and
+stamps every delivered BLI.
 
 Before the first move, snapshot the tree for the link sweep below:
 `git archive --format=tar -o "$TMPDIR/pre-close.tar" HEAD`, extracted into a
@@ -241,8 +247,15 @@ scratch folder.
 
 For each ticket classified `delivered`:
 
-1. `git mv docs/backlog/<TICKET>-*.md docs/sprint-<N>/<TICKET>-*.md`
-   (create `docs/sprint-<N>/` if missing).
+1. Make sure each of its BLIs sits in `docs/sprint-<N>/` (create the folder if
+   missing):
+   - already there → nothing to move;
+   - still in `docs/backlog/` (a `done` set by hand, a post-merge check that
+     closed later, an item from before the rule) →
+     `git mv docs/backlog/<TICKET>-*.md docs/sprint-<N>/<TICKET>-*.md`;
+   - in an earlier sprint's folder whose changelog does not list it (the
+     branch moved it there, and the MR merged after that sprint closed) →
+     `git mv` it from that folder into `docs/sprint-<N>/`.
 2. Update the BLI:
    - `## Status` → `Delivered in Sprint <N>.` When the old status carried
      evidence after `done` (`done — merged … as <sha> (MR !N); …`), keep that
@@ -275,7 +288,11 @@ or fixture that names a moved BLI's path is code: list it under Actions in the
 gaps document for its own MR.
 
 Spillover and partial BLIs stay in `docs/backlog/` or `docs/refine/` — do not
-move them.
+move them. A `done` slice of a `partial` ticket stays in `docs/sprint-<N>/`
+with its `done` status; the gaps document names the slices still open. A BLI in
+`docs/sprint-<N>/` that is not `done` on the integration branch (moved by hand,
+or reopened) goes back with `git mv` to `docs/backlog/`, and into the gaps
+document as spillover; its links get the same sweep.
 
 ## Phase 5b — Clear out the sprint's working documents
 
@@ -294,7 +311,8 @@ planning has run, and working documents have no such reader.
      (written by `commands/refinement.md`);
    - a project-local sprint folder under any spelling — `docs/sprint<N>/`,
      `docs/sprint_<N>/`, or `docs/sprint-<N>/` itself — and every file in it
-     that is not a delivered BLI or the Phase 5c demo record;
+     that is not a delivered BLI, a `done` slice or the Phase 5c demo record,
+     including the `.gitkeep` that `commands/sprint-planning.md` put there;
    - a prompt or loop file that only exists to drive the sprint's tracker.
 
    Ask when it is unclear which sprint a file belongs to. Out of scope:

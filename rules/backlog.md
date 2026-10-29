@@ -27,8 +27,8 @@ split trigger may not be marked `ready`.
 
 Every slice repeats the ticket key, states its position in the `Slice` field,
 and depends on the one before it. The ticket is delivered when **every** item
-carrying its key is `done` on the default branch; there is no separate progress
-field to maintain.
+carrying its key is `done` on the default branch, in `docs/backlog/` or in a
+sprint folder; there is no separate progress field to maintain.
 
 ## Output Location
 
@@ -42,13 +42,39 @@ All backlog items MUST be written to the project's `docs/backlog/` folder.
 
 ```
 docs/
-└── backlog/
+├── backlog/                       # open work: draft, ready, in-progress
+│   ├── PROJ-103-bug-date-picker-timezone.md
+│   ├── PROJ-104-story-onboarding-flow.md
+│   └── ...
+└── sprint-<N>/                    # the running sprint: items done in it
     ├── PROJ-101-feat-user-authentication.md
-    ├── PROJ-102-feat-diary-entry-crud.md
-    ├── PROJ-103-bug-date-picker-timezone.md
-    ├── PROJ-104-story-onboarding-flow.md
-    └── ...
+    └── PROJ-102-feat-diary-entry-crud.md
 ```
+
+## Done Items Leave the Backlog
+
+`docs/backlog/` holds open work only, so it shrinks while the sprint runs and
+the sprint folder shows what is done. `skills/sprint-planning` creates
+`docs/sprint-<N>/` when it plans the sprint; the running sprint's folder is the
+highest one without a `docs/sprint-<N>-changelog.md` beside it.
+
+- **The `done` commit moves the item.** The commit that sets `Status` to `done`
+  also runs `git mv docs/backlog/<file> docs/sprint-<N>/<file>`, on the same
+  branch, so the merge that delivers the item also files it.
+- **The same commit fixes the links the move breaks**: `../backlog/<file>` in
+  other docs (specs, ADRs, the backlog index) becomes `../sprint-<N>/<file>`,
+  sibling links from items that stay become `../sprint-<N>/<file>`, and the
+  moved item's own sibling links become `../backlog/<file>`. Links to
+  `../specs/` and other `docs/` folders keep working, since both folders sit at
+  the same depth. `rg -n "<file>" docs/` finds the links in.
+- **Only `done` moves.** An item that stays `in-progress` with a post-merge
+  check left stays in `docs/backlog/` until that check flips it.
+- **No running sprint folder** (support mode, a sprint that was never
+  planned): the item stays in `docs/backlog/`, and `skills/close-sprint`
+  archives it at the close.
+- `skills/close-sprint` is the safety net: it moves a delivered item that is
+  still in `docs/backlog/`, and moves an item that sits in the folder without
+  being delivered back.
 
 ## File Naming
 
@@ -211,7 +237,8 @@ Next step: developer asks the PO in the OBA-150 ticket
 
 - When updating a backlog item, edit the existing file — do not create duplicates.
 - Update the `Status` field when work begins or completes. Remove a
-  `Blocked on:` line once its point is resolved.
+  `Blocked on:` line once its point is resolved. Setting `done` moves the item
+  into the sprint folder (see "Done Items Leave the Backlog").
 - Append to `Technical Notes` rather than overwriting when adding context.
 
 ## Recent Rules Updates

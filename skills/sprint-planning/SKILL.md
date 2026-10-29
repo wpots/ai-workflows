@@ -54,7 +54,10 @@ retrospective is the `close-sprint` flow; its changelog and gaps document are
 - Never run `git commit` — the user commits themselves.
 - Write docs on the `development` branch (the main integration branch), never on
   a feature branch. Switch before writing; if the tree is dirty, stop and ask.
-- BLIs stay in `docs/backlog/` — `close-sprint` relocates them only on delivery.
+- Planned BLIs stay in `docs/backlog/`. The skill creates the sprint folder
+  `docs/sprint-<N>/` (with a `.gitkeep`); a BLI moves into it in the commit
+  that sets it to `done` (`rules/backlog.md`), and `close-sprint` moves the
+  stragglers.
 - Stop and ask when a ticket is ambiguous or empty; do not invent scope.
 
 ## Output
@@ -63,6 +66,8 @@ Written to `docs/sprint-<N>-planning.md`, plus:
 
 - BLIs created for any planned ticket missing a doc.
 - Planned BLIs marked `## Status` → `Planned for Sprint <N>.`
+- The sprint folder `docs/sprint-<N>/.gitkeep`, where done BLIs land during
+  the sprint.
 - `docs/sprint-<N>-refinement.md` when any ticket in the sprint (sprint-wide,
   not only the user's) has no story points in the tracker: a table of those
   tickets (`Ticket | Summary | Status | Proposed SP | Rationale`) plus a short

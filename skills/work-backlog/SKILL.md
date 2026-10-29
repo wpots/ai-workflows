@@ -107,9 +107,9 @@ Parse every `docs/backlog/*.md`:
   `done`, or `in-progress` with its MR (linked under `## Related`) merged and
   only a post-merge check left — the code a dependent builds on is there
   either way. A dependency whose file is gone from `docs/backlog/` on
-  `origin/main` was archived as delivered — moved into a sprint or support
-  folder by `skills/close-sprint`, or removed by a release cut — and is
-  satisfied too; `git log origin/main -1 --diff-filter=DR --format='%h %s' --
+  `origin/main` was archived as delivered — moved into the sprint folder by
+  its own `done` commit (step 8), moved into a sprint or support folder by
+  `skills/close-sprint`, or removed by a release cut — and is satisfied too; `git log origin/main -1 --diff-filter=DR --format='%h %s' --
   docs/backlog/<file>` names the commit that took it. No such commit means a
   broken link: report it as unmet. Unlinked prose like "rolling" means:
   eligible only when no other item is.
@@ -225,6 +225,12 @@ Then on the branch, set the final `Status` and commit:
   The item goes to `done` when the check is ticked, not when the MR merges. A
   criterion you leave unticked in the MR description is such a check: the item
   is not `done`.
+
+A `done` item leaves the backlog in the same commit: `git mv` it into the
+running sprint's folder and fix the links the move breaks (`rules/backlog.md`
+§ Done Items Leave the Backlog). The running sprint's folder is the highest
+`docs/sprint-<N>/` without a `docs/sprint-<N>-changelog.md`; without one (a
+support-mode project, a sprint nobody planned) the item stays where it is.
 
 After step 9 produces the MR URL, append it to the BLI's `## Related` section,
 commit (`docs: link MR for <bli-name>`), and push — the MR picks up the new
