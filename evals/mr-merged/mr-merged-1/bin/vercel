@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Fake vercel for mr-merged-1: the refused hook left no deployment for the
+# squash commit.
+set -u
+FIX=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+. "$FIX/env"
+printf 'vercel %s\n' "$*" >> "$FIX/calls.log"
+
+case "${1:-}" in
+  whoami) echo "demo-shop" ;;
+  ls|list)
+    echo "Vercel CLI 48.2.0"
+    echo "> No deployments found matching gitlabCommitSha=$SQUASH_SHA"
+    ;;
+  *)
+    echo "vercel: fixture has no answer for: $*" >&2
+    exit 1
+    ;;
+esac

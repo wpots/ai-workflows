@@ -17,7 +17,8 @@ evals/<skill>/<skill>-<id>/
     └── skill-not-fired.md  # routing should-not-fire cases only (see below)
 ```
 
-Every case is tagged with its skill and with `runnable` or `needs-scaffold`.
+Every case is tagged with its skill and with `runnable`, `scaffold` or
+`needs-scaffold`.
 To add a case, copy a neighbouring directory and change the prompt and the
 assertions; `skills/improve-skill` does this when a failure earns a regression
 case.
@@ -158,12 +159,15 @@ hooks or other plugins.
 
 - **runnable** — the prompt carries every fact it needs and asks for an answer
   rather than an action in a repository.
+- **scaffold** — the case directory holds a `scaffold.sh`, named in
+  `case.yaml`, that builds the repository and puts fake CLIs on the agent's
+  PATH. See [Scaffold cases](#scaffold-cases).
 - **needs-scaffold** — the prompt describes repository, git or CLI state ("the
   context the agent can discover") that the empty workspace does not have, so a
   run would measure a guess about files it cannot read. The cases are converted
-  from the earlier `evals.json` files without changes so nothing is lost; making
-  them run needs a `scaffold_script` fixture per case (`case.yaml`, run with
-  `--scaffold`).
+  from the earlier `evals.json` files without changes so nothing is lost. Each
+  one becomes a scaffold case once its fixture fails on the skill without the
+  fix the case guards; a case the base passes is dropped instead.
 
 | Skill | Case | What the prompt assumes |
 | --- | --- | --- |
@@ -184,9 +188,7 @@ hooks or other plugins.
 | `dependency-hotfix` | `dependency-hotfix-2` | names a repository, files or CLI state that the empty workspace lacks |
 | `dependency-hotfix` | `dependency-hotfix-3` | hotfix MR !88 merged and deployed; the push back-merge into acceptance succeeded; git merge-tree for development reports conflicts in… |
 | `dependency-hotfix` | `dependency-hotfix-4` | today is in October 2026; Jira project RFW has RFW-319 'Refugeework onderhoud Q4-2026', type Task, label maintenance:periodical, status Open; RFW… |
-| `mr-merged` | `mr-merged-1` | the target branch's pipeline for the squash commit has a deploy job that POSTs to a Vercel deploy hook; the job passed, but its log shows the hook… |
 | `mr-merged` | `mr-merged-2` | the target branch's pipeline for the merge commit is still running its test stage after fifteen minutes; the deploy job has not started. |
-| `mr-merged` | `mr-merged-3` | the shared checkout is on another session's branch, `feat/other-work`; the local source branch has no upstream and its head equals the merged MR's… |
 | `npm-maintenance` | `npm-maintenance-1` | `git log -- package.json` shows a maintenance commit that bumped next to 16.3.1, a `Revert "…"` of it the next morning, and a re-applied maintenance… |
 | `payload-jobs` | `payload-jobs-2` | names a repository, files or CLI state that the empty workspace lacks |
 | `release` | `release-1` | names a repository, files or CLI state that the empty workspace lacks |
@@ -206,3 +208,33 @@ hooks or other plugins.
 | `sprint-demo` | `sprint-demo-7` | the client's previous deck is in Downloads; the system python3 has no python-pptx; the session has a scratchpad directory for temporary files. |
 | `sprint-demo` | `sprint-demo-8` | the intake named the client's Drive folder `Klant/Sprintdemo's`; `~/Library/CloudStorage/GoogleDrive-<account>/Shared drives/Klant/Sprintdemo's/`… |
 | `sprint-demo` | `sprint-demo-9` | the intake answer was 'op Google Drive als dat lukt, anders lokaal'; `~/Library/CloudStorage/` holds no Google Drive mount; no Drive connector is… |
+
+### Scaffold cases
+
+`mr-merged-1` is the first one: its `scaffold.sh` builds a repository with a
+squash-merged MR, and `bin/` holds fake `glab`, `jira` and `vercel` that answer
+from the SHAs the script writes. Add `--scaffold --allow-tools Bash` to the
+targeted command:
+
+```bash
+claude plugin eval . --case mr-merged-1 --runs 1 --ablation none --scaffold --allow-tools Bash --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 1
+```
+
+Measured on 2026-10-28 and 2026-10-29, Claude Code 2.1.296:
+
+- `--scaffold` runs the script as you, outside the sandbox. Pass it only on
+  this repo's cases.
+- On macOS, install Homebrew git (`brew install git`). Without it, every git
+  call in the run failed with `Failed to locate 'git'`: the eval sandbox blocks
+  what Apple's `/usr/bin/git` launcher needs. With it, git works, although
+  xcrun still prints cache-file warnings into each result.
+- The scaffold reaches the agent's shell only through the run's temporary
+  `HOME`: it appends the `PATH` export for its fakes to `$HOME/.zshenv`. zsh
+  does not read `.zshrc` there. The fakes live under `.git/fixture/`, so
+  `git status` stays clean.
+- An assertion about what the run did, such as a command it ran or left alone,
+  needs `focus: trace` on its `llm` grader. With the default `last_message`,
+  two such assertions failed on a run that ran exactly the right commands,
+  because its recap paraphrased them.
+- A run with Bash costs more: about $0.70 per `mr-merged-1` run, judge
+  included.
