@@ -133,6 +133,16 @@ the recap that the connector was used. Report the ticket URL in the recap.
   `skills/upstream-to-unicore` Step 1 says where to read them. When any match,
   name those files in the recap and propose `skills/upstream-to-unicore` as a
   harvest of this MR. Propose only; the harvest runs on the user's go.
+- **Security fix that stopped short of production.** When the MR merged into a
+  branch other than production (`main`, or `master` when there is none), its
+  title, description or ticket names an advisory (`GHSA-`, `CVE-`, "advisory",
+  "security"), and its merge or squash commit is not an ancestor of
+  `origin/<production>`, the fix still has to ship. Propose a board follow-up
+  `<PROJECT> release !<iid>: <what> naar productie` as
+  `references/mr-board-followups.md` describes, finding it first so a second
+  run adds nothing. Propose only, together with the cleanup approval below;
+  `skills/release` closes it. A hotfix MR that targets production is
+  `skills/dependency-hotfix`'s and needs nothing here.
 - Ask once for cleanup approval, then treat the worktree and source branch as
   one batch. A cleanup is incomplete when the worktree is gone but the stale
   local branch remains:
@@ -185,7 +195,9 @@ Report in one block: MR + merge commit, the ticket's standing (`3/3 items merged
 <item>`), comment posted (URL) / drafted-undelivered / deferred to the last
 slice, the deploy read-back (queued / refused, with the response / no deploy
 job), ticket status as read back, template-owned files touched (with the
-upstream proposal), branch/worktree cleanup, anything skipped and why.
+upstream proposal), a board follow-up for a security fix that is not on
+production yet (proposed, added, or "mr-board not available"),
+branch/worktree cleanup, anything skipped and why.
 
 ## Constraints
 
