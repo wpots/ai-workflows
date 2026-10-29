@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+in-progress
 
 Go to drop Copilot, and the cut, given by the maintainer on 2026-10-28. Waits
 for slice 1 to merge: both edit `scripts/validate-ai-instructions.sh`.
