@@ -26,6 +26,7 @@ In practice, treat this directory as a topic-based rule library:
 | `adr.md`                                | Architecture Decision Records: when to write one, `docs/adr/` layout, statuses, MADR-lite template |
 | `backlog.md`                            | User stories, backlog items, feature/bug file structure             |
 | `mr-sizing.md`                          | MR size budget, sliceability test, split triggers, ticket-to-item mapping |
+| `ticket-flow.md`                        | Sprint ticket flow: one assignee, team tests, handoff comments, moving is handwork, three-layer Definition of Done |
 | `git-flow.md`                           | Branch/MR flow, squash-and-ff merge settings, MR title as history, provenance labels |
 | `content-blocks.md`                     | CMS-backed block module structure, transforms, registry, tests      |
 | `payload.md`                            | Payload schemas, generated types, hooks, admin integrations, jobs queue <!-- payload-only --> |
@@ -62,7 +63,9 @@ In practice, treat this directory as a topic-based rule library:
     creating `docs/adr/` or `docs/architecture.md`, or when a change
     contradicts a recorded decision.
 16. Load the appropriate stack file based on detected stack (see below).
-17. Load `payload.md` when working on Payload schemas, hooks, generated types, jobs, or admin integrations. <!-- payload-only -->
+17. Load `ticket-flow.md` before commenting on a tracker ticket, reading its
+    status back, or calling it done (post-merge, test, acceptance, release).
+18. Load `payload.md` when working on Payload schemas, hooks, generated types, jobs, or admin integrations. <!-- payload-only -->
 
 ## Stack Detection
 

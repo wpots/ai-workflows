@@ -344,7 +344,7 @@ Three bounded loops, each with the `Monitor` tool, polling `glab api` every
 2. **Production pipeline** of the squash commit until it is terminal. Read the
    deploy job's log, not only its status, then confirm on the platform the way
    the runbook says (a hook job can be green while the host refused the
-   build — see Step 5 of `skills/mr-merged/SKILL.md`). The platform check is
+   build — see Step 3 of `skills/mr-merged/SKILL.md`). The platform check is
    a bounded until-loop in Bash `run_in_background`, not a Monitor: platform
    CLIs usually need the sandbox off, which a Monitor cannot do.
 3. **Back-merge pipelines** (Step 8), lighter: status only.

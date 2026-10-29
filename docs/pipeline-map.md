@@ -275,10 +275,11 @@ can sit unnoticed. See [Gaps](#gaps).
 | `skills/release-notes` | skill | `/release-notes` · `"release notes"`, `"wat is er live"` · named in the wrap-up of `skills/close-sprint` and `skills/sprint-demo` | Notes the customer reads, for a release range or a closed sprint: sources by trust, security phrased as outcome, an ancestor check against the production ref before anything is called live, `docs/releases/<key>.md` plus a paste-ready block — draft only, never posted |
 | `skills/release` | skill | `/release` · `"release starten"`, `"naar productie"`, `"release afronden"` · after the acceptance state is accepted, or after the fact for a tag's tickets | The release around the project's own runbook: recipients and Slack asked up front, a start-mail draft with a two-hour indication, the runbook's promotion, tag and back-sync, notes via `skills/release-notes`, a live-mail reply draft with the overview, shipped tickets classified from the range and given a version (label fallback without Jira rights), their status read back and moved only on the user's go per ticket, then the close-sprint check and stale-branch cleanup — mail drafted, never sent. An unversioned project gets a one-time proposal to introduce versions, and the decision lands in `CONVENTIONS.md` |
 | `commands/close-sprint.md`, `commands/compact-sprint.md`, `commands/sprint-demo.md`, `commands/release-notes.md` | commands | trigger phrase → command | Fallback runbooks |
-| `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/` and the sprint folders), "How to test this" comment for the PO covering the whole capability (posted after approval, deferred while slices remain), ticket status read back (Jira's automation moves it), branch/worktree cleanup |
+| `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/` and the sprint folders), deploy to development read back, "How to test this" comment with a test checklist for the team covering the whole capability (posted after approval, held while the deploy is unconfirmed, deferred while slices remain), ticket status read back and the assignee's manual move named with the ticket link, branch/worktree cleanup |
+| `rules/ticket-flow.md` | rule | loaded — commenting on a ticket, reading its status back, calling it done | The sprint flow between people: one assignee who keeps the ticket, the team tests, handoff comments, moving is handwork, and the three-layer Definition of Done with the test checklist |
 | `skills/dependency-hotfix` | skill | `/dependency-hotfix` · `"pak de critical op"`, `"critical hotfix"` — after the weekly dependency-scanner report flags a critical on production | The out-of-band path to production: minimal bump on a hotfix branch off production, MR with GitLab auto-merge, deploy read-back, then production back-merged into acceptance and development (pushes when `squash_option` is `always`, so the ancestry survives), a Slack thread, and cleanup — one go, resumable |
 
-**Gate — Deploy health: out of scope.** `skills/mr-merged` hands the PO a way to test
+**Gate — Deploy health: out of scope.** `skills/mr-merged` hands the team a way to test
 what shipped, and `skills/release-notes` tells the customer what is live where — after
 checking each item against the production ref, not by trusting the sprint changelog.
 Nothing verifies the deploy itself, and the intended ceiling is a post-deploy smoke
@@ -405,9 +406,10 @@ Live context — the Jira box in the diagram — is read at run time through the
 CLI (`skills/service-cli`), the connector only when the CLI is missing. Every
 tracker-reading skill treats it as **read-only**; only `skills/jira-ticket` and
 `skills/mr-merged` write, and only after explicit confirmation — the second
-sanctioned write is the mr-merged "how to test this" comment for the product owner.
-No skill changes a ticket's status on its own: Jira's automation moves tickets
-from the pipeline, and a transition runs only on the user's go per ticket
+sanctioned write is the mr-merged "how to test this" comment for the team that tests.
+No skill changes a ticket's status on its own: moving is handwork for the assignee,
+or Jira's automation on a pipeline event, and a skill names the move with the ticket
+link (`rules/ticket-flow.md`). A transition runs only on the user's go per ticket
 (`skills/service-cli` § Ticket status), which the ticket-transition hook asks for.
 
 ## Coverage against the pipeline spec

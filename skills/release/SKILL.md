@@ -192,7 +192,7 @@ No go, no writes.
 
 Follow the runbook's release steps in order — cut, rehearsal deploy,
 promotion, deploy read-back, tag and Release, back-sync. Where it is silent
-about the deploy read-back, use Step 5 of `skills/mr-merged/SKILL.md`: read
+about the deploy read-back, use Step 3 of `skills/mr-merged/SKILL.md`: read
 the deploy job's log and the platform's own activity, not only a green job.
 
 - Note the time production went live, in the customer's timezone. The live
