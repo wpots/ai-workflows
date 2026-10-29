@@ -97,5 +97,6 @@ Found while delivering:
 
 ## Related
 
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/324
 - [evals/README.md](../../evals/README.md), "Scaffold cases"
 - https://code.claude.com/docs/en/plugin-evals
