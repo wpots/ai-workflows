@@ -38,7 +38,7 @@ recap when the capability will obviously need several items — that is the
 handover, not a warning.
 
 The ticket is delivered when every local item carrying its key is done on the
-default branch; `skills/mr-merged` posts the product-owner test instructions at
+default branch; `skills/mr-merged` posts the test instructions for the team at
 that moment, not per MR.
 
 ## Tracker write — safety

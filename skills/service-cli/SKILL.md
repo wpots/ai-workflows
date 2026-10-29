@@ -86,13 +86,16 @@ promise not to make. `jira issue move` is never allowlisted (§ Ticket status).
 
 ## Ticket status
 
-A status change is a human decision. Jira's own automation moves tickets from
-the pipeline, so a skill that moves one as well either repeats that move or
-overrides the status the automation chose.
+Moving a ticket is handwork: the assignee drags it, and on some projects Jira's
+own automation moves it on a pipeline event, such as a merge
+(`rules/ticket-flow.md`). A skill that moves one as well either repeats that
+move or overrides the status the person or the automation chose.
 
-- No skill transitions a ticket as part of its plan, a batch approval for other
-  writes, or a recap proposal. It reads the status back and reports the tickets
-  the automation did not move, with their current status.
+- No skill transitions a ticket, or offers to, as part of its plan, a batch
+  approval for other writes, or a recap proposal. It reads the status back, and
+  for each ticket that is not where the flow puts it, the recap names the move
+  as the assignee's action: key, current and target status, and the ticket
+  link.
 - `jira issue move` (or the connector's `transitionJiraIssue`) runs only when
   the user asks for it in this session and gives a go on the exact list: key,
   current status and target status per ticket.
