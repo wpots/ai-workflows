@@ -6,7 +6,7 @@ draft
 
 ## Slice
 
-3/4 — a skill that reads the latest comment and drafts the assignee's next one
+4/5 — a skill that reads the latest comment and drafts the assignee's next one
 
 ## Priority
 
@@ -54,11 +54,11 @@ the project's board, matched by place in the flow. Update the Feedback triage ga
 ## Out of Scope
 
 - Fixing findings (that is `work-backlog` on the new item).
-- The release gate (slice 4).
+- The release gate (slice 5).
 
 ## Related
 
-- Depends on: feat-ticket-flow-2-story-format-and-ticket-ready.md
+- Depends on: feat-ticket-flow-1-test-handoff.md
 - [../../rules/ticket-flow.md](../../rules/ticket-flow.md)
 - [../../skills/jira-ticket/SKILL.md](../../skills/jira-ticket/SKILL.md)
 - [../../skills/backlog/SKILL.md](../../skills/backlog/SKILL.md)

@@ -6,7 +6,7 @@ draft
 
 ## Slice
 
-4/4 — the release checks product-owner acceptance; the sprint close counts the flow
+5/5 — the release checks product-owner acceptance; the sprint close counts the flow
 
 ## Priority
 
@@ -39,7 +39,7 @@ want the sprint close to show where tickets got stuck.
 
 ## Technical Notes
 
-The approval check reuses the classification from `ticket-handoff` (slice 3). Status
+The approval check reuses the classification from `ticket-handoff` (slice 4). Status
 history comes from `jira issue view --raw` changelog entries.
 
 ## Out of Scope
@@ -49,7 +49,7 @@ history comes from `jira issue view --raw` changelog entries.
 
 ## Related
 
-- Depends on: feat-ticket-flow-3-ticket-handoff-skill.md
+- Depends on: feat-ticket-flow-4-ticket-handoff-skill.md
 - [../../skills/release/SKILL.md](../../skills/release/SKILL.md)
 - [../../skills/close-sprint/SKILL.md](../../skills/close-sprint/SKILL.md)
 - [../../rules/ticket-flow.md](../../rules/ticket-flow.md)
