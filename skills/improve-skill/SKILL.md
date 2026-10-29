@@ -59,13 +59,9 @@ If a run had zero friction, skip silently — do not touch the skill.
    `description` if the skill's scope grew. First read the existing pitfalls
    in the area you edit. When a pitfall's stated condition visibly no longer
    holds, remove that pitfall in the same edit, and name the removal in the
-   report. If the fallback command runbook
-   exists and now materially diverges, give it a compact version of the same
-   change. Editing `commands/<name>.md` changes its generated Copilot adapter
-   `.github/prompts/<name>.prompt.md`: the pre-commit hook regenerates it and
-   blocks the commit until the regenerated file is staged — `git add -A` and
-   commit again; never hand-edit the adapter. The edit lands in `ai-workflows`
-   through a GitLab MR, never on `main`: read
+   report. If the fallback command runbook exists and now materially diverges,
+   give it a compact version of the same change. The edit lands in
+   `ai-workflows` through a GitLab MR, never on `main`: read
    `skills/upstream-rules/references/upstream-mr.md` before branching.
 5. **Add a compound artifact only when it can fail without the fix.** The
    prose edit is the default, and most learnings need nothing more:

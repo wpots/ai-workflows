@@ -73,8 +73,11 @@ Mentions on 2026-10-28, before slices 1 and 2:
 
 - Skills: line 14 of `close-sprint` and line 15 of `compact-sprint`,
   `refinement`, `release-notes`, `sprint-demo` and `sprint-planning`
-  ("Copilot follows the runbook directly"); `improve-skill` 117. Line 64 of
-  `improve-skill` is slice 2.
+  ("Copilot follows the runbook directly"); `improve-skill` 117 (113 after
+  slice 2). Line 64 of `improve-skill` is slice 2. `create-pr` 107 still lists
+  `.github/prompts/` among the synced workflow surfaces; sync stopped writing it
+  in slice 1, so it goes here too (its runbook twin waits for F3). No `copilot`
+  in that line, so the `rg` check below does not catch it.
 - `README.md` 3, 26 (stays), 41, 42; line 73 is slice 1.
 - `AGENTS.md` 16, 22, 32. Edit outside the shared blocks; the pre-commit hook
   regenerates those.

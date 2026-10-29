@@ -163,36 +163,6 @@ else
 fi
 rm -f "$TASKS_TMP"
 
-# ── Generate .github/prompts/*.prompt.md from commands ────────────────────────
-
-PROMPTS_DIR="$ROOT_DIR/.github/prompts"
-mkdir -p "$PROMPTS_DIR"
-
-echo "Generating Copilot prompt files..."
-
-for cmd_file in "$COMMANDS_DIR"/*.md; do
-  cmd_name="$(basename "$cmd_file" .md)"
-  heading="$(head -1 "$cmd_file" | sed 's/^# *//')"
-  prompt_file="$PROMPTS_DIR/${cmd_name}.prompt.md"
-
-  prompt_tmp="$(mktemp "${TMPDIR:-/tmp}/aiw-prompt.XXXXXX")"
-
-  {
-    printf -- '---\n'
-    printf 'name: %s\n' "$cmd_name"
-    printf 'description: "%s"\n' "$heading"
-    printf -- '---\n\n'
-    cat "$cmd_file"
-  } > "$prompt_tmp"
-
-  if cp "$prompt_tmp" "$prompt_file"; then
-    echo "  [ok] .github/prompts/${cmd_name}.prompt.md"
-  else
-    fail "Could not write .github/prompts/${cmd_name}.prompt.md"
-  fi
-  rm -f "$prompt_tmp"
-done
-
 # ── Verify referenced command files exist ────────────────────────────────────
 
 echo "Checking command files exist..."
