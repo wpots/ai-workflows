@@ -16,6 +16,81 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.16.0] - 2026-10-29
+
+### Added
+
+- `rules/ticket-flow.md`: the sprint ticket flow as one rule. A ticket has
+  one assignee who keeps it to Done, the team tests (no named tester), the
+  handoffs between In Progress, In Test, Acceptatie and Done go by comment,
+  moving a ticket is handwork for the assignee, and the Definition of Done has
+  three layers (dev, test, done) with the test checklist the test comment
+  carries. A project's own Definition of Done wins.
+  <!-- slack: Nieuwe rule voor de ticketflow: één assignee, het team test, verplaatsen is handwerk, DoD in drie lagen -->
+
+### Changed
+
+- This repo stops generating Copilot prompt files: `scripts/generate-adapters.sh`
+  no longer writes `.github/prompts/`, and the folder and the Copilot Chat
+  settings in `.vscode/settings.json` are gone. A change to a `commands/`
+  runbook no longer produces a second file to stage, so `improve-skill` and
+  `upstream-rules` drop the step that staged the regenerated prompt.
+  `upstream-rules` also stops treating `.github/prompts/` as a shared asset to
+  upstream.
+- `skills/dependency-hotfix`, `skills/mr-merged` and `skills/release` keep the
+  work that still has to ship after a merge visible on the maintainer's local
+  MR board, when `mr-board` is installed: the hotfix skill adds a back-merge
+  follow-up when it arms auto-merge and closes it once the ancestor checks of
+  Step 8 hold, `mr-merged` proposes a release follow-up for a security fix
+  that reached development but not production, and `release` closes it once
+  the tag ships the MR's commit. A follow-up is found by its title before it is
+  added, so a resumed run files nothing twice, and it is closed only after the
+  skill has read the fact back. Without `mr-board` each skill skips the board
+  and says so in its recap. The recipe lives in
+  `skills/mr-merged/references/mr-board-followups.md`.
+  <!-- slack: hotfix, mr-merged, release | Security-vervolgacties komen op het lokale MR-bord, sluiten na read-back -->
+- `mr-merged` writes the "How to test this" comment for the team that tests on
+  development instead of for the product owner, with the development URL and a
+  test checklist (acceptance criteria, Figma at desktop, tablet and mobile, the
+  browser matrix, WCAG 2.2 AA, copy, edge cases). The deploy read-back now
+  comes first, and the comment stays a draft while the deploy is unconfirmed.
+  After posting, the recap names the move the assignee still has to make, such
+  as `RFW-288: In Progress → In Test`, with the ticket link; the skill neither
+  makes nor offers it.
+  <!-- slack: Test-comment is nu voor het team, met checklist en dev-URL; de recap noemt de handmatige move met ticketlink -->
+- `service-cli` § Ticket status: a skill no longer offers a ticket move in its
+  recap; it names the move as the assignee's action, with the ticket link.
+- Project sync (`scripts/sync.sh --project`, also run by the SessionStart
+  freshness hook's fix step) and `setup-ai-workflows` leave Payload out of
+  projects that do not depend on `payload` or `@payloadcms/*`:
+  `rules/payload.md` is not synced and a copy an earlier sync left behind is
+  removed, and the template and `rules/rules.md` lines marked
+  `<!-- payload-only -->` are dropped from `AGENTS.md`, `AI-WORKFLOWS.md` and
+  `rules/rules.md`. Projects with Payload get the same files, with the marker
+  left in as an invisible HTML comment. In `rules/rules.md` the `payload.md`
+  loading trigger moves to the end of the list, so removing it leaves no gap in
+  the numbering.
+  <!-- slack: sync.sh | Projecten zonder Payload krijgen geen rules/payload.md en Payload-verwijzingen meer -->
+- `docs/backlog/` now holds open work only. `sprint-planning` creates the
+  sprint folder `docs/sprint-<N>/` up front, and the commit that sets a BLI to
+  `done` moves it there with `git mv` and fixes the links the move breaks
+  (`rules/backlog.md` § Done Items Leave the Backlog; `work-backlog` step 8
+  does it on the feature branch). `close-sprint` files the stragglers, moves a
+  BLI that is in the folder without being `done` back, and removes the
+  planning `.gitkeep`. `mr-merged`, `close-sprint` and `sprint-demo` look up
+  BLIs in the sprint folder too.
+  <!-- slack: rules/backlog.md | Een BLI verhuist bij done direct naar docs/sprint-<N>/, zodat de backlog tijdens de sprint krimpt -->
+
+### Fixed
+
+- The migration guard in the project settings template
+  (`templates/project-claude-settings.json`) no longer splits a command on a
+  `;`, `&` or `|` inside quotes. A search pattern such as
+  `rg "db:up|pnpm run migrate:fresh"` or a commit message that mentions a
+  migrate script was denied as if it ran one. Real runs, including chained,
+  multi-line and `bash -c` ones, are still denied.
+  <!-- slack: project settings | Migration guard blokkeert geen zoekopdracht of commit message meer die een migrate script noemt -->
+
 ## [2.15.0] - 2026-10-28
 
 ### Added
