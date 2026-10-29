@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 Flipped to ready 2026-10-29 by the maintainer after the ready check that split the
 old slice 2.
@@ -60,8 +60,11 @@ the dependencies in the same place on every ticket.
   "or: no UI" (criterion 2), the Placeholder paragraph keeps the headings empty
   (criterion 5), and the intro still lets a project's own Story template win
   (criterion 7).
-- Flag and mention: one write on a DEV test ticket after the maintainer's go; the
-  result decides between the step 5 commands and the handwork line in the recap.
+- Flag and mention, on a DEV test ticket (2026-10-30): `--custom flagged=Impediment`
+  set the flag (read back as option `Impediment`); `[~accountid:<id>]` in a comment
+  arrived as plain text, and clearing the flag with `flagged=` failed with
+  `Option value '' is not valid`. Step 5 keeps the flag; tagging the person is
+  handwork in the recap.
 
 ## Technical Notes
 

@@ -2,7 +2,7 @@
 tags: [jira-ticket, runnable]
 max_turns: 8
 allowed_tools: [Read, Glob, Grep, Skill]
-expected_outcome: "The response proposes one Jira Story, not yet created, whose body is at most 250 words with at most 8 one-sentence acceptance criteria at capability level. It has no Tech notes section and none of the backlog item's file paths, function names, library names or slicing; the one thing the product owner must decide stays as a one-line open question. It says the draft needs the user's go before anything is created."
+expected_outcome: "The response proposes one Jira Story, not yet created, whose body is at most 250 words with Description, Acceptance criteria, Visual design (the Figma frame) and Dependencies (the marketing copy), no user-story sentence, and at most 8 one-sentence acceptance criteria at capability level. It has no Tech notes section and none of the backlog item's file paths, function names, library names or slicing; the one thing the product owner must decide stays as a one-line open question. It asks which epic the story goes under without inventing a key, proposes flagging the story with a comment that gives that question as the reason and mentions the product owner, and says the draft needs the user's go before anything is created."
 ---
 
 File a Jira story for this backlog item. Our tickets are in English. There is no
