@@ -189,8 +189,11 @@ repo:
 
 That copy is **private by default**; it has to be shared explicitly from the
 page's share menu. It is a rendered snapshot, not a second source: after changing
-`docs/pipeline-map.md`, republish that same file to that same URL, or the two
-drift apart.
+`docs/pipeline-map.md` or one of its diagrams, republish that same file to that
+same URL, or the two drift apart. The map embeds `diagrams/pipeline.drawio.svg`
+and `diagrams/improve-loop.drawio.svg` by relative path, so pass both from
+`docs/diagrams/` as supporting files at those paths; without them the page shows
+two broken images, and a changed diagram stays old.
 
 ## Knowledge Graph
 
