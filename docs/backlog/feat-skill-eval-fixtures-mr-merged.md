@@ -34,7 +34,7 @@ drops the deploy read-back fails a case before it merges.
 ## Acceptance Criteria
 
 - [x] `mr-merged-1` runs with `--scaffold --allow-tools Bash` and passes every
-      grader on the current skill.
+      grader on the current skill, in every run.
 - [x] The same case fails on the skill without its deploy read-back.
 - [x] A case whose base passes is dropped, not shipped.
 - [x] `evals/README.md` says how to run a scaffold case and what it needs on
@@ -49,16 +49,22 @@ One run per command, `--runs 1 --ablation none --judge-model sonnet
       deploy job's log, quoted the refused hook, found no Vercel deployment for
       the squash commit and left the retry to the user.
 - [x] `mr-merged-1` on the skill without the deploy read-back (Step 5 bullet,
-      recap, description and constraint removed): 2/5, $0.68. It read the MR,
-      the backlog item and the ticket through the fakes and never looked at a
-      pipeline.
+      recap, description and constraint removed): 2/5, $0.68, failing a1, a2
+      and a3. It read the MR, the backlog item and the ticket through the fakes
+      and never looked at a pipeline.
 - [x] `mr-merged-3` (merged branch in a checkout on another session's branch):
       5/5 on the current skill ($0.67) and 5/5 with step 3 reverted to the
       pre-2026-10-05 text ($0.61). On the base the model ran `git branch -d`,
       got "not fully merged", then compared the head SHA, ran `merge-base
       --is-ancestor` and deleted with `-D` on its own. Dropped.
-- [x] The final fixture, moved into the case directory: see the MR for the
-      confirming run.
+- [x] The final fixture, moved into the case directory, on the current skill:
+      4/5, $0.68. a2 ("checks the platform for a deployment") failed: the run
+      quoted the refused hook and flagged the deploy, but did not run
+      `vercel ls`. a2 is dropped: when the hook refused, its response already
+      proves no deployment exists, so the platform check adds nothing in this
+      scenario. It matters when the hook accepted and the build failed later,
+      a scenario no case covers. Without a2, the current skill passed both
+      runs and the base still fails a1 and a3.
 
 ## Technical Notes
 
@@ -81,7 +87,7 @@ Found while delivering:
   letting a run wait that long.
 - The fixture spend for this item was about $4.80: two `PATH` probes ($0.40),
   five `mr-merged-3` runs ($2.30, two of them lost to the git and `.zshrc`
-  problems above), and three `mr-merged-1` runs.
+  problems above), and three `mr-merged-1` runs ($2.07).
 
 ## Out of Scope
 
