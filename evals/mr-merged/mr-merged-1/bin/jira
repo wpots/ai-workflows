@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# Fake jira for mr-merged-1: ticket DEMO-150, already moved to
+# Done by the pipeline automation. Writes only to the call log.
+set -u
+FIX=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+printf 'jira %s\n' "$*" >> "$FIX/calls.log"
+
+raw=false
+case " $* " in *" --raw "*|*" --plain "*) raw=true ;; esac
+
+case "${1:-} ${2:-}" in
+  "me "*) echo "wieteke.pots@example.com" ;;
+  "issue view")
+    if $raw; then
+      echo '{"key":"DEMO-150","fields":{"summary":"Newsletter signup in the footer","issuetype":{"name":"Story"},"status":{"name":"Done"},"assignee":{"displayName":"Wieteke Pots"},"comment":{"comments":[]}}}'
+    else
+      echo "🐞 Story  ✅ Done  ⌛ Tue, 27 Oct 26  👷 Wieteke Pots  🔑️ DEMO-150"
+      echo
+      echo "# Newsletter signup in the footer"
+      echo
+      echo "A visitor can leave an email address in the footer to get the newsletter."
+    fi
+    ;;
+  "issue comment")
+    echo "✓ Comment added to issue \"DEMO-150\""
+    echo "https://demo-shop.atlassian.net/browse/DEMO-150"
+    ;;
+  "issue move"|"issue transition")
+    echo "✓ Issue transitioned to \"${4:-?}\""
+    ;;
+  *)
+    echo "jira: fixture has no answer for: $*" >&2
+    exit 1
+    ;;
+esac

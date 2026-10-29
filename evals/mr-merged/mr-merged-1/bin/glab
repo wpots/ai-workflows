@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Fake glab for mr-merged-1: demo-shop/webshop, merge request 17, squash-merged.
+# Answers the calls the skill makes; anything else exits 1 with a message.
+set -u
+FIX=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+. "$FIX/env"
+printf 'glab %s\n' "$*" >> "$FIX/calls.log"
+
+PROJECT=demo-shop/webshop
+WEB=https://gitlab.com/$PROJECT
+PIPELINE=4401
+DEPLOY_JOB=88012
+MERGED_AT=2026-10-27T14:02:11Z
+
+json=false
+case " $* " in *" -F json "*|*" --output json "*|*" -Fjson "*|*"--output=json"*) json=true ;; esac
+
+mr_json() {
+  cat <<EOF
+{"id":90017,"iid":17,"project_id":777,"title":"feat(footer): newsletter signup in the footer","description":"Adds a newsletter signup form to the footer.\n\nCloses DEMO-150","state":"merged","merged_at":"$MERGED_AT","target_branch":"main","source_branch":"$BRANCH","sha":"$SOURCE_SHA","merge_commit_sha":null,"squash_commit_sha":"$SQUASH_SHA","squash":true,"should_remove_source_branch":true,"force_remove_source_branch":true,"author":{"username":"wieteke.pots"},"merged_by":{"username":"robin.jansen"},"web_url":"$WEB/-/merge_requests/17","diff_refs":{"head_sha":"$SOURCE_SHA"}}
+EOF
+}
+
+project_json() {
+  echo "{\"id\":777,\"path_with_namespace\":\"$PROJECT\",\"default_branch\":\"main\",\"web_url\":\"$WEB\"}"
+}
+
+pipeline_json() {
+  cat <<EOF
+{"id":$PIPELINE,"iid":812,"project_id":777,"sha":"$SQUASH_SHA","ref":"main","status":"success","source":"push","web_url":"$WEB/-/pipelines/$PIPELINE","created_at":"$MERGED_AT","updated_at":"2026-10-27T14:09:40Z"}
+EOF
+}
+
+jobs_json() {
+  cat <<EOF
+[{"id":88010,"name":"lint","stage":"test","status":"success","web_url":"$WEB/-/jobs/88010"},{"id":88011,"name":"test","stage":"test","status":"success","web_url":"$WEB/-/jobs/88011"},{"id":$DEPLOY_JOB,"name":"deploy:production","stage":"deploy","status":"success","web_url":"$WEB/-/jobs/$DEPLOY_JOB","pipeline":{"id":$PIPELINE}}]
+EOF
+}
+
+deploy_trace() {
+  echo '$ curl -sS -X POST "$VERCEL_DEPLOY_HOOK_URL"'
+  echo '{"error":{"code":"incorrect_git_source_info","message":"The provided GitLab repository does not contain the requested branch or commit reference. Please ensure the repository is not empty."}}'
+  echo 'Cleaning up project directory and file based variables'
+  echo 'Job succeeded'
+}
+
+not_found() {
+  echo "glab: 404 Not Found ($*)" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  auth)
+    echo "gitlab.com"
+    echo "  ✓ Logged in to gitlab.com as wieteke.pots"
+    ;;
+  mr)
+    case "${2:-}" in
+      list)
+        if $json; then echo "[$(mr_json)]"; else
+          echo "Showing 1 merge request on $PROJECT."
+          echo
+          echo "!17	$PROJECT!17	feat(footer): newsletter signup in the footer	(main) ← ($BRANCH)"
+        fi
+        ;;
+      view)
+        if $json; then mr_json; else
+          echo "title:	feat(footer): newsletter signup in the footer"
+          echo "state:	merged"
+          echo "author:	wieteke.pots"
+          echo "source branch:	$BRANCH"
+          echo "target branch:	main"
+          echo "url:	$WEB/-/merge_requests/17"
+          echo "--"
+          echo "Adds a newsletter signup form to the footer."
+          echo
+          echo "Closes DEMO-150"
+        fi
+        ;;
+      diff) git -C "$FIX/../.." diff "$SQUASH_SHA~1" "$SQUASH_SHA" ;;
+      *) not_found "$@" ;;
+    esac
+    ;;
+  ci) echo "(success) • #$PIPELINE  main  ($MERGED_AT)  $WEB/-/pipelines/$PIPELINE" ;;
+  repo) project_json ;;
+  api)
+    path=""
+    for arg in "${@:2}"; do case "$arg" in -*) ;; *) [ -z "$path" ] && path=$arg ;; esac; done
+    case "$path" in
+      *jobs/$DEPLOY_JOB/trace*) deploy_trace ;;
+      *jobs/880[0-9][0-9]/trace*) echo "Job succeeded" ;;
+      *pipelines/$PIPELINE/jobs*) jobs_json ;;
+      *pipelines/$PIPELINE*) pipeline_json ;;
+      *pipelines*) echo "[$(pipeline_json)]" ;;
+      *merge_requests/17*) mr_json ;;
+      *merge_requests*) echo "[$(mr_json)]" ;;
+      *repository/branches/*) not_found "$path" ;;
+      *deployments*|*environments*) echo "[]" ;;
+      projects/*) project_json ;;
+      *) not_found "$path" ;;
+    esac
+    ;;
+  *) not_found "$@" ;;
+esac
