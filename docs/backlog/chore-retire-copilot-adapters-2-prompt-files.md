@@ -129,6 +129,7 @@ same MR.
 
 Depends on: chore-retire-copilot-adapters-1-stop-emitting.md
 
+- MR: <https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/323>
 - [chore-retire-copilot-adapters-1-stop-emitting.md](chore-retire-copilot-adapters-1-stop-emitting.md)
 - [chore-retire-copilot-adapters-3-wording.md](chore-retire-copilot-adapters-3-wording.md)
 - [../../scripts/generate-adapters.sh](../../scripts/generate-adapters.sh)
