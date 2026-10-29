@@ -143,7 +143,6 @@ These files are generated or derived from the canonical repo sources:
 
 - `AGENTS.md`
 - `CLAUDE.md`
-- `.github/prompts/*.prompt.md`
 - `.vscode/tasks.json`
 
 `.vscode/tasks.json` is kept as a generated convenience surface, not as a

@@ -14,10 +14,6 @@ GENERATED_FILES=(
   ".vscode/tasks.json"
 )
 
-while IFS= read -r prompt_file; do
-  GENERATED_FILES+=("${prompt_file#"$ROOT_DIR/"}")
-done < <(find "$ROOT_DIR/.github/prompts" -type f -name '*.prompt.md' | sort)
-
 # ── Temp files a sandboxed shell can write ───────────────────────────────────
 
 echo "Checking that every mktemp names a template under \$TMPDIR..."

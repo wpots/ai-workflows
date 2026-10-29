@@ -17,7 +17,6 @@ This skill should activate when you detect or are told about:
 
 - Changes to `commands/` in the current project
 - Changes to files in `rules/` in the current project
-- Changes to files in `.github/prompts/`
 - New skills or modifications to existing skills
 - Changes to `AGENTS.md` or `CLAUDE.md` that are reusable across projects
 - Changes to `AI-WORKFLOWS.md` that improve the shared project guide
@@ -85,8 +84,6 @@ Determine where the change belongs in ai-workflows:
 | New command runbook | `commands/<file>.md` |
 | Rule modification | `rules/<file>.md` |
 | New rule file | `rules/<file>.md` |
-| Prompt modification | `.github/prompts/<file>` |
-| New prompt | `.github/prompts/<file>` |
 | Skill modification | `skills/<name>/SKILL.md` |
 | New skill | `skills/<name>/SKILL.md` |
 | Project adapter change | `templates/<file>` and possibly `shared/*.md` |
@@ -136,12 +133,10 @@ Three things about committing here, each of which costs a wasted cycle otherwise
   sandboxed Bash call is denied there, so the hook dies on
   `mktemp: mkstemp failed … Operation not permitted` and **nothing is
   committed** — verify with `git log -1` rather than assuming the commit landed.
-- **Expect one drift retry when the change touches `commands/`.** The same hook
-  regenerates `.github/prompts/<name>.prompt.md` from `commands/<name>.md`, then
-  fails the commit with `Drift detected`. Stage the regenerated prompt and
-  commit again. Editing a `shared/*.md` fragment does the same to `CLAUDE.md`,
-  `AGENTS.md` and the `templates/` adapters — stage all of them; they are
-  generated, never hand-edited.
+- **Expect one drift retry when the change touches `shared/`.** The same hook
+  injects a `shared/*.md` fragment into `CLAUDE.md`, `AGENTS.md` and both
+  `upstream-mr.md` copies, then fails the commit with `Drift detected`. Stage
+  all of them and commit again; they are generated, never hand-edited.
 - **A new `rules/<file>.md` must land in every rule index in the same commit.**
   The validator warns on a rule missing from the `FEATURES.md` rules table and
   from a phase table in `docs/pipeline-map.md`, on top of the `rules/rules.md`

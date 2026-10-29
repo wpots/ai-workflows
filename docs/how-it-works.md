@@ -127,7 +127,6 @@ Generated or derived convenience artifacts — do not hand-edit:
 
 - `AGENTS.md`
 - `CLAUDE.md`
-- `.github/prompts/*.prompt.md`
 - `.vscode/tasks.json`
 
 `.vscode/tasks.json` stays in the repo as a generated convenience surface for
