@@ -36,6 +36,9 @@ The go covers:
 - one Jira ticket for the critical: the project's open `maintenance:critical`
   ticket when the scanner already filed one, otherwise a new Task with that
   label. The quarter's maintenance ticket is never touched.
+- one follow-up on the maintainer's local MR board for the back-merge, when
+  `mr-board` is installed (added in Step 5, closed in Step 9). Local only:
+  nothing leaves the machine.
 
 Never: approve the hotfix MR yourself, merge past a red pipeline, force-push,
 push to the production branch directly, bump across a major, or resolve a
@@ -300,6 +303,12 @@ Include the draft parent message. No go, nothing leaves the machine.
   Report what the API says, not what the command was meant to do.
 - When the runbook names a no-deploy window (nightly jobs, for example) and
   the merge could land in it, arm auto-merge after the window instead.
+- **Board follow-up.** Add `<PROJECT> back-merge hotfix !<iid>: production terug
+  naar <the long-lived branches that exist>` as
+  `skills/mr-merged/references/mr-board-followups.md` describes, finding it
+  first on a resumed run. GitLab's auto-merge survives the session but the
+  Monitors do not: this follow-up is what keeps an unfinished back-merge
+  visible once the session is gone.
 
 ## Step 6 — Slack
 
@@ -416,6 +425,9 @@ production runs.
   next run flags as new. The next scheduled scan confirms the tier change.
 - Final thread reply: live on production with the version, back-merged, and
   what stays for regular maintenance.
+- Close the board follow-up with `mr-board task done` only when the ancestor
+  checks of Step 8 hold for every long-lived branch that exists. A branch that
+  stopped on a human-only conflict leaves it open.
 - Clean up as one batch (covered by the go):
   1. `TaskStop` every Monitor of this run.
   2. Each worktree: `git -C <path> status --short` must be clean (never remove
@@ -447,6 +459,7 @@ production runs.
 | Back-merge | per branch: fast-forward / merge commit / MR link, ancestor check ✅ |
 | Slack | thread link, or drafts marked undelivered |
 | Jira | critical ticket key, reused or created, and its status; criticals left on it, if any |
+| Board | back-merge follow-up added and closed, left open with the reason, or "mr-board not available" |
 | Cleanup | monitors, worktrees, branches |
 | Risk | verdict per package, measurement numbers or "not measured", the metric to watch and its first reading when available |
 | Not in scope | what remains for `skills/npm-maintenance`, with the development tier |

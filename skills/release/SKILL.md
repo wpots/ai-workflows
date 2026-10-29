@@ -32,6 +32,8 @@ Everything outward-facing is listed in the Step 3 plan and approved there in
 - Slack posts in the project channel, only when the user chose to share;
 - one reply in the dependency scanner's Slack thread, when its latest scan
   lists the project under *Fix now* or *Deploy to fix now* (Step 8c);
+- closing the maintainer's local MR board follow-ups that this release
+  shipped, when `mr-board` is installed (Step 8d). Local only;
 - tracker writes for the tickets the plan lists: a version (or the label
   fallback). No status change: Jira's automation moves tickets from the
   pipeline, and Step 7 reads the status back;
@@ -360,6 +362,16 @@ close the loop once the deploy read-back is green:
   fetch it). Never write that the scanner confirms the fix before a scan after
   the release says so. The Step 3 go covers this post.
 
+**8d. MR board follow-ups.** `skills/mr-merged` adds a `<PROJECT> release
+!<iid>` follow-up on the maintainer's local MR board for a security fix that
+reached development before production. Once the deploy read-back is green, list
+the project's open ones as `skills/mr-merged/references/mr-board-followups.md`
+describes, and close each whose MR commit the tag ships:
+`git merge-base --is-ancestor <merge-or-squash-sha> <tag>`. Read the sha from
+`glab api "projects/<enc-path>/merge_requests/<iid>" | jq -r '.merge_commit_sha // .squash_commit_sha'`.
+A follow-up the tag does not ship stays open and goes in the recap. Skip the
+step when `mr-board` is not available.
+
 ## Step 9 — Recap
 
 | | |
@@ -369,6 +381,7 @@ close the loop once the deploy read-back is green:
 | Mails | draft links, whether the start mail was sent, the signature reminder |
 | Slack | thread link, or "not shared" |
 | Scanner thread | reply link, "not listed", or "not patched" with the package still below its fixed version |
+| Board | follow-ups closed by this release, left open with the reason, or "mr-board not available" |
 | Notes | `docs/releases/<key>.md` |
 | Tracker | version or label with the ticket count (partial ones included) and where to find it, shipped tickets not yet done with their status, tickets moved on the user's go, partial and open tickets with the reason |
 | Housekeeping | close and compact hand-offs, branches and worktrees removed or kept |
