@@ -35,7 +35,8 @@ implement → verify → merge request. Stop after one MR; humans review and mer
    its pipeline. Flag orphaned work-backlog branches.
 3. **Pick** — first `docs/backlog/*.md` with `Status: ready` whose
    `Depends on:` BLIs are `done` on `origin/main` (or `in-progress` with their
-   MR merged and only a post-merge check left); order by roadmap number, then
+   MR merged and only a post-merge check left; a dependency moved out of
+   `docs/backlog/` is delivered); order by roadmap number, then
    priority, then filename. None eligible → report why per item, stop.
 4. **Branch** — project convention (Greenberry: `epic-lowercase/short-slug`,
    e.g. `session/create-join-room`). First commit flips the BLI to
@@ -57,8 +58,10 @@ implement → verify → merge request. Stop after one MR; humans review and mer
 8. **Close out** — flip the BLI to `done`, or keep it `in-progress` when a
    criterion can only be checked after merge (name that check first in
    `How to verify`); a criterion left unticked in the MR keeps it
-   `in-progress`. After the MR exists, append its URL to the BLI's
-   `## Related` and push.
+   `in-progress`. The `done` commit also `git mv`s the BLI into the running
+   sprint's folder (`docs/sprint-<N>/` without a changelog beside it) and
+   fixes the links the move breaks (`rules/backlog.md`). After the MR exists,
+   append its URL to the BLI's `## Related` and push.
 9. **MR** — follow `commands/create-pr.md` (rebase onto base, MR template);
    title conventional; description fills the resolved template's sections
    (`## Backlog`: BLI link + checked acceptance criteria; `## How to verify`:

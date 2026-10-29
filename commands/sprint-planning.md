@@ -257,8 +257,16 @@ Skeletons for both output docs live at
 - **Local anchors** — the BLI / spec / code paths a reader should open.
 
 Then, for each **mine** ticket confirmed scheduled in the target sprint, set the
-BLI's `## Status` → `Planned for Sprint <N>.` (BLIs stay in `docs/backlog/` —
-`close-sprint` moves them out only when delivered).
+BLI's `## Status` → `Planned for Sprint <N>.` Planned BLIs stay in
+`docs/backlog/`.
+
+Finally create the sprint folder, `docs/sprint-<N>/.gitkeep`, when it does not
+exist yet. A BLI moves into it in the commit that sets it to `done`
+(`rules/backlog.md` § Done Items Leave the Backlog), so `docs/backlog/` shrinks
+while the sprint runs; `close-sprint` removes the `.gitkeep` once the folder
+holds the delivered BLIs. When an earlier sprint's folder still holds only its
+`.gitkeep` (a sprint that was never closed), name it in the summary instead of
+removing it.
 
 ## Phase 7 — Review pause (stop here)
 
@@ -277,5 +285,6 @@ End with a concise list of:
 - Planned load (remaining SP + restpoints) vs velocity/capacity verdict (over /
   under / on-track), and which tickets are already started in code.
 - BLIs created and BLIs marked `Planned for Sprint <N>`.
+- The sprint folder `docs/sprint-<N>/`, created or already present.
 - Doc ↔ tracker mismatches flagged (awaiting a user decision).
 - External blockers and unplanned spillover that need a user/PO decision.

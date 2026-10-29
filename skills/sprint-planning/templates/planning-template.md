@@ -73,6 +73,9 @@ tot ze in refinement een schatting krijgen.
 
 **Gemarkeerd "Planned for Sprint <N>":** <lijst>.
 
+**Sprint folder:** `docs/sprint-<N>/` — een BLI verhuist hierheen in de commit
+die hem op `done` zet.
+
 **Flags (doc ↔ tracker, beslissing nodig):** <mismatches, unsized, externe
 blockers, unplanned spillover>.
 

@@ -99,8 +99,8 @@ and end dates.
 
 For each story:
 
-1. Locate the BLI: `docs/backlog/<KEY>-*.md` (also check `docs/refine/`,
-   `docs/specs/`).
+1. Locate the BLI: `docs/sprint-<N>/<KEY>-*.md` (a done item moves there) or
+   `docs/backlog/<KEY>-*.md` (also check `docs/refine/`, `docs/specs/`).
 2. Validate the planning marker: the story / BLI is tagged **planned for
    Sprint N** (the agreed sprint label or field). Trust the tracker — no
    code or delivery verification in this flow.
