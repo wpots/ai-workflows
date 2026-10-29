@@ -72,6 +72,8 @@ class MigrationGuardTests(unittest.TestCase):
             "NODE_ENV=development pnpm run migrate",
             "env NODE_ENV=development pnpm run migrate",
             "bash -lc 'pnpm run migrate'",
+            "git status\npnpm run migrate",
+            "echo it's done; pnpm run migrate",
         ):
             with self.subTest(command=command):
                 self.assertEqual(decision(command), "deny")
@@ -88,6 +90,15 @@ class MigrationGuardTests(unittest.TestCase):
             "pnpm run generate:types",
             "pnpm run migrate-notes",
             "node scripts/migration-report.js",
+        ):
+            with self.subTest(command=command):
+                self.assertIsNone(decision(command))
+
+    def test_separators_inside_quotes_do_not_split_the_command(self) -> None:
+        for command in (
+            'rg -n "db:up|pnpm run migrate:fresh" docs',
+            'git commit -m "docs: seed first; pnpm run migrate after"',
+            "echo 'pnpm run db:up && pnpm run migrate'",
         ):
             with self.subTest(command=command):
                 self.assertIsNone(decision(command))
