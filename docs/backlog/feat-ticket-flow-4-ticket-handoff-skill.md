@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 ## Slice
 
@@ -47,7 +47,8 @@ the same way every time and nothing falls between two comments.
 
 ## Technical Notes
 
-Reads through `jira issue view --comments` (`skills/service-cli`). Status names come from
+Reads through `jira issue view --comments <N>` (`skills/service-cli`); without N
+the CLI shows only the last comment. Status names come from
 the project's board, matched by place in the flow. Update the Feedback triage gate in
 `docs/pipeline-map.md` from absent to partial.
 
@@ -55,6 +56,26 @@ the project's board, matched by place in the flow. Update the Feedback triage ga
 
 - Fixing findings (that is `work-backlog` on the new item).
 - The release gate (slice 5).
+
+## How to verify
+
+- `node scripts/validate-skills.mjs` → `OK: 40 skills validated, 107 docs
+  link-checked, no errors` (one existing warning: `skills/create-pr/SKILL.md` at
+  503 lines).
+- Targeted eval: `claude plugin eval . --case ticket-handoff-1 --runs 1
+  --ablation none --no-publish --trust-plugin --judge-model sonnet
+  --max-cost-usd 0.50` → 1/1 pass, `skill-fired` ✓ ($0.27, 2026-10-30). The case
+  fails on `main`, where `skills/ticket-handoff` does not exist. The routing
+  suite was not run.
+- The commit hook's tests, adapter generation and drift check passed.
+- Criteria 1–6 are checked against `skills/ticket-handoff/SKILL.md`:
+  classification and unclear in Steps 2–3, findings and rejection routing in
+  Step 4 and the Step 3 table, the comment for the product owner in Step 4, the
+  Done layer per line in Step 4, post-after-go and never-move/never-fix in
+  § Tracker write, Step 5 and § Constraints.
+- No live run against Jira: the skill writes to the tracker, and this item was
+  delivered without any tracker write. A first real run on a ticket in test is
+  the end-to-end check.
 
 ## Related
 
