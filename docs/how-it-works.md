@@ -34,8 +34,7 @@ Recommended default when adding something:
 
 - new policy → add or update a rule file
 - new reusable workflow → create a skill first
-- fallback support for that workflow, for tools without skills → add a
-  command/runbook wrapper
+- fallback for tools without skills → add a command/runbook wrapper
 - always-on baseline → keep it compact in adapters or shared fragments
 
 [workflow-canonical-sources.md](workflow-canonical-sources.md) records the

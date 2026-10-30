@@ -29,6 +29,7 @@
 | Sync wiped a hand-edit in `CLAUDE.md`, `AGENTS.md`, or `rules/` | Those are generated per project. Move the content to `CONVENTIONS.md` (project-specific) or upstream it here (reusable) — see [adopt-existing-project.md](adopt-existing-project.md#step-0--rescue-what-your-old-instructions-knew). |
 | `CONVENTIONS.md` describes the project wrongly after a stack change | Re-run `setup-ai-workflows` rather than sync; sync never touches that file. |
 | Teammates get no plugin install prompt | The project's `.claude/settings.json` predates sync and was preserved — merge the keys by hand, see [adopt-existing-project.md](adopt-existing-project.md#merge-claudesettingsjson-by-hand). |
+
 ## Git And GitLab CLI
 
 | Symptom | Fix |
