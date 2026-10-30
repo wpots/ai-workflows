@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 ## Slice
 
@@ -48,6 +48,36 @@ and `self`, and no flag expands it).
 
 - Blocking the release on a missing approval.
 - Dashboards outside the sprint close.
+
+## How to verify
+
+- The premise check that moved the status history to the connector: `jira issue
+  view DEV-690 --raw | jq 'keys'` → `expand`, `fields`, `id`, `key`, `self`, and
+  `jira issue view --help` names no flag that expands the changelog.
+- The Phase 3b definitions against a real ticket: `listJiraIssueChangelogs` via
+  `executeRead` on RFW-297 (the CLI-first hook let the call through), status
+  items only, paged to `isLast`. Counted by hand with the runbook's rules: 2
+  returns to In Progress, In Progress 19 working days (2026-08-13 → 09-09) and In
+  Acceptance 14 working days (09-17 → 10-07) over five, not first time right.
+- The acceptance list against the same ticket: `jira issue view RFW-297 --raw`
+  with jq over `.fields.comment.comments` shows three comments and none for the
+  product owner, so the release lists it as "no comment for the product owner".
+- The validation suite (`scripts/validate-ai-instructions.sh`, run from the
+  commit hook) → `OK: 40 skills validated, 107 docs link-checked, no errors`
+  (one existing warning: `skills/create-pr/SKILL.md` at 506 lines); hook,
+  release, parity and compact tests pass; no adapter drift.
+- Targeted eval `release-8` (the Step 3 plan block): `claude plugin eval .
+  --case release-8 --runs 1 --ablation none --no-publish --trust-plugin
+  --judge-model sonnet --max-cost-usd 0.50` → score 1.00, `skill-fired` ✓
+  ($0.26, 2026-10-30).
+- Not run: `release-7` (Step 7 comment reading), the same command with `--case
+  release-7`. The eval harness writes to `/tmp`, which the sandbox refuses, and
+  the run outside the sandbox waits on the maintainer's go.
+- No eval case exercises the `close-sprint` inputs or the changelog template,
+  so the flow metrics have no eval coverage.
+- No live release or sprint close ran: both are checked against the runbooks'
+  text and the RFW-297 data above. A first release with a shipped ticket that
+  lacks the approval is the end-to-end check.
 
 ## Related
 
