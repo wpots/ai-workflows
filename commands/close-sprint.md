@@ -29,6 +29,8 @@ Ask the user at start:
    close (e.g. `2026-08`; default: the previous calendar month).
 2. Assignee email (default: the configured Jira user, verify with `jira me`).
 3. Jira project key (infer from existing backlog filenames, e.g. `RFW`).
+4. Flow metrics: yes or no (default no). Yes adds a `## Flow` section to the
+   changelog (Phase 3b).
 
 ## Support mode (projects without sprints)
 
@@ -192,6 +194,37 @@ Create `docs/sprint-<N>-changelog.md` from the template in
 its filling rules. Include **only** `delivered` items in the tables — spillover
 and gaps belong in the Phase 4 document. When existing changelogs in the
 project predate the template, follow the template, not the neighbour.
+
+## Phase 3b — Flow metrics (opt-in)
+
+Only when the user said yes to flow metrics (Input 4). The metrics come from
+each ticket's status history and land in the changelog; nothing is written to
+the tracker.
+
+The `jira` CLI does not return the status history (`issue view --raw` carries
+no `changelog`), so read it through the Atlassian connector's
+`listJiraIssueChangelogs` (`skills/service-cli/references/jira.md` §
+Connector-only remainder). Keep the items whose `field` is `status`, with the
+entry's `created`.
+
+Per ticket in the Phase 1 set, spillover included, over its whole history:
+
+- **Returns** — moves from In Test or Acceptatie back to In Progress, directly
+  or through a status before In Test such as In Review (In Test → In Review →
+  In Progress is one return).
+- **Long stays** — every stay of more than five working days in one status,
+  with the status and its working days. A stay runs from the move into the
+  status to the move out of it; for the status the ticket is in now, to the
+  window's last day. Working days are the Mondays to Fridays after the day of
+  the move in, up to and including the day of the move out. Done and the
+  statuses before the first move to In Progress are not counted.
+- **First time right** — reached In Test and has no return. A ticket that never
+  reached In Test gets "—".
+
+Match statuses by their place in the flow, not by name (`rules/ticket-flow.md`
+§ Statuses and handoffs): a board's In Acceptance is Acceptatie. Without the
+connector, say so in the recap and leave the section out; never estimate from
+the current status.
 
 ## Phase 4 — Draft the gaps and spillover document
 
@@ -572,6 +605,15 @@ changelogs.
 
 - RFW-M: partieel — `priority`-prop bestaat, geen call-site gebruikt hem.
 
+## Flow
+
+| Ticket  | Terug naar In Progress | Langer dan 5 werkdagen        | First time right |
+| ------- | ---------------------- | ----------------------------- | ---------------- |
+| RFW-134 | 0                      | —                             | ja               |
+| RFW-297 | 2                      | In Progress 19, Acceptatie 14 | nee              |
+
+First time right: 4 van 6 geteste tickets; 3 keer terug naar In Progress.
+
 ## Verantwoording
 
 - RFW-30, RFW-59, … (16 st.): al gerapporteerd in sprint <N-1>, niet herhaald.
@@ -599,6 +641,9 @@ Filling rules:
   the only spec besides the git tag.
 - **No ⚠️ prose inside table cells**: deviations, partials, and follow-up work
   go to "Afwijkingen & vervolg", one bullet per item.
+- **"Flow" only when the user asked for it** (Phase 3b); otherwise leave the
+  section out. Its table covers the Phase 1 set, spillover included, and the
+  line under it counts the tested tickets and the returns.
 - **"Verantwoording" is a bullet list, not a narrative intro**: one bullet per
   case (already reported in an earlier sprint, done-without-commit,
   cross-assignee delivery).

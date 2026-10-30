@@ -40,7 +40,9 @@ want the sprint close to show where tickets got stuck.
 ## Technical Notes
 
 The approval check reuses the classification from `ticket-handoff` (slice 4). Status
-history comes from `jira issue view --raw` changelog entries.
+history comes from the Atlassian connector's `listJiraIssueChangelogs`: the `jira` CLI
+returns no changelog (`issue view --raw` carries only `expand`, `fields`, `id`, `key`
+and `self`, and no flag expands it).
 
 ## Out of Scope
 

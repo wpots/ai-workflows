@@ -113,6 +113,9 @@ Phase 1**, not at the first write, after the analysis is already done:
   (e.g. `2026-q4`) in a repo that files by quarter
 - Assignee email (default: configured tracker user, verify with `jira me`)
 - Issue-tracker project key (infer from filenames, e.g. `RFW`)
+- Flow metrics: yes or no (default no) — returns from test, long stays and
+  first time right per ticket, from the status history (runbook Phase 3b),
+  which only the connector reads: the CLI has no changelog
 
 ## Output
 

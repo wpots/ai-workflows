@@ -133,3 +133,12 @@ Confluence (search, pages, comments), the Teamwork Graph, Compass and Loom
 have no `jira` command: use the Atlassian connector for those and say so in
 the recap. Account-id lookup is not needed: `-a` takes an email or display
 name.
+
+An issue's status history has no `jira` command either: `issue view --raw`
+carries no `changelog`, and no flag expands it. Read it with the connector's
+`listJiraIssueChangelogs` through `executeRead` (the `cloudId` from
+`getAccessibleAtlassianResources`; inputs `issueIdOrKey`, `startAt`,
+`maxResults` up to 50). Entries come oldest first; page until `isLast`. Keep the
+response small with `responseFields`
+`["isLast", "values.created", "values.items.field", "values.items.fromString", "values.items.toString"]`.
+The CLI-first hook lets this call through.
