@@ -37,7 +37,11 @@ implement → verify → merge request. Stop after one MR; humans review and mer
    `Depends on:` BLIs are `done` on `origin/main` (or `in-progress` with their
    MR merged and only a post-merge check left; a dependency moved out of
    `docs/backlog/` is delivered); order by roadmap number, then
-   priority, then filename. None eligible → report why per item, stop.
+   priority, then filename. A status that still reads
+   `Planned for Sprint <N>.` is `draft`. None eligible → report why per item,
+   stop; for a `draft` item that is the ready check's failing points and next
+   step (`skills/backlog/references/ready-check.md`), read-only: no writes, no
+   questions, no flips.
 4. **Branch** — project convention (Greenberry: `epic-lowercase/short-slug`,
    e.g. `session/create-join-room`). First commit flips the BLI to
    `in-progress`.

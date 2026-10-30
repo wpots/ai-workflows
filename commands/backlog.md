@@ -78,16 +78,22 @@ Rules:
   or materially changes persisted fields.
 - For correction/sub-tickets, use the minimal format from `rules/backlog.md`.
 
+End with the ready check (Phase 5) on every item this run drafted or updated.
+
 ## Phase 4 — Align the local template when needed
 
 If `docs/backlog/_template.md` exists and no longer matches `rules/backlog.md`,
 update it so future backlog work starts from the correct format.
 
-## Phase 5 — Ready check (on request)
+## Phase 5 — Ready check
 
-When asked whether an item, or a set of items, is ready:
+On the items Phase 3 just drafted, and when asked whether an item, or a set of
+items, is ready:
 
-1. Hold each item against the Definition of Ready in `rules/backlog.md`.
+1. Hold each item against the Definition of Ready in `rules/backlog.md`. A
+   status that still reads `Planned for Sprint <N>.` is `draft` with that line
+   as a note; writing its status puts the value first and keeps the line below
+   it.
 2. Put each open product question to the developer, one at a time: answer it
    now, ask the PO, keep it for the next refinement, or record it as an
    assumption. Write the chosen route into the item.
@@ -109,5 +115,5 @@ End with:
 - Whether the item was new or updated
 - Any open assumptions that still need confirmation
 - Whether `docs/backlog/_template.md` was updated
-- For a ready check: the verdict per item and which items the developer flipped
-  to `ready`
+- The ready check's verdict per item and which items the developer flipped to
+  `ready`

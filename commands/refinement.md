@@ -83,7 +83,8 @@ For each ticket, before writing any question, check what already exists so
 questions are specific and you don't ask about things already built:
 
 1. Locate any local doc: `docs/backlog/<KEY>-*.md`, `docs/specs/`,
-   `docs/plans/`.
+   `docs/plans/`. A `Blocked on: refinement — <question>` line under a BLI's
+   status is a question the developer parked for this session.
 2. Search the code for the surfaces the ticket touches (routes, collections,
    constants, components). Note what exists vs. what's new.
 3. Flag, per ticket, whether a **DB migration** is expected (convention: every
@@ -117,7 +118,9 @@ Write to `docs/plans/refinement-<YYYY-MM-DD>.md`. Use this structure:
   (enum mismatches, overlapping scope, fields referenced but not defined).
 - **Questions per ticket** — a short, specific question list per ticket. Prefer
   questions that block sizing or implementation. Avoid questions answered by the
-  code (Phase 2) or the acceptance criteria.
+  code (Phase 2) or the acceptance criteria. The questions the developer parked
+  in the ticket's BLI (Phase 2 step 1) go in its list, marked as coming from the
+  developer.
 - **Cross-ticket questions** — migrations expected, access-rule changes, design
   coverage, "already refined / only needs sizing".
 - **Local anchors** — the spec/BLI/code paths a reader should open.
@@ -145,6 +148,9 @@ Run only when the user returns after refinement:
    anchors`.
 4. Note where story points still need to be set in the tracker (the user does
    this).
+5. For each decided question that came from a BLI's `Blocked on: refinement —`
+   line, name the BLI and the line so the developer can remove it. Refinement
+   does not edit the BLI (Phase 6 stays opt-in).
 
 ## Phase 6 — Optional BLI follow-up (after user ack)
 

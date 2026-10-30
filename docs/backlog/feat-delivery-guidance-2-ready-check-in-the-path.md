@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+done
 
 Drafted and flipped to ready 2026-10-13 with the maintainer. Ready check of
 2026-10-14 (slice 1's post-merge check) folded in on the maintainer's go: the
@@ -50,6 +50,34 @@ that a question I parked for refinement actually reaches the next session.
 - The fallback runbooks (`commands/backlog.md`, `commands/sprint-planning.md`,
   `commands/work-backlog.md`, `commands/refinement.md`) follow their skills.
 
+## How to verify
+
+- [x] `rg -n 'ready check|Ready check|Blocked on: refinement' skills/backlog/SKILL.md commands/backlog.md skills/sprint-planning/SKILL.md commands/sprint-planning.md skills/work-backlog/SKILL.md commands/work-backlog.md skills/refinement/SKILL.md commands/refinement.md`
+  — backlog Workflow step 12 and the end of `commands/backlog.md` Phase 3 run
+  the check; sprint-planning offers it after the Phase 7 pause (skill step 2,
+  runbook after Phase 7, both Outputs); work-backlog step 3 reports a `draft`
+  item's failing points read-only (skill and runbook); refinement Phase 2 step 1,
+  Phase 3 "Questions per ticket" and Phase 5 step 5 carry the parked questions,
+  and the skill's Constraints say the same.
+- [x] `rg -n 'Planned for Sprint' skills commands docs/pipeline-map.md` — every
+  hit describes a note under the status value or the legacy read as `draft`;
+  the one other hit, `skills/sprint-planning/templates/planning-template.md:74`,
+  lists the planned BLIs and stays.
+- [x] Legacy status: `skills/backlog/references/ready-check.md` "Per item" reads
+  `Planned for Sprint <N>.` as `draft` + note, and "Writing the result" rewrites
+  it as value plus note; work-backlog step 3 reads it as `draft` in skill and
+  runbook. `scripts/backlog-archive.mjs` `readStatus` takes the first line under
+  `## Status`, so a note below the value leaves archiving unchanged.
+- [x] Pre-commit hook on the implementation commit: `validate-skills.mjs` 39
+  skills, 106 docs link-checked, no errors (the one warning, create-pr at 503
+  lines, predates this branch); hook, release-automation, run-checks parity and
+  compact-sprint tests green; `generate-adapters.sh` and the drift check report
+  no changes.
+- Targeted evals: not run — no case in `evals/` exercises the changed
+  behaviour; coverage gap: the check at the end of a backlog write, the
+  sprint-planning note and offer, work-backlog's empty-pick report, and
+  refinement's parked questions.
+
 ## Technical Notes
 
 - **backlog.** A closing step in the Workflow of `skills/backlog/SKILL.md`, after the
@@ -57,8 +85,8 @@ that a question I parked for refinement actually reaches the next session.
   `commands/backlog.md`, Phase 5 drops "(on request)" and Phase 3 ends with it.
 - **sprint-planning.** The rule sits in five places; change each to a note line below
   the value: `skills/sprint-planning/SKILL.md:43` (Constraints, "a **doc status** …
-  mirroring close-sprint") and `:65` (Output), `commands/sprint-planning.md:28`
-  (Safety), `:260` (Phase 6) and `:279` (Output). The planning template only lists
+  mirroring close-sprint") and `:68` (Output), `commands/sprint-planning.md:28`
+  (Safety), `:260` (Phase 6) and `:287` (Output). The planning template only lists
   BLIs and stays. The ready check runs after the Phase 7 review pause, as an offer —
   planning stays a planning document first.
 - **work-backlog.** Step 3, "If none is eligible, report per item what blocks it",
@@ -90,6 +118,7 @@ that a question I parked for refinement actually reaches the next session.
 ## Related
 
 - Depends on: feat-delivery-guidance-1-ready-check.md
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/331
 - [../../skills/backlog/SKILL.md](../../skills/backlog/SKILL.md)
 - [../../commands/backlog.md](../../commands/backlog.md)
 - [../../skills/backlog/references/ready-check.md](../../skills/backlog/references/ready-check.md)

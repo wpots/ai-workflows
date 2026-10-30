@@ -8,13 +8,18 @@ check proposes and never decides.
 
 ## Which items
 
+- The items `skills/backlog` just wrote or updated (Workflow step 12).
 - One item the user names, by file name or ticket key.
 - A set the user names: a sprint's items, every `draft` item, the slices of one
-  ticket.
+  ticket. `skills/sprint-planning` offers the sprint's planned items after its
+  review pause.
 
 Items that are already `in-progress` or `done` are skipped; the report says so.
 
 ## Per item
+
+A status that still reads `Planned for Sprint <N>.` — sprint-planning wrote it
+as the value before it kept the value — is `draft` with that line as a note.
 
 1. Read the item, the items it `Depends on:`, and the code paths its
    `Technical Notes` name. Ground it the way Workflow step 4 does: against the
@@ -66,6 +71,9 @@ item whose approach is already clear needs no separate plan.
   item. "Yes, all three" for a listed set confirms the items listed; silence, or
   a reaction to the report as a whole, does not. Remove the `Blocked on:` and
   `Next step:` lines when you flip, and keep any other note.
+- **Legacy status:** writing the status of an item that reads
+  `Planned for Sprint <N>.` puts the value on the first line and keeps
+  `Planned for Sprint <N>.` below it as a note.
 - Outside `## Status`, the check only writes what the developer decided: a
   folded-in answer, an assumption, an approach choice. Anything else is a
   proposal in the report.

@@ -57,7 +57,7 @@ decision, recorded so it stops being re-proposed at every review. Both are liste
 | Gate | Kind | Guards | Enforced by | Status |
 | --- | --- | --- | --- | --- |
 | Design readiness | readiness | entry to Plan — design resolved, tokens and states settled, a11y decided | nothing | ❌ absent |
-| Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `rules/backlog.md` (the list) + `rules/mr-sizing.md` + the ready check in `skills/backlog` | ⚠️ partial — the check proposes and the developer flips `ready`, but nothing runs it from planning yet |
+| Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `rules/backlog.md` (the list) + `rules/mr-sizing.md` + the ready check in `skills/backlog` | ⚠️ partial — the check runs after an item is written and when the loop finds nothing to build, and is offered after planning; the developer flips `ready`, by design |
 | Build health | done | exit from Build — compiles, types, lint, unit tests, no committed secrets | `skills/run-checks`, plus `skills/migration-check` when the diff touches migrations | ✅ automated; derived from the CI job list on CI v4 (`ci-components`), ⚠️ approximate on `config/ci` |
 | QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review`, the project `verify` skill that `scripts/sync.sh` emits (checks and screenshots before a commit), plus the BLI's `How to verify` steps that `skills/work-backlog` fills from what it actually ran | ⚠️ partial — the steps are recorded per item, but the pass is a claim in prose: no artefact a reviewer can re-run to confirm it |
 | Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift check (doc freshness covered via `rules/documentation.md`) |
@@ -197,10 +197,12 @@ of Ready, and `rules/mr-sizing.md` adds the size half of it — an item too big 
 one reviewable MR is not ready, however clear its criteria are. The ready check in
 `skills/backlog` holds items against that list, routes every open point to a next
 step, and proposes; the developer flips `ready`, and only then may
-`skills/work-backlog` build the item unattended. Still nothing runs the check from
-planning: sprint-planning overwrites the status with `Planned for Sprint <N>.`, and
-work-backlog reports a draft item without its route
-(`docs/backlog/feat-delivery-guidance-2-ready-check-in-the-path.md`).
+`skills/work-backlog` build the item unattended. The check runs where the path
+needs it: at the end of writing or updating an item, as an offer after sprint
+planning (which notes `Planned for Sprint <N>.` under the status value instead of
+replacing it), and read-only in work-backlog's report when nothing is eligible. A
+question parked for refinement reaches the next refinement prep. It stays partial
+because a person flips `ready` — that is the gate, not a gap.
 
 ### Build — implement
 

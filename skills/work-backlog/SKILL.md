@@ -101,7 +101,9 @@ and ask whether to resume it rather than starting fresh.
 
 Parse every `docs/backlog/*.md`:
 
-- **Status** — only `ready` items are candidates.
+- **Status** — only `ready` items are candidates. The value is the first line
+  under `## Status`; a status that still reads `Planned for Sprint <N>.` (an
+  older sprint-planning wrote it as the value) is `draft`.
 - **Dependencies** — from the `Depends on:` links in `## Related`. A
   dependency is satisfied when that BLI's `Status` **on `origin/main`** is
   `done`, or `in-progress` with its MR (linked under `## Related`) merged and
@@ -118,7 +120,12 @@ Parse every `docs/backlog/*.md`:
   (`critical > high > medium > low`), then filename.
 
 Pick the **first eligible** item. If none is eligible, report per item what
-blocks it (status, unmet dependency, open MR) and stop.
+blocks it (status, unmet dependency, open MR) and stop. For each `draft` item,
+that report is the ready check's: hold it against the Definition of Ready
+(`skills/backlog/references/ready-check.md`, "Per item") and report its failing
+points and next step in that check's table. Read-only here — write nothing into
+the items, put no questions to the developer, flip nothing; end by offering the
+ready check in `skills/backlog`.
 
 ### 4. Branch
 
