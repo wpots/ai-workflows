@@ -131,3 +131,4 @@ Depends on: chore-retire-copilot-adapters-2-prompt-files.md
 
 - [chore-retire-copilot-adapters-1-stop-emitting.md](chore-retire-copilot-adapters-1-stop-emitting.md)
 - [chore-retire-copilot-adapters-2-prompt-files.md](chore-retire-copilot-adapters-2-prompt-files.md)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/343
