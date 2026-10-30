@@ -100,6 +100,8 @@ assert_exists "$WITH_CONVENTIONS/rules"
 assert_exists "$WITH_CONVENTIONS/commands"
 assert_exists "$WITH_CONVENTIONS/commands/scaffold-component.md"
 assert_contains "$WITH_CONVENTIONS/AI-WORKFLOWS.md" "Shared Workflow Assets"
+assert_contains "$WITH_CONVENTIONS/AI-WORKFLOWS.md" "## The Path of a Ticket"
+assert_contains "$WITH_CONVENTIONS/AI-WORKFLOWS.md" "(rules/backlog.md#definition-of-ready)"
 
 echo "Smoke test: .cursor/ files from an earlier sync are left alone"
 WITH_CURSOR="$TMP_DIR/with-cursor"
