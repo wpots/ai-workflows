@@ -118,6 +118,7 @@ that a question I parked for refinement actually reaches the next session.
 ## Related
 
 - Depends on: feat-delivery-guidance-1-ready-check.md
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/331
 - [../../skills/backlog/SKILL.md](../../skills/backlog/SKILL.md)
 - [../../commands/backlog.md](../../commands/backlog.md)
 - [../../skills/backlog/references/ready-check.md](../../skills/backlog/references/ready-check.md)
