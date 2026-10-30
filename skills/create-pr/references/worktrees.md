@@ -51,8 +51,12 @@ when the branch is pushed.
 - A fresh worktree has **no `node_modules`** of its own, so hooks and
   `npm test` that resolve `./node_modules/…` fail. Default to a **symlink** of
   the main checkout's tree — `ln -s <main-checkout>/node_modules
-  <worktree>/node_modules`. Jest, `tsc`, ESLint and typegen all work through it,
-  at zero disk cost.
+  <worktree>/node_modules`. Jest, `tsc` and ESLint work through it, at zero disk
+  cost. `next typegen` does not: through the symlink it dies with `Cannot find
+  module './config/responseHeaders.ts'`, a relative import in `next.config`
+  (seen on Next 16; holds until a typegen run succeeds through a symlinked
+  `node_modules`, checked 2026-10). Copy the generated types from the main
+  checkout instead (table below) rather than regenerating them.
 - Only when a bundler that rejects symlinks is needed (Turbopack: `next
   build`/`next dev`), replace the symlink with a copy-on-write clone —
   `cp -Rc <main-checkout>/node_modules <worktree>/node_modules`. Prefer that over
@@ -131,6 +135,14 @@ given both does the same without touching the main checkout.
   Tests then load half their modules from each checkout and fail on mocks that
   no longer match by path. Run with the worktree as the working directory
   instead (`npm --prefix <worktree> test -- …`).
+- `npm --prefix <worktree> exec -- <bin>` does **not** run in the worktree: it
+  keeps the caller's cwd, so `next typegen` answers "Couldn't find any `pages`
+  or `app` directory" and ESLint "File ignored because outside of base path".
+  `npm --prefix <worktree> run <script>` does run there; for a binary without a
+  script, spawn `<worktree>/node_modules/.bin/<bin>` from a scratchpad Node
+  script with `spawnSync(bin, args, { cwd: <worktree> })`, since an agent cannot
+  `cd` there. Holds while `npm exec` does not chdir to `--prefix` (checked
+  2026-10, the npm bundled with Node 24.22.1).
 - When a check needs a **before/after** comparison (build output, bundle size, a
   running server), pin both sides: the baseline build overwrites the build
   directory, so a verification run straight after it serves the baseline, not
@@ -235,3 +247,13 @@ worktree goes. To audit what is safe to drop in a **squash-merging**
 repo, do not trust `git branch --merged` or ancestry — check
 `git cherry <base> <branch>` (patch-id) plus the MR state, and keep anything
 with uncommitted changes.
+
+**A force-push leaves the main checkout diverged.** When the branch you rebased
+is also checked out in the main checkout, that checkout now sits on the old
+history (`ahead N, behind M` against the remote). Say so in the report and offer
+the reset; run `git reset --hard <remote>/<branch>` there only on the user's go,
+and only after `git status` is clean and `git log --oneline
+<remote>/<branch>..<branch>` shows that every local-only commit is already in
+the new base or is the old twin of a commit you rebased (`git range-diff` when
+unsure). A dirty checkout, or a local commit that is neither, stays untouched
+and goes in the report instead.
