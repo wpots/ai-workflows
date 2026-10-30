@@ -53,7 +53,8 @@ When one request asks for the same change in more than one repository:
    differ; the contract may not.
 
 Writing the items in parallel subagents: give every subagent the same
-contract in its prompt. Subagents that each design the mechanism for their
+contract in its prompt, and `model: sonnet` (left out, a subagent inherits
+the session's model). Subagents that each design the mechanism for their
 own repository come back with different script names, defaults and formats,
 and aligning them afterwards means rewriting every file.
 
