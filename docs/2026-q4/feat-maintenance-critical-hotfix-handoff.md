@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-in-progress
+done
 
 Filed 2026-10-21 from a question after the plugin demo: how do the skills
 chain, for example maintenance into a hotfix via main. Ready check
@@ -57,6 +57,28 @@ in the backlog for the next release.
   branch or MR, or create, comment on or transition a ticket.
 
 ## How to verify
+
+- `claude plugin eval . --case maintenance-2 --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 0.75`
+  on this branch: score 1.00, 3/3 graders, skill fired ($0.31). The same case
+  on `main`: score 0.60. It had no `Next step:` line naming the hotfix, and it
+  put `next` on the proposed backlog list ($0.32).
+- `node scripts/validate-skills.mjs` (Node 24.22.1): no errors. The maintenance
+  SKILL.md body ends at 500 lines, inside its budget. A first draft with the
+  check inline put it at 534.
+- Per criterion, in `skills/maintenance/references/production-check.md` unless
+  named otherwise:
+  - The labels and how each is decided: "Check" and "Label and route", linked
+    from the critical bullet in lane A.
+  - Lane A `urgent`, and the fix naming `/greenberry:dependency-hotfix` with the
+    package and advisory: "on production".
+  - One `Next step:` line for every such package: `references/report-format.md`
+    §1. Grader a1 checks it.
+  - The backlog exclusion and the development-only path: "on production" and
+    "development only". Graders a2 and a3 check them.
+  - Production not checked: "production not checked". This was checked by
+    reading the text only; the eval does not cover it.
+  - Read-only: the closing paragraph. The only commands the check names are
+    `git fetch`, `git show` and `npx semver`.
 
 ## Technical Notes
 
@@ -134,5 +156,5 @@ because this changes what the plugin ships.
 - [../../skills/maintenance/SKILL.md](../../skills/maintenance/SKILL.md)
 - [../../skills/dependency-hotfix/SKILL.md](../../skills/dependency-hotfix/SKILL.md)
 - [../../skills/npm-maintenance/SKILL.md](../../skills/npm-maintenance/SKILL.md): "Maintenance ticket" already sends a critical on production to `dependency-hotfix`
-- [feat-critical-ticket-age-flag.md](feat-critical-ticket-age-flag.md)
-- [feat-delivery-guidance-3-next-step-in-recaps.md](../2026-q4/feat-delivery-guidance-3-next-step-in-recaps.md)
+- [feat-critical-ticket-age-flag.md](../backlog/feat-critical-ticket-age-flag.md)
+- [feat-delivery-guidance-3-next-step-in-recaps.md](feat-delivery-guidance-3-next-step-in-recaps.md)
