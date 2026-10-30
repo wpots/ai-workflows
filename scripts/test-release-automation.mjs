@@ -190,7 +190,7 @@ test("syncLabels puts the adapters first, then rules, commands and the sync scri
   assert.deepEqual(
     syncLabels(["commands/a.md", "rules/b.md", "scripts/sync.sh", "shared/c.md", "templates/project-CLAUDE.md"]),
     [
-      "de project-adapters (`CLAUDE.md`, `AGENTS.md`, Copilot)",
+      "de project-adapters (`CLAUDE.md`, `AGENTS.md`)",
       "`rules/b.md`",
       "`commands/a.md`",
       "het sync-script",

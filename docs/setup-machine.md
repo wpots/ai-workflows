@@ -215,7 +215,7 @@ hand always applies, regardless of the stamp.
 [graphify](https://github.com/safishamsi/graphify) builds a queryable knowledge
 graph of a codebase so agents can ask scoped questions instead of grepping raw
 files. Adapter guidance lives in `shared/graphify.md` (injected into the
-CLAUDE/AGENTS/Copilot templates), and project sync writes a graphify-hooked
+CLAUDE/AGENTS templates), and project sync writes a graphify-hooked
 `.claude/settings.json` (only when the project has none). Everything is guarded
 on `graphify-out/graph.json`, so it no-ops in repos without a graph.
 

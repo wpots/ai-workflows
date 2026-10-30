@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+done
 
 Go to drop Copilot, and the cut, given by the maintainer on 2026-10-28. Waits
 for slices 1 and 2, because these texts describe what sync and this repo
@@ -53,7 +53,7 @@ longer appear.
 - The Slack release announcement names the project adapters without Copilot.
 - History stays as it is: `CHANGELOG.md`, `changelog.d/`,
   `docs/skills-first-migration-plan.md`, `docs/audits/` and `docs/backlog/`.
-- `rg -n -i copilot README.md FEATURES.md AGENTS.md docs skills scripts/release-announcement.mjs --glob '!docs/backlog/**' --glob '!docs/audits/**' --glob '!docs/skills-first-migration-plan.md'`
+- `rg -n -i copilot README.md FEATURES.md AGENTS.md docs skills scripts/release-announcement.mjs --glob '!docs/backlog/**' --glob '!docs/audits/**' --glob '!docs/skills-first-migration-plan.md' --glob '!docs/*-q[1-4]/**'`
   lists only these lines:
   - the "not supported" lines in the tool tables;
   - the "not supported" line slice 1 leaves in `skills/setup-ai-workflows`;
@@ -65,7 +65,21 @@ longer appear.
 
 ## How to verify
 
-<!-- Filled in by whoever delivers the item. -->
+- Run the `rg` command from the acceptance criteria. It lists nine lines:
+  `README.md:26`, `AGENTS.md:22`, `FEATURES.md:155`,
+  `docs/how-it-works.md:47`, `docs/keep-current.md:14`,
+  `docs/adopt-existing-project.md:4` and `:23`, `docs/adopt-new-project.md:40`
+  and `skills/setup-ai-workflows/SKILL.md:263`. Each is a "not supported" line
+  or a project-owned Copilot file. The command gained
+  `--glob '!docs/*-q[1-4]/**'`: the quarter folders came back on 2026-10-30,
+  after this item was written, and hold delivered history.
+- `rg -n "github/prompts" README.md FEATURES.md AGENTS.md docs skills rules templates shared`
+  with the same history globs prints nothing.
+- `node --test scripts/test-release-automation.mjs`: the `syncLabels` test
+  failed after its expected string dropped Copilot and before
+  `scripts/release-announcement.mjs` did; 23/23 pass now.
+- The pre-commit suite passes, including `generate-adapters.sh`, so the
+  `AGENTS.md` edits outside the shared blocks survive regeneration.
 
 ## Technical Notes
 
@@ -117,3 +131,4 @@ Depends on: chore-retire-copilot-adapters-2-prompt-files.md
 
 - [chore-retire-copilot-adapters-1-stop-emitting.md](chore-retire-copilot-adapters-1-stop-emitting.md)
 - [chore-retire-copilot-adapters-2-prompt-files.md](chore-retire-copilot-adapters-2-prompt-files.md)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/343

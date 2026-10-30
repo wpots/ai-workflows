@@ -110,7 +110,7 @@ Create or update a skill when at least three of these hold:
 - the agent repeatedly asks the same questions or misses the same constraint
 - the workflow benefits from bundled references, scripts, or templates
 - outcome quality depends on validation steps or stopping points
-- the workflow must be shared across tools (Claude, Copilot, Codex)
+- the workflow must be shared across tools (Claude, Codex)
 
 Pick the smallest durable surface, in this order: existing-skill update → new
 skill → command/runbook → rule → project documentation → nothing. Do not

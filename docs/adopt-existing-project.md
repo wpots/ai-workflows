@@ -20,7 +20,7 @@ Know this before you run anything.
 | `CONVENTIONS.md` | Created if missing. **Never overwritten** by sync — it is project-owned. |
 | `CLAUDE.md`, `AGENTS.md` | Regenerated as thin adapters. Existing content is **replaced** — `setup-ai-workflows` asks first. |
 | `.cursor/rules/*` | Left alone. Cursor is not supported, so sync generates nothing for it, and files already there stay as they are. |
-| `.github/copilot-instructions.md` | Replaced by the generated adapter, with conventions inlined. |
+| `.github/copilot-instructions.md` | Left alone. Copilot is not supported, so sync generates nothing for it, and a file already there stays as it is. |
 | `.claude/settings.json` | **Preserved** if present — nothing is merged for you. See [below](#merge-claudesettingsjson-by-hand). |
 | `.claude/skills/verify/SKILL.md` | Created if missing, **never overwritten** — project-owned. Claude Code runs it before each commit. |
 | `.gitignore` | Gets one `.playwright-mcp/` line appended when nothing ignores that folder yet; your other lines are left alone. |

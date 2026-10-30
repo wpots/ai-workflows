@@ -12,7 +12,7 @@ upcoming sprint.
 
 The canonical step-by-step runbook lives at `commands/sprint-planning.md`. This
 skill is a thin wrapper around that runbook so Codex and Claude Code share the
-same workflow; Copilot follows the runbook directly.
+same workflow.
 
 This flow is **forward-looking only** — it plans the next sprint. The
 retrospective is the `close-sprint` flow; its changelog and gaps document are
