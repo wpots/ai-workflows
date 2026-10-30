@@ -162,6 +162,7 @@ Live mail     reply in the same thread, overview from the notes
 Slack         #<channel>: start message, live reply in the thread
 Scanner       reply "patched" in the dependency-scan thread of 20 Oct (payload 3.86.0 → 3.90.2), or "not listed"
 Tracker       fixVersion v1.2.0 on 11 tickets, 2 of them partial (RFW-295 MR still open, RFW-292 open PO question) · status read back after the deploy, no transitions · open, no version: RFW-301 (MR only)
+Acceptance    no PO approval on 3 shipped tickets: RFW-297 (no comment for the PO), RFW-295 (no reply yet), RFW-288 (unclear: "akkoord, maar …") · reported, the release goes on
 Housekeeping  support-2026-09 not closed yet → close-sprint after this run · stale branches listed at the end
 ```
 
@@ -253,13 +254,32 @@ landed through another MR of the range and a PO comment that clears it for
 production, is a proposal for `shipped`: put it in the plan, flagged, and let
 the go decide.
 
-Read the comments of every shipped ticket that is not yet Done; that is
-where partial delivery shows. `--plain` prints the whole description first;
-the comment bodies are ADF JSON, so take the text nodes:
+Read the comments of every shipped ticket, Done ones included: partial
+delivery shows in those not yet Done, the product owner's approval in all of
+them. `--plain` prints the whole description first; the comment bodies are ADF
+JSON, so take the text nodes:
 
 ```bash
 jira issue view <KEY> --raw | jq -r '.fields.comment.comments[]? | .author.displayName + " " + .created[0:10] + ": " + (([.body | .. | objects | select(.type=="text") | .text] | join(" "))[0:520])'
 ```
+
+**Acceptance.** A ticket is accepted when the product owner approved it in a
+comment (`rules/ticket-flow.md` § Definition of Done). Classify every shipped
+and partial ticket the way `skills/ticket-handoff` Steps 2–3 do: find the last
+handoff comment, then classify the newest reply after it. Approves after the
+comment for the product owner is accepted. Every other ticket goes on the
+acceptance list, with its link and the reason:
+
+- no comment for the product owner, with the newest comment that reads as an
+  approval quoted (author and date) when there is one, to confirm by hand;
+- no reply yet to the comment for the product owner;
+- the reply rejects, with the reasons quoted short;
+- the reply is unclear, with the quote, its author and date.
+
+A Done ticket is checked like any other: a move to Done by hand or by
+automation says nothing about the approval. The list goes into the plan
+(Step 3) and the recap (Step 9). It reports and nothing more: the ticket still
+gets the version, the release goes on, and no comment or move follows from it.
 
 Then write, for the tickets the plan listed. Jira goes CLI first
 (`skills/service-cli`); only version creation has no `jira` command and uses
@@ -391,6 +411,7 @@ step when `mr-board` is not available.
 | Board | follow-ups closed by this release, left open with the reason, or "mr-board not available" |
 | Notes | `docs/releases/<key>.md` |
 | Tracker | version or label with the ticket count (partial ones included) and where to find it, shipped tickets not yet done with their status, tickets moved on the user's go, partial and open tickets with the reason |
+| Acceptance | shipped tickets without the product owner's approval, each with its reason and link, or "all accepted" |
 | Housekeeping | close and compact hand-offs, branches and worktrees removed or kept |
 | Not done | each skipped step and why |
 
@@ -402,6 +423,7 @@ human action names who takes it: `<action> (<who>)`.
 | Deploy ⚠️ | the deploy, with the quoted response (you) |
 | Live mail drafted | send it (you) |
 | Shipped tickets not yet done | move them, with the links (assignee) |
+| Shipped tickets without approval | ask the product owner, with the links (assignee) |
 | Close not run (Step 8a) | `close-sprint`, the hand-off named there |
 | Otherwise | none: the release is closed |
 

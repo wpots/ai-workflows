@@ -75,7 +75,7 @@ board, wins over this one.
 | --- | --- | --- |
 | Dev — before In Test | the MR was reviewed by someone who did not write it, its checks passed, every item carrying the key is `done` on the default branch, and the deploy to development went out | `skills/create-pr`, the reviewer, `skills/mr-merged` |
 | Test — before Acceptatie | every line of the test checklist below holds | the team, from the checklist in the test comment |
-| Done — before Done | the product owner approved in a comment; no finding is open; todos and out-of-scope findings are tickets of their own; deviations from the design are written in the ticket; the change is on acceptance where the project has that environment | the assignee |
+| Done — before Done | the product owner approved in a comment; no finding is open; todos and out-of-scope findings are tickets of their own; deviations from the design are written in the ticket; the change is on acceptance where the project has that environment | the assignee; `skills/release` lists the shipped tickets without the approval |
 
 The test checklist, filled in per ticket in the test comment, as plain bullets:
 
