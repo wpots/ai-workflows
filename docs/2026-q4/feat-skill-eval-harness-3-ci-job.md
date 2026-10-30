@@ -1,0 +1,104 @@
+# Feature: CI Job for Skill Evals
+
+## Status
+
+superseded
+
+Superseded 2026-10-13 by
+[feat-routing-evals-before-mr.md](feat-routing-evals-before-mr.md), merged:
+the MR flow runs the routing suite on the maintainer's seat, so no CI key and no
+monthly cap are needed. Reopen as a new item when a routing failure reaches
+review despite that step, when routing cases cover more than the five risky
+skills, or when a few weeks of local runs give real `costUsd` figures to set a
+CI cap from (CI-spend decision, 2026-10-08). The criteria below stay as that
+item's starting point.
+
+Filed 2026-10-08 as slice 3 of the eval work. Blocked on a maintainer decision:
+evals in CI are real model calls on an API key, so someone has to supply the
+key and set a monthly cap. Becomes `ready` when that is decided and slice 2 is
+`done` on `main`.
+
+Parked (2026-10-12) in favour of
+[feat-routing-evals-before-mr.md](feat-routing-evals-before-mr.md): eval spend
+stays manual on the maintainer's seat, and the MR flow runs the routing suite
+before a skill MR opens. Revisit when a routing failure reaches review in
+practice despite that step, or when routing cases cover more than the five
+risky skills.
+
+## Slice
+
+3/3 — run the suite in CI on skill changes
+
+## Priority
+
+medium
+
+## Summary
+
+Run the eval suite in GitLab CI on merge requests that touch `skills/` or
+`evals/`, with a cost ceiling and pinned models, so the regression net does not
+depend on someone remembering to run it.
+
+## User Story
+
+As the maintainer, I want a merge request that edits a skill to fail when the
+skill stops triggering or stops delivering, so that review starts from a green
+suite.
+
+## Acceptance Criteria
+
+- [ ] A job in `.gitlab-ci.yml`, run only on merge requests changing `skills/**`
+      or `evals/**`, installs Claude Code on the runner and runs
+      `claude plugin eval . --tag routing --ablation none --no-publish
+      --trust-plugin --judge-model sonnet --json results.json --threshold 0.8
+      --max-cost-usd <cap>`
+      (`--no-publish`: the report is otherwise published to claude.ai by
+      default, and the prompts name client projects).
+- [ ] `--model` and `--judge-model` are pinned, so scores are comparable between
+      runs.
+- [ ] The job fails on exit code 1 and warns on exit code 2 (the cost ceiling
+      stopped the run, partial results); a failure names the skill, the case and
+      the grader.
+- [ ] `results.json` is kept as a job artifact.
+- [ ] The API key is a masked, protected CI/CD variable; `docs/contributing.md`
+      names the variable and the monthly cap.
+- [ ] Without the variable the job prints what it would do and exits 0, the
+      same convention the release jobs already use.
+
+## How to verify
+
+<!-- Filled in by whoever delivers the item. -->
+
+## Technical Notes
+
+Exit codes, from the plugin-evals page: 0 every case at or above the threshold;
+1 a case below it, a case file that failed to load, no cases found, or the
+directory not trusted without `--trust-plugin`; 2 partial run, ceiling hit or
+credential rejected. The with-minus-without `Δ` never changes the exit code.
+
+If a case grants `Bash`, the runner needs `bubblewrap` and `socat` on Linux, or
+the run is refused. Keep the CI suite to cases that need no shell.
+
+A scheduled variant (nightly, full suite with `Δ`) is the "Scheduled lane" item
+of the October review and is not part of this slice.
+
+Judge: slice 2 compared Haiku (the default) and Sonnet on five cases and pinned
+`--judge-model sonnet` (evidence in `evals/README.md`). `sonnet` is an alias
+that moves with new releases; for comparable scores over time, criterion 2 pins
+a full model ID for both `--model` and `--judge-model`. The routing suite has
+only `tool_used` graders today, so the judge costs nothing there until an `llm`
+grader joins it.
+
+## Out of Scope
+
+- A scheduled or nightly run.
+- Non-routing output cases in CI unless the cost fits under the cap.
+- Choosing the cap — that is the maintainer decision this item waits on.
+
+## Related
+
+Depends on: feat-skill-eval-harness-2-routing-cases.md
+
+- [feat-skill-eval-harness-2-routing-cases.md](feat-skill-eval-harness-2-routing-cases.md)
+- [../../.gitlab-ci.yml](../../.gitlab-ci.yml)
+- https://code.claude.com/docs/en/plugin-evals
