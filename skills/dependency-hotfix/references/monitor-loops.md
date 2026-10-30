@@ -114,5 +114,3 @@ The same script as loop 2 per branch, with `PROD` replaced by the back-merged
 branch and `SHA` by the pushed commit (fast-forward: production's head; merge:
 the `commit-tree` result). Status only — report it in the recap; a failure is
 reported, not fixed.
-
-For the MR route, watch each back-merge MR with loop 1 instead.

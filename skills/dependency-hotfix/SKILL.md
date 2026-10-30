@@ -28,8 +28,8 @@ The go covers:
 - a hotfix branch, its MR to the production branch, and GitLab auto-merge on
   that MR (the merge itself still waits for a human approval and a green
   pipeline);
-- the back-merge of production into acceptance and development, as pushes or
-  MRs depending on the project's merge settings (Step 3);
+- the back-merge of production into acceptance and development, as pushes
+  (Step 3);
 - the version, changelog section, tag and GitLab Release, when the project's
   hotfix runbook asks for them;
 - Slack posts in `#merge_requests`: one parent message, then thread replies.
@@ -177,19 +177,17 @@ shape the plan:
 
 **Back-merge route.** Production must become an ancestor of acceptance and
 development again, or the next release cannot fast-forward and re-conflicts
-on every later release. A squashed MR copies the change but not the commit,
-so it never restores that:
+on every later release. A back-merge is always a **push**, never an MR, under
+every `squash_option`: fast-forward when the branch has nothing of its own,
+otherwise a merge commit with both parents. A back-merge MR is squashed or
+rebased by the project's merge settings or by a reviewer, which copies the
+change but not the commit, so it never restores that.
 
-| `squash_option` | Route |
-| --- | --- |
-| `always` | **Push.** Fast-forward when the branch has nothing of its own; otherwise a merge commit with both parents, pushed. |
-| `never`, `default_off`, `default_on` | **MR with auto-merge**, squash off: a `backmerge/<production>-into-<branch>-<version>` branch cut from the target, containing the merge commit, so it fast-forwards under any `merge_method`. |
-
-The push route is the one deliberate exception to "never push to a protected
+The push is the one deliberate exception to "never push to a protected
 long-lived branch" in `rules/git-flow.md`: it carries a commit that was
 already reviewed and merged, plus conflict resolution limited to the files
-Step 8 allows. When the target branch does not allow Developer pushes, the
-push route is unavailable: stop before Step 4 and report it.
+Step 8 allows. When the target branch does not allow Developer pushes, stop
+before Step 4 and report it (no MR fallback).
 
 Then show one plan block and ask for the go with `AskUserQuestion`:
 
@@ -202,7 +200,7 @@ Gate          pnpm minimumReleaseAge 1440 min · 16.3.8 is 12 d old, passes (a y
 Branch        hotfix/deps-next-16.3.8 in ~/.worktrees/<repo>-hotfix-next
 MR            fix(deps): bump next to 16.3.8 for three critical RCE advisories → main, auto-merge armed
 Version       1.1.3 + CHANGELOG [1.1.3] Security, tag v1.1.3, GitLab Release (per docs/release-process.md)
-Back-merge    acceptance: fast-forward push · development: merge commit push (squash_option always)
+Back-merge    acceptance: fast-forward push · development: merge commit push
 Verified      lint:check 0 · type-check 0 · tests green · production build green (scratch DB, production schema) · Storybook not opted in
 Slack         #merge_requests — parent message below, thread replies on merge, live, failure
 Jira          RFW-325, the open maintenance:critical ticket the scanner filed; Closes RFW-325 in the MR
@@ -359,7 +357,7 @@ your own.
 Push after production deployed, and after the tag and release when the
 runbook asks for them. Prepare before that: while production builds, run the
 merge-tree check and, when it conflicts, build the merge commit in a worktree
-on the target branch (point 4), committed but not pushed. Right before the
+on the target branch (point 3), committed but not pushed. Right before the
 push, `git fetch` and confirm the target's head is still the merge commit's
 first parent; when it moved, redo the merge. Pre-push hooks test the local
 working tree, not the pushed ref, so tag and back-merge pushes skip them
@@ -369,7 +367,7 @@ For acceptance, then development (each that exists):
 
 1. `git fetch origin`. Already contains production
    (`git merge-base --is-ancestor origin/<production> origin/<branch>`) → skip.
-2. **Push route**:
+2. **Push**:
    - the branch has nothing of its own
      (`git merge-base --is-ancestor origin/<branch> origin/<production>`):
      `git push --no-verify origin origin/<production>:<branch>`;
@@ -378,10 +376,7 @@ For acceptance, then development (each that exists):
      Exit 0 prints the tree id:
      `git commit-tree <tree> -p origin/<branch> -p origin/<production> -m "Merge branch '<production>' into <branch>"`,
      then `git push --no-verify origin <sha>:<branch>`.
-3. **MR route**: cut `backmerge/<production>-into-<branch>-<version>` from
-   `origin/<branch>`, `git merge --no-ff origin/<production>`, push, open the
-   MR with `"squash": false`, arm auto-merge, watch it like loop 1.
-4. **Conflicts** (merge-tree exit 1, or `git merge` stops). Resolve in a
+3. **Conflicts** (merge-tree exit 1, or `git merge` stops). Resolve in a
    worktree on the target branch, and only these files:
    - `package.json`: per dependency the higher version wins (a branch already
      ahead keeps its own); `version` takes production's.
@@ -398,17 +393,17 @@ For acceptance, then development (each that exists):
    already tested, and that diff is the check. Otherwise run `npm ci`,
    type-check and tests. Commit the merge with the message
    `Merge branch '<production>' into <branch>` (git's default names the
-   remote-tracking ref and the local branch), then push or open the MR.
+   remote-tracking ref and the local branch), then push.
    A conflict in any other path stops the back-merge for that branch:
    report the paths, post "back-merge into <branch> needs a human" in the
    thread, and leave the branch untouched.
-5. Verify: `git merge-base --is-ancestor origin/<production> origin/<branch>`
+4. Verify: `git merge-base --is-ancestor origin/<production> origin/<branch>`
    holds for every long-lived branch.
-6. When the runbook fast-forwards `development` into `acceptance`, also verify
+5. When the runbook fast-forwards `development` into `acceptance`, also verify
    `git merge-base --is-ancestor origin/acceptance origin/development`.
    Acceptance may already have rehearsed the unsquashed hotfix branch; merging
    production into both branches leaves acceptance's own history outside
-   development. Use the same merge-tree/commit-tree push route to merge
+   development. Use the same merge-tree/commit-tree push to merge
    acceptance into development **only when the resulting tree equals
    development's current tree**. This preserves the tested files and restores
    the next fast-forward. If the tree differs or conflicts, stop and report
@@ -456,7 +451,7 @@ production runs.
 | Hotfix MR | link, merged at, squash sha |
 | Deploy | production pipeline + platform read-back, or ⚠️ with the quoted response |
 | Version | tag and release links, or "no runbook — none" |
-| Back-merge | per branch: fast-forward / merge commit / MR link, ancestor check ✅ |
+| Back-merge | per branch: fast-forward / merge commit, ancestor check ✅ |
 | Slack | thread link, or drafts marked undelivered |
 | Jira | critical ticket key, reused or created, and its status; criticals left on it, if any |
 | Board | back-merge follow-up added and closed, left open with the reason, or "mr-board not available" |
@@ -473,8 +468,9 @@ production runs.
   wait after it.
 - In the tracker, only the critical's own ticket is created or updated. The
   quarterly maintenance ticket stays under human control.
-- The back-merge push route exists because squash would break the ancestry;
-  it is never used for new changes.
+- A back-merge is always a push, never an MR, under every `squash_option`; it
+  carries only the reviewed hotfix commit and Step 8's allowed conflict
+  resolution, never a new change.
 - Session-scoped loops: GitLab's auto-merge survives the session, the
   Monitors do not. Say so when the user expects the run to continue after
   they close the laptop, and resume on the next invocation.
