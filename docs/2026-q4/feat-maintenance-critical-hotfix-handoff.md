@@ -158,3 +158,4 @@ because this changes what the plugin ships.
 - [../../skills/npm-maintenance/SKILL.md](../../skills/npm-maintenance/SKILL.md): "Maintenance ticket" already sends a critical on production to `dependency-hotfix`
 - [feat-critical-ticket-age-flag.md](../backlog/feat-critical-ticket-age-flag.md)
 - [feat-delivery-guidance-3-next-step-in-recaps.md](feat-delivery-guidance-3-next-step-in-recaps.md)
+- MR: [!341](https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/341)
