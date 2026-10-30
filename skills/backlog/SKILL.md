@@ -149,9 +149,9 @@ and aligning them afterwards means rewriting every file.
 Workflow step 12 runs it on the items just written. When the user asks whether
 an item is ready — or a set: a sprint's items, every `draft` item ("is OBA-150
 ready", "check readiness", "check de sprint") — follow
-`references/ready-check.md` as well. It holds each item against the Definition of Ready
-in `rules/backlog.md`, puts open product questions to the developer one at a
-time, writes `Blocked on:` and `Next step:` lines on every item that is not
+`references/ready-check.md` as well. It holds each item against the Definition
+of Ready in `rules/backlog.md`, puts open product questions to the developer one
+at a time, writes `Blocked on:` and `Next step:` lines on every item that is not
 ready, and proposes the rest. The developer flips `ready`; the check never does,
 because that flip is the gate after which `skills/work-backlog` builds the item
 unattended.
