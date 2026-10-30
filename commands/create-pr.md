@@ -248,9 +248,12 @@ Applies on every run, including updates to an existing PR/MR.
 
 Close out with a recap the user can act on at a glance: a two-line header
 (`**!<num>** <title> → <base>`, then the full link), the table, a `➖ n/a:`
-line naming the steps that did not apply, and one "What & why" line. The
-status icon is the first column; a step that does not apply leaves the table
-for the ➖ line, so no row sits empty and none goes missing.
+line naming the steps that did not apply, one "What & why" line, and last one
+`Next step:` line: the first open item that waits on the user
+(`check the handover (you)`), else `review !<num> (reviewer)`, with
+`skills/watch-mrs` to follow the MR. The status icon is the first column; a
+step that does not apply leaves the table for the ➖ line, so no row sits empty
+and none goes missing.
 
 Status icons: ✅ done · ⏳ waits on the user or is blocked · ⚠️ heads-up · ➖ n/a.
 

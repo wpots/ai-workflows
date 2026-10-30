@@ -462,6 +462,9 @@ depends on memory: the MR first, then what waits on the user, then the steps.
 3. **`➖ n/a:`** the steps that did not apply, by name, with the reason in
    brackets when it is not obvious: `Migration (no schema change)`.
 4. **What & why:** one line on the substantive change.
+5. **`Next step:`** one line, last: the first open item that waits on the user
+   (`check the handover (you)`), else `review !<num> (reviewer)`, with
+   `skills/watch-mrs` to follow the MR.
 
 Status icons: ✅ done · ⏳ waits on the user or is blocked · ⚠️ heads-up · ➖ n/a.
 

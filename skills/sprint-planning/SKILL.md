@@ -85,3 +85,4 @@ Written to `docs/sprint-<N>-planning.md`, plus:
 - A list of flags awaiting a user decision: doc ↔ tracker mismatches, external
   blockers, unplanned spillover, unsized tickets.
 - The offer to run the ready check over the planned items.
+- Last, one `Next step:` line, from the table in the runbook's Output.

@@ -294,3 +294,11 @@ End with a concise list of:
 - Doc ↔ tracker mismatches flagged (awaiting a user decision).
 - External blockers and unplanned spillover that need a user/PO decision.
 - The offer to run the ready check over the planned BLIs.
+- Last, one `Next step:` line, from the first row that applies:
+
+  | Outcome | Next step |
+  | --- | --- |
+  | The closed sprint has no gaps document | `close-sprint` |
+  | Ready check not run | the ready check over the planned BLIs (`backlog`) |
+  | A planned BLI not ready | its `Next step:` from the ready check |
+  | Otherwise | `work-backlog` |

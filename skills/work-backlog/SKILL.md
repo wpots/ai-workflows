@@ -300,6 +300,16 @@ ticket's standing — "slice 2/3 for PROJ-123; slice 3 remains" — so it is vis
 that the product owner cannot test the feature yet. If anything was skipped or
 blocked, state it plainly.
 
+The report ends with one `Next step:` line, from the first row that applies. A
+human action names who takes it: `<action> (<who>)`.
+
+| Outcome | Next step |
+| --- | --- |
+| Draft MR, or a step only a human can take | the first blocker and who clears it |
+| MR opened, or in-flight MR reworked | `review !<iid> (reviewer)`; `watch-mrs` follows it |
+| In-flight MR awaiting review | `review or merge !<iid> (reviewer)` |
+| Nothing eligible | the first blocked item's next step from step 3's report |
+
 ## Night pause in a loop
 
 Under a self-paced loop (`/loop` without an interval, which reschedules itself

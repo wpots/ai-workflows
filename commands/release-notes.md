@@ -164,6 +164,13 @@ End with a concise list of:
 - Dropped `internal` items, so the user can promote one back.
 - Items not yet live and the environment they are on.
 - Open questions from Phase 1 or Phase 3.
+- Last, one `Next step:` line, from the first row that applies:
+
+  | Outcome | Next step |
+  | --- | --- |
+  | Open questions | answer them (you) |
+  | Run from `release` | the live mail, `release` Step 6 |
+  | Otherwise | share the paste-ready block with the customer (you) |
 
 ## Template
 

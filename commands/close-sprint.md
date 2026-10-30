@@ -525,6 +525,12 @@ End with a concise list of:
 - Whether to write customer release notes next (`commands/release-notes.md`):
   the changelog's `Opgeleverd` and `Ticketloos opgeleverd` rows are its source
   for a sprint
+- Last, one `Next step:` line, from the first row that applies:
+
+  | Outcome | Next step |
+  | --- | --- |
+  | The changelog lists delivered work | `release-notes` for the sprint, the bullet above |
+  | Otherwise | `sprint-planning` for the next sprint; none in support mode |
 
 ## Changelog template
 

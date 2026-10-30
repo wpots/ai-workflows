@@ -141,6 +141,9 @@ Step 1 says where to read them). When they did, name the files in the wrap-up
 and propose `skills/upstream-to-unicore` as a harvest over the sprint's range.
 It is a proposal, like the release-notes hand-off.
 
+The wrap-up ends with one `Next step:` line, from the table in the runbook's
+Output; it restates the release-notes hand-off, not a second one.
+
 ## Cleanup safety
 
 Phase 8 only surfaces candidates. Never run `git branch -d`, `git branch -D`, or

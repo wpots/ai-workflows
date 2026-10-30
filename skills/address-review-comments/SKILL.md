@@ -241,6 +241,15 @@ After finishing, briefly consider whether anything learned should update this
 skill or the shared `rules/`. If a reusable lesson emerged, suggest upstreaming
 to the ai-workflows repo.
 
+### 12. Recap
+
+End with one `Next step:` line, from the first row that applies:
+
+| Outcome | Next step |
+| --- | --- |
+| UI rework, handover not checked yet | check the handover (you) |
+| Otherwise | `re-review !<iid> (reviewer)`; `watch-mrs` follows it |
+
 ---
 
 ## Guidelines

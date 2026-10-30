@@ -387,6 +387,17 @@ step when `mr-board` is not available.
 | Housekeeping | close and compact hand-offs, branches and worktrees removed or kept |
 | Not done | each skipped step and why |
 
+The recap ends with one `Next step:` line, from the first row that applies. A
+human action names who takes it: `<action> (<who>)`.
+
+| Outcome | Next step |
+| --- | --- |
+| Deploy ⚠️ | the deploy, with the quoted response (you) |
+| Live mail drafted | send it (you) |
+| Shipped tickets not yet done | move them, with the links (assignee) |
+| Close not run (Step 8a) | `close-sprint`, the hand-off named there |
+| Otherwise | none: the release is closed |
+
 Run needed intervention (corrections, re-steering, a workaround) → hand off
 to `skills/improve-skill/SKILL.md` before closing out.
 
