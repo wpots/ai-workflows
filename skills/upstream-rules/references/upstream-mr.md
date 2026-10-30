@@ -13,7 +13,12 @@ canonical config repo (`ai-workflows`, `unicore-template`) **or** run an
 upstream skill (`upstream-rules`, `upstream-to-unicore`) from any project.
 
 - NEVER commit or push to `main` (or the template's target branch) directly —
-  not for a one-line doc fix, not even when the push would succeed.
+  not for a one-line doc fix, not even when the push would succeed. The one
+  exception: in `ai-workflows`, the maintainer asks in the session for the
+  change to go straight to `main`. Then commit on `main` and push with
+  `--no-verify` past the pre-push hook, without a substitute MR — it spends
+  runners and a round-trip for nothing. A push GitLab rejects is reported, not
+  retried.
 - Always: feature branch off the latest remote base → commit → push → open a
   **GitLab MR** on the canonical GitLab remote (resolve that remote by URL,
   never by assuming its name).
