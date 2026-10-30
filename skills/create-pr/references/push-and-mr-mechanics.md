@@ -43,8 +43,8 @@ two instead — no id lookup needed:
 
 ```bash
 # 1. create with the username-only fields and a throwaway description
-glab mr create --target-branch <base> --title "<title>" \
-  --description "placeholder" --assignee <username> \
+glab mr create --source-branch <branch> --target-branch <base> \
+  --title "<title>" --description "placeholder" --assignee <username> \
   --label "ai:agent-authored" --remove-source-branch --no-editor
 
 # 2. PUT the real body from the file
@@ -53,8 +53,12 @@ glab api "projects/<url-encoded-project-path>/merge_requests/<iid>" \
 ```
 
 Pass `--no-editor`: without it `glab mr create` may open an interactive editor
-and hang a non-interactive session. Then confirm with `glab mr view <iid>` that
-both the description **and** the assignee/reviewer stuck.
+and hang a non-interactive session. Always name `--source-branch`: when the
+work sits in a worktree the cwd is the main checkout on another branch, and
+`glab mr create` takes the current branch as source otherwise (its documented
+default; checked 2026-10 in `glab mr create --help`, false if glab drops that
+default). Then confirm with `glab mr view <iid>` that both the description
+**and** the assignee/reviewer stuck.
 
 ## Driving the repo from another directory
 

@@ -95,6 +95,17 @@ when the branch is pushed.
   but read the hook files first (see "Before you let a worktree's hooks run"
   below).
 
+## Reviewing the branch
+
+`create-pr`'s self-review runs `code-review` over `<remote>/<base>...HEAD`, and
+`HEAD` is whatever the session's cwd has checked out. An agent may not `cd` into
+a worktree, so its cwd is the main checkout: another branch, plus the user's
+uncommitted work. A review there reports that work, not the MR, and its
+findings are noise. Pass the branch name and the worktree path, and have the
+review read files only under that path (`git -C <worktree> diff
+<remote>/<base>...<branch>`, the Read tool on worktree paths). A subagent
+given both does the same without touching the main checkout.
+
 ## Running tests, builds and hooks
 
 - Test runners often **ignore `.worktrees/`** (e.g. Jest
