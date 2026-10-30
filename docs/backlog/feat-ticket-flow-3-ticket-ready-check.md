@@ -2,7 +2,7 @@
 
 ## Status
 
-draft
+ready
 
 ## Slice
 
@@ -60,7 +60,8 @@ skills read the rule; they do not copy the lines.
   parent, flagged, story points, design link in the body).
 - `skills/sprint-planning/SKILL.md` § Output (the flags list) and
   `commands/sprint-planning.md`: failing stories in the flags; where an unsized story
-  goes to `templates/refinement-template.md`, the failing line goes with it.
+  goes to `skills/sprint-planning/templates/refinement-template.md`, the failing line
+  goes with it.
 - `docs/pipeline-map.md`: the Definition of ready gate row (now ⚠️ partial) names the
   ticket check.
 
