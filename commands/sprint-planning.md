@@ -25,10 +25,9 @@ the just-closed sprint's `close-sprint` output (changelog + gaps document) is an
 - **Write docs on the `development` branch** (the project's main integration
   branch), never on a feature branch — BLIs and the planning document are
   integration docs. Switch before writing anything (see Phase 0).
-- **"Planned for Sprint N" is a doc status, not a tracker mutation.** The marker
-  goes in the BLI (mirroring `close-sprint`'s `Delivered in Sprint N`). If a
-  ticket is not yet assigned to the sprint in the tracker, **flag it** — do not
-  assign it.
+- **"Planned for Sprint N" is a note in the BLI, not a tracker mutation.** It
+  goes under the status value and never replaces it. If a ticket is not yet
+  assigned to the sprint in the tracker, **flag it** — do not assign it.
 - Flag, do not fix: doc ↔ tracker mismatches are surfaced, never silently
   rewritten.
 - Stop and ask when a ticket is ambiguous or empty; do not invent scope.
@@ -256,9 +255,11 @@ Skeletons for both output docs live at
   expectations.
 - **Local anchors** — the BLI / spec / code paths a reader should open.
 
-Then, for each **mine** ticket confirmed scheduled in the target sprint, set the
-BLI's `## Status` → `Planned for Sprint <N>.` Planned BLIs stay in
-`docs/backlog/`.
+Then, for each **mine** ticket confirmed scheduled in the target sprint, add
+`Planned for Sprint <N>.` to the BLI's `## Status` as a note under the value;
+the value (`draft`, `ready`, …) stays the first line. A status that still reads
+`Planned for Sprint <N>.` from an earlier planning is `draft` with that note.
+Planned BLIs stay in `docs/backlog/`.
 
 Finally create the sprint folder, `docs/sprint-<N>/.gitkeep`, when it does not
 exist yet. A BLI moves into it in the commit that sets it to `done`
@@ -275,6 +276,10 @@ velocity verdict, count of external blockers, count of already-started tickets,
 count of BLIs created, count of mismatches flagged, and any unplanned spillover.
 Then stop. The document is the deliverable — do not edit the tracker.
 
+After the review, offer the ready check over the sprint's planned BLIs
+(`skills/backlog/references/ready-check.md`, or Phase 5 of
+`commands/backlog.md`). Run it only on the user's yes.
+
 ## Output
 
 End with a concise list of:
@@ -284,7 +289,8 @@ End with a concise list of:
   exist.
 - Planned load (remaining SP + restpoints) vs velocity/capacity verdict (over /
   under / on-track), and which tickets are already started in code.
-- BLIs created and BLIs marked `Planned for Sprint <N>`.
+- BLIs created and BLIs noted `Planned for Sprint <N>.` under their status.
 - The sprint folder `docs/sprint-<N>/`, created or already present.
 - Doc ↔ tracker mismatches flagged (awaiting a user decision).
 - External blockers and unplanned spillover that need a user/PO decision.
+- The offer to run the ready check over the planned BLIs.

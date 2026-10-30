@@ -48,6 +48,10 @@ workflow; Copilot follows the runbook directly.
   conventions that fire on touch.
 - Note per ticket whether a DB migration and/or data-layer access-rule change is
   expected.
+- A question the developer parked in the ticket's BLI
+  (`Blocked on: refinement — <question>`) goes into that ticket's question
+  list, marked as theirs. In outcome mode, a decided one is reported with its
+  BLI so the developer can remove the line.
 - Stop and ask when a ticket is empty or ambiguous; do not invent scope.
 
 ## Output

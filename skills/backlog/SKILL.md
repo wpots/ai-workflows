@@ -139,12 +139,17 @@ and aligning them afterwards means rewriting every file.
     marked `ready`.
 11. If the request changes the reusable template, update `docs/backlog/_template.md`
     so it stays consistent with the current backlog rules.
+12. **End with the ready check** on every item this run wrote or updated
+    (`references/ready-check.md`), so a fresh item states whether it is ready
+    and what is missing. Steps 9 and 10 are its size and criteria points; do
+    not run them twice.
 
 ## Ready check
 
-When the user asks whether an item is ready — or a set: a sprint's items, every
-`draft` item ("is OBA-150 ready", "check readiness", "check de sprint") — follow
-`references/ready-check.md`. It holds each item against the Definition of Ready
+Workflow step 12 runs it on the items just written. When the user asks whether
+an item is ready — or a set: a sprint's items, every `draft` item ("is OBA-150
+ready", "check readiness", "check de sprint") — follow
+`references/ready-check.md` as well. It holds each item against the Definition of Ready
 in `rules/backlog.md`, puts open product questions to the developer one at a
 time, writes `Blocked on:` and `Next step:` lines on every item that is not
 ready, and proposes the rest. The developer flips `ready`; the check never does,
@@ -175,5 +180,5 @@ unattended.
 - Which criteria were run against the tree and the exceptions they now name;
   for an item left `draft`, the criteria that clash.
 - Whether the local backlog template was also updated for consistency.
-- For a ready check: the verdict per item — ready, or its open points with the
+- The ready check's verdict per item — ready, or its open points with the
   next step — and which items the developer flipped to `ready`.
