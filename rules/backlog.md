@@ -205,6 +205,9 @@ An item is `ready` when someone who did not write it — a developer, or
 `skills/work-backlog` — can build it without coming back with a question. The
 ready check in `skills/backlog` holds items against this list and nothing else.
 
+A story in the tracker has its own list: `rules/ticket-flow.md` § Definition of
+Ready.
+
 | Point | Ready when |
 | --- | --- |
 | Criteria | every acceptance criterion is testable, the criteria can all hold together and with `Out of Scope`, and no open product question blocks one |

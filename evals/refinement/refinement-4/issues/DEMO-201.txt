@@ -1,0 +1,22 @@
+⭐ Story  🚧 To Do  ⌛ Tue, 20 Oct 26  👷 Unassigned  🔑️ DEMO-201  💭 0 comments  🧵 0 linked
+
+# Wishlist page for logged-in customers
+
+⏱️  Wed, 28 Oct 26  🔎 Demo Shop PO  🚀 Medium  📦 None  🏷️  None
+
+------------------------ Description ------------------------
+
+## Description
+Logged-in customers save products with the heart on a product card and find them back on a wishlist page in their account.
+
+## Acceptance criteria
+- [ ] A logged-in customer adds a product to the wishlist with the heart on its product card.
+- [ ] The wishlist page in the account lists the saved products with image, name and price.
+- [ ] A customer removes a product from the wishlist page.
+- [ ] A visitor who is not logged in is asked to log in after tapping the heart.
+
+## Visual design
+https://www.figma.com/design/AbC123/Demo-Shop?node-id=12-345
+
+## Dependencies
+None.

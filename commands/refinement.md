@@ -67,15 +67,22 @@ Via the connected method from Phase 0, fetch the batch in scope. With a CLI
 ```bash
 jira issue list --plain --no-truncate --jql 'project = KEY AND key in (KEY-1, ...)'
 jira issue view KEY-XX --plain   # per-ticket: description, AC, links, parent
+jira issue view KEY-XX --raw     # issue type, parent, Flagged, story points
 ```
+
+The plain view leaves out the custom fields. The raw view is the API JSON:
+issue type and parent sit under `.fields`, and Flagged and story points under
+the custom-field ids the CLI config names (`issue.fields.custom`); a flagged
+ticket carries `Impediment`. Read the description from the plain view, since
+the raw one is ADF.
 
 Without the CLI, query through the connector by the tracker's query language
 (e.g. JQL `key in (KEY-1, KEY-2, ...)`) and request description, status, issue
-type, parent, and the story-point field.
+type, parent, the Flagged field, and the story-point field.
 
-Capture per ticket: key, summary, parent/epic, status, current story points (if
-any), full description + acceptance criteria, linked issues, last-updated
-timestamp.
+Capture per ticket: key, summary, issue type, parent/epic, status, Flagged,
+current story points (if any), full description + acceptance criteria, linked
+issues, last-updated timestamp.
 
 ## Phase 2 — Ground each ticket in the codebase
 
@@ -120,7 +127,13 @@ Write to `docs/plans/refinement-<YYYY-MM-DD>.md`. Use this structure:
   questions that block sizing or implementation. Avoid questions answered by the
   code (Phase 2) or the acceptance criteria. The questions the developer parked
   in the ticket's BLI (Phase 2 step 1) go in its list, marked as coming from the
-  developer.
+  developer. Above the questions, each story gets a **ready line** against
+  `rules/ticket-flow.md` § Definition of Ready, leaving out the Size line:
+  `**Ready:** ready` with nothing after it when the story fails no line, or
+  `**Ready:** fails <line> (<what is missing>), …` naming only the lines it
+  fails. The split into MRs is not one of those lines: a story whose slices are
+  proposed under Slicing still reads `ready`. Bugs, tasks and support tickets
+  get no ready line.
 - **Cross-ticket questions** — migrations expected, access-rule changes, design
   coverage, "already refined / only needs sizing".
 - **Local anchors** — the spec/BLI/code paths a reader should open.

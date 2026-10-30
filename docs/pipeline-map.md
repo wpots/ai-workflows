@@ -57,7 +57,7 @@ decision, recorded so it stops being re-proposed at every review. Both are liste
 | Gate | Kind | Guards | Enforced by | Status |
 | --- | --- | --- | --- | --- |
 | Design readiness | readiness | entry to Plan — design resolved, tokens and states settled, a11y decided | nothing | ❌ absent |
-| Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `rules/backlog.md` (the list) + `rules/mr-sizing.md` + the ready check in `skills/backlog` | ⚠️ partial — the check runs after an item is written and when the loop finds nothing to build, and is offered after planning; the developer flips `ready`, by design |
+| Definition of ready | readiness | entry to Build — testable acceptance criteria, clear definition of done, no ambiguity, **and a scope that fits one reviewable MR** | `rules/backlog.md` (the list) + `rules/mr-sizing.md` + the ready check in `skills/backlog`; for tracker stories, `rules/ticket-flow.md` § Definition of Ready, reported by `skills/refinement` and `skills/sprint-planning` | ⚠️ partial — the item check runs after an item is written and when the loop finds nothing to build, and is offered after planning; the story check reports in refinement prep and sprint planning and changes no ticket; the developer flips `ready`, by design |
 | Build health | done | exit from Build — compiles, types, lint, unit tests, no committed secrets | `skills/run-checks`, plus `skills/migration-check` when the diff touches migrations | ✅ automated; derived from the CI job list on CI v4 (`ci-components`), ⚠️ approximate on `config/ci` |
 | QA | done | the build against the ticket's acceptance criteria, per criterion | `skills/run-checks`, `skills/code-review`, `skills/architecture-review`, `skills/wcag-audit`, `skills/sustainable-review`, the project `verify` skill that `scripts/sync.sh` emits (checks and screenshots before a commit), plus the BLI's `How to verify` steps that `skills/work-backlog` fills from what it actually ran | ⚠️ partial — the steps are recorded per item, but the pass is a claim in prose: no artefact a reviewer can re-run to confirm it |
 | Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift check (doc freshness covered via `rules/documentation.md`) |
@@ -182,7 +182,7 @@ Turning intent into work items with acceptance criteria.
 
 | Surface | Type | Invoked by | Role |
 | --- | --- | --- | --- |
-| `skills/refinement` | skill | `/refinement` · `"refine tickets"`, `"prepare refinement"` | Prep and record refinement: grouping, story points, conflicts, per-ticket questions — tracker read-only |
+| `skills/refinement` | skill | `/refinement` · `"refine tickets"`, `"prepare refinement"` | Prep and record refinement: grouping, story points, conflicts, per-ticket questions, a ready line per story — tracker read-only |
 | `skills/sprint-planning` | skill | `/sprint-planning` · `"plan sprint"`, `"start sprint"` | Sprint scope, spillover carry-in, dependency mapping, realism against velocity; creates the `docs/sprint-<N>/` folder a BLI moves into when it is set `done` |
 | `skills/backlog` | skill | `/backlog` · `"backlog item"`, `"user story"`, `"bli"`, `"is this item ready"` | Draft or update a local backlog item in `docs/backlog/`, and run the ready check: each item against the Definition of Ready, a next step per open point, `ready` only after the developer confirms |
 | `skills/jira-ticket` | skill | `/jira-ticket` · `"maak een jira ticket"`, `"file a story"` | Create a Jira bug/story/task from a type-specific template, a story in the team's format under a confirmed epic — a sanctioned tracker **write** |
@@ -201,8 +201,12 @@ step, and proposes; the developer flips `ready`, and only then may
 needs it: at the end of writing or updating an item, as an offer after sprint
 planning (which notes `Planned for Sprint <N>.` under the status value instead of
 replacing it), and read-only in work-backlog's report when nothing is eligible. A
-question parked for refinement reaches the next refinement prep. It stays partial
-because a person flips `ready` — that is the gate, not a gap.
+question parked for refinement reaches the next refinement prep. A story in the
+tracker has its own list, `rules/ticket-flow.md` § Definition of Ready: refinement
+prep gives each story a ready line next to its parked questions, leaving sizing to
+the session, and sprint planning flags the stories that fail a line. Bugs, tasks and
+support tickets are not held against it, and neither skill touches the ticket. It
+stays partial because a person flips `ready` — that is the gate, not a gap.
 
 ### Build — implement
 
@@ -278,7 +282,7 @@ can sit unnoticed. See [Gaps](#gaps).
 | `skills/release` | skill | `/release` · `"release starten"`, `"naar productie"`, `"release afronden"` · after the acceptance state is accepted, or after the fact for a tag's tickets | The release around the project's own runbook: recipients and Slack asked up front, a start-mail draft with a two-hour indication, the runbook's promotion, tag and back-sync, notes via `skills/release-notes`, a live-mail reply draft with the overview, shipped tickets classified from the range and given a version (label fallback without Jira rights), their status read back and moved only on the user's go per ticket, then the close-sprint check and stale-branch cleanup — mail drafted, never sent. An unversioned project gets a one-time proposal to introduce versions, and the decision lands in `CONVENTIONS.md` |
 | `commands/close-sprint.md`, `commands/compact-sprint.md`, `commands/sprint-demo.md`, `commands/release-notes.md` | commands | trigger phrase → command | Fallback runbooks |
 | `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/` and the sprint folders), deploy to development read back, "How to test this" comment with a test checklist for the team covering the whole capability (posted after approval, held while the deploy is unconfirmed, deferred while slices remain), ticket status read back and the assignee's manual move named with the ticket link, branch/worktree cleanup |
-| `rules/ticket-flow.md` | rule | loaded — commenting on a ticket, reading its status back, calling it done | The sprint flow between people: one assignee who keeps the ticket, the team tests, handoff comments, moving is handwork, and the three-layer Definition of Done with the test checklist |
+| `rules/ticket-flow.md` | rule | loaded — checking a story is ready for a sprint, commenting on a ticket, reading its status back, calling it done | The sprint flow between people: one assignee who keeps the ticket, the team tests, handoff comments, moving is handwork, the Definition of Ready for stories, and the three-layer Definition of Done with the test checklist |
 | `skills/dependency-hotfix` | skill | `/dependency-hotfix` · `"pak de critical op"`, `"critical hotfix"` — after the weekly dependency-scanner report flags a critical on production | The out-of-band path to production: minimal bump on a hotfix branch off production, MR with GitLab auto-merge, deploy read-back, then production back-merged into acceptance and development (always pushes, so the ancestry survives), a Slack thread, and cleanup — one go, resumable |
 | `skills/ticket-handoff` | skill | `/ticket-handoff` · `"tester commented"`, `"bevindingen"`, `"naar acceptatie"` · after the test comment of `skills/mr-merged`, when a reply comes in | The stretch after the test comment, and the Feedback triage gate on a ticket: the newest reply since the last handoff comment classified (findings, no findings, approval, rejection, or unclear — reported, never guessed), findings routed to `skills/backlog` in scope and to `skills/jira-ticket` out of scope, the comment for the product owner drafted and posted after approval, the Done layer checked before Done, and the assignee's move named with the ticket link — nothing moved, nothing fixed |
 
@@ -431,7 +435,7 @@ actually stands against it — the alignment view, not a wish list.
 | Design | component reuse check (new component, or does it exist?) | ⛔ | graphify answers it on demand during Build |
 | Design | token drift: codebase vs Figma source | ⛔ | one-way generation into the committed token file is the contract; a drift check guards a direction that is not allowed anyway |
 | Design | responsive/interaction spec extraction | ⚠️ | `skills/component-spec`, from requirements rather than from frames |
-| Plan | ticket quality gate (blocking) | ⚠️ | `skills/refinement` advises, never blocks |
+| Plan | ticket quality gate (blocking) | ⚠️ | `skills/refinement` and `skills/sprint-planning` report each story against `rules/ticket-flow.md` § Definition of Ready; they advise, never block |
 | Plan | epic decomposition with dependencies | ⚠️ | `skills/user-journeys` proposes the slices per journey and `rules/mr-sizing.md` bounds them; `skills/sprint-planning` maps the dependencies. Nothing decomposes a tracker epic on its own |
 | Plan | duplicate/overlap detection, auto-linking to past work | ⛔ | backlogs at this size are read end to end during refinement |
 | Plan | acceptance criteria → test cases | ❌ | filed: `docs/backlog/feat-requirements-traceability.md` |

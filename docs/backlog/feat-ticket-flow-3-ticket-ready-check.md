@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+done
 
 ## Slice
 
@@ -44,6 +44,40 @@ owner for the basics.
 
 ## How to verify
 
+- [x] Criteria 3, 5 and 6, eval case `evals/refinement/refinement-4` (a fake
+  `jira` with DEMO-201, a ready story; DEMO-202, empty, with "(specificeren)" and
+  no epic; DEMO-203, a bug without design):
+  `claude plugin eval <worktree> --case refinement-4 --runs 1 --ablation none --scaffold --allow-tools Bash Write Edit --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 1`.
+  - On the base it fails: score 0.75, a1 FAIL×3. The prep doc had no ready verdict
+    per story and never read the raw view ($0.45).
+  - Two runs after the first implementation still failed a1 (0.75). The passing
+    story's ready line listed the lines it passed, and once mixed in the MR split
+    ($0.51, $0.57). The runbook now gives the literal line shape.
+  - It passes: score 1.00 ($0.50). a1 PASS×3: DEMO-201 reads `**Ready:** ready`,
+    and DEMO-202 reads `fails Sections …, Placeholder …, Design …, Epic …`.
+    a2 PASS×3: the bug gets no ready line. a3: 0 jira write commands. The skill
+    fired.
+- [x] Criteria 1 and 2 by review: `rules/ticket-flow.md` § Definition of Ready
+  has the seven lines, before § Definition of Done, and its scope line names
+  refinement prep and sprint planning. `rules/backlog.md` § Definition of Ready
+  keeps its table and adds one line pointing to it.
+- [x] Criterion 4 by review, since there is no sprint-planning eval suite.
+  `commands/sprint-planning.md`:
+  - Phase 1 reads `--raw` and runs the ready check per story.
+  - Phase 4 names the other failing lines of an unsized story in its Rationale.
+  - Phase 6 Doc actions and the Phase 7 summary carry the failing stories, and so
+    does Output.
+  - `skills/sprint-planning/SKILL.md` Output lists them among the flags.
+  - Both templates have a place for them.
+- [x] The pre-commit hook on the implementation commit:
+  - `validate-skills.mjs`: 39 skills, 106 docs link-checked, no errors. Its one
+    warning, create-pr at 503 lines, predates this branch.
+  - The hook, release-automation, run-checks parity and compact-sprint tests are
+    green.
+  - `generate-adapters.sh` and the drift check report no changes.
+- Targeted evals: refinement-4 — 1/1 pass ($0.50, 2026-10-30), after a fail
+  on the base.
+
 ## Technical Notes
 
 Approach: the list lives once, in `rules/ticket-flow.md` § Definition of Ready, as a
@@ -61,9 +95,12 @@ skills read the rule; they do not copy the lines.
 - `skills/sprint-planning/SKILL.md` § Output (the flags list) and
   `commands/sprint-planning.md`: failing stories in the flags; where an unsized story
   goes to `skills/sprint-planning/templates/refinement-template.md`, the failing line
-  goes with it.
-- `docs/pipeline-map.md`: the Definition of ready gate row (now ⚠️ partial) names the
-  ticket check.
+  goes with it. The planning document lists them as well, in
+  `skills/sprint-planning/templates/planning-template.md` under the Flags line.
+- `docs/pipeline-map.md`: the Definition of ready gate row (⚠️ partial already, and
+  it stays partial) names the ticket check.
+- `jira issue view --plain` leaves out Flagged and story points, so both runbooks read
+  `--raw` as well.
 
 "One capability" is the product owner's unit, not the MR budget: a story may take more
 than one MR (`rules/backlog.md` § One Ticket, Many Items). The check names a story that
@@ -81,8 +118,9 @@ Support mode has no sprint planning, and its tickets are mostly bugs and tasks; 
 lighter route (decided in refinement of this slice) keeps them out of the check.
 
 `feat-delivery-guidance-2-ready-check-in-the-path.md` changes the same places: refinement
-Phase 3 "Questions per ticket", the sprint-planning Output and Phase 6, and the
-Definition of ready gate row in `docs/pipeline-map.md`. Build on it, after it merges:
+Phase 3 "Questions per ticket", the sprint-planning Output and the ready-check offer
+after Phase 7, and the Definition of ready gate row in `docs/pipeline-map.md`. Build
+on it, after it merges:
 its parked developer questions and this slice's ready lines sit side by side per ticket,
 and the gate row names both checks.
 
@@ -101,3 +139,4 @@ and the gate row names both checks.
 - [../../skills/refinement/SKILL.md](../../skills/refinement/SKILL.md)
 - [../../skills/sprint-planning/SKILL.md](../../skills/sprint-planning/SKILL.md)
 - [../../evals/mr-merged/mr-merged-1/case.yaml](../../evals/mr-merged/mr-merged-1/case.yaml)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/335

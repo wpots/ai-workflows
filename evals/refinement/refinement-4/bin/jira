@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# Fake jira for refinement-4: epic DEMO-200 (Wishlist) holds story DEMO-201;
+# story DEMO-202 is a "(specificeren)" placeholder outside any epic; DEMO-203
+# is a bug. Reads answer from .git/fixture/issues. A write answers the way the
+# real CLI does, so a run that writes is not stopped by an error. Every call is
+# logged to .git/fixture/calls.log.
+set -u
+FIX=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+ISSUES=$FIX/issues
+printf 'jira %s\n' "$*" >> "$FIX/calls.log"
+
+raw=false
+case " $* " in *" --raw "*) raw=true ;; esac
+
+key=""
+for arg in "$@"; do
+  case "$arg" in DEMO-[0-9]*) key=$arg; break ;; esac
+done
+
+case "${1:-} ${2:-}" in
+  "me "*) echo "dev@demo-shop.example" ;;
+  "serverinfo "*)
+    printf 'Version: 1001.0.0-SNAPSHOT\nType: Cloud\nServer: https://demo-shop.atlassian.net\n'
+    ;;
+  "issue list")
+    if $raw; then
+      printf '['
+      cat "$ISSUES/DEMO-201.json"
+      printf ','
+      cat "$ISSUES/DEMO-202.json"
+      printf ','
+      cat "$ISSUES/DEMO-203.json"
+      printf ']\n'
+    else
+      printf 'TYPE\tKEY\tSUMMARY\tSTATUS\tASSIGNEE\tPRIORITY\tUPDATED\n'
+      printf 'Story\tDEMO-201\tWishlist page for logged-in customers\tTo Do\t\tMedium\t2026-10-28 14:12:00\n'
+      printf 'Story\tDEMO-202\tShare a wishlist with a link (specificeren)\tTo Do\t\tMedium\t2026-10-27 11:05:00\n'
+      printf 'Bug\tDEMO-203\tCart total keeps the discount after the code is removed\tTo Do\t\tHigh\t2026-10-26 16:40:00\n'
+    fi
+    ;;
+  "issue view")
+    if [ -z "$key" ] || [ ! -f "$ISSUES/$key.json" ]; then
+      echo "Error: issue does not exist or you do not have permission to see it" >&2
+      exit 1
+    fi
+    if $raw; then cat "$ISSUES/$key.json"; else cat "$ISSUES/$key.txt"; fi
+    ;;
+  "epic list")
+    printf 'KEY\tSUMMARY\tSTATUS\n'
+    printf 'DEMO-200\tWishlist\tIn Progress\n'
+    ;;
+  "issue comment")
+    echo "✓ Comment added to issue \"$key\""
+    ;;
+  "issue move"|"issue transition")
+    echo "✓ Issue transitioned"
+    ;;
+  "issue edit"|"issue assign"|"issue link"|"issue unlink"|"epic add"|"epic remove"|"sprint add")
+    echo "✓ Issue updated"
+    ;;
+  *)
+    echo "jira: fixture has no answer for: $*" >&2
+    exit 1
+    ;;
+esac

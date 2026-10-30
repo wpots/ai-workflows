@@ -1,7 +1,8 @@
 # Ticket Flow
 
-> Apply when a skill comments on a tracker ticket, reads its status back, or
-> checks whether it may be called done: the test handoff after a merge, test
+> Apply when a skill checks whether a story is ready for a sprint (refinement
+> prep, sprint planning), comments on a tracker ticket, reads its status back,
+> or checks whether it may be called done: the test handoff after a merge, test
 > findings, the product owner's acceptance, the release.
 
 A ticket moves through the sprint by comments between people, and the board
@@ -43,6 +44,26 @@ doubt.
 - The skill does not offer to make the move. The one exception, a move the
   user asks for with a go per ticket, and the hook that enforces it are in
   `skills/service-cli` § Ticket status.
+
+## Definition of Ready
+
+A story is ready for a sprint when every line below holds. A project's own
+Definition of Ready, in its `CONVENTIONS.md` or on its board, wins over this
+one. Bugs, tasks and support tickets are not held against it.
+
+| Line | Ready when |
+| --- | --- |
+| Sections | Description, Acceptance criteria, Visual design and Dependencies are filled (Omschrijving, Acceptatiecriteria, Visual design, Afhankelijkheden); Dependencies may say there are none |
+| Placeholder | no `(specificeren)` behind the title |
+| Flag | the story is not flagged |
+| Design | the design is linked in the body when the story has UI |
+| Epic | the story sits under an epic |
+| Size | the story is sized in story points |
+| One capability | the title and description read as one capability, not two joined by "and"; a story may still take more than one MR (`rules/backlog.md` § One Ticket, Many Items), so this line is not sized against `rules/mr-sizing.md` |
+
+Refinement prep and sprint planning read each story's issue type, body, parent,
+Flagged field and story points, and report per story the lines that fail. The
+report is the output: neither edits, flags, comments on or moves the ticket.
 
 ## Definition of Done
 

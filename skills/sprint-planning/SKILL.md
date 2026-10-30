@@ -83,6 +83,8 @@ Written to `docs/sprint-<N>-planning.md`, plus:
   proposed execution order with per-item rationale, doc actions, and local
   anchors.
 - A list of flags awaiting a user decision: doc ↔ tracker mismatches, external
-  blockers, unplanned spillover, unsized tickets.
+  blockers, unplanned spillover, unsized tickets, and stories that fail a line
+  of `rules/ticket-flow.md` § Definition of Ready, each with the line it fails.
+  Bugs, tasks and support tickets are not held against that list.
 - The offer to run the ready check over the planned items.
 - Last, one `Next step:` line, from the table in the runbook's Output.

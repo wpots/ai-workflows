@@ -52,6 +52,11 @@ workflow; Copilot follows the runbook directly.
   (`Blocked on: refinement — <question>`) goes into that ticket's question
   list, marked as theirs. In outcome mode, a decided one is reported with its
   BLI so the developer can remove the line.
+- Each story gets a ready line next to its questions: `Ready: ready` and nothing
+  more, or `Ready: fails <line>, …` with only the lines of
+  `rules/ticket-flow.md` § Definition of Ready it fails, without the Size line.
+  Its MR slices are not a ready line. Bugs, tasks and support tickets are not
+  held against it.
 - Stop and ask when a ticket is empty or ambiguous; do not invent scope.
 
 ## Output

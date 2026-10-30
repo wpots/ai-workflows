@@ -1,0 +1,15 @@
+⭐ Story  🚧 To Do  ⌛ Tue, 27 Oct 26  👷 Unassigned  🔑️ DEMO-202  💭 0 comments  🧵 0 linked
+
+# Share a wishlist with a link (specificeren)
+
+⏱️  Tue, 27 Oct 26  🔎 Demo Shop PO  🚀 Medium  📦 None  🏷️  None
+
+------------------------ Description ------------------------
+
+## Description
+
+## Acceptance criteria
+
+## Visual design
+
+## Dependencies
