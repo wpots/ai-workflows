@@ -60,8 +60,8 @@ proposed approach. For `suggestion` blocks, note whether applying verbatim still
 type-checks (e.g. a dropped helper whose return value is used elsewhere needs the
 value re-derived).
 
-State the hand-back you will do after the push (step 9), so one go-ahead
-covers it.
+State the hand-back you will do after the push (step 9: the 👍, the MR note and
+the Slack reply), so one go-ahead covers it.
 
 State the isolated worktree path you will use. The task's existing
 authorization covers worktree setup; ask only for unresolved implementation
@@ -224,6 +224,16 @@ is the reviewer's call unless the user asks for it. On GitLab:
    and what changed, and offers the MR for another look:
    `glab api -X POST "projects/<path>/merge_requests/<iid>/notes" -f body='…'`.
    Single-quote the body so backticks in it survive the shell.
+4. Slack: the GitLab note does not reach the channel where the review talk
+   happens (unicore !121 and !123 had pushes and a hand-back note with nothing
+   in the Slack thread, 2026-10-30). When a Slack tool is available and the MR
+   has a post in a channel (search the MR URL with
+   `slack_search_public_and_private`), reply in the thread of that original
+   post, never as a new top-level message: one line that mentions each
+   reviewer with an open thread, says what changed and offers another look, in
+   the thread's language (`<@REVIEWER> aangepast: <what changed>. Kijk je nog
+   even?`). One reply per push. No post or no Slack tool → skip silently and
+   say so in the recap.
 
 On GitHub, do the same with a reaction on each comment and `gh pr comment`.
 
