@@ -78,13 +78,22 @@ Without the marketplace, install it by hand per `docs/setup-machine.md`
 
 Report which targets were synced and which were skipped (missing IDE folders).
 
-### 4. Add convenience alias
+### 4. Add the `ai-sync` command
 
-Check if alias already exists in `~/.zshrc` or `~/.bashrc` before adding:
+Add this function to `~/.zshrc`, replacing an older `alias ai-sync=` line, then
+`source ~/.zshrc`. It pulls `main` and syncs; flags go through to `sync.sh`
+(`ai-sync --dry-run`, `ai-sync --project <path>`). It refuses when the clone is
+on another branch, because `sync.sh` copies the working tree as it is.
 
-```bash
-echo 'alias ai-sync="$HOME/Web/ai-workflows/scripts/sync.sh"' >> ~/.zshrc
-source ~/.zshrc
+```zsh
+ai-sync() {
+  local repo="$HOME/Web/ai-workflows"
+  if [[ "$(git -C "$repo" branch --show-current)" != main ]]; then
+    echo "ai-sync: $repo is not on main" >&2
+    return 1
+  fi
+  git -C "$repo" pull --ff-only && "$repo/scripts/sync.sh" "$@"
+}
 ```
 
 ### 5. Verify
@@ -123,7 +132,6 @@ graphify update .               # build the initial local graph
 ## Post-Setup
 
 - Edit workflows only in `~/Web/ai-workflows/`, never in synced target folders.
-- After any change: `git add . && git commit -m "..." && git push && ai-sync`
-- On other devices: `git pull && ai-sync`
+- After a change merges, run `ai-sync` on each device.
 
 **Important:** Do NOT run destructive commands (rm, reset) without confirmation.
