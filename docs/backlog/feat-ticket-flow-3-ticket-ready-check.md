@@ -139,3 +139,4 @@ and the gate row names both checks.
 - [../../skills/refinement/SKILL.md](../../skills/refinement/SKILL.md)
 - [../../skills/sprint-planning/SKILL.md](../../skills/sprint-planning/SKILL.md)
 - [../../evals/mr-merged/mr-merged-1/case.yaml](../../evals/mr-merged/mr-merged-1/case.yaml)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/335
