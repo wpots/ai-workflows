@@ -85,3 +85,4 @@ and `self`, and no flag expands it).
 - [../../skills/release/SKILL.md](../../skills/release/SKILL.md)
 - [../../skills/close-sprint/SKILL.md](../../skills/close-sprint/SKILL.md)
 - [../../rules/ticket-flow.md](../../rules/ticket-flow.md)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/342
