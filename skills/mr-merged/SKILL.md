@@ -112,7 +112,8 @@ never invented:
 
 Keep the whole comment readable in one minute, the rule `skills/jira-ticket`
 sets for the ticket itself (§ Ticket length). The product owner gets their own
-comment later, from the assignee, when the test comes back without findings.
+comment later, from the assignee, when the test comes back without findings;
+the replies to this comment are `skills/ticket-handoff`'s.
 
 Write it in the tracker's working language, matching the project's existing
 tickets — not the language of the chat session. If the diff gives no
