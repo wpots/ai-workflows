@@ -12,7 +12,7 @@ Use this skill when the user asks for release notes, a customer update, or
 
 The canonical step-by-step runbook lives at `commands/release-notes.md`. This
 skill is a thin wrapper around that runbook so Codex and Claude Code share the
-same workflow; Copilot follows the runbook directly.
+same workflow.
 
 Core principle: the notes describe what the customer can see or do now, and on
 which environment. Everything the team needs to trace it — keys, commits, MRs —

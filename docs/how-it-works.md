@@ -11,7 +11,6 @@ This is the main design constraint in the repo. Everything else follows from it.
 
 | Tool | What it reliably loads | Practical implication |
 | ---- | ---------------------- | --------------------- |
-| GitHub Copilot | `.github/copilot-instructions.md` | Important coding rules must be inlined there. Prompt files help, but are not guaranteed auto-context. |
 | Claude Code | `~/.claude/CLAUDE.md`, every file in `~/.claude/rules/`, and installed plugins | Global Claude rules must stay universal and slim. The plugin delivers them to `~/.claude/rules/` (this repo's `CLAUDE.md` as `ai-workflows.md`) and leaves `~/.claude/CLAUDE.md` to the user. Skills and commands ship via the `greenberry` plugin. |
 | Codex | `AGENTS.md`, skills, and repo files it can inspect | `AGENTS.md` stays thin and points to the real project context. |
 
@@ -19,8 +18,6 @@ Because of that:
 
 - Claude global sync ships only universal rules: `communication.md`,
   `project.md`, `clean-architecture.md`.
-- Copilot project sync inlines both `CONVENTIONS.md` and a condensed shared
-  baseline.
 - Synced projects get an `AI-WORKFLOWS.md` guide explaining the per-tool loading
   model locally.
 
@@ -37,7 +34,8 @@ Recommended default when adding something:
 
 - new policy → add or update a rule file
 - new reusable workflow → create a skill first
-- Copilot or fallback support for that workflow → add a command/runbook wrapper
+- fallback support for that workflow, for tools without skills → add a
+  command/runbook wrapper
 - always-on baseline → keep it compact in adapters or shared fragments
 
 [workflow-canonical-sources.md](workflow-canonical-sources.md) records the
@@ -47,12 +45,12 @@ declared canonical source of each reusable workflow.
 
 | Tool | Always-on entry point | Preferred workflow surface |
 | ---- | --------------------- | -------------------------- |
-| GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
+| GitHub Copilot | not supported; sync generates nothing for it | — |
 | Cursor | not supported; sync generates nothing for it | — |
 | Codex | `AGENTS.md` | skills first, commands as fallback |
 | Claude | `CLAUDE.md` (which imports `AGENTS.md` and `CONVENTIONS.md`) plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
 
-The repo is intentionally not “skills only.” Copilot still needs
+The repo is intentionally not “skills only.” Tools without skills still need
 command-friendly runbooks. Claude is skills-first as of 2026-07 — the decision
 record is in [skills-first-migration-plan.md](skills-first-migration-plan.md).
 
@@ -90,8 +88,6 @@ Treat the synced setup as two layers: the **ambient baseline** (tool adapter plu
   validation and unsafe assertions, not just TypeScript syntax.
 - For repeatable multi-step workflows on Codex, prefer the matching skill when
   one exists.
-- For Copilot, rely on commands/runbooks rather than assuming skills exist, and
-  assume only `.github/copilot-instructions.md` is ambient.
 - For reviews and audits, name the policy you want checked — e.g.
   `rules/clean-architecture.md` plus the matching stack rule.
 
@@ -167,11 +163,9 @@ setup with a clear split:
 - `AI-WORKFLOWS.md` — developer guide for how the setup works per tool
 - `CLAUDE.md`, `AGENTS.md` — thin adapters; `AGENTS.md` is the one Codex and
   Claude share, and `CLAUDE.md` imports it
-- `.github/copilot-instructions.md` — Copilot adapter with context inlined
 - `rules/`, `commands/` — shared baseline rules and runbooks;
   `rules/payload.md` only for projects with a `payload` or `@payloadcms/*`
   dependency
-- `.github/prompts/` — Copilot prompt wrappers generated from `commands/`
 - `.claude/settings.json` — graphify hooks, only written when the project has
   none
 

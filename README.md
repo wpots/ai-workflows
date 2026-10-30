@@ -1,7 +1,7 @@
 # ai-workflows
 
-Shared AI workflow configuration for Claude Code, Codex, and GitHub Copilot —
-and the sync that installs it into a project.
+Shared AI workflow configuration for Claude Code and Codex — and the sync that
+installs it into a project.
 
 This repo is the source of truth for reusable:
 
@@ -38,8 +38,8 @@ install the Claude plugin, and you are done —
 | --- | --- |
 | `skills/` | multi-step workflows — kickoff, user journeys, backlog, sprint, review, audit, maintenance. Canonical surface on skill-aware tools. |
 | `rules/` | Coding and policy baseline, loaded per task rather than all at once. |
-| `commands/` | The same workflows as runbooks, for tools that cannot use skills (Copilot). |
-| tool adapters | `CLAUDE.md`, `AGENTS.md`, Copilot instructions — thin, generated, always-on routing. |
+| `commands/` | The same workflows as runbooks, for tools without skills. |
+| tool adapters | `CLAUDE.md`, `AGENTS.md` — thin, generated, always-on routing. |
 | `mcp/` | Canonical MCP server definitions. |
 
 Full inventory of every skill, command, rule, and MCP server:

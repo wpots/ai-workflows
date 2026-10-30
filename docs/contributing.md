@@ -89,7 +89,7 @@ Useful variants:
 | a reusable coding standard | `rules/` |
 | compact universal type-safety doctrine | the TypeScript section of `rules/project.md` (detailed enforcement → `rules/type-safety.md`) |
 | a reusable multi-step workflow | `skills/` first |
-| a Copilot-compatible wrapper or fallback procedure | `commands/` |
+| a runbook for tools without skills, or a fallback procedure | `commands/` |
 | tool-specific adapter wording | `templates/`, `AGENTS.md`, or `CLAUDE.md` |
 | a snippet repeated across adapters | `shared/` |
 

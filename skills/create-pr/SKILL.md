@@ -106,7 +106,7 @@ If the platform cannot be inferred, ask the user.
 7. Check whether the diff is primarily a shared AI workflow change.
    - If `AI-WORKFLOWS.md` exists, use its `Shared Workflow Assets` section as the source of truth.
    - If it does not exist, treat synced workflow surfaces such as `commands/`,
-     `rules/`, `.github/prompts/`, and thin adapter files as shared workflow files.
+     `rules/`, and thin adapter files as shared workflow files.
 8. If the diff is primarily a reusable shared workflow change and the current repo is a synced target rather than the canonical `ai-workflows` repo, pause and tell the user this likely belongs in the ai-workflows repo. Ask whether to:
    - create the PR from this repo anyway
    - upstream the change in `ai-workflows` instead

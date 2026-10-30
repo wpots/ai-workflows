@@ -12,7 +12,7 @@ tickets, or record what was decided in a refinement session.
 
 The canonical step-by-step runbook lives at `commands/refinement.md`. This skill
 is a thin wrapper around that runbook so Codex and Claude Code share the same
-workflow; Copilot follows the runbook directly.
+workflow.
 
 ## Workflow
 

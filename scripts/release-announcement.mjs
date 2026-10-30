@@ -127,7 +127,7 @@ export function actionLines(body) {
     .map((entry) => `• ${entry.slack ? escapeMrkdwn(entry.slack) : toMrkdwn(entry.text)}`);
 }
 
-const ADAPTERS = "de project-adapters (`CLAUDE.md`, `AGENTS.md`, Copilot)";
+const ADAPTERS = "de project-adapters (`CLAUDE.md`, `AGENTS.md`)";
 const SYNC_SCRIPT = "het sync-script";
 
 /**

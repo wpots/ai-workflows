@@ -10,11 +10,7 @@ for the full loading table):
 - `CONVENTIONS.md` is the project-owned single source of project context.
 - `AI-WORKFLOWS.md` is the developer guide explaining how the synced files
   work together, including the `Shared Workflow Assets` section.
-- Thin adapters (`CLAUDE.md`, `AGENTS.md`) route each tool to those sources;
-  the Copilot adapter inlines `CONVENTIONS.md` because Copilot cannot follow
-  references.
-- `.github/prompts/*.prompt.md` files are generated from `commands/` for
-  Copilot prompt dispatch.
+- Thin adapters (`CLAUDE.md`, `AGENTS.md`) route each tool to those sources.
 - The global Claude sync intentionally ships only the slim universal rule set
   (`communication.md`, `project.md`, `clean-architecture.md`); everything else
   loads per project or via skills.
@@ -156,7 +152,7 @@ Shows the intended support model for the main workflow surfaces.
 
 | Tool | Always-on entry point | Preferred workflow surface |
 |------|------------------------|----------------------------|
-| **GitHub Copilot** | `.github/copilot-instructions.md` | commands/runbooks |
+| **GitHub Copilot** | not supported; sync generates nothing for it | — |
 | **Cursor** | not supported; sync generates nothing for it | — |
 | **Codex** | `AGENTS.md` | skills first, commands as fallback |
 | **Claude Code** | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |

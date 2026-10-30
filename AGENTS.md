@@ -13,13 +13,13 @@ Use this surface model throughout the repo:
 | `rules/` | stable policy and coding standards |
 | `skills/` | repeatable multi-step workflows for skill-aware tools |
 | `commands/` | compatibility adapters and fallback runbooks |
-| adapters (`AGENTS.md`, `CLAUDE.md`, Copilot instructions) | always-on routing, precedence, and local usage guidance |
+| adapters (`AGENTS.md`, `CLAUDE.md`) | always-on routing, precedence, and local usage guidance |
 
 ## Tool Support Matrix
 
 | Tool | Always-on entry point | Preferred workflow surface |
 | ---- | --------------------- | -------------------------- |
-| GitHub Copilot | `.github/copilot-instructions.md` | commands/runbooks |
+| GitHub Copilot | not supported; sync generates nothing for it | — |
 | Cursor | not supported; sync generates nothing for it | — |
 | Codex | `AGENTS.md` | skills first, commands as fallback |
 | Claude | `CLAUDE.md` plus global/project rules | skills first (via the `greenberry` plugin), commands as fallback |
@@ -28,8 +28,7 @@ Use this surface model throughout the repo:
 
 Command files live in `commands/` and serve two purposes:
 
-1. **Compatibility runbooks** for tools that rely on prompt/runbook surfaces,
-   especially GitHub Copilot and other less skill-centric setups.
+1. **Compatibility runbooks** for tools without skills.
 2. **Fallback dispatch** for skill-aware tools when a workflow is not yet
    modeled as a skill or when the skill path is unavailable.
 

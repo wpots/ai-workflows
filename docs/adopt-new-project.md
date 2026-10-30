@@ -101,9 +101,6 @@ This installs or refreshes:
 
 - `AI-WORKFLOWS.md` — developer guide for how the setup works per tool
 - `CLAUDE.md`, `AGENTS.md` — thin adapters that point back to project context
-- `.github/copilot-instructions.md` — Copilot adapter, with context **inlined**
-  because Copilot cannot follow references
-- `.github/prompts/*.prompt.md` — Copilot prompt wrappers generated from `commands/`
 - `rules/` and `commands/` — shared baseline rules and reusable runbooks
 - `.claude/settings.json` — graphify hooks, only written when the project has
   none

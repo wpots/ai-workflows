@@ -11,7 +11,7 @@ need to do something; join it to know when that is the case.
 | --- | --- | --- |
 | Claude Code | `greenberry` plugin auto-update (SSH only) + the `SessionStart` ambient hook | Nothing, normally. Claude prompts to reload when something new landed. |
 | Codex | `./scripts/sync.sh` only | Pull and re-sync when you want the update. |
-| Copilot | project-committed `.github/copilot-instructions.md` | Nothing on the machine — it updates per project. |
+| Copilot | not supported; sync generates nothing for it | Nothing — `.github/` files from earlier syncs are left as they are. |
 
 Codex refresh:
 
@@ -53,7 +53,6 @@ the project:
 
 - `AI-WORKFLOWS.md`
 - `CLAUDE.md`, `AGENTS.md`
-- `.github/copilot-instructions.md`, `.github/prompts/`
 - `rules/`, `commands/`
 
 What survives:
@@ -72,7 +71,7 @@ There is no schedule that needs enforcing, but these are the useful triggers:
 
 | Trigger | Why |
 | --- | --- |
-| A rule or command you rely on changed here | Codex/Copilot read the project copy, not this repo. |
+| A rule or command you rely on changed here | Codex reads the project copy, not this repo. |
 | The project's stack changed (major upgrade, new CMS, new test runner) | `CONVENTIONS.md` is now wrong — re-run `setup-ai-workflows`, not just sync. |
 | Onboarding someone new to the project | Cheapest moment to fix drift. |
 | A periodic maintenance sweep | The `maintenance` skill checks doc drift among other things. |
