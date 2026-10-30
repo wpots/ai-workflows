@@ -84,3 +84,4 @@ the project's board, matched by place in the flow. Update the Feedback triage ga
 - [../../skills/jira-ticket/SKILL.md](../../skills/jira-ticket/SKILL.md)
 - [../../skills/backlog/SKILL.md](../../skills/backlog/SKILL.md)
 - [../pipeline-map.md](../pipeline-map.md)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/333
