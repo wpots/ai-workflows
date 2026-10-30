@@ -2,7 +2,7 @@
 
 ## Status
 
-ready
+in-progress
 
 Drafted and flipped to ready 2026-10-13 with the maintainer. Ready check of
 2026-10-14 (slice 1's post-merge check) folded in on the maintainer's go: the
