@@ -301,6 +301,11 @@ Include the draft parent message. No go, nothing leaves the machine.
   Report what the API says, not what the command was meant to do.
 - When the runbook names a no-deploy window (nightly jobs, for example) and
   the merge could land in it, arm auto-merge after the window instead.
+  Friday and the weekend are no such window for a critical: the customer is
+  promised no production deploys then, and a critical is the exception. When
+  the merge can land on a Friday, Saturday or Sunday, the plan's `MR` line
+  says so and the MR description records the exception: the day and the
+  advisory it fixes.
 - **Board follow-up.** Add `<PROJECT> back-merge hotfix !<iid>: production terug
   naar <the long-lived branches that exist>` as
   `skills/mr-merged/references/mr-board-followups.md` describes, finding it

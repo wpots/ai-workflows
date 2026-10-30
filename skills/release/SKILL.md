@@ -154,7 +154,7 @@ Show one plan block plus the start-mail draft text, then ask for the go:
 ```
 Project       greenberrynl/<client>/<site> · runbook docs/release-process.md
 Version       1.2.0 (minor) · scope v1.1.2..origin/acceptance · 14 commits, 9 tickets
-Pre-flight    no migration · env unchanged · nightly window clear (now 09:40)
+Pre-flight    no migration · env unchanged · nightly window clear · Tue 09:40, a deploy day
 Start mail    draft to 6 recipients, subject "Release V1.2.0"
 Release       cut on acceptance → acc rehearsal → ff-push to main → deploy read-back → tag + GitLab Release → back-sync
 Notes         skills/release-notes, v1.1.2..v1.2.0, product owner, Dutch
@@ -195,6 +195,13 @@ promotion, deploy read-back, tag and Release, back-sync. Where it is silent
 about the deploy read-back, use Step 3 of `skills/mr-merged/SKILL.md`: read
 the deploy job's log and the platform's own activity, not only a green job.
 
+- **Deploy day.** Production goes live Monday to Thursday, preferably Monday
+  to Wednesday, never on a Friday or in the weekend: the customer's service
+  agreement promises that. Check the day again right before the promotion,
+  also after a pause. On a Friday or in the weekend, stop before the
+  promotion and propose Monday. Only an explicit go for that date promotes
+  anyway, and the GitLab Release description then records the exception: the
+  day and the reason. A deploy window the runbook names applies on top.
 - Note the time production went live, in the customer's timezone. The live
   mail states it.
 - Run the read-only smoke checks the runbook's verify step names: key pages

@@ -80,6 +80,15 @@ Do NOT test in Storybook: props merging logic, ref forwarding mechanics, edge ca
   set the density register, and a comment carrying the claim an assertion
   cannot make is a test-design smell, not documentation
 
+## Test Data
+
+- Tests, fixtures, stories and seeds use synthetic data, never customer or
+  production data. A production dump stays local: never in the repository, a
+  fixture, a story or a seed.
+- A token or secret a test needs comes from the project's secret store
+  (`dotenvx`, an env file outside git), never from a fixture or another
+  committed file.
+
 ## Coverage Requirements
 
 Coverage is **risk-based**: enforce a floor where product risk lives, not a
