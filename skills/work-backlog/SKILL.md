@@ -176,8 +176,10 @@ on the pipeline's own image) are verified on the MR pipeline instead:
    a small script that polls
    `glab api "projects/<id>/pipelines/<pipeline-id>"` and prints each job's
    status and the log tail of a failed one. A foreground Bash call is capped
-   (10 minutes); when it expires on a slow runner queue, run the same wait
-   again.
+   (10 minutes), and at the cap the tool moves the command to the background,
+   which this step forbids: give the script its own deadline below the cap
+   (9 minutes). When it exits on that deadline on a slow runner queue, run the
+   same wait again. Holds while the cap is 600 s (checked 2026-10-30).
 3. Green → mark the MR ready. Red → fix within scope, push, wait again.
 
 Never hand back while a pipeline is still running, and never wait on it with

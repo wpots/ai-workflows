@@ -188,6 +188,15 @@ unverified). If any command fails, stop and fix it — `--no-verify` skips only
 the hook process that cannot execute in a worktree, never the checks it would
 have run.
 
+**Commit and push on the project's pinned Node.** The hooks call `node`,
+`pnpm` and `npx` from `PATH`, which a non-interactive shell resolves to the
+version manager's default. Put the pinned `bin` first:
+`env PATH=<pinned node bin>:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin git -C <worktree> commit …`,
+and the same for `push`, with the rest of `PATH` spelled out because a `$PATH`
+expansion matches no allow rule. Never `fnm exec --using=<pin> git commit …`:
+the harness refuses it. Holds while the harness refuses `fnm exec` in front of
+git (checked 2026-10-30).
+
 **Before you let a worktree's hooks run** (after copying the hooks directory
 in, and on every push with the sandbox bypass, where nothing protects
 `.git/config`), read the hook files and check whether a step runs tests that
