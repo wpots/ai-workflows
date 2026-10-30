@@ -78,9 +78,9 @@ If none exists, ask the user which base branch to use.
    Merge everything into ONE severity-ordered findings list: the lens label
    stays on each finding (`[security]`, `[a11y]`, …), severity decides the
    order. For large diffs (roughly >15 files or >800 changed lines), run the
-   lenses as parallel subagents — one lens per agent, each reading only the
-   diff plus its rule file — and merge their outputs; a finding survives the
-   merge only with a concrete `file:line` anchor.
+   lenses as parallel subagents (`model: sonnet`) — one lens per agent, each
+   reading only the diff plus its rule file — and merge their outputs; a
+   finding survives the merge only with a concrete `file:line` anchor.
 3. When the diff includes TypeScript or boundary-heavy code, use
    `rules/type-safety.md` as the checklist source.
 4. Always check for:
