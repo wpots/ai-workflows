@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+in-progress
 
 Filed 2026-10-21 from a question after the plugin demo: how do the skills
 chain, for example maintenance into a hotfix via main. Ready check
