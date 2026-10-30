@@ -91,7 +91,9 @@ If the platform cannot be inferred, ask the user.
    MR description. If no matching case exists, report the coverage gap.
 6. **Self-review.** Run the `code-review` skill once over
    `<remote>/<resolved-base>...HEAD`, before the first push. Pass it the remote
-   and base resolved here: its own resolution assumes `origin`. A finding tagged
+   and base resolved here: its own resolution assumes `origin`. In a worktree,
+   also pass the branch and the worktree path ("Reviewing the branch" in
+   `references/worktrees.md`). A finding tagged
    `[correctness]` or `[security]` stops the flow. Take those one at a time and
    continue only once each is fixed or the user waives it explicitly; a waived
    finding goes into the MR description with the reason the user gave. A

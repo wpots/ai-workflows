@@ -82,7 +82,9 @@ If ambiguous, ask the user.
 
 Run `commands/review-code.md` once over `<remote>/<base>...HEAD`, before the
 first push. Its Architecture Conformance Pass covers the stack rule's
-Definition of Done.
+Definition of Done. When the branch lives in a worktree, pass the branch name
+and the worktree path and read files only under that path: from the main
+checkout `HEAD` and the working tree are another branch plus uncommitted work.
 
 - A `[correctness]` or `[security]` finding stops the flow: one at a time,
   continue only once it is fixed or the user waives it explicitly. A waived
