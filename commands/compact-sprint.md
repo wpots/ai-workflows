@@ -58,6 +58,11 @@ equivalents: `docs/support-<yyyy>-<mm>/` for `docs/sprint-<M>/`,
 retention guard counts calendar months: in month M, only months ≤ M−2 are
 eligible — the close of month M still cross-references month M−1.
 
+A repo that closes by quarter compacts `docs/<yyyy>-q<n>/` the same way:
+`docs/<yyyy>-q<n>-changelog.md` for the changelog, tag `<yyyy>-q<n>-bli-archive`,
+and `docs/todo/harvest-<yyyy>-q<n>-<topic>.md`. In quarter Q only quarters
+≤ Q−2 are eligible.
+
 ## Phase 0 — Preconditions
 
 1. Run from an up-to-date integration branch (`development` by default):

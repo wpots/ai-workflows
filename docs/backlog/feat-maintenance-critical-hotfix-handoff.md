@@ -137,4 +137,4 @@ because this changes what the plugin ships.
 - [../../skills/dependency-hotfix/SKILL.md](../../skills/dependency-hotfix/SKILL.md)
 - [../../skills/npm-maintenance/SKILL.md](../../skills/npm-maintenance/SKILL.md): "Maintenance ticket" already sends a critical on production to `dependency-hotfix`
 - [feat-critical-ticket-age-flag.md](feat-critical-ticket-age-flag.md)
-- [feat-delivery-guidance-3-next-step-in-recaps.md](feat-delivery-guidance-3-next-step-in-recaps.md)
+- [feat-delivery-guidance-3-next-step-in-recaps.md](../2026-q4/feat-delivery-guidance-3-next-step-in-recaps.md)

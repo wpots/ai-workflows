@@ -32,13 +32,13 @@ Audits open in January, April, July and October; the file is named after the
 month it opens (`docs/audits/2026-10.md`).
 
 Call `backlog` (phase 4) and `work-backlog` (phase 5) directly. Do not call
-`close-sprint`, `sprint-planning`, `refinement`, `sprint-demo` or
-`compact-sprint`: they stop without a live Jira connection, which this repo
-does not have, and close-sprint's BLI move collides with the release cut —
-`scripts/backlog-archive.mjs` already archives every `done` item at each
-release, with the release tag as the archive anchor. Borrow their shape (close
+`close-sprint`, `sprint-planning`, `refinement` or `sprint-demo`: they stop
+without a live Jira connection, which this repo does not have; `compact-sprint`
+needs the quarter changelog that close writes. Delivered items file themselves
+in `docs/<yyyy>-q<n>/`: the `done` commit moves them, and the release cut
+(`scripts/backlog-archive.mjs`) moves the stragglers. Borrow their shape (close
 table, review pause, demo record), not their runbooks. Nothing gets compacted:
-an audit file stays as the quarter's record.
+the quarter folder and the audit file stay as the quarter's record.
 
 ## Phase 0 — Prepare
 
@@ -55,14 +55,15 @@ For every rank of the previous audit, read its backlog items by key (see Phase
 
 ```sh
 rg -l "Audit 2026-10\]" docs/backlog/                     # still open
+rg -l "Audit 2026-10\]" docs/20*-q*/                      # delivered, filed by quarter
 git log gitlab/main --format= --name-only -S "Audit 2026-10]" -- docs/backlog/ | sort -u
 git log gitlab/main -1 --diff-filter=D --format=%h -- docs/backlog/<file>
 git show <sha>^:docs/backlog/<file>                       # last status before archive
 ```
 
-The second command lists every item that ever carried the key; one that is gone
-from `docs/backlog/` was archived by a release, and the last two commands read
-it back. Narrow to one rank with `rg -w "roadmap item 3"` on the result. Items
+The third command lists every item that ever carried the key; one that is in
+neither `docs/backlog/` nor a quarter folder was removed by a release before
+the quarter folders existed, and the last two commands read it back. Narrow to one rank with `rg -w "roadmap item 3"` on the result. Items
 filed before the key existed name their audit in prose only; find them with
 `-S "October 2026 stack review"` (or the July equivalent) instead of the key.
 
@@ -120,8 +121,8 @@ Rules for the file:
 
 - Name backlog items by rank and description, never by file name.
   `scripts/backlog-archive.mjs` keeps a `done` item for as long as any tracked
-  doc outside `docs/backlog/` names its file name, so a file name in the audit
-  blocks its archive. The link runs from the item to the audit (Phase 4).
+  doc outside `docs/backlog/` and the quarter folders names its file name, so a
+  file name in the audit blocks its archive. The link runs from the item to the audit (Phase 4).
 - Once the audit is merged, its ranks are stable keys. Re-ranking happens in the
   next audit, never by renumbering this one.
 

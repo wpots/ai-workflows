@@ -37,7 +37,8 @@ same workflow; Copilot follows the runbook directly.
   integration branch's remote is eligible, so the running sprint never is. The
   last-closed sprint also waits until the next sprint's planning has read its
   gaps document, or the user confirms none follows. In support mode the guard
-  counts calendar months: refuse the current and previous month.
+  counts calendar months: refuse the current and previous month (by quarter:
+  the current and previous quarter).
 - Before compacting, count the links from living docs (ADRs, architecture, a
   cross-sprint register, open backlog items) into the folder and report them:
   each becomes a retrieval recipe, so while many still lean on it, recommend

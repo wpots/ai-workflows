@@ -30,11 +30,11 @@
 //   RELEASE_REVIEWER   default wieteke.pots
 
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { BACKLOG_DIR, planArchive, renderStatus } from "./backlog-archive.mjs";
+import { BACKLOG_DIR, planArchive, quarterFolder, renderStatus } from "./backlog-archive.mjs";
 import { sectionBody } from "./changelog-sections.mjs";
 import { readyTitle, releaseTitle } from "./release-mr.mjs";
 
@@ -149,8 +149,8 @@ if (!version) {
 
 console.log(plan.split("\n").slice(0, 3).join("\n"));
 
-// Read before the cut removes the items; --write archives exactly this set.
-const backlog = renderStatus(planArchive(ROOT), version);
+// Read before the cut moves the items; --write archives exactly this set.
+const backlog = renderStatus(planArchive(ROOT));
 
 if (dryRun) {
   console.log(`\n${backlog}`);
@@ -185,10 +185,11 @@ if (!me.email) {
 run("git", ["checkout", "-q", "-B", BRANCH]);
 run(process.execPath, [ASSIGN, "--write"]);
 run("git", ["add", "CHANGELOG.md", ".claude-plugin/plugin.json"]);
-// The fragments the script folded in are deleted from the tree; stage that
-// too. Only when the directory is tracked: a bare pathspec errors otherwise.
-for (const dir of ["changelog.d", BACKLOG_DIR]) {
-  if (run("git", ["ls-files", dir])) {
+// The fragments the script folded in are deleted from the tree and the
+// archived items moved into the quarter folder; stage that too. Only when the
+// directory is tracked or on disk: a bare pathspec errors otherwise.
+for (const dir of ["changelog.d", BACKLOG_DIR, quarterFolder()]) {
+  if (run("git", ["ls-files", dir]) || existsSync(join(ROOT, dir))) {
     run("git", ["add", "-A", "--", dir]);
   }
 }

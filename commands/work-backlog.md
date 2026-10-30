@@ -63,8 +63,9 @@ implement → verify → merge request. Stop after one MR; humans review and mer
    criterion can only be checked after merge (name that check first in
    `How to verify`); a criterion left unticked in the MR keeps it
    `in-progress`. The `done` commit also `git mv`s the BLI into the running
-   sprint's folder (`docs/sprint-<N>/` without a changelog beside it) and
-   fixes the links the move breaks (`rules/backlog.md`). After the MR exists,
+   sprint's folder (`docs/sprint-<N>/` without a changelog beside it), or the
+   current `docs/<yyyy>-q<n>/` in a repo that files by quarter, and fixes the
+   links the move breaks (`rules/backlog.md`). After the MR exists,
    append its URL to the BLI's `## Related` and push.
 9. **MR** — follow `commands/create-pr.md` (rebase onto base, MR template);
    title conventional; description fills the resolved template's sections

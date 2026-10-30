@@ -67,6 +67,14 @@ support-specific notes; everything else in this runbook applies unchanged:
 - **The delivery boundary is the merge date** on the integration branch, not
   the MR or branch creation date: work merged on 2 September belongs to
   `support-2026-09`, even when its branch started in August.
+- **By quarter.** A repo that files delivered items by calendar quarter
+  (existing `docs/<yyyy>-q<n>/` folders) closes a quarter: read `<yyyy>-q<n>`
+  wherever the table says `support-<yyyy>-<mm>` — `docs/2026-q4/`,
+  `docs/2026-q4-changelog.md`, `docs/2026-q4-gaps.md`, tag
+  `2026-q4-bli-archive`, status `Delivered in 2026-q4.` — with the title
+  `# <yyyy> Q<n> Changelog` and the window from the quarter's first day to the
+  next quarter's first day. Its `done` commits already file items there
+  (`rules/backlog.md`), so the close moves only stragglers.
 
 ## Phase 0 — Switch to the integration branch
 

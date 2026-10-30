@@ -24,6 +24,8 @@ same workflow; Copilot follows the runbook directly.
 2. On projects without sprints, run the runbook in **support mode** (see its
    "Support mode" section): the close window is a calendar month and every
    `sprint-<N>` artifact maps to `support-<yyyy>-<mm>` (e.g. `support-2026-08`).
+   A repo with `docs/<yyyy>-q<n>/` folders closes a calendar quarter instead,
+   mapped to `<yyyy>-q<n>` (e.g. `2026-q4`).
 3. Follow every phase in order. Start with Phase 0 (switch to an up-to-date
    integration branch) and do not skip Phase 6 (review pause).
 4. A live tracker connection is mandatory. CLI first: `jira`
@@ -107,7 +109,8 @@ Phase 1**, not at the first write, after the analysis is already done:
 ## Inputs to confirm before starting
 
 - Sprint name or id (e.g. `Sprint 2`) — or, in support mode, the month to
-  close (e.g. `2026-08`; default: the previous calendar month)
+  close (e.g. `2026-08`; default: the previous calendar month), or the quarter
+  (e.g. `2026-q4`) in a repo that files by quarter
 - Assignee email (default: configured tracker user, verify with `jira me`)
 - Issue-tracker project key (infer from filenames, e.g. `RFW`)
 
@@ -123,7 +126,8 @@ ephemeral working documents removed and listed under the changelog's
 `## Archief`, the sprint demo flattened into `docs/sprint-<N>/demo.md` when a
 demo folder exists, and a list of spillover items prepared for the Phase 7
 walkthrough. In support mode the same
-outputs land at the `docs/support-<yyyy>-<mm>` equivalents.
+outputs land at the `docs/support-<yyyy>-<mm>` equivalents, or at
+`docs/<yyyy>-q<n>` in a repo that files by quarter.
 
 Closed sprint folders are compacted by `skills/compact-sprint` — a separate,
 explicitly invoked lane with its own retention guard; never compact as part of

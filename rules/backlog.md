@@ -28,7 +28,8 @@ split trigger may not be marked `ready`.
 Every slice repeats the ticket key, states its position in the `Slice` field,
 and depends on the one before it. The ticket is delivered when **every** item
 carrying its key is `done` on the default branch, in `docs/backlog/` or in a
-sprint folder; there is no separate progress field to maintain.
+sprint, support or quarter folder; there is no separate progress field to
+maintain.
 
 ## Output Location
 
@@ -69,6 +70,10 @@ highest one without a `docs/sprint-<N>-changelog.md` beside it.
   the same depth. `rg -n "<file>" docs/` finds the links in.
 - **Only `done` moves.** An item that stays `in-progress` with a post-merge
   check left stays in `docs/backlog/` until that check flips it.
+- **A repo that files by quarter** (no sprints and no support months; a
+  `docs/<yyyy>-q<n>/` folder already exists) always has a running folder:
+  `docs/<yyyy>-q<n>/` for the quarter of the `done` commit. The first `done`
+  commit of a quarter creates it; the links are fixed as above.
 - **No running sprint folder** (support mode, a sprint that was never
   planned): the item stays in `docs/backlog/`, and `skills/close-sprint`
   archives it at the close.

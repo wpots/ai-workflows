@@ -1,32 +1,38 @@
 #!/usr/bin/env node
-// The release is where this repo's backlog is reconciled. ai-workflows has no
-// sprints, so no sprint close archives delivered items: cutting a release
-// (scripts/assign-plugin-version.mjs --write, from the `release_train` CI job
-// or by hand) removes every item in docs/backlog/ whose Status is `done` or
-// `superseded`, and the release MR carries the backlog status rendered here.
-// The release tag is the archive anchor — `git show v<x.y.z>^1:docs/backlog/<file>`
-// reads a removed item back — and the GitLab Release lists what it archived
-// (scripts/publish-release.mjs).
+// The release is this repo's safety net for the backlog. ai-workflows has no
+// sprints, so it files delivered items by quarter: the commit that sets an
+// item `done` moves it into docs/<yyyy>-q<n>/ (rules/backlog.md). Cutting a
+// release (scripts/assign-plugin-version.mjs --write, from the `release_train`
+// CI job or by hand) moves every item still in docs/backlog/ whose Status is
+// `done` or `superseded` into the quarter of the cut, and the release MR
+// carries the backlog status rendered here. The GitLab Release lists what it
+// moved (scripts/publish-release.mjs).
 //
 // An item a living doc still names (tracked Markdown outside docs/backlog/,
-// CHANGELOG.md and changelog.d/) stays: the validator's link and pipeline-map
-// checks would fail on the removal. The status names the doc, so the
-// reference can be dropped and the next release archives the item.
+// the quarter folders, CHANGELOG.md and changelog.d/) stays: the validator's
+// link and pipeline-map checks would fail on the move. The status names the
+// doc, so the reference can be dropped and the next release archives the item.
 //
 // Usage:
 //   node scripts/backlog-archive.mjs            # print the status, write nothing
-//   node scripts/backlog-archive.mjs --write    # remove the archivable items
+//   node scripts/backlog-archive.mjs --write    # move the archivable items
 //   node scripts/backlog-archive.mjs --root <dir>
 
 import { execFileSync } from "node:child_process";
-import { existsSync, readFileSync, unlinkSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const BACKLOG_DIR = "docs/backlog";
 
+const QUARTER_DIR = /^docs\/\d{4}-q[1-4]\//;
 const ARCHIVED = new Set(["done", "superseded"]);
 const OPEN_ORDER = ["in-progress", "ready", "draft"];
+
+/** `docs/<yyyy>-q<n>`: where an item delivered on `date` is filed. */
+export function quarterFolder(date = new Date()) {
+  return `docs/${date.getUTCFullYear()}-q${Math.floor(date.getUTCMonth() / 3) + 1}`;
+}
 
 function escapeRegExp(text) {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -79,13 +85,15 @@ function trackedFiles(root) {
 }
 
 /**
- * `{ items, archive, kept }`: every tracked backlog item, the `done` and
- * `superseded` ones that can go, and the ones a living doc still names
- * (each with `namedIn`).
+ * `{ items, archive, kept, folder }`: every tracked backlog item, the `done`
+ * and `superseded` ones that can go, the ones a living doc still names (each
+ * with `namedIn`), and the quarter folder they go to.
  */
-export function planArchive(root) {
+export function planArchive(root, date = new Date()) {
+  const folder = quarterFolder(date);
+
   if (!existsSync(join(root, BACKLOG_DIR))) {
-    return { items: [], archive: [], kept: [] };
+    return { items: [], archive: [], kept: [], folder };
   }
 
   const tracked = trackedFiles(root);
@@ -101,6 +109,7 @@ export function planArchive(root) {
       (file) =>
         file.endsWith(".md") &&
         !file.startsWith(`${BACKLOG_DIR}/`) &&
+        !QUARTER_DIR.test(file) &&
         !file.startsWith("changelog.d/") &&
         file !== "CHANGELOG.md",
     )
@@ -120,25 +129,28 @@ export function planArchive(root) {
     }
   }
 
-  return { items, archive, kept };
+  return { items, archive, kept, folder };
 }
 
 export function applyArchive(root, plan) {
+  if (plan.archive.length > 0) {
+    mkdirSync(join(root, plan.folder), { recursive: true });
+  }
+
   for (const item of plan.archive) {
-    unlinkSync(join(root, item.path));
+    renameSync(join(root, item.path), join(root, plan.folder, item.file));
   }
 }
 
 const itemLine = (item) => `- \`${item.file}\` — ${item.title}${item.mr ? ` (${item.mr})` : ""}`;
 
 /** The backlog section of the release MR description. */
-export function renderStatus(plan, version = "<x.y.z>") {
+export function renderStatus(plan) {
   const lines = ["### Backlog", ""];
 
   if (plan.archive.length > 0) {
     lines.push(
-      `Archived by this release: removed from \`${BACKLOG_DIR}/\`, readable after the merge ` +
-        `with \`git show v${version}^1:${BACKLOG_DIR}/<file>\`.`,
+      `Archived by this release: moved from \`${BACKLOG_DIR}/\` to \`${plan.folder}/\`.`,
       "",
       ...plan.archive.map(itemLine),
       "",
@@ -215,8 +227,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 
   if (args.includes("--write")) {
     applyArchive(root, plan);
-    console.log(`\n✔ Archived ${plan.archive.length} item(s) from ${BACKLOG_DIR}/.`);
+    console.log(`\n✔ Archived ${plan.archive.length} item(s) into ${plan.folder}/.`);
   } else {
-    console.log("\nDry run — pass --write to remove them.");
+    console.log("\nDry run — pass --write to move them.");
   }
 }

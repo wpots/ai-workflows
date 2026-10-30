@@ -406,10 +406,13 @@ test("describeItem reads the Status past a template comment, the title and the M
   assert.equal(describeItem("docs/backlog/x.md", "# X\n\n## Status\n\n## Priority\n").status, null);
 });
 
-test("planArchive archives done and superseded items unless a living doc still names them", () => {
+test("planArchive moves done and superseded items into the quarter folder unless a living doc still names them", () => {
   const root = mkdtempSync(join(tmpdir(), "backlog-root-"));
   const item = (status, extra = "") => `# Item ${status}\n\n## Status\n\n${status}\n${extra}`;
   mkdirSync(join(root, "docs", "backlog"), { recursive: true });
+  mkdirSync(join(root, "docs", "2026-q3"), { recursive: true });
+  // An archived item is no living doc: its link must not keep feat-done.md.
+  writeFileSync(join(root, "docs", "2026-q3", "feat-old.md"), "Next: [feat-done.md](../backlog/feat-done.md)\n");
   writeFileSync(join(root, "docs", "backlog", "feat-done.md"), item("done"));
   writeFileSync(join(root, "docs", "backlog", "spike-old.md"), item("superseded"));
   writeFileSync(join(root, "docs", "backlog", "feat-named.md"), item("done"));
@@ -423,7 +426,8 @@ test("planArchive archives done and superseded items unless a living doc still n
   execFileSync("git", ["init", "-q"], { cwd: root });
   execFileSync("git", ["add", "."], { cwd: root });
 
-  const plan = planArchive(root);
+  const plan = planArchive(root, new Date("2026-11-02"));
+  assert.equal(plan.folder, "docs/2026-q4");
   assert.equal(plan.items.length, 4);
   assert.deepEqual(
     plan.archive.map((entry) => entry.file),
@@ -434,15 +438,16 @@ test("planArchive archives done and superseded items unless a living doc still n
     [["feat-named.md", ["docs/map.md"]]],
   );
 
-  const status = renderStatus(plan, "1.1.0");
-  assert.ok(status.includes("`git show v1.1.0^1:docs/backlog/<file>`"), status);
+  const status = renderStatus(plan);
+  assert.ok(status.includes("moved from `docs/backlog/` to `docs/2026-q4/`"), status);
   assert.ok(status.includes("- `feat-done.md` — Item done"), status);
   assert.ok(status.includes("- `feat-named.md` — named in `docs/map.md`"), status);
   assert.ok(status.includes("Still open: in-progress 1 (`feat-open.md`)"), status);
 
   applyArchive(root, plan);
   assert.ok(!existsSync(join(root, "docs", "backlog", "feat-done.md")));
-  assert.ok(!existsSync(join(root, "docs", "backlog", "spike-old.md")));
+  assert.ok(existsSync(join(root, "docs", "2026-q4", "feat-done.md")));
+  assert.ok(existsSync(join(root, "docs", "2026-q4", "spike-old.md")));
   assert.ok(existsSync(join(root, "docs", "backlog", "feat-named.md")));
   rmSync(root, { recursive: true });
 });

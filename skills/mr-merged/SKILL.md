@@ -54,8 +54,9 @@ One ticket can carry several backlog items — one per reviewable MR
 handoff waits for the last slice instead of arriving three times half-finished.
 
 Ticket completeness is derived, never tracked by hand: read `docs/backlog/` and
-the sprint folders (`docs/sprint-*/`, where a `done` item moves in the commit
-that sets it, per `rules/backlog.md`) for every item whose `Ticket` field
+the sprint folders (`docs/sprint-*/`, or `docs/<yyyy>-q<n>/` in a repo that
+files by quarter, where a `done` item moves in the commit that sets it, per
+`rules/backlog.md`) for every item whose `Ticket` field
 carries this key, and check each one's `Status` **on the default branch**
 (`git show origin/main:<path>` — a `done` that only exists on a feature branch
 has not shipped).

@@ -388,7 +388,8 @@ const linkScanFiles = [...tracked].filter(
   (f) =>
     f.endsWith(".md") &&
     /^(skills|commands|shared|docs)\//.test(f) &&
-    !f.startsWith("docs/backlog/"),
+    !f.startsWith("docs/backlog/") &&
+    !/^docs\/\d{4}-q[1-4]\//.test(f),
 );
 
 for (const rel of linkScanFiles) {

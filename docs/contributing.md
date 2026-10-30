@@ -324,7 +324,7 @@ PATCH (fixes and wording). When judgment differs from that default, cut the
 release by hand in its own small MR — `node scripts/assign-plugin-version.mjs`
 prints the plan, `--write` applies it (`--bump minor` or `--as 2.0.0` override
 the inference); commit `CHANGELOG.md`, `.claude-plugin/plugin.json`,
-`changelog.d/` and `docs/backlog/`. The
+`changelog.d/`, `docs/backlog/` and the quarter folder. The
 train leaves an open hand-cut MR alone as long as its branch is not
 `release/next`, and goes quiet once it merges and `## [Unreleased]` is empty.
 
@@ -336,22 +336,26 @@ backlog archive (`scripts/backlog-archive.mjs`), the Slack post
 
 ### The release archives the backlog
 
-This repo has no sprints, so no sprint close archives delivered backlog items;
-the release does. Every cut — by `release_train` or by hand — removes the items
-in `docs/backlog/` whose `Status` is `done` or `superseded`, and the release
+This repo has no sprints, so it files delivered backlog items by quarter: the
+commit that sets an item `done` moves it into `docs/<yyyy>-q<n>/`
+(`rules/backlog.md`), and the release is the safety net. Every cut — by
+`release_train` or by hand — moves the items still in `docs/backlog/` whose
+`Status` is `done` or `superseded` into the quarter of the cut, and the release
 MR's description carries the backlog status: what it archives, what it keeps,
 and what is still open. An item `in-progress` after its merge has a post-merge
 check left; tick the check and set it to `done`, and the next release takes it.
 
-- **Archive.** The tag is the anchor: `git show vx.y.z^1:docs/backlog/<file>`
-  reads a removed item back, and the GitLab Release links each one at that
-  commit.
+- **Archive.** The quarter folder holds the delivered items. The GitLab
+  Release lists the ones its own cut moved; items removed by releases before
+  the quarter folders existed read back with
+  `git show vx.y.z^1:docs/backlog/<file>`.
 - **Kept.** An item that a living doc still names — tracked Markdown outside
-  `docs/backlog/`, `CHANGELOG.md` and `changelog.d/` — stays, because the
-  validator's link and pipeline-map checks would fail on its removal. Drop the
-  reference in a content MR and the next release archives it.
-- **Dependencies.** A `Depends on:` link whose file a release removed counts as
-  satisfied in `skills/work-backlog`.
+  `docs/backlog/`, the quarter folders, `CHANGELOG.md` and `changelog.d/` —
+  stays, because the validator's link and pipeline-map checks would fail on
+  its move. Drop the reference in a content MR and the next release archives
+  it.
+- **Dependencies.** A `Depends on:` link whose file was moved out of
+  `docs/backlog/` counts as satisfied in `skills/work-backlog`.
 - **Status.** Every item needs a readable `Status`; the test suite fails on one
   that has none, since the release could never archive it.
 - `node scripts/backlog-archive.mjs` prints the status without writing.

@@ -67,7 +67,8 @@ if (body === null) {
   fail(`CHANGELOG.md has no '## [${version}]' section to publish`);
 }
 
-// The items this release commit removed, read back at its first parent. A
+// The items this release commit moved out of docs/backlog/ (under that
+// pathspec a move reads as a deletion), read back at its first parent. A
 // version passed by flag is not HEAD, so its notes are the changelog only.
 const sections = [body];
 

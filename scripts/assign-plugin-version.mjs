@@ -25,8 +25,8 @@
 // differs from that default.
 //
 // The cut also archives the delivered backlog items (scripts/backlog-archive.mjs):
-// this repo has no sprint close, so the release is where docs/backlog/ is
-// reconciled.
+// this repo has no sprint close, so the release moves the `done` and
+// `superseded` items still in docs/backlog/ into the quarter folder.
 
 import { readFileSync, unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -150,7 +150,7 @@ console.log(
   `fragments     ${fragments.length}${handWritten.size > 0 ? " + entries still under Unreleased" : ""}`,
 );
 
-const backlog = planArchive(ROOT);
+const backlog = planArchive(ROOT, new Date(date));
 
 if (backlog.items.length > 0) {
   console.log(
@@ -193,5 +193,6 @@ applyArchive(ROOT, backlog);
 console.log(
   `\n✔ Assigned ${version}; ${fragments.length} fragment(s) folded in and removed, ` +
     `${backlog.archive.length} backlog item(s) archived. ` +
-    `Commit CHANGELOG.md, .claude-plugin/plugin.json, changelog.d/ and ${BACKLOG_DIR}/ in the release MR.`,
+    `Commit CHANGELOG.md, .claude-plugin/plugin.json, changelog.d/, ${BACKLOG_DIR}/ and ` +
+    `${backlog.folder}/ in the release MR.`,
 );
