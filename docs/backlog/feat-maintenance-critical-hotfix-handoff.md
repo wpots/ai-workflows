@@ -60,19 +60,19 @@ in the backlog for the next release.
 
 ## Technical Notes
 
-**Where it lands.** All in `skills/maintenance/SKILL.md`:
+**Where it lands.** The SKILL.md body was at 499 of its 500-line budget, so
+the check and its routing went into a reference that loads only when a critical
+turns up:
 
-- Contract, point 4 ("Delegate, don't duplicate"): add "a critical on production
-  → `skills/dependency-hotfix/SKILL.md`, proposed in the report, never started
-  by the sweep".
-- Lane A: after the Inventory-mode delegation, per critical, the production
-  check below and the "on production" / "development only" / "production not
-  checked" label.
-- Report: the `Next step:` line under "Verdict per lane".
-- Backlog handoff: the exclusion of criticals on production.
-- Fixes: a critical on production comes before the three listed fixes, and goes
-  through `dependency-hotfix` on the user's go. That skill's Step 3 plan is the
-  approval, so the sweep adds no approval step of its own.
+- `skills/maintenance/references/production-check.md`: the production check
+  below, the "on production" / "development only" / "production not checked"
+  label, and per label lane A's verdict, the fix, the backlog exclusion, and the
+  hotfix's place before every other fix (its Step 3 plan is the approval, so the
+  sweep adds none of its own).
+- `skills/maintenance/SKILL.md`, lane A: the critical bullet links that check.
+- `skills/maintenance/references/report-format.md` §1 "Scope and verdicts": the
+  `Next step:` line. The report layout moved there after this item was filed;
+  there is no "Verdict per lane" heading any more.
 
 **The production check.** Read-only, on the local checkout:
 
@@ -98,20 +98,18 @@ development but still live on production reads as done.
 
 **Test level.**
 
-- Eval case `evals/maintenance/maintenance-<n>`, runnable, with the facts in the
+- Eval case `evals/maintenance/maintenance-2`, runnable, with the facts in the
   prompt: an `npm audit --json` excerpt with two criticals, a production
   lockfile that resolves one of them inside its range and the other outside it.
-  Graders: lane A `urgent`, one `Next step:` naming `/greenberry:dependency-hotfix`
-  and only the first package, no backlog line for the first package, a backlog
-  line for the second. `evals/maintenance/` does not exist yet, and
-  `feat-critical-ticket-age-flag.md` plans `maintenance-1`, so take the next free
-  number at delivery. Follow `evals/README.md`.
+  Graders: one `Next step:` naming `/greenberry:dependency-hotfix` and only the
+  first package, no backlog line for the first package, a backlog line for the
+  second. A grader for lane A `urgent` was dropped: the base already gives any
+  critical `urgent`, so it cannot fail. Follow `evals/README.md`.
 - `node scripts/validate-skills.mjs`.
 - The skill's `description` does not change, so the routing evals do not run.
 
 **Overlap.** `feat-critical-ticket-age-flag.md` also edits lane A and the Report
-section of the same skill. Its branch `feat/critical-ticket-age-flag` holds only
-a status flip as of 2026-10-21. The two are independent; whichever lands second
+layout of the same skill. The two are independent; whichever lands second
 rebases.
 
 **Changelog.** Fragment `changelog.d/changed.maintenance-critical-hotfix-handoff.md`,
