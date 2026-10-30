@@ -110,6 +110,41 @@ For workflows:
 - If a workflow needs a prompt-friendly fallback, use the matching command/runbook.
 - Keep rules as the policy source even when a skill or command helps execute the work.
 
+## The Path of a Ticket
+
+How a ticket travels from refinement to an accepted change, and whose decision
+each step is. "You" is the developer the ticket is assigned to. In Codex, name
+the skill instead of typing the slash command.
+
+The ready check is the gate. Before it, you decide: what a ticket asks, how it
+is sliced into backlog items, and whether an item is clear enough to build,
+held against the [Definition of Ready](rules/backlog.md#definition-of-ready).
+Once you flip an item to `ready`, `work-backlog` may build it unattended, up to
+one MR. From the review on, people decide again.
+
+| Step | You type | Who | Outcome |
+| ---- | -------- | --- | ------- |
+| 1. Refinement | `/greenberry:refinement` | you prepare, the team decides with the PO | tickets grouped and sized, open questions per ticket, a ready line per story |
+| 2. Sprint planning | `/greenberry:sprint-planning` | you | a planning document with the execution order, and the ready check offered over the planned items |
+| 3. Backlog items | `/greenberry:backlog <KEY>` | you, the agent drafts | one item per slice in `docs/backlog/`, each ending in the ready check |
+| **4. Ready check — the gate** | "is `<KEY>` ready", then confirm the flip | you | `ready`, or a `Blocked on:` line per open point with the next step |
+| 5. Build | `/greenberry:work-backlog` | the agent, unattended | branch, implementation, checks, self-review, `How to verify`, one MR |
+| 6. Review and merge | `/greenberry:watch-mrs !<iid>` to follow it | reviewer | merged, or comments to address; `watch-mrs` hands a merge to step 8 |
+| 7. Rework | `/greenberry:receiving-code-review`, then `/greenberry:address-review-comments` | you decide, the agent applies | each comment applied or answered, the MR back with the reviewer |
+| 8. Closeout | `/greenberry:mr-merged !<iid>` | you, the agent drafts | the deploy to development read back, a "How to test this" comment for the team, the ticket move named |
+| 9. Test | — | the team | a comment on the ticket, with findings or none |
+| 10. Test handoff | `/greenberry:ticket-handoff <KEY>` | you, the agent drafts | findings routed to a backlog item or a new ticket, or the comment for the PO |
+| 11. Acceptance | — | the PO | approval or rejection in a comment; `ticket-handoff` then checks Done |
+
+- Moving a ticket on the board is yours, by hand; the skills name the move with
+  the ticket link (`rules/ticket-flow.md`).
+- Every skill on the path ends its recap with one `Next step:` line, so you can
+  pick up from wherever you are.
+- After acceptance, `/greenberry:release` takes the change to production and
+  `/greenberry:close-sprint` closes the sprint.
+- A project without sprints follows the same steps without sprint planning, and
+  `close-sprint` closes a calendar month instead (support mode).
+
 ## Files In This Project
 
 - `CONVENTIONS.md`: project-specific stack, structure, scripts, and deviations from the shared baseline
