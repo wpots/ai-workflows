@@ -109,3 +109,4 @@ runbooks do. Changelog fragment `changelog.d/changed.next-step-in-recaps.md`.
 - [../../skills/watch-mrs/SKILL.md](../../skills/watch-mrs/SKILL.md)
 - [../../skills/mr-merged/SKILL.md](../../skills/mr-merged/SKILL.md)
 - [../../skills/close-sprint/SKILL.md](../../skills/close-sprint/SKILL.md)
+- MR: https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/334
