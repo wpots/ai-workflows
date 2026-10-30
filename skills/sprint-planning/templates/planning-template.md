@@ -79,6 +79,9 @@ die hem op `done` zet.
 **Flags (doc ↔ tracker, beslissing nodig):** <mismatches, unsized, externe
 blockers, unplanned spillover>.
 
+**Niet ready (`rules/ticket-flow.md` § Definition of Ready):** <KEY — regel die
+faalt, per story; bugs, taken en support tellen niet mee>.
+
 ## Lokale ankers
 
 - <feature>: <BLI / spec / code-pad / branch>

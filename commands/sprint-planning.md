@@ -95,14 +95,26 @@ jira issue list --plain --no-truncate \
   -a "<assignee-email>" \
   --jql 'sprint = "Sprint 8" AND project = RFW'
 jira issue view RFW-XX --plain                    # per-ticket: AC, links, parent
+jira issue view RFW-XX --raw                      # issue type, parent, Flagged, story points
 ```
 
 Without the CLI, query the same JQL through the connector and request status,
-assignee, issue type, parent/epic, story points, description + acceptance
-criteria, and **linked issues** (blocks / is-blocked-by).
+assignee, issue type, parent/epic, the Flagged field, story points, description
++ acceptance criteria, and **linked issues** (blocks / is-blocked-by).
 
 Capture per ticket: key, summary, assignee, status, issue type, parent/epic,
-story points, AC, and links. Tag each as **mine** (user's name) or **other**.
+Flagged, story points, AC, and links. Tag each as **mine** (user's name) or
+**other**. The raw view is the API JSON: Flagged and story points sit under the
+custom-field ids the CLI config names (`issue.fields.custom`), and a flagged
+ticket carries `Impediment`.
+
+**Ready check per story.** Hold every story in the sprint, mine and other,
+against `rules/ticket-flow.md` § Definition of Ready, and note per story the
+lines it fails. Bugs, tasks and support tickets are not held against it. A story
+without story points fails the Size line and goes to refinement with the other
+unsized tickets (Phase 4); its other failing lines go with it. The failing
+stories are flags awaiting a user decision (Phase 6, Output); the tracker stays
+untouched.
 
 ## Phase 2 — Spillover carry-in and dependency map
 
@@ -205,7 +217,8 @@ Write `docs/sprint-<N>-refinement.md` as refinement-session input. It contains
 a table per group — the user's own tickets (grounded against the codebase) and
 other/unassigned tickets (indicative) — with columns:
 `Ticket | Summary | Status | Proposed SP | Rationale`, using the team's
-story-point scale. Close with a short action list for the refinement session
+story-point scale. A story that fails another ready line (Phase 1) names that
+line in its Rationale. Close with a short action list for the refinement session
 (scope questions, split advice, tickets whose work already landed). The
 proposals live **only** in this document — the tracker stays read-only; the
 user carries them into refinement.
@@ -252,7 +265,8 @@ Skeletons for both output docs live at
   with the over/under-commit verdict and rationale (Phase 4).
 - **Proposed order** — the ordered list with per-item rationale (Phase 5).
 - **Doc actions** — BLIs created, BLIs flagged for mismatch, migration
-  expectations.
+  expectations, and the stories that fail a ready line (Phase 1), each with the
+  line it fails.
 - **Local anchors** — the BLI / spec / code paths a reader should open.
 
 Then, for each **mine** ticket confirmed scheduled in the target sprint, add
@@ -273,7 +287,8 @@ removing it.
 
 Print a summary: planning-doc path, planned load (remaining SP + restpoints) vs
 velocity verdict, count of external blockers, count of already-started tickets,
-count of BLIs created, count of mismatches flagged, and any unplanned spillover.
+count of BLIs created, count of mismatches flagged, count of stories that fail a
+ready line, and any unplanned spillover.
 Then stop. The document is the deliverable — do not edit the tracker.
 
 After the review, offer the ready check over the sprint's planned BLIs
@@ -291,6 +306,8 @@ End with a concise list of:
   under / on-track), and which tickets are already started in code.
 - BLIs created and BLIs noted `Planned for Sprint <N>.` under their status.
 - The sprint folder `docs/sprint-<N>/`, created or already present.
-- Doc ↔ tracker mismatches flagged (awaiting a user decision).
+- Doc ↔ tracker mismatches flagged, and stories that fail a line of
+  `rules/ticket-flow.md` § Definition of Ready with the line they fail (awaiting
+  a user decision).
 - External blockers and unplanned spillover that need a user/PO decision.
 - The offer to run the ready check over the planned BLIs.

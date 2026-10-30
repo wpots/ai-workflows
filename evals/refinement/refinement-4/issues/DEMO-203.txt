@@ -1,0 +1,18 @@
+🐞 Bug  🚧 To Do  ⌛ Mon, 26 Oct 26  👷 Unassigned  🔑️ DEMO-203  💭 0 comments  🧵 0 linked
+
+# Cart total keeps the discount after the code is removed
+
+⏱️  Mon, 26 Oct 26  🔎 Demo Shop PO  🚀 High  📦 None  🏷️  None
+
+------------------------ Description ------------------------
+
+## Steps to reproduce
+Where: /cart, any visitor, Chrome desktop
+1. Add a product and apply the code WELCOME10.
+2. Remove the code.
+
+## Expected
+The total goes back to the price without the discount.
+
+## Actual
+The total still shows the 10% discount until the page is reloaded.
