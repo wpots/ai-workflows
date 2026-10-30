@@ -46,6 +46,8 @@ that moment, not per MR.
 - This skill creates a Jira issue. **Always confirm the issue type, summary,
   assignee, and sprint with the user before running `jira issue create`.**
 - Never transition, comment on, or edit existing issues unless explicitly asked.
+  The flag and its reason comment on the new story (Workflow, 5) are part of
+  the create when the user approved them at the confirm step.
 - Create exactly one issue per request. Do not batch-create without approval.
 
 ## Step 0 — Determine the issue type
@@ -53,7 +55,8 @@ that moment, not per MR.
 Pick from the user's intent:
 
 - **Bug** — something is broken. Needs a reproduction path.
-- **Story** — user-facing capability / feature. Needs value + acceptance criteria.
+- **Story** — user-facing capability / feature. Needs a description, acceptance
+  criteria and an epic.
 - **Task** — technical/chore work with no direct user story (refactor, config,
   spike, docs).
 
@@ -88,8 +91,9 @@ If the type is ambiguous, ask. The type drives the template (below) and the
    missing, ask before continuing:
    - Bug → reproduction steps, affected page/URL, role. A bug without a repro
      path is not actionable.
-   - Story → the user role, the goal, the value ("so that…"), and at least one
-     acceptance criterion.
+   - Story → what is built and where it is used, at least one acceptance
+     criterion, the design link when it has UI, and the epic. A story the user
+     cannot describe yet becomes a placeholder (Templates, Story).
    - Task → the concrete outcome / definition of done.
 2. **Ground it in the codebase** (bugs + code tasks). Locate the actual file and
    lines, and only state a cause you can point at. If unconfirmed, write it as
@@ -107,6 +111,10 @@ If the type is ambiguous, ask. The type drives the template (below) and the
      name the project uses.
    - Assignee → `-a "<email or display name>"`; the CLI resolves it. Confirm
      the person first when the name could match more than one account.
+   - Epic (every story) → propose the one that fits from
+     `jira epic list --table --plain --columns key,summary,status -q "statusCategory != Done"`
+     and have the user confirm it; ask when none fits. Never pick one silently
+     and never create one. It goes in with `-P <EPIC>`.
    - Sprint (optional) → the numeric id from
      `jira sprint list --state active,future --plain --columns ID,NAME,STATE`.
      Skip for backlog tickets.
@@ -117,15 +125,19 @@ If the type is ambiguous, ask. The type drives the template (below) and the
    has one (Jira gotchas). Then count it: `wc -w <path/to/body.md>` against the
    caps in "Ticket length".
 5. **Confirm, then create.** Show the user: issue type + summary + assignee +
-   sprint + project + the word count (Story: the criteria count too) + the
-   tickets it links to. Over a cap: do not create, follow "Over the cap". On
-   approval:
+   sprint + project + epic + the word count (Story: the criteria count too) +
+   the tickets it links to. When an open question holds up the build of a
+   story, propose flagging it and show the comment that gives the reason and
+   names who answers (the CLI cannot mention them, Jira gotchas). Over a cap: do
+   not create, follow "Over the cap". On approval:
 
    ```bash
-   jira issue create -p RFW -t Bug -s "<summary>" -a "<email>" \
+   jira issue create -p RFW -t Story -s "<summary>" -a "<email>" -P <EPIC> \
      -T <path/to/body.md> --no-input
    jira sprint add <sprint-id> <NEW-KEY>      # only when a sprint was chosen
    jira issue link <A> <B> Blocks             # only the links named at the confirm step
+   jira issue edit <NEW-KEY> --custom flagged=Impediment --no-input --skip-notify  # only an approved flag
+   jira issue comment add <NEW-KEY> -T <path/to/reason.md> --no-input           # its reason comment
    ```
 
    `--no-input` keeps the CLI from prompting for optional fields or opening an
@@ -139,22 +151,25 @@ skimmed, and a skimmed ticket is accepted without being read. Hard caps,
 counted with `wc -w <body.md>` over the whole body, headings included, before
 the confirm step:
 
-| Type  | Cap       | Sections                                                    |
-| ----- | --------- | ----------------------------------------------------------- |
-| Story | 250 words | User story, Acceptance criteria, Open questions (optional)  |
-| Task  | 100 words | Goal, Definition of done, Open questions (optional)         |
-| Bug   | 150 words | Steps to reproduce, Expected, Actual                        |
+| Type  | Cap       | Sections                                                                                 |
+| ----- | --------- | ---------------------------------------------------------------------------------------- |
+| Story | 250 words | Description, Acceptance criteria, Visual design, Dependencies, Open questions (optional) |
+| Task  | 100 words | Goal, Definition of done, Open questions (optional)                                      |
+| Bug   | 150 words | Steps to reproduce, Expected, Actual                                                     |
 
-- **Story:** one user-story sentence plus at most two lines of context, only
-  what the PO does not already know. At most 8 criteria, one sentence each
-  (≤ 20 words), at capability level and observable by a PO. Edge cases,
-  numbers, formulas and cache or build behaviour belong in the backlog item.
+- **Story:** the description in at most three lines, what is built and where
+  it is used, only what the PO does not already know. At most 8 criteria, one
+  sentence each (≤ 20 words), at capability level and observable by a PO. Edge
+  cases, numbers, formulas and cache or build behaviour belong in the backlog
+  item.
 - **Out of scope:** one line, at most 3 items, only what a PO would otherwise
   assume is included.
 - **Open questions:** at most 3, PO-facing, one line each:
   `<question>? <who answers> — holds up <which part>`. They mirror the backlog
   items' `Blocked on:` lines.
-- **Dependencies:** Jira issue links, never prose. Name them at the confirm
+- **Dependencies:** a story's section names what is not a ticket (content, a
+  coupling, another party) or says there is none. A dependency on another
+  ticket is a Jira issue link, never prose. Name links at the confirm
   step — linking edits the other issue — and add them after the create with
   `jira issue link <A> <B> Blocks`; read the direction back once with
   `jira issue view <B> --plain`.
@@ -187,8 +202,9 @@ Never trim silently and never create. At the confirm step show the count
 Pick the one matching the issue type and stay inside its cap. Omit a section
 only when truly not applicable. When the project's Jira issue type carries its
 own description template, its headings win: map the sections below into them
-(a Story template of `Omschrijving` + `Acceptatiecriteria` takes the user
-story and context under the first) and keep Open questions after them.
+(a Story template of `Omschrijving` + `Acceptatiecriteria` takes the
+description and the criteria, with Visual design and Dependencies after them)
+and keep Open questions after them.
 
 ### Bug
 
@@ -209,18 +225,30 @@ plain sentence when known>
 ### Story
 
 ```markdown
-## User story
-As a <role>, I want <goal>, so that <value>.
-<At most two lines of context. One link to the design or source.>
+## Description
+<What is built and where it is used, at most three lines.>
 
 ## Acceptance criteria
-- [ ] <one observable sentence, ≤ 20 words>
+- [ ] <one observable sentence, ≤ 20 words, no edge-case numbers>
+
+## Visual design
+<Link to the component in the design file, or: no UI.>
+
+## Dependencies
+<Content, a coupling or another party it waits on, or: none.>
 
 ## Open questions (optional)
 - <question>? <who answers> — holds up <which part>
 
 Out of scope: <at most 3 items>
 ```
+
+In Dutch the headings are Omschrijving, Acceptatiecriteria, Visual design and
+Afhankelijkheden. No "As a …, I want …, so that …" sentence.
+
+**Placeholder:** a story the user cannot describe yet goes in with
+`(specificeren)` behind its summary and the four headings left empty. Never
+fill them with invented content.
 
 ### Task
 
@@ -245,9 +273,10 @@ Set only these — keep it minimal:
 | issue type | `-t Bug` / `-t Story` / `-t Task`                           |
 | assignee   | `-a "<email>"` (confirm the person first)                   |
 | sprint     | `jira sprint add <id> <KEY>` after creation (optional)      |
+| epic       | `-P <EPIC>`: every story; others only when named            |
 
 No priority, labels, components, or reporter overrides unless the user asks
-(`-y`, `-l`, `-C`, `-r`); no parent unless the user names the epic (`-P`).
+(`-y`, `-l`, `-C`, `-r`).
 
 ## Jira gotchas
 
@@ -262,6 +291,11 @@ No priority, labels, components, or reporter overrides unless the user asks
   custom fields carry values on this instance:
   `jira issue view <KEY-in-sprint> --raw | jq '.fields | to_entries[] | select(.key | startswith("customfield")) | select(.value != null) | .key'`
   — keys differ per Jira site, so discover, never assume.
+- **The flag and the mention** (checked on a DEV ticket, 2026-10): the Flagged
+  field is a custom field like the others, `--custom flagged=Impediment`, but
+  the CLI cannot clear it (`Option value '' is not valid`). A mention does not
+  survive the CLI: `[~accountid:<id>]` in a comment arrives as plain text. The
+  reason comment names the person, and the recap asks the user to tag them.
 - **Another project or board** than the machine default: the repo's
   `.jira.yml`, with `-c .jira.yml` after the subcommand on every command and
   `JIRA_LOGIN` set (`skills/service-cli/references/jira.md` § A project's own
@@ -310,5 +344,7 @@ some instances); `contentFormat: "markdown"` for the body.
 ## Output
 
 - The created issue key and URL.
-- A one-line recap of issue type + assignee + sprint.
+- A one-line recap of issue type + assignee + sprint + epic.
+- Whether it went in as a placeholder or flagged; for a flagged story, tagging
+  the person in its reason comment as handwork, with the ticket link.
 - Any assumption (e.g. an unconfirmed root cause) the user still needs to verify.
