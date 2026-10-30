@@ -4,7 +4,7 @@
 
 <!-- draft | ready | in-progress | done -->
 
-ready
+done
 
 Filed 2026-10-21 from a question after the plugin demo: how do the skills
 chain, for example maintenance into a hotfix via main. Ready check
@@ -58,21 +58,43 @@ in the backlog for the next release.
 
 ## How to verify
 
+- `claude plugin eval . --case maintenance-2 --runs 1 --ablation none --no-publish --trust-plugin --judge-model sonnet --max-cost-usd 0.75`
+  on this branch: score 1.00, 3/3 graders, skill fired ($0.31). The same case
+  on `main`: score 0.60. It had no `Next step:` line naming the hotfix, and it
+  put `next` on the proposed backlog list ($0.32).
+- `node scripts/validate-skills.mjs` (Node 24.22.1): no errors. The maintenance
+  SKILL.md body ends at 500 lines, inside its budget. A first draft with the
+  check inline put it at 534.
+- Per criterion, in `skills/maintenance/references/production-check.md` unless
+  named otherwise:
+  - The labels and how each is decided: "Check" and "Label and route", linked
+    from the critical bullet in lane A.
+  - Lane A `urgent`, and the fix naming `/greenberry:dependency-hotfix` with the
+    package and advisory: "on production".
+  - One `Next step:` line for every such package: `references/report-format.md`
+    §1. Grader a1 checks it.
+  - The backlog exclusion and the development-only path: "on production" and
+    "development only". Graders a2 and a3 check them.
+  - Production not checked: "production not checked". This was checked by
+    reading the text only; the eval does not cover it.
+  - Read-only: the closing paragraph. The only commands the check names are
+    `git fetch`, `git show` and `npx semver`.
+
 ## Technical Notes
 
-**Where it lands.** All in `skills/maintenance/SKILL.md`:
+**Where it lands.** The SKILL.md body was at 499 of its 500-line budget, so
+the check and its routing went into a reference that loads only when a critical
+turns up:
 
-- Contract, point 4 ("Delegate, don't duplicate"): add "a critical on production
-  → `skills/dependency-hotfix/SKILL.md`, proposed in the report, never started
-  by the sweep".
-- Lane A: after the Inventory-mode delegation, per critical, the production
-  check below and the "on production" / "development only" / "production not
-  checked" label.
-- Report: the `Next step:` line under "Verdict per lane".
-- Backlog handoff: the exclusion of criticals on production.
-- Fixes: a critical on production comes before the three listed fixes, and goes
-  through `dependency-hotfix` on the user's go. That skill's Step 3 plan is the
-  approval, so the sweep adds no approval step of its own.
+- `skills/maintenance/references/production-check.md`: the production check
+  below, the "on production" / "development only" / "production not checked"
+  label, and per label lane A's verdict, the fix, the backlog exclusion, and the
+  hotfix's place before every other fix (its Step 3 plan is the approval, so the
+  sweep adds none of its own).
+- `skills/maintenance/SKILL.md`, lane A: the critical bullet links that check.
+- `skills/maintenance/references/report-format.md` §1 "Scope and verdicts": the
+  `Next step:` line. The report layout moved there after this item was filed;
+  there is no "Verdict per lane" heading any more.
 
 **The production check.** Read-only, on the local checkout:
 
@@ -98,20 +120,18 @@ development but still live on production reads as done.
 
 **Test level.**
 
-- Eval case `evals/maintenance/maintenance-<n>`, runnable, with the facts in the
+- Eval case `evals/maintenance/maintenance-2`, runnable, with the facts in the
   prompt: an `npm audit --json` excerpt with two criticals, a production
   lockfile that resolves one of them inside its range and the other outside it.
-  Graders: lane A `urgent`, one `Next step:` naming `/greenberry:dependency-hotfix`
-  and only the first package, no backlog line for the first package, a backlog
-  line for the second. `evals/maintenance/` does not exist yet, and
-  `feat-critical-ticket-age-flag.md` plans `maintenance-1`, so take the next free
-  number at delivery. Follow `evals/README.md`.
+  Graders: one `Next step:` naming `/greenberry:dependency-hotfix` and only the
+  first package, no backlog line for the first package, a backlog line for the
+  second. A grader for lane A `urgent` was dropped: the base already gives any
+  critical `urgent`, so it cannot fail. Follow `evals/README.md`.
 - `node scripts/validate-skills.mjs`.
 - The skill's `description` does not change, so the routing evals do not run.
 
 **Overlap.** `feat-critical-ticket-age-flag.md` also edits lane A and the Report
-section of the same skill. Its branch `feat/critical-ticket-age-flag` holds only
-a status flip as of 2026-10-21. The two are independent; whichever lands second
+layout of the same skill. The two are independent; whichever lands second
 rebases.
 
 **Changelog.** Fragment `changelog.d/changed.maintenance-critical-hotfix-handoff.md`,
@@ -136,5 +156,6 @@ because this changes what the plugin ships.
 - [../../skills/maintenance/SKILL.md](../../skills/maintenance/SKILL.md)
 - [../../skills/dependency-hotfix/SKILL.md](../../skills/dependency-hotfix/SKILL.md)
 - [../../skills/npm-maintenance/SKILL.md](../../skills/npm-maintenance/SKILL.md): "Maintenance ticket" already sends a critical on production to `dependency-hotfix`
-- [feat-critical-ticket-age-flag.md](feat-critical-ticket-age-flag.md)
-- [feat-delivery-guidance-3-next-step-in-recaps.md](../2026-q4/feat-delivery-guidance-3-next-step-in-recaps.md)
+- [feat-critical-ticket-age-flag.md](../backlog/feat-critical-ticket-age-flag.md)
+- [feat-delivery-guidance-3-next-step-in-recaps.md](feat-delivery-guidance-3-next-step-in-recaps.md)
+- MR: [!341](https://gitlab.com/greenberrynl/config/ai-workflows/-/merge_requests/341)

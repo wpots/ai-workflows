@@ -92,7 +92,8 @@ Run the **Inventory mode** of `skills/npm-maintenance/SKILL.md` — outdated +
 audit, no updates, no `audit fix`. Record:
 
 - direct dependencies behind a major, with the current → latest jump;
-- high/critical vulnerabilities: package, path, whether a fix exists upstream;
+- high/critical vulnerabilities: package, path, whether a fix exists upstream,
+  and each critical's [production check](references/production-check.md) label;
 - deprecated or unmaintained packages (last publish > 18 months, deprecation
   notices);
 - lockfile ↔ `package.json` drift (a frozen/immutable install must succeed);

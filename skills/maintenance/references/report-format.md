@@ -8,6 +8,10 @@ Use this order:
 1. **Scope and verdicts** — inventory date, last update, environments actually
    checked, one inventory paragraph and one compact verdict row per lane
    (`ok` · `attention` · `urgent`). Date observations that were not rechecked.
+   While a critical runs on production (lane A), the verdicts end with one
+   line, `Next step: /greenberry:dependency-hotfix for <package>, … (you)`.
+   Every such package goes on that one line: one hotfix run moves them
+   together.
 2. **Progress — required** — one table that owns the follow-up status:
 
    | Done | Step / owner                      | State and dated evidence            | Next action / gate         |
