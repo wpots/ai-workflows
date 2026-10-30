@@ -2,7 +2,7 @@
 
 ## Status
 
-in-progress
+done
 
 Drafted and flipped to ready 2026-10-13 with the maintainer.
 
@@ -40,6 +40,39 @@ whole map by heart.
   adding a second one.
 - The fallback runbooks of these skills carry the same line.
 
+## How to verify
+
+- [x] `rg -c 'Next step:'` over the 11 skills and 7 runbooks on the path — every
+  file has a hit. Skills with their own runbook-free recap carry the outcome
+  table themselves (`backlog`, `work-backlog`, `address-review-comments` new
+  step 12, `mr-merged`, `release` Step 9); `create-pr` adds Recap item 5, and
+  `watch-mrs` adds it to its Output. The thin wrappers (`refinement`,
+  `sprint-planning`, `close-sprint`, `release-notes`) point at the table in
+  their runbook's Output, so the line lives in one place.
+- [x] Every table reads "from the first row that applies", which makes the line
+  exactly one; the rows cover the outcomes in the criteria: not ready → the
+  ready check's `Next step:`, ready → `work-backlog`, open MR →
+  `review !<iid> (reviewer)`, merged → `mr-merged` (the `watch-mrs` event line).
+- [x] Human actions carry who takes them: `(you)`, `(reviewer)`, `(PO)`,
+  `(assignee)`, `(team with the PO)`, and work-backlog's draft row names the
+  first blocker and who clears it.
+- [x] Existing hand-offs are restated in the line, none added beside them:
+  `watch-mrs` → `mr-merged`, `close-sprint` → `release-notes`, `release` 8a →
+  `close-sprint`, `release-notes` → the live mail in `release` Step 6,
+  `mr-merged`'s ticket move by the assignee, `sprint-planning`'s ready check
+  offer.
+- [x] Runbooks: `commands/refinement.md`, `sprint-planning.md`, `backlog.md`,
+  `work-backlog.md`, `create-pr.md`, `close-sprint.md` and `release-notes.md`
+  carry the same tables.
+- [x] Pre-commit hook on the implementation commit: `validate-skills.mjs` 39
+  skills, 106 docs link-checked, no errors (the one warning, create-pr's body
+  length, predates this branch and grows from 503 to 506 lines); hook,
+  release-automation, run-checks parity and compact-sprint tests green;
+  `generate-adapters.sh` and the drift check report no changes.
+- Targeted evals: not run — no case in `evals/` asserts a recap's
+  `Next step:` line; coverage gap: one `Next step:` line, picked by outcome, at
+  the end of each delivery-path recap.
+
 ## Technical Notes
 
 The path, in order: `refinement` → `sprint-planning` → `backlog` (with the ready check)
@@ -57,10 +90,11 @@ Examples:
 | work-backlog | nothing eligible | the ready check's report |
 | mr-merged | ticket incomplete | the next slice's item |
 
-Keep each line short; the recap already holds the detail. Watch the size budget: ten
-skills plus their runbooks is close to the file target in `rules/mr-sizing.md` — the
-regenerated `.github/prompts/*.prompt.md` files do not count, the runbooks do. Changelog
-fragment `changelog.d/changed.next-step-in-recaps.md`.
+Keep each line short; the recap already holds the detail. Watch the size budget: eleven
+skills plus seven runbooks (`watch-mrs`, `address-review-comments`, `mr-merged` and
+`release` have none) is over the file target in `rules/mr-sizing.md`, under the split
+trigger — the regenerated `.github/prompts/*.prompt.md` files do not count, the
+runbooks do. Changelog fragment `changelog.d/changed.next-step-in-recaps.md`.
 
 ## Out of Scope
 
