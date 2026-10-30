@@ -117,3 +117,11 @@ End with:
 - Whether `docs/backlog/_template.md` was updated
 - The ready check's verdict per item and which items the developer flipped to
   `ready`
+- Last, one `Next step:` line, from the first row that applies; a human action
+  names who takes it, `<action> (<who>)`:
+
+  | Outcome | Next step |
+  | --- | --- |
+  | Item not ready | the `Next step:` the ready check wrote on it |
+  | Item ready, flip not confirmed | confirm the flip to `ready` (you) |
+  | Item ready, confirmed | `work-backlog` |

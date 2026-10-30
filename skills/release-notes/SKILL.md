@@ -58,6 +58,8 @@ stays in the sprint changelog and the appendix.
 Opgelost, Onderhoud, Goed om te weten, Waar staat het, plus the ticket appendix
 for a product-owner audience), a paste-ready block in the reply, and the lists
 of dropped internal items and not-yet-live items awaiting the user's decision.
+The reply ends with one `Next step:` line, from the table in the runbook's
+Output.
 
 ## Hand-offs
 

@@ -65,3 +65,6 @@ A single refinement document at `docs/plans/refinement-<YYYY-MM-DD>.md`:
 
 BLI drafting/updates (`docs/backlog/`, per `rules/backlog.md`) happen only on
 explicit request; this skill does not move or relocate BLIs.
+
+The recap ends with one `Next step:` line, from the table in the runbook's
+Output.

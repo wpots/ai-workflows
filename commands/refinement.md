@@ -168,3 +168,11 @@ End with a concise list of:
 - Ticket count and blocking-decision count
 - Biggest SP risks / rescoped tickets
 - Items still open that need a PO/user decision before pickup
+- Last, one `Next step:` line, from the first row that applies:
+
+  | Outcome | Next step |
+  | --- | --- |
+  | Prep doc written | the session, TL;DR decisions first (team with the PO) |
+  | Items still open after the session | decide them before pickup (PO) |
+  | Story points still to set | set them in the tracker (you) |
+  | Every ticket decided and sized | `sprint-planning` |

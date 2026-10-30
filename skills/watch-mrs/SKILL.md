@@ -200,3 +200,9 @@ explicit configuration) says go.
 A running Monitor task (report its task id) watching the confirmed MRs, plus
 a confirmation of: repo/MR scope, poll interval, the current auto-merge
 configuration, the review-comment mode, and the Slack post if configured.
+
+The confirmation ends with one `Next step:` line for the first watched MR:
+`review !<iid> (<reviewer>)` while it waits on review, `merge !<iid> (you)`
+once it is mergeable with auto-merge off. A relayed event that triggers a
+hand-off above ends with that hand-off as its `Next step:` line — `mr-merged`
+after a merge — not with a second one beside it.

@@ -217,6 +217,17 @@ files touched (with the upstream proposal), a board follow-up for a security
 fix that is not on production yet (proposed, added, or "mr-board not
 available"), branch/worktree cleanup, anything skipped and why.
 
+The recap ends with one `Next step:` line, from the first row that applies. A
+human action names who takes it: `<action> (<who>)`.
+
+| Outcome | Next step |
+| --- | --- |
+| Ticket incomplete | the next slice's item (`work-backlog` when it is `ready`) |
+| Deploy ⏳ or ⚠️, comment held | the deploy, then the held comment (you) |
+| Comment drafted but undelivered | paste it into the ticket (you) |
+| Ticket not in test yet | the move from Step 5, with the ticket link (assignee) |
+| Otherwise | testing on development (team) |
+
 ## Constraints
 
 - One MR per invocation.

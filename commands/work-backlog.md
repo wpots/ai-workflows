@@ -81,7 +81,16 @@ implement → verify → merge request. Stop after one MR; humans review and mer
     else post the MR link to the merge-request channel if a Slack tool is
     available; else note it in the report.
 11. **Report** — item + why it was next, branch, MR URL, check results,
-    acceptance-criteria coverage, review pointers, anything blocked.
+    acceptance-criteria coverage, review pointers, anything blocked. End with
+    one `Next step:` line, from the first row that applies; a human action
+    names who takes it, `<action> (<who>)`:
+
+    | Outcome | Next step |
+    | --- | --- |
+    | Draft MR, or a step only a human can take | the first blocker and who clears it |
+    | MR opened, or in-flight MR reworked | `review !<iid> (reviewer)`; `watch-mrs` follows it |
+    | In-flight MR awaiting review | `review or merge !<iid> (reviewer)` |
+    | Nothing eligible | the first blocked item's next step from step 3's report |
 
 ## Edge cases
 

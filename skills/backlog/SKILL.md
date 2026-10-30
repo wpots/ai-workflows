@@ -182,3 +182,12 @@ unattended.
 - Whether the local backlog template was also updated for consistency.
 - The ready check's verdict per item — ready, or its open points with the
   next step — and which items the developer flipped to `ready`.
+
+The recap ends with one `Next step:` line, from the first row that applies. A
+human action names who takes it: `<action> (<who>)`.
+
+| Outcome | Next step |
+| --- | --- |
+| Item not ready | the `Next step:` the ready check wrote on it |
+| Item ready, flip not confirmed | confirm the flip to `ready` (you) |
+| Item ready, confirmed | `work-backlog` |
