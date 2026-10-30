@@ -63,7 +63,7 @@ decision, recorded so it stops being re-proposed at every review. Both are liste
 | Review | done | the MR against the ticket | `skills/code-review`, `skills/receiving-code-review` | ⚠️ partial — no ticket-drift check (doc freshness covered via `rules/documentation.md`) |
 | Release readiness | done | safe to ship — dependency and licence scanning, API-contract/breaking-change detection, docs updated | `skills/watch-mrs` (approval, pipeline, conflicts via `detailed_merge_status`), `skills/npm-maintenance` (dependencies, out of band) | ⚠️ partial — merge-readiness only, armed by hand |
 | Deploy health | done | the release is healthy in production — a post-deploy smoke check | nothing | ⛔ out of scope — canary and rollback automation are for traffic these projects do not have; a smoke check in CI is the whole intended ceiling |
-| Feedback triage | gate on the loop | is this comment actionable at all, before anything is reproduced or fixed | nothing | ❌ absent — filed, deliberately not next |
+| Feedback triage | gate on the loop | is this comment actionable at all, before anything is reproduced or fixed | `skills/ticket-handoff`, for the test and acceptance replies on a ticket | ⚠️ partial — the skill classifies the reply and routes each finding to a backlog item or a new ticket; a person decides the scope and moves the ticket, and nothing reproduces or fixes |
 | Skill-change health | done | exit from Improve — a skill that was edited still does what it did, and its new routing actually triggers | `claude plugin eval` over selected cases in `evals/`; the MR flow (`skills/create-pr`, the upstream MR rule) selects only cases for the changed behavior, one run per case with a cost ceiling, following `evals/README.md`; broader suites and extra runs require explicit approval of scope and total budget | ⚠️ partial — targeted runs are model guidance, not a mechanical gate; coverage and fixtures remain incomplete, and no CI job runs paid evals |
 | Workflow-asset review | done | any change to **this** repo | feature branch → GitLab MR → reviewer `wieteke.pots` (`shared/workflow-assets.md`) | ✅ policy, human-enforced |
 
@@ -280,6 +280,7 @@ can sit unnoticed. See [Gaps](#gaps).
 | `skills/mr-merged` | skill | `/mr-merged` · `"MR merged"`, `"post-merge"`, `"afgerond na merge"` · hand-off target when `skills/watch-mrs` reports a merge | Post-merge closeout: **ticket-completeness gate** (every item carrying the key `done` on the default branch, derived from `docs/backlog/` and the sprint folders), deploy to development read back, "How to test this" comment with a test checklist for the team covering the whole capability (posted after approval, held while the deploy is unconfirmed, deferred while slices remain), ticket status read back and the assignee's manual move named with the ticket link, branch/worktree cleanup |
 | `rules/ticket-flow.md` | rule | loaded — commenting on a ticket, reading its status back, calling it done | The sprint flow between people: one assignee who keeps the ticket, the team tests, handoff comments, moving is handwork, and the three-layer Definition of Done with the test checklist |
 | `skills/dependency-hotfix` | skill | `/dependency-hotfix` · `"pak de critical op"`, `"critical hotfix"` — after the weekly dependency-scanner report flags a critical on production | The out-of-band path to production: minimal bump on a hotfix branch off production, MR with GitLab auto-merge, deploy read-back, then production back-merged into acceptance and development (always pushes, so the ancestry survives), a Slack thread, and cleanup — one go, resumable |
+| `skills/ticket-handoff` | skill | `/ticket-handoff` · `"tester commented"`, `"bevindingen"`, `"naar acceptatie"` · after the test comment of `skills/mr-merged`, when a reply comes in | The stretch after the test comment, and the Feedback triage gate on a ticket: the newest reply since the last handoff comment classified (findings, no findings, approval, rejection, or unclear — reported, never guessed), findings routed to `skills/backlog` in scope and to `skills/jira-ticket` out of scope, the comment for the product owner drafted and posted after approval, the Done layer checked before Done, and the assignee's move named with the ticket link — nothing moved, nothing fixed |
 
 **Gate — Deploy health: out of scope.** `skills/mr-merged` hands the team a way to test
 what shipped, and `skills/release-notes` tells the customer what is live where — after
@@ -299,7 +300,7 @@ release are ⛔ out of scope for agency delivery on managed hosting. See
 | `skills/payload-jobs` | skill | `/payload-jobs` · `"nightly job"`, `"autoRun"`, `"jobs draaien dubbel"` · delegated by lane F of `skills/maintenance` | Payload's jobs queue on multi-instance hosting: one elected runner, closed run endpoint, orphaned-run recovery, idempotent tasks, poll cadence vs the autoscaler |
 | `skills/wcag-audit` | skill | `/wcag-audit` · `"a11y audit of production"` | axe-core/Playwright scan of the live site, combined with the static findings |
 | `skills/sustainable-review` | skill | `/sustainable-review` · `"sustainability review"` | Production runtime, caching, asset and CI-cost audit |
-| `skills/jira-ticket`, `skills/backlog` | skills | `/jira-ticket`, `/backlog` — by hand, after a human reads a report | The landing point of feedback triage: an observation becomes a ticket or a BLI |
+| `skills/jira-ticket`, `skills/backlog` | skills | `/jira-ticket`, `/backlog` — by hand, after a human reads a report, or handed a finding by `skills/ticket-handoff` | The landing point of feedback triage: an observation becomes a ticket or a BLI |
 
 `skills/maintenance` is the entry point for this phase: it diagnoses across all
 lanes and delegates the deep work to the lane-specific skills above, landing one
@@ -326,8 +327,12 @@ read. Revisit if a project ever gets one — not before.
 an automation: classify whether the comment is actionable at all, reproduce it as a
 failing test before fixing anything, stop and ask on the ticket when it cannot be
 reproduced, and open the fix as a **draft** MR that re-enters the pipeline at QA and
-Review like any other change. No surface owns any of that today, and building one
-is parked (gap 11 below). The failure mode being designed against is
+Review like any other change. `skills/ticket-handoff` owns the first step for the
+replies on a ticket in test or acceptance: it classifies the reply, reports an unclear
+one instead of guessing, and routes each finding to a backlog item or a new ticket,
+while a person decides its scope and moves the ticket. Reproducing and fixing without
+a person picking up the item is parked (gap 11 below). The failure mode being designed
+against is
 not a bad fix surviving review; it is an agent confidently "fixing" a misclassified
 comment, or a fix that passes its own narrow reproduction test while breaking what the
 test never covered. Both are caught by the full QA pass and the human merge gate,
@@ -406,9 +411,10 @@ The repo-owned half, in real paths:
 
 Live context — the Jira box in the diagram — is read at run time through the `jira`
 CLI (`skills/service-cli`), the connector only when the CLI is missing. Every
-tracker-reading skill treats it as **read-only**; only `skills/jira-ticket` and
-`skills/mr-merged` write, and only after explicit confirmation — the second
-sanctioned write is the mr-merged "how to test this" comment for the team that tests.
+tracker-reading skill treats it as **read-only**; only `skills/jira-ticket`,
+`skills/mr-merged` and `skills/ticket-handoff` write, and only after explicit
+confirmation — besides the new ticket, the mr-merged "how to test this" comment for
+the team that tests and the ticket-handoff comment for the product owner.
 No skill changes a ticket's status on its own: moving is handwork for the assignee,
 or Jira's automation on a pipeline event, and a skill names the move with the ticket
 link (`rules/ticket-flow.md`). A transition runs only on the user's go per ticket
@@ -444,7 +450,7 @@ actually stands against it — the alignment view, not a wish list.
 | Operate | incident triage: error spike → likely PRs | ⛔ | no per-project observability stack to reason over |
 | Operate | log/error summarisation, on-call assistant | ⛔ | same — and nobody is on call |
 | Operate | docs-in-sync: code changed, which docs/ADRs are stale | ✅ | per-MR: doc-freshness dimension in `skills/code-review` (`rules/documentation.md`); periodic sweep: `skills/maintenance` |
-| Loop | Jira comment → triage → reproduce → fix → draft MR | ❌ | parked: gap 11 |
+| Loop | Jira comment → triage → reproduce → fix → draft MR | ⚠️ | triage: `skills/ticket-handoff` classifies the test and acceptance replies and routes the findings, with a person deciding; reproduce → fix → draft MR is parked: gap 11 |
 | Context | read-only snapshot pinned per branch | ❌ | parked: gap 2 |
 
 Read that column honestly: this repo is strong where the spec says the work is easy
@@ -475,7 +481,7 @@ Ordered by how often they bite. Each is filed as a backlog item.
 | 8 | ~~Project kickoff starts at stack detection, not at intent~~ | Delivered 2026-07-29: `skills/start-project` writes brief, release spec and architecture doc before `skills/setup-ai-workflows` detects anything, and both `setup-ai-workflows` and `skills/architecture-review` now defer to the intended layer mapping instead of re-deriving it | delivered |
 | 9 | ~~"Run `improve-skill` after a run that needed intervention" is prose, not a hook~~ | Delivered 2026-10-08: a plugin `Stop` hook blocks once per session after a Greenberry skill run the user stepped into, so Claude offers the retrospective | delivered |
 | 10 | QA reports what it ran, but the run leaves behind nothing a reviewer can re-run | "Done" stays an assertion: the report says the criteria are met, and checking that claim means redoing the work | `docs/backlog/feat-requirements-traceability.md` |
-| 11 | A Jira comment reporting a problem starts a manual round trip | The loop back into Build is human-driven, so feedback queues behind attention | parked, not filed: reopen once gap 2 exists and ticket feedback measurably waits on attention. The earlier spec, `feat-jira-feedback-loop.md`, was removed on 2026-10-13 and is in git history |
+| 11 | A Jira comment reporting a problem starts a manual round trip | Past triage (`skills/ticket-handoff`) the loop back into Build is human-driven, so feedback queues behind attention | parked, not filed: reopen once gap 2 exists and ticket feedback measurably waits on attention. The earlier spec, `feat-jira-feedback-loop.md`, was removed on 2026-10-13 and is in git history |
 | 12 | A changed skill has a partial regression net: the MR flow selects only cases for the changed behavior, coverage is incomplete and some cases need a fixture | `skills/improve-skill` rewrites the instructions that drive every other phase; targeted checks are prescribed in the MR flow as model guidance, not a mechanical gate, and no CI job runs paid evals | The MR flow and `evals/README.md` define case selection and reporting. Broader suites and extra repetitions require explicit approval of scope and total budget. Report a missing matching case as a coverage gap; do not silently broaden the run. Revisit automation when targeted failures reach review despite this step or coverage improves |
 
 Everything else the spec proposes is in the coverage table above rather than filed —

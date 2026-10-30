@@ -100,8 +100,9 @@ board: its `.jira.yml` (§ A project's own config).
 
 ## Write — only the skills that are allowed to
 
-`skills/jira-ticket` creates one issue; `skills/mr-merged` posts one comment.
-Every other skill is read-only on the tracker.
+`skills/jira-ticket` creates one issue; `skills/mr-merged` and
+`skills/ticket-handoff` each post one comment. Every other skill is read-only
+on the tracker.
 
 ```bash
 # Create — body from a file written with the type template; the CLI renders

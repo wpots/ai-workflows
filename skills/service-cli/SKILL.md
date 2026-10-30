@@ -10,8 +10,8 @@ metadata:
 One place for how agents reach GitLab, Jira and Axiom. The doctrine lives in
 `docs/tooling.md`: the CLI first, a connector (MCP) tool only for what the CLI
 cannot reach. Every tracker-reading skill (`close-sprint`, `sprint-planning`,
-`refinement`, `sprint-demo`, `mr-merged`) and `jira-ticket` link here instead
-of carrying their own snippets.
+`refinement`, `sprint-demo`, `mr-merged`, `ticket-handoff`) and `jira-ticket`
+link here instead of carrying their own snippets.
 
 ## Why the CLI comes first
 
