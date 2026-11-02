@@ -16,6 +16,186 @@ Repo-internal changes (`README.md`, `docs/`, CI) don't get an entry.
 
 ## [Unreleased]
 
+## [2.17.0] - 2026-11-02
+
+### Added
+
+- `AI-WORKFLOWS.md` in every synced project gets a section "The Path of a
+  Ticket": one table from refinement to the PO's acceptance, with per step the
+  command to type, whose step it is (you, the agent, a reviewer, the team or
+  the PO) and the outcome. The ready check is drawn as the gate: before it the
+  developer decides, after it `work-backlog` builds unattended up to the MR,
+  and from the review on people decide again. It links to the Definition of
+  Ready instead of restating it.
+  <!-- slack: path of a ticket | AI-WORKFLOWS.md toont nu het hele pad van ticket tot acceptatie: per stap wat je typt en wie aan zet is -->
+- `release`: lists every shipped ticket without the product owner's approval,
+  with its link and the reason (no comment for the product owner, no reply yet,
+  rejected, or unclear), classified the way `ticket-handoff` does. Done tickets
+  are checked too. It reports in the plan and the recap and blocks nothing: the
+  ticket still gets the version and the release goes on.
+- `close-sprint`: opt-in flow metrics per ticket (Phase 3b), read from the
+  ticket's status history: returns from In Test or Acceptatie to In Progress,
+  stays over five working days, and first time right. They land in a `## Flow`
+  section of the changelog and are never written to the tracker.
+- `service-cli`: the Jira reference names the route to an issue's status
+  history, the connector's `listJiraIssueChangelogs`, since the `jira` CLI
+  returns no changelog.
+  <!-- slack: ticket-flow | Release meldt tickets zonder akkoord van de PO; sprint close kan desgewenst de flow per ticket tonen -->
+- `ticket-handoff`: the stretch after the test comment. It reads the replies
+  since the last handoff comment and classifies the newest one as findings, no
+  findings, product owner approves, product owner rejects, or unclear (reported,
+  never guessed). Findings and rejection reasons go to a backlog item in scope
+  or a new ticket out of scope; with no findings it drafts the comment for the
+  product owner and posts it after the user's go; on approval it checks the
+  Done layer line by line. It names the assignee's move with the ticket link
+  and never moves a ticket or fixes anything. The Feedback triage gate in the
+  pipeline map goes from absent to partial.
+  <!-- slack: ticket-handoff | Nieuwe skill leest de reactie van tester of PO en zet de volgende stap voor de assignee klaar -->
+
+### Changed
+
+- `address-review-comments` now ends its hand-back with a reply in the Slack
+  thread of the MR's channel post, next to the 👍 and the MR note. It mentions
+  each reviewer with an open thread, says what changed and offers another look;
+  one reply per push, skipped silently when the MR has no post or no Slack tool
+  is available. Before, a push and a GitLab note left the reviewer without
+  anything in the channel where the review talk happens.
+  <!-- slack: address-review-comments | Na een push ook een reply in de Slack-thread, niet alleen een GitLab-notitie -->
+- `new-device-setup`: `ai-sync` is now a shell function instead of an alias.
+  It pulls `main` fast-forward-only before running `sync.sh` and passes its
+  flags through. It refuses to run when the clone is on another branch, so
+  unmerged rules never reach `~/.claude` or `~/.codex`.
+  <!-- slack: new-device-setup | ai-sync pullt nu eerst main en weigert op een feature branch -->
+- A repo without sprints can file delivered backlog items by quarter: when a
+  `docs/<yyyy>-q<n>/` folder exists, the `done` commit in `work-backlog` moves
+  the item into the current quarter's folder, as a sprint project files it in
+  `docs/sprint-<N>/` (`rules/backlog.md`). `close-sprint` and `compact-sprint`
+  handle such a repo as support mode by calendar quarter
+  (`docs/<yyyy>-q<n>-changelog.md`, tag `<yyyy>-q<n>-bli-archive`, only
+  quarters ≤ Q−2 compacted), and `mr-merged` reads the quarter folders for
+  ticket completeness.
+- `release` checks the day right before the promotion: production goes live
+  Monday to Thursday, preferably Monday to Wednesday, never on a Friday or in
+  the weekend. On those days it proposes Monday, and a promotion on an
+  explicit go records the exception in the GitLab Release description.
+  `dependency-hotfix` still ships a critical on those days, and its MR
+  description records the exception with the day and the advisory.
+  <!-- slack: release | Geen productie-deploy op vrijdag of in het weekend; een critical mag, en de uitzondering staat in de MR -->
+- Evals `release-9` and `dependency-hotfix-7`: a release and a critical on a
+  Friday, each recording the exception.
+- `rules/testing.md` gets a Test Data section: synthetic data only in tests,
+  fixtures, stories and seeds, and test secrets from the secret store, never
+  from a committed file.
+  <!-- slack: testing | Testdata is synthetisch; geen klant- of productiedata in tests, fixtures, stories of seeds -->
+- The upstream MR rule (`upstream-mr.md`) has one exception: in `ai-workflows`,
+  when the maintainer asks in the session for a change to go straight to `main`,
+  the agent commits on `main` and pushes with `--no-verify` instead of opening a
+  substitute MR, which spent runners and a round-trip for nothing.
+  <!-- slack: upstream-mr | Vraagt de maintainer om een directe push naar main, dan pusht de agent zonder vervangende MR -->
+- `jira-ticket` writes a story in the team's format: Description (what is built
+  and where it is used), Acceptance criteria, Visual design (the link to the
+  design, or "no UI") and Dependencies (content, a coupling or another party, or
+  "none"), with no "As a …, I want …, so that …" sentence. Every story goes
+  under an epic the user confirms from the open epics; the skill never picks or
+  creates one. A story that cannot be described yet goes in as a placeholder
+  with "(specificeren)" behind its summary and empty sections. When an open
+  question holds up the build, the confirm step proposes flagging the story with
+  a comment that gives the reason and names who answers; the CLI cannot mention,
+  so the recap asks you to tag them.
+  <!-- slack: Stories in ons format, altijd onder een epic, met placeholder en flag-voorstel -->
+- `maintenance` checks every critical in lane A against the production
+  branch's lockfile and labels it on production, development only, or
+  production not checked. A critical on production makes lane A `urgent`,
+  stays off the proposed backlog list, and the verdicts end with one
+  `Next step: /greenberry:dependency-hotfix for <package>, … (you)` line. The
+  sweep only proposes the hotfix; it never starts it.
+  <!-- slack: maintenance | Een critical die op productie draait wijst nu direct naar dependency-hotfix in plaats van de backlog -->
+- Every skill on the delivery path, from `refinement` to `release`, ends its
+  recap with one `Next step:` line, picked from a small outcome table: an item
+  that is not ready points at the ready check's next step, a ready item at
+  `work-backlog`, an open MR at its review, a merged MR at the ticket move or
+  the team's test. A human action names who takes it, as `<action> (<who>)`.
+  Existing hand-offs stay; the line restates them. The fallback runbooks carry
+  the same tables.
+  <!-- slack: delivery path | Elke skill op het pad eindigt met één Next step:-regel: wat nu, en wie -->
+- The ready check runs where the path needs it. `backlog` ends every item it
+  writes or updates with the check, `sprint-planning` offers it over the
+  sprint's planned items after its review pause, and `work-backlog` reports each
+  `draft` item's failing points and next step when nothing is eligible, without
+  writing to the items.
+- `sprint-planning` writes `Planned for Sprint <N>.` as a note under the status
+  value instead of replacing it. A status that still reads
+  `Planned for Sprint <N>.` is read as `draft` with that note, and the ready
+  check rewrites it as value plus note the next time it writes the item.
+- `refinement` prep adds the questions a developer parked in a BLI
+  (`Blocked on: refinement — …`) to that ticket's question list; outcome mode
+  names the decided ones so the developer can remove the line.
+  <!-- slack: backlog | Ready check draait na schrijven, na planning en als de loop niks vindt -->
+- `create-pr` adds a Rollback section to the MR description when reverting the
+  merge does not undo the change: a migration (with its down step and when to
+  run it), a CMS schema change, a new env var or a scheduled job.
+  <!-- slack: create-pr | MR's met een migratie, CMS-schema, env var of scheduled job krijgen een Rollback-sectie -->
+- The self-review in `create-pr` and `work-backlog` runs `code-review` in a
+  subagent that gets the branch, base and worktree but none of the session's
+  reasoning, so the reviewer does not inherit the author's assumptions.
+- The skills stop naming Copilot as a supported tool. `close-sprint`,
+  `compact-sprint`, `refinement`, `release-notes`, `sprint-demo` and
+  `sprint-planning` no longer say Copilot follows their runbook,
+  `improve-skill` no longer counts Copilot among the tools a workflow is shared
+  across, and `create-pr` no longer lists `.github/prompts/` among the synced
+  workflow surfaces. The Slack release announcement names the project adapters
+  without Copilot.
+- `backlog` and `code-review` start their parallel subagents with
+  `model: sonnet`. Without a model a subagent inherits the session's, so these
+  fan-outs ran on Opus.
+  <!-- slack: backlog | Parallelle subagents van backlog en code-review draaien op Sonnet in plaats van Opus -->
+- `rules/ticket-flow.md` has a Definition of Ready for stories in the tracker,
+  next to the Definition of Done: the four sections filled, no "(specificeren)"
+  behind the title, not flagged, the design linked when the story has UI, under
+  an epic, sized in story points, and one capability. Bugs, tasks and support
+  tickets are not held against it, and a project's own list wins. The
+  item-level list in `rules/backlog.md` stays as it is and points to it.
+- `refinement` prep gives each story a ready line next to its questions: the
+  lines it fails, or `ready`. The Size line is left out, since sizing is what
+  the session does.
+- `sprint-planning` lists the stories that fail a ready line among its flags
+  awaiting a decision, with the line; an unsized story takes its other failing
+  lines into the refinement document. Neither skill touches the ticket.
+  <!-- slack: refinement | Elke story tegen de Definition of Ready: refinement en planning noemen de regel die faalt -->
+
+### Fixed
+
+- `create-pr` reviews the branch, not the main checkout, when the branch lives
+  in a worktree: the self-review step passes the branch name and the worktree
+  path, because `HEAD` in the main checkout is another branch plus the user's
+  uncommitted work (`worktrees.md` § Reviewing the branch). The two-step MR
+  creation in `push-and-mr-mechanics.md` names `--source-branch`, which
+  `glab mr create` otherwise takes from the cwd.
+  <!-- slack: create-pr | Self-review leest de worktree van de branch, niet de main checkout; glab mr create krijgt --source-branch -->
+- `dependency-hotfix` back-merges production into acceptance and development
+  by push under every `squash_option`, never by a `backmerge/*` MR: the MR
+  route for `never`, `default_off` and `default_on` is gone from Step 3,
+  Step 8, the plan block, the recap and `monitor-loops.md`, and
+  `rules/git-flow.md` drops its `squash_option is always` condition. A project
+  whose target branch refuses Developer pushes stops before Step 4 instead of
+  falling back to an MR.
+  <!-- slack: dependency-hotfix | Back-merge gaat altijd met een push, nooit met een MR, ongeacht squash_option -->
+- `create-pr` commits and pushes from a worktree on the project's pinned Node
+  with `env PATH=<pinned node bin>:… git -C <worktree> …`, because the harness
+  refuses `fnm exec … git commit` (`worktrees.md` § Running tests, builds and
+  hooks).
+- `work-backlog` gives its pipeline-wait script a deadline of 9 minutes, below
+  the 10-minute Bash cap: at the cap the tool moves the command to the
+  background, which step 6 forbids.
+- `worktrees.md` no longer says typegen works through a symlinked
+  `node_modules`: `next typegen` fails there, so the generated types are copied
+  from the main checkout. It now also states that `npm --prefix <worktree> exec`
+  keeps the caller's cwd (run the binary from the worktree with a `spawnSync`
+  `cwd`, or use `npm run`), and that after a force-push the main checkout
+  diverges and is reset only on the user's go, after a clean `git status` and a
+  check that no local-only commit is lost.
+  <!-- slack: create-pr | Worktrees: typegen faalt via de symlink, npm exec --prefix houdt de cwd, reset main checkout na go -->
+
 ## [2.16.0] - 2026-10-29
 
 ### Added
