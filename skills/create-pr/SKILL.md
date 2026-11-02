@@ -90,7 +90,9 @@ If the platform cannot be inferred, ask the user.
    the selected case names and actual results, or `not run — <reason>`, in the
    MR description. If no matching case exists, report the coverage gap.
 6. **Self-review.** Run the `code-review` skill once over
-   `<remote>/<resolved-base>...HEAD`, before the first push. Pass it the remote
+   `<remote>/<resolved-base>...HEAD`, before the first push, in a subagent
+   that gets these inputs and none of this session's reasoning (inline only
+   when the tool has no subagents). Pass it the remote
    and base resolved here: its own resolution assumes `origin`. In a worktree,
    also pass the branch and the worktree path ("Reviewing the branch" in
    `references/worktrees.md`). A finding tagged
@@ -186,6 +188,9 @@ Diff the current branch against the resolved base branch and produce:
 - **Breaking Changes** — migration notes if applicable.
 - **Key Modifications** — categorised (Features, Bug Fixes, Refactoring, Chore) with file/component counts.
 - **Testing Notes** — required testing steps or affected areas.
+- **Rollback** — only when reverting the merge does not undo the change: a
+  migration (name its down step and when to run it), a CMS schema change, a
+  new env var or scheduled job.
 - **Technical Notes** — important implementation details (optional).
 
 When a template is present, map these sections into the template's headings

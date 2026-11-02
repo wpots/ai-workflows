@@ -21,7 +21,9 @@ Every case is tagged with its skill and with `runnable`, `scaffold` or
 `needs-scaffold`.
 To add a case, copy a neighbouring directory and change the prompt and the
 assertions; `skills/improve-skill` does this when a failure earns a regression
-case.
+case. A bug that got past review (a revert, a hotfix, a tester's finding)
+earns a `code-review` case: the diff that introduced it as the prompt, the bug
+as the assertion. Rerun those cases on every `skills/code-review` change.
 
 One `llm` grader checks one assertion. The JSON result and the report keep
 only the judge's votes per grader (`judge votes: FAIL FAIL FAIL`), not its

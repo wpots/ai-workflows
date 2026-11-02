@@ -7,11 +7,11 @@
 //   --repo   repo to measure (default: cwd)
 //   --since  window start (default: 30 days ago)
 //
-// Prints a markdown table: merged MRs, median hours to merge, agent-authored
-// share (primary: the `ai:agent-authored` MR label, which survives squash;
-// secondary: Co-Authored-By: Claude commit trailers, which do not), revert
-// count. The trend between sweeps is the signal — absolute values mean little
-// on their own.
+// Prints a markdown table: merged MRs, median hours to merge, median comments
+// per merged MR, agent-authored share (primary: the `ai:agent-authored` MR
+// label, which survives squash; secondary: Co-Authored-By: Claude commit
+// trailers, which do not), revert count. The trend between sweeps is the
+// signal — absolute values mean little on their own.
 
 import { execFileSync } from "node:child_process";
 
@@ -30,6 +30,15 @@ const git = (...a) =>
   execFileSync("git", ["-C", repo, ...a], { encoding: "utf8" }).trim();
 
 const lines = (s) => (s ? s.split("\n").filter(Boolean) : []);
+
+const median = (values) => {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 1
+    ? sorted[mid]
+    : (sorted[mid - 1] + sorted[mid]) / 2;
+};
 
 // ── Commit-level metrics (always available) ──────────────────────────────────
 // Prefer the gitlab.com remote when several exist (mirrors go stale; the
@@ -80,6 +89,7 @@ const reverts = lines(
 
 let mergedMrs = null;
 let medianHours = null;
+let medianComments = null;
 let agentMrs = null;
 let revertMrs = null;
 try {
@@ -98,19 +108,15 @@ try {
   const labelled = (mr, label) => (mr.labels ?? []).includes(label);
   agentMrs = mrs.filter((mr) => labelled(mr, "ai:agent-authored")).length;
   revertMrs = mrs.filter((mr) => labelled(mr, "revert")).length;
-  const hours = mrs
-    .map(
+  medianHours = median(
+    mrs.map(
       (mr) =>
         (new Date(mr.merged_at) - new Date(mr.created_at)) / 3_600_000,
-    )
-    .sort((a, b) => a - b);
-  if (hours.length > 0) {
-    const mid = Math.floor(hours.length / 2);
-    medianHours =
-      hours.length % 2 === 1
-        ? hours[mid]
-        : (hours[mid - 1] + hours[mid]) / 2;
-  }
+    ),
+  );
+  // user_notes_count skips system notes but counts bot comments (GitLab Duo):
+  // note authors carry no bot flag to filter on.
+  medianComments = median(mrs.map((mr) => mr.user_notes_count ?? 0));
 } catch {
   // glab missing or unauthenticated — commit-level numbers still stand.
 }
@@ -134,6 +140,9 @@ console.log(
   `| Median hours MR-created → merged | ${fmt(
     medianHours === null ? null : Math.round(medianHours * 10) / 10,
   )} |`,
+);
+console.log(
+  `| Median comments per merged MR (bots included) | ${fmt(medianComments)} |`,
 );
 console.log(
   `| Agent-authored MR share (label) | ${

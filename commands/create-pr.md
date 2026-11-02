@@ -81,7 +81,8 @@ If ambiguous, ask the user.
 ## Self-review
 
 Run `commands/review-code.md` once over `<remote>/<base>...HEAD`, before the
-first push. Its Architecture Conformance Pass covers the stack rule's
+first push, in a subagent that gets these inputs and none of this session's
+reasoning (inline only when the tool has no subagents). Its Architecture Conformance Pass covers the stack rule's
 Definition of Done. When the branch lives in a worktree, pass the branch name
 and the worktree path and read files only under that path: from the main
 checkout `HEAD` and the working tree are another branch plus uncommitted work.
@@ -143,6 +144,9 @@ Analyse the diff against the base branch and generate:
   - Focus on significant changes
   - Include file/component counts per category
 - **Testing Notes**: Required testing steps or affected areas
+- **Rollback**: Only when reverting the merge does not undo the change: a
+  migration (name its down step and when to run it), a CMS schema change, a
+  new env var or scheduled job
 - **Technical Notes**: Important implementation details (optional)
 
 ## Rebase onto Base (keep the PR/MR mergeable)

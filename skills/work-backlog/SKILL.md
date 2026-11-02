@@ -192,9 +192,10 @@ retry code.
 
 ### 7. Self-review
 
-Review the full branch diff against `origin/main` (use the code-review skill
-if available) and fix findings before opening the MR: correctness first, then
-convention violations. Re-run checks if the fixes were non-trivial.
+Review the full branch diff against `origin/main` with the code-review skill,
+in a subagent that gets the branch, base and worktree path and none of your
+reasoning (inline when there is no subagent), and fix findings before opening
+the MR: correctness first, then convention violations. Re-run checks if the fixes were non-trivial.
 
 Two finding classes are always yours to fix here — they read fine to their
 author and cost a human review round-trip every time they slip through:
