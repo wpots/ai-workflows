@@ -252,27 +252,46 @@ Page  →  Loader  →  Query (infrastructure)  →  Payload
   — never a bare `load.ts` — so it stays greppable and unambiguous across
   modules. The same applies to a module that needs its own data-access seam
   (`modules/<Name>/load<Name>.ts`).
-- A CMS block that renders server data is such a module. Its loader is
-  registered by block type, and the route's loader runs the loaders of the
-  blocks on the page, passing the results on keyed by block id. The route never
-  branches on page type for one block's data, so the block works on every page
-  type that places it (`rules/payload.md` § Editor-Facing Sections).
+- A CMS block that renders server data is such a module, rendered as a
+  **server section**: an async Server Component per block type that runs the
+  block's loader and renders the block's module. Sections live next to the
+  route (`_sections/`), the one place allowed to import both the CMS adapter
+  and presentation. The route renders one section per data block on the page,
+  each in its own `<Suspense>`, and hands them to the template keyed by block
+  id; the template places `sections[block.id]` and never receives the items.
+  The route never branches on page type for one block's data, so the block
+  works on every page type that places it (`rules/payload.md` § Editor-Facing
+  Sections).
+- A client component (live preview) receives the sections as `ReactNode`
+  props. They are server-rendered, so in live preview the block follows a save
+  or autosave (refresh the route on save), not every keystroke.
+- A `redirect()` or `notFound()` inside a section runs after the shell has
+  streamed and loses its status code. A decision that needs a block's data and
+  a status code runs in the route before the sections render.
 
-```ts
-// one entry per data block: ({ block, page, locale }) => Promise<Items>,
-// calling cached queries with primitives
-export const BLOCK_LOADERS = {
-  relatedContent: loadRelatedContent,
-  childPageList: loadChildPageList,
-} satisfies BlockLoaders;
+```tsx
+// _sections/: one async section per data block type
+async function RelatedContentSection({ block, host, locale }: SectionProps) {
+  const items = await loadRelatedContent({ block, locale, page: host });
+  return <RelatedContent {...toCopy(block)} items={items} locale={locale} />;
+}
 
-const itemsByBlock = Object.fromEntries(
-  await Promise.all(
-    dataBlocks(page).map(async (block) => [
+const BLOCK_SECTIONS = {
+  childPageList: ChildPageListSection,
+  relatedContent: RelatedContentSection,
+} satisfies Record<DataBlockType, (props: SectionProps) => Promise<ReactNode>>;
+
+// route: sections keyed by block id, each streaming on its own
+const sections = Object.fromEntries(
+  dataBlocks(page).map((block) => {
+    const Section = BLOCK_SECTIONS[block.blockType];
+    return [
       block.id,
-      await BLOCK_LOADERS[block.blockType]({ block, page, locale }),
-    ]),
-  ),
+      <Suspense key={block.id} fallback={null}>
+        <Section block={block} host={toHost(page)} locale={locale} />
+      </Suspense>,
+    ];
+  }),
 );
 ```
 
@@ -313,8 +332,10 @@ in `rules/clean-architecture.md`).
       `modules/*`, `components/*`) or returns a view-model/prop shape.
 - [ ] No template imports an infrastructure query function directly — it goes
       through the loader.
-- [ ] A block's data comes from the block's own loader, not from a page-type
-      branch in the route's loader.
+- [ ] A block's data comes from the block's own loader, run by the block's
+      server section, not from a page-type branch in the route's loader.
+- [ ] A template places a data block's section by block id; it takes no
+      loaded items for it and imports no CMS query.
 
 Machine-enforce the import-direction boundary (infrastructure read-path ↛
 presentation; templates ↛ infrastructure queries) with `no-restricted-imports`

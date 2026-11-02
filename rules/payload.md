@@ -47,10 +47,12 @@ block, so the editor finds every setting where it renders.
   not a global such as Site Settings, and not a dictionary key. The dictionary
   keeps UI chrome: aria labels, count nouns with plural rules, messages from
   code.
-- **A data block owns its loader.** A block that needs server data has its own
-  loader, registered by block type (`rules/stacks/nextjs-payload.md` § Read
-  Path). Never wire one block's data as a page-type switch: the same block
-  must work on every collection that places it.
+- **A data block owns its loader and its server section.** A block that needs
+  server data has its own loader, registered by block type, and an async server
+  section that runs it and renders the block's module; the template only
+  places the section (`rules/stacks/nextjs-payload.md` § Read Path). Never
+  wire one block's data as a page-type switch or through the template's
+  props: the same block must work on every collection that places it.
 - **Automatic content stays visible.** What a block fills on its own (related
   pages, child pages, filter results) shows read-only in the block in the
   admin, from the same loader the site uses, so the editor sees what visitors
