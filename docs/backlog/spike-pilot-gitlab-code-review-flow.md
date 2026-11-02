@@ -118,7 +118,9 @@ place next to the local `code-review` skill, so that we do not build a second on
   The metric counts resolved threads, not thumbs up or down.
 - After four weeks, a short report in `docs/` gives:
   - the number of comments, before and after the instructions file;
-  - how many led to a change and how many were dismissed, and why;
+  - how many led to a change and how many were dismissed, per bucket, with
+    the bugs among the changes named separately;
+  - Duo review rounds per MR;
   - the credits used;
   - what the Fix pipeline flow did on at least one failing MR pipeline;
   - a keep or drop recommendation.
@@ -131,7 +133,12 @@ resolvable and does not count.
 - **Led to a change:** a commit pushed to the MR after the comment changes the
   lines (or, for a file-level comment, the file) it is about.
 - **Dismissed:** resolved without such a commit, or still open when the MR
-  merged. Record the reason when a reply gives one.
+  merged. Put each in one bucket: **wrong** (the claim is false),
+  **intentional** (true, but the code is that way on purpose) or **didn't
+  matter** (true, not worth a change). Wrong threads cost trust; the other
+  two tune the instructions.
+- **Pre-existing:** a thread about lines the MR did not change. Count it in
+  its bucket and also report the total.
 - **Not counted:** threads on MRs that were closed without merging.
 - **Periods:** report three periods separately: without instructions (until
   2026-10-14, 05:31 UTC), instructions v1 on Claude Sonnet 4.5 (until
@@ -146,6 +153,9 @@ resolvable and does not count.
 - **Basis:** 40% sits between the published resolution rates of an AI reviewer
   (38.7%) and human reviewers (44.5%) in Atlassian's study. A study of 31,000
   CodeRabbit comments found 56% rejected.
+- **Order:** bugs caught weigh first, fewer review rounds second, the rate
+  third. A flow under 40% that caught real bugs is a keep to discuss, not a
+  drop.
 
 ## Technical Notes
 
@@ -218,6 +228,9 @@ here is half of that skill's reopen condition (`docs/pipeline-map.md`, gap 3).
 
 - Building a headless review job in our own CI.
 - Rolling the flow out to other projects.
+- A cap on review rounds. Anthropic stops after three rounds and re-reviews
+  only the new diff after that (source under Related); build it only when the
+  report shows MRs going past three rounds.
 
 ## Related
 
@@ -226,3 +239,5 @@ here is half of that skill's reopen condition (`docs/pipeline-map.md`, gap 3).
   https://gitlab.com/greenberrynl/refugeework/website/-/merge_requests/383
 - [../../skills/code-review/SKILL.md](../../skills/code-review/SKILL.md)
 - https://docs.gitlab.com/user/duo_agent_platform/flows/foundational_flows/code_review/
+- Anthropic on its own review loop (comment buckets, round cap, pre-existing
+  re-flags): https://claude.dev/blog/solving-code-review-at-anthropic/

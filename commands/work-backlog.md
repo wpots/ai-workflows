@@ -57,8 +57,8 @@ implement → verify → merge request. Stop after one MR; humans review and mer
    while a pipeline runs, and never wait with a background task — it dies with
    a subagent's run. A one-off transient job failure gets one
    `glab ci retry <job-id>`, not retry code.
-7. **Self-review** — review the branch diff, fix findings, re-run checks if
-   needed.
+7. **Self-review** — review the branch diff in a subagent that gets none of
+   your reasoning, fix findings, re-run checks if needed.
 8. **Close out** — flip the BLI to `done`, or keep it `in-progress` when a
    criterion can only be checked after merge (name that check first in
    `How to verify`); a criterion left unticked in the MR keeps it
